@@ -1,0 +1,162 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+      <UserSecretsId>8c277499-f889-42f1-b2d9-569b72dd51ae</UserSecretsId>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'FrontendAccountManagement' " />
+  
+  <Target Name="NpmInstall" Inputs="package.json" Outputs="node_modules/.install-stamp">
+    <Exec Command="npm install" Condition="'$(RestorePackagesWithLockFile)' != 'true'" />
+
+    <!-- Write the stamp file, so incremental builds work -->
+    <Touch Files="node_modules/.install-stamp" AlwaysCreate="true" />
+  </Target>
+
+  <Target Name="NpmRunBuildFrontend" DependsOnTargets="NpmInstall" BeforeTargets="BeforeBuild">
+    <Exec Command="npm run build-frontend" />
+  </Target>
+
+    <ItemGroup>
+      <Folder Include="assets\js" />
+    </ItemGroup>
+  
+    <ItemGroup>
+      <PackageReference Include="EPR.Common.Authorization" Version="1.0.11" />
+      <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.21" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.21" />
+      <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="7.0.10" />
+      <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="7.0.10" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.21" />
+      <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="7.0.10" />
+      <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="2.5.1" />
+      <PackageReference Include="Microsoft.Identity.Web" Version="2.13.3" />
+      <PackageReference Include="Microsoft.Identity.Web.UI" Version="2.13.3" />
+      <PackageReference Update="SonarAnalyzer.CSharp" Version="8.50.0.58025" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\FrontendAccountManagement.Core\FrontendAccountManagement.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Update="Resources\Views\AccountManagement\TeamMemberEmail.en.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>TeamMemberEmail.en.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\AccountManagement\TeamMemberEmail.cy.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>TeamMemberEmail.en.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\AccountManagement\TeamMemberDetails.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>TeamMemberDetails.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\PermissionManagement\CheckDetailsSendInvite.cy.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\PermissionManagement\CheckDetailsSendInvite.en.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\PermissionManagement\InvitationToChangeSent.cy.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\PermissionManagement\InvitationToChangeSent.en.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\PermissionManagement\NameOfComplianceScheme.cy.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\PermissionManagement\NameOfComplianceScheme.en.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\PermissionManagement\NameOfOrganisation.cy.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\PermissionManagement\NameOfOrganisation.en.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\PermissionManagement\NameOfConsultancy.cy.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\PermissionManagement\NameOfConsultancy.en.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\PermissionManagement\JobTitle.en.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\PermissionManagement\JobTitle.cy.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="ResourcesRegulator\Views\AccountManagement\TeamMemberEmail.cy.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>TeamMemberEmail.en.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="ResourcesRegulator\Views\AccountManagement\TeamMemberEmail.en.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>TeamMemberEmail.en.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="ResourcesRegulator\Views\PermissionManagement\CheckDetailsSendInvite.cy.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="ResourcesRegulator\Views\PermissionManagement\CheckDetailsSendInvite.en.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="ResourcesRegulator\Views\PermissionManagement\InvitationToChangeSent.cy.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="ResourcesRegulator\Views\PermissionManagement\InvitationToChangeSent.en.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="ResourcesRegulator\Views\PermissionManagement\JobTitle.cy.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="ResourcesRegulator\Views\PermissionManagement\JobTitle.en.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="ResourcesRegulator\Views\PermissionManagement\NameOfComplianceScheme.cy.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="ResourcesRegulator\Views\PermissionManagement\NameOfComplianceScheme.en.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="ResourcesRegulator\Views\PermissionManagement\NameOfConsultancy.cy.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="ResourcesRegulator\Views\PermissionManagement\NameOfConsultancy.en.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="ResourcesRegulator\Views\PermissionManagement\NameOfOrganisation.cy.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+      <EmbeddedResource Update="ResourcesRegulator\Views\PermissionManagement\NameOfOrganisation.en.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Resources\Views\AccountManagement\TeamMemberDetails.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>TeamMemberDetails.resx</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+	<ItemGroup>
+		<SonarQubeSetting Include="sonar.coverage.exclusions">
+			<Value>
+				**/SecurityHeaderMiddleware.cs,**/UrlHelperExtension.cs,**/AnalyticsOptions.cs,**/EmailAddressOptions.cs,**/EprCookieOptions.cs,**/ExternalUrlsOptions.cs,**/FeatureFlags.cs,**/PhaseBannerOptions.cs,**/ServiceSettingsOptions.cs,**/SiteDateOptions.cs,**/AccessibilityViewModel.cs,**/YesNoAnswer.cs,**/ManageAccountViewModel.cs,**/RemoveTeamMemberConfirmationViewModel.cs,**/TeamMemberDetailsViewModel.cs,**/TeamMemberEmailViewModel.cs,**/TeamMemberPermissionsViewModel.cs,**/CookieBannerModel.cs,**/CookieDetailViewModel.cs,**/ChangeAccountPermissionViewModel.cs,**/CheckDetailsSendInviteViewModel.cs,**/ConfirmChangePermissionViewModel.cs,**/InvitationToChangeSentViewModel.cs,**/JobTitleViewModel.cs,**/NameOfComplianceSchemeViewModel.cs,**/NameOfConsultancyViewModel.cs,**/NameOfOrganisationViewModel.cs,**/RelationshipWithOrganisationViewModel.cs,**/ErrorViewModel.cs,**/LanguageSwitcherModel.cs,**/ManageTeamModel.cs,**/NavigationModel.cs,**/PhaseBannerModel.cs,**/PrimaryNavigationModel.cs,**/gulpfile.js,**/HttpContentExtension.cs,**/Program.cs,**/ServiceProviderExtension.cs,**/LanguageSwitcherViewComponent.cs,**/LabelTagHelper.cs,**/InputTagHelper.cs,**/SessionRequestCultureProvider.cs
+			</Value>
+		</SonarQubeSetting>
+	</ItemGroup>
+
+	<Target Name="Husky" BeforeTargets="Restore;CollectPackageReferences" Condition="'$(HUSKY)' != 0 and '$(IsCrossTargetingBuild)' == 'true'">
+       <Exec Command="dotnet tool restore" StandardOutputImportance="Low" StandardErrorImportance="High" />
+      <Exec Command="dotnet husky install" StandardOutputImportance="Low" StandardErrorImportance="High" WorkingDirectory="../.." />
+  </Target>
+</Project>

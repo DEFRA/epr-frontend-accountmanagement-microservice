@@ -1,0 +1,6 @@
+variables:
+  azureSubscription: 'AZR-RWD-PRD1'
+  docker.imageName: 'frontendaccountmanagementregistry'
+  acr.azureContainerRegistryName: 'prdrwdinfac1401'
+  acr.repositoryName: 'frontendaccountmanagementregistry'
+  serviceName: 'prdrwdwebwa1405'

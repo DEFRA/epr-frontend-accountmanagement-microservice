@@ -1,0 +1,88 @@
+@model FrontendAccountManagement.Web.ViewModels.Shared.ManageTeamModel;
+@using Microsoft.Extensions.Options
+@using Microsoft.FeatureManagement.Mvc.TagHelpers
+@inject IOptions<DeploymentRoleOptions> DeploymentRoleOption
+@addTagHelper *, Microsoft.FeatureManagement.AspNetCore
+@using FrontendAccountManagement.Core.Enums;
+@using FrontendAccountManagement.Web.Configs
+
+
+<table class="govuk-table responsive-table" aria-label="Team Members and Permissions">
+    <thead role="rowgroup" class="govuk-table__head">
+    <tr role="row" class="govuk-table__row">
+        <th role="columnheader" scope="col" class="govuk-table__header epr-width-fortyfive-percent">@Localizer["Table.Header.TeamMembers"]</th>
+        <th role="columnheader" scope="col" class="govuk-table__header epr-width-fortyfive-percent">@Localizer["Table.Header.Permissions"]</th>
+        <th role="columnheader" scope="col" class="govuk-table__header epr-width-ten-percent">@Localizer["Table.Header.Access"]</th>
+    </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+    @foreach (var currentUser in Model.Users)
+    {
+        <tr role="row" class="govuk-table__row">
+            <td role="gridcell" class="govuk-table__header epr_email_cell epr-width-fortyfive-percent">
+                <span class="responsive-table__heading" aria-hidden="true">@Localizer["Table.Header.TeamMembers"]</span>
+                @if (string.IsNullOrWhiteSpace(currentUser.FirstName) && string.IsNullOrWhiteSpace(currentUser.LastName))
+                {
+                    <p class="govuk-body govuk-!-margin-bottom-4"><b>@currentUser.Email</b></p>
+                }
+                else
+                {
+                    <p class="govuk-body govuk-!-margin-bottom-1">
+                        <b>@currentUser.FirstName @currentUser.LastName</b><br/>
+                        @currentUser.Email
+                    </p>
+                }
+            </td>
+            <td role="gridcell" class="govuk-table__cell epr-width-fortyfive-percent">
+                <span class="responsive-table__heading" aria-hidden="true">@Localizer["Table.Header.Permissions"]</span>
+                <p class="govuk-body govuk-!-margin-bottom-1">
+                    <feature name="ManageUserPermissions" negate="true">
+                        @SharedLocalizer[currentUser.ServiceRoleKey]
+                    </feature>
+                    <feature name="ManageUserPermissions">
+                        @if(currentUser.EnrolmentStatus == EnrolmentStatus.Pending || currentUser.EnrolmentStatus == EnrolmentStatus.Nominated){
+                            @SharedLocalizer["Basic.Admin"]
+                        }
+                        else
+                        {
+                            @SharedLocalizer[currentUser.ServiceRoleKey]
+                        }
+                        <br />
+                        @if(currentUser.EnrolmentStatus == EnrolmentStatus.Pending){
+                            <strong class="govuk-tag govuk-tag--yellow waiting-for-approval">@Localizer["WaitingForApproval"]</strong><br />
+                        }
+                        else if (currentUser.EnrolmentStatus is EnrolmentStatus.Invited or EnrolmentStatus.Nominated)
+                        {
+                            <strong class="govuk-tag govuk-tag--yellow waiting-for-approval">@Localizer["PendingInvitationAcceptance"]</strong><br/>
+                        }
+                        @if (!DeploymentRoleOption.Value.IsRegulator() && currentUser.IsRemoveable)
+                        {
+                            @Html.ActionLink(Localizer["ChangePermissions"].Value,
+                                "ChangeAccountPermissions",
+                                "PermissionManagement",
+                                new { id = currentUser.ConnectionId },
+                                new { @class = "govuk-link change-permissions" })
+                        }
+                    </feature>
+                </p>
+            </td>
+            <td role="gridcell" class="govuk-table__cell epr-width-ten-percent">
+                <span class="responsive-table__heading" aria-hidden="true">@Localizer["Table.Header.Access"]</span>
+                @if (currentUser.IsRemoveable)
+                {
+                    @using (Html.BeginForm("RemoveTeamMemberPreConfirmation", "AccountManagement", new {firstName = currentUser.FirstName, lastName = currentUser.LastName, personId = currentUser.PersonId}, FormMethod.Post))
+                    {
+                        @Html.HiddenFor(m => currentUser.FirstName);
+                        @Html.HiddenFor(m => currentUser.LastName);
+                        @Html.HiddenFor(m => currentUser.PersonId);
+
+                        <button class="govuk-link link-button-destructive" type="submit">
+                            @SharedLocalizer["Remove"]
+                        </button>
+                    }
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

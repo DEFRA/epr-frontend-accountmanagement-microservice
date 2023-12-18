@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Privacy.Title" xml:space="preserve">
+    <value>wPrivacy notice</value>
+  </data>
+  <data name="Privacy.IfYouUse" xml:space="preserve">
+    <value>wIf you use the 'Report packaging data' service, Defra will:</value>
+  </data>
+  <data name="Privacy.BeTheDataController" xml:space="preserve">
+    <value>wbe the data controller </value>
+  </data>
+  <data name="Privacy.BeResponsibleFor" xml:space="preserve">
+    <value>wbe responsible for processing any data you share with them</value>
+  </data>
+  <data name="Privacy.ADataController" xml:space="preserve">
+    <value>wA data controller determines how and why personal data is processed. For more information, read Defra’s entry in the</value>
+  </data>
+  <data name="Privacy.DataProtectionPublic" xml:space="preserve">
+    <value>wData Protection Public Register.</value>
+  </data>
+  <data name="Privacy.WhatDataWeCollect" xml:space="preserve">
+    <value>wWhat data we collect</value>
+  </data>
+  <data name="Privacy.ThePersonalData" xml:space="preserve">
+    <value>wThe personal data we collect from you includes:</value>
+  </data>
+  <data name="Privacy.YourInternetProtocol" xml:space="preserve">
+    <value>wyour Internet Protocol (IP) address, and details of which version of </value>
+  </data>
+  <data name="Privacy.WebBrowser" xml:space="preserve">
+    <value>wweb browser</value>
+  </data>
+  <data name="Privacy.YouUsed" xml:space="preserve">
+    <value>wyou used</value>
+  </data>
+  <data name="Privacy.InformationOnHowYou" xml:space="preserve">
+    <value>winformation on how you use the site,</value>
+  </data>
+  <data name="Privacy.UsingCookies" xml:space="preserve">
+    <value>wusing cookies</value>
+  </data>
+  <data name="Privacy.AndPageTagging" xml:space="preserve">
+    <value>wand page tagging techniques</value>
+  </data>
+  <data name="Privacy.QuestionsQueriesOrFeedback" xml:space="preserve">
+    <value>wquestions, queries or feedback you leave</value>
+  </data>
+  <data name="Privacy.PublishAndManage" xml:space="preserve">
+    <value>wpublish and manage their own privacy notice with details of how to contact them</value>
+  </data>
+  <data name="Privacy.WhereYouProvide" xml:space="preserve">
+    <value>wWhere you provide your consent, we use</value>
+  </data>
+  <data name="Privacy.GoogleAnalytics" xml:space="preserve">
+    <value>wGoogle Analytics</value>
+  </data>
+  <data name="Privacy.AndAzureSentinel" xml:space="preserve">
+    <value>wand Azure Sentinel to collect information about how you use GOV.UK. This includes IP addresses.</value>
+  </data>
+  <data name="Privacy.GoogleAnalyticsProcesses" xml:space="preserve">
+    <value>wGoogle Analytics processes information about:</value>
+  </data>
+  <data name="Privacy.ThePagesYouVisit" xml:space="preserve">
+    <value>wthe pages you visit on GOV.UK</value>
+  </data>
+  <data name="Privacy.HowLongYouSpend" xml:space="preserve">
+    <value>whow long you spend on each GOV.UK page</value>
+  </data>
+  <data name="Privacy.HowYouGotTo" xml:space="preserve">
+    <value>whow you got to the site</value>
+  </data>
+  <data name="Privacy.WhatYouClickOn" xml:space="preserve">
+    <value>wwhat you click on while you’re visiting the site</value>
+  </data>
+  <data name="Privacy.WeMakeSure" xml:space="preserve">
+    <value>wWe make sure you cannot be directly identified by Google Analytics data. We do this by using</value>
+  </data>
+  <data name="Privacy.GoogleAnalyticsIpAddressAnonymisation" xml:space="preserve">
+    <value>wGoogle Analytics' IP address anonymisation</value>
+  </data>
+  <data name="Privacy.FeatureAndByRemoving" xml:space="preserve">
+    <value>wfeature and by removing any other personal data from the titles or URLs of the pages you visit.</value>
+  </data>
+  <data name="Privacy.WeWillNotCombine" xml:space="preserve">
+    <value>wWe will not combine analytics information with other data sets in a way that would directly identify who you are. </value>
+  </data>
+  <data name="Privacy.FindOutMore" xml:space="preserve">
+    <value>wFind out more about how we use Google Analytics and other cookies on GOV.UK.</value>
+  </data>
+  <data name="Privacy.WhyWeNeedYourData" xml:space="preserve">
+    <value>wWhy we need your data</value>
+  </data>
+  <data name="Privacy.WeCollectYourPersonal" xml:space="preserve">
+    <value>wWe collect your personal data in order to: </value>
+  </data>
+  <data name="Privacy.GatherFeedBack" xml:space="preserve">
+    <value>wgather feedback to improve our services</value>
+  </data>
+  <data name="Privacy.RespondToAnyFeedback" xml:space="preserve">
+    <value>wrespond to any feedback you send us, if you’ve asked us to</value>
+  </data>
+  <data name="Privacy.MonitorUse" xml:space="preserve">
+    <value>wmonitor use of the service to identify security threats</value>
+  </data>
+  <data name="Privacy.MonitorThePerformance" xml:space="preserve">
+    <value>wmonitor the performance of the service to identify inefficiencies and JavaScript errors </value>
+  </data>
+  <data name="Privacy.WeUseTheInformation" xml:space="preserve">
+    <value>wWe use the information we collect through Google Analytics and Azure Sentinel to see how you use GOV.UK and to see how well the service performs on your device.</value>
+  </data>
+  <data name="Privacy.WeDoThisToHelp" xml:space="preserve">
+    <value>wWe do this to help:</value>
+  </data>
+  <data name="Privacy.MakeSureThe" xml:space="preserve">
+    <value>wmake sure the ‘Report packaging data’ service is meeting the needs of its users</value>
+  </data>
+  <data name="Privacy.MakeImprovements" xml:space="preserve">
+    <value>wmake improvements to the service</value>
+  </data>
+  <data name="Privacy.MakePerformanceImprovements" xml:space="preserve">
+    <value>wmake performance improvements, for example improving page load time and data usage</value>
+  </data>
+  <data name="Privacy.WeCombineGoogleAnalytics" xml:space="preserve">
+    <value>wWe combine Google Analytics information with similar data from other government digital services to help understand and improve user journeys within GOV.UK and other government digital services.</value>
+  </data>
+  <data name="Privacy.OurLegalBasis" xml:space="preserve">
+    <value>wOur legal basis for processing your data</value>
+  </data>
+  <data name="Privacy.TheLegalBasis" xml:space="preserve">
+    <value>wThe legal basis for processing personal data in relation to site security is our legitimate interests, and the legitimate interests of our users, in ensuring the security and integrity of GOV.UK.</value>
+  </data>
+  <data name="Privacy.TheLegalBasisGoogleAnalytics" xml:space="preserve">
+    <value>wThe legal basis for processing data collected with Google Analytics and Azure Sentinel on GOV.UK and other government digital services is your consent.</value>
+  </data>
+  <data name="Privacy.TheLegalBasisOther" xml:space="preserve">
+    <value>wThe legal basis for processing all other personal data is that it’s necessary:</value>
+  </data>
+  <data name="Privacy.ToPerformATask" xml:space="preserve">
+    <value>wto perform a task in the public interest</value>
+  </data>
+  <data name="Privacy.InTheExerciseOf" xml:space="preserve">
+    <value>win the exercise of our functions as a government department</value>
+  </data>
+  <data name="Privacy.WhatWeDoWithYourData" xml:space="preserve">
+    <value>wWhat we do with your data</value>
+  </data>
+  <data name="Privacy.TheDataWeCollect" xml:space="preserve">
+    <value>wThe data we collect may be shared with other government departments, agencies and public bodies. It may also be shared with our technology suppliers, for example our hosting provider.</value>
+  </data>
+  <data name="Privacy.WeWillShareYourData" xml:space="preserve">
+    <value>wWe will share your data if we are required to do so by law - for example, by court order, or to prevent fraud or other crime.</value>
+  </data>
+  <data name="Privacy.TheDataWeCollectGoogleAnalytics" xml:space="preserve">
+    <value>wThe data we collect with Google Analytics cookies is transferred and stored with Google where we analyse it with Google Analytics software (Universal Analytics). We do not allow Google to use or share this data for their own purposes.</value>
+  </data>
+  <data name="Privacy.WeWillNot" xml:space="preserve">
+    <value>wWe will not:</value>
+  </data>
+  <data name="Privacy.SellOrRent" xml:space="preserve">
+    <value>wsell or rent your data to third parties</value>
+  </data>
+  <data name="Privacy.ShareYourData" xml:space="preserve">
+    <value>wshare your data with third parties for marketing purposes</value>
+  </data>
+  <data name="Privacy.HowLongWeKeep" xml:space="preserve">
+    <value>wHow long we keep your data</value>
+  </data>
+  <data name="Privacy.WeWillOnlyRetain" xml:space="preserve">
+    <value>wWe will only retain your personal data for as long as it is needed for the purposes set out in this document or for as long as the law requires us to.</value>
+  </data>
+  <data name="Privacy.WeWill" xml:space="preserve">
+    <value>wWe will:</value>
+  </data>
+  <data name="Privacy.KeepYourFeedbackData" xml:space="preserve">
+    <value>wkeep your feedback data for 2 years</value>
+  </data>
+  <data name="Privacy.DeleteAccessLogData" xml:space="preserve">
+    <value>wdelete access log data which contain your IP address after 90 days</value>
+  </data>
+  <data name="Privacy.WhereYourDataIsProcessed" xml:space="preserve">
+    <value>wWhere your data is processed and stored</value>
+  </data>
+  <data name="Privacy.WeDesignBuildAndRun" xml:space="preserve">
+    <value>wWe design, build and run our systems to make sure that your data is as safe as possible at all stages, both while it’s processed and when it’s stored.</value>
+  </data>
+  <data name="Privacy.AllPersonalData" xml:space="preserve">
+    <value>wAll personal data is stored in the</value>
+  </data>
+  <data name="Privacy.EuropeanEconomicArea" xml:space="preserve">
+    <value>wEuropean Economic Area</value>
+  </data>
+  <data name="Privacy.DataCollectedByGoogleAnalytics" xml:space="preserve">
+    <value>w(EEA). Data collected by Google Analytics and Azure Sentinel may be transferred outside the EEA for processing.</value>
+  </data>
+  <data name="Privacy.HowWeProtect" xml:space="preserve">
+    <value>wHow we protect your data and keep it secure</value>
+  </data>
+  <data name="Privacy.WeAreCommitted" xml:space="preserve">
+    <value>wWe are committed to doing all that we can to keep your data secure. We have set up systems and processes to prevent unauthorised access or disclosure of your data - for example, we protect your data using varying levels of encryption.</value>
+  </data>
+  <data name="Privacy.WeAlsoMakeSure" xml:space="preserve">
+    <value>wWe also make sure that any third parties that we deal with keep all personal data they process on our behalf secure.</value>
+  </data>
+  <data name="Privacy.YourRights" xml:space="preserve">
+    <value>wYour rights</value>
+  </data>
+  <data name="Privacy.YouHaveTheRightToRequest" xml:space="preserve">
+    <value>wYou have the right to request:</value>
+  </data>
+  <data name="Privacy.InformationAbout" xml:space="preserve">
+    <value>winformation about how your personal data is processed</value>
+  </data>
+  <data name="Privacy.ACopyOf" xml:space="preserve">
+    <value>wa copy of that personal data</value>
+  </data>
+  <data name="Privacy.ThatAnythingInaccurate" xml:space="preserve">
+    <value>wthat anything inaccurate in your personal data is corrected immediately</value>
+  </data>
+  <data name="Privacy.YouCanAlso" xml:space="preserve">
+    <value>wYou can also:</value>
+  </data>
+  <data name="Privacy.RaiseAnObjection" xml:space="preserve">
+    <value>wraise an objection about how your personal data is processed</value>
+  </data>
+  <data name="Privacy.RequestThatYour" xml:space="preserve">
+    <value>wrequest that your personal data is erased if there is no longer a justification for it</value>
+  </data>
+  <data name="Privacy.AskThatTheProcessing" xml:space="preserve">
+    <value>wask that the processing of your personal data is restricted in certain circumstances</value>
+  </data>
+  <data name="Privacy.IfYouHaveAny" xml:space="preserve">
+    <value>wIf you have any of these requests, email</value>
+  </data>
+  <data name="Privacy.LinksToOtherWebsites" xml:space="preserve">
+    <value>wLinks to other websites</value>
+  </data>
+  <data name="Privacy.ContainsLinksToOtherWebsites" xml:space="preserve">
+    <value>wGOV.UK contains links to other websites.</value>
+  </data>
+  <data name="Privacy.ThisPrivacyNotice" xml:space="preserve">
+    <value>wThis privacy notice only applies to the 'Report packaging data’ service on GOV.UK, and does not cover other government services and transactions that we link to. These services have their own terms and conditions and privacy policies.</value>
+  </data>
+  <data name="Privacy.FollowingALinkToAnother" xml:space="preserve">
+    <value>wFollowing a link to another website</value>
+  </data>
+  <data name="Privacy.IfYouGoTo" xml:space="preserve">
+    <value>wIf you go to another website from this one, read the privacy policy on that website to find out what it does with your information.</value>
+  </data>
+  <data name="Privacy.FollowingALinkToGovUk" xml:space="preserve">
+    <value>wFollowing a link to GOV.UK from another website</value>
+  </data>
+  <data name="Privacy.IfYouComeTo" xml:space="preserve">
+    <value>wIf you come to GOV.UK from another website, we may receive personal information from the other website. You should read the privacy policy of the website you came from to find out more about this.</value>
+  </data>
+  <data name="Privacy.ContactUs" xml:space="preserve">
+    <value>wContact us or make a complaint</value>
+  </data>
+  <data name="Privacy.DefrasPersonal" xml:space="preserve">
+    <value>wDefra’s Personal Information Charter</value>
+  </data>
+  <data name="Privacy.ExplainsDefrasStandards" xml:space="preserve">
+    <value>wexplains Defra’s standards for requesting and storing personal information.</value>
+  </data>
+  <data name="Privacy.DefrasDataProtectionOfficer" xml:space="preserve">
+    <value>wDefra’s Data Protection Officer</value>
+  </data>
+  <data name="Privacy.TheDpoProvides" xml:space="preserve">
+    <value>wThe DPO provides independent advice and monitoring of our use of personal information.</value>
+  </data>
+  <data name="Privacy.InformationCommissioner" xml:space="preserve">
+    <value>wInformation Commissioner</value>
+  </data>
+  <data name="Privacy.YouAlsoHave" xml:space="preserve">
+    <value>wYou also have the right to make a complaint to the</value>
+  </data>
+  <data name="Privacy.WhoIsAnIndependent" xml:space="preserve">
+    <value>w, who is an independent regulator.</value>
+  </data>
+  <data name="Privacy.Telephone" xml:space="preserve">
+    <value>wTelephone:</value>
+  </data>
+  <data name="Privacy.Textphone" xml:space="preserve">
+    <value>wTextphone:</value>
+  </data>
+  <data name="Privacy.MondayToFriday" xml:space="preserve">
+    <value>wMonday to Friday, 9am to 4.30pm</value>
+  </data>
+  <data name="Privacy.FindOutAboutCallCharges" xml:space="preserve">
+    <value>wFind out about call charges</value>
+  </data>
+  <data name="Privacy.ChangesToThisPolicy" xml:space="preserve">
+    <value>wChanges to this policy</value>
+  </data>
+  <data name="Privacy.WeMayChange" xml:space="preserve">
+    <value>wWe may change this privacy policy. In that case, the ‘last updated’ date at the bottom of this page will also change. Any changes to this privacy policy will apply to you and your data immediately.</value>
+  </data>
+  <data name="Privacy.IfTheseChanges" xml:space="preserve">
+    <value>wIf these changes affect how your personal data is processed, Defra will take reasonable steps to let you know.</value>
+  </data>
+  <data name="Privacy.LastUpdated" xml:space="preserve">
+    <value>wLast updated</value>
+  </data>
+  <data name="Privacy.IfYourOrganisationIsRegistered" xml:space="preserve">
+    <value>wif your organisation is registered to trade in the UK</value>
+  </data>
+  <data name="Privacy.WhatTypeOfOrganisation" xml:space="preserve">
+    <value>wwhat type of organisation you work for (whether it’s a limited company or charity, or you’re a sole trader)</value>
+  </data>
+  <data name="Privacy.WhereYourOrganisationIs" xml:space="preserve">
+    <value>wwhere your organisation is based in the UK</value>
+  </data>
+  <data name="Privacy.YourCompaniesHouseNumber" xml:space="preserve">
+    <value>wyour Companies House number (if you have one)</value>
+  </data>
+  <data name="Privacy.YourName" xml:space="preserve">
+    <value>wyour name</value>
+  </data>
+  <data name="Privacy.YourOrganisationsDetails" xml:space="preserve">
+    <value>wyour organisation’s details from Companies House (if you have a Companies House number)</value>
+  </data>
+  <data name="Privacy.YourRoleInTheOrganisation" xml:space="preserve">
+    <value>wyour role in the organisation (if you aren’t a sole trader)</value>
+  </data>
+  <data name="Privacy.YourTelephoneNumber" xml:space="preserve">
+    <value>wyour telephone number</value>
+  </data>
+</root>

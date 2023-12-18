@@ -1,0 +1,107 @@
+﻿@using FrontendAccountManagement.Web.ViewModels.PermissionManagement
+@using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
+@using FrontendAccountManagement.Web.Extensions
+@using FrontendAccountManagement.Core.Sessions
+
+@model ChangeAccountPermissionViewModel
+
+@{
+    ViewData["Title"] = Localizer["ChangeAccountPermissions.Title"];
+    var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer);
+}
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                @await Html.PartialAsync("Partials/Govuk/_ErrorSummary", errorsViewModel)
+
+                <form asp-controller="PermissionManagement" asp-action="ChangeAccountPermissions" asp-route-id="@Model.Id" method="post">
+                    <div class="govuk-form-group@(!ViewData.ModelState.IsValid ? " govuk-form-group--error" : "")">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                                <h1 class="govuk-heading-l govuk-!-margin-bottom-4">
+                                    @Localizer["ChangeAccountPermissions.Question"]
+                                </h1>
+                            </legend>
+
+                            @await Html.PartialAsync("Partials/Govuk/_ErrorList", errorsViewModel)
+
+                            <div class="govuk-radios" data-module="govuk-radios">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" type="radio"
+                                           gov-for="PermissionType"
+                                           gov-value="@nameof(PermissionType.Basic)"
+                                           gov-first-option="true">
+                                    <label class="govuk-label govuk-radios__label"
+                                           gov-for="PermissionType"
+                                           gov-value="@nameof(PermissionType.Basic)"
+                                           gov-first-option="true">
+                                        @Localizer[$"ChangeAccountPermissions.Basic.{Model.ServiceKey}"]
+                                    </label>
+                                </div>
+
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" type="radio"
+                                           gov-for="PermissionType"
+                                           gov-value="@nameof(PermissionType.Admin)">
+                                    <label class="govuk-label govuk-radios__label"
+                                           gov-for="PermissionType"
+                                           gov-value="@nameof(PermissionType.Admin)">
+                                        @Localizer[$"ChangeAccountPermissions.Admin.{Model.ServiceKey}"]
+                                    </label>
+                                </div>
+
+                                @if (Model.ShowDelegatedContent)
+                                {
+                                    <div class="govuk-radios__item">
+                                        <input class="govuk-radios__input" type="radio"
+                                               gov-for="PermissionType"
+                                               gov-value="@nameof(PermissionType.Delegated)"
+                                               aria-describedby="sign-in-item-hint">
+                                        <label class="govuk-label govuk-radios__label"
+                                               gov-for="PermissionType"
+                                               gov-value="@nameof(PermissionType.Delegated)">
+                                            @Localizer["ChangeAccountPermissions.Delegated"]
+                                        </label>
+
+                                        <div id="sign-in-item-hint" class="govuk-hint govuk-radios__hint">
+                                            @Localizer["ChangeAccountPermissions.Delegated.Hint"]
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <button class="govuk-button" data-module="govuk-button">
+                        @SharedLocalizer["Continue"]
+                    </button>
+
+                    @if (Model.ShowDelegatedContent)
+                    {
+                        <details class="govuk-details" data-module="govuk-details">
+                            <summary class="govuk-details__summary">
+                                <span class="govuk-details__summary-text">
+                                    @Localizer["ChangeAccountPermissions.Explanation.Title"]
+                                </span>
+                            </summary>
+                            
+                            <div class="govuk-details__text">
+                                <p class="govuk-body">
+                                    @Localizer["ChangeAccountPermissions.Explanation.Paragraph1"]
+                                </p>
+                                <p class="govuk-body">
+                                    @Localizer["ChangeAccountPermissions.Explanation.Paragraph2"]
+                                </p>
+                                <p class="govuk-body">
+                                    @Localizer["ChangeAccountPermissions.Explanation.Paragraph3"]
+                                </p>
+                            </div>
+                        </details>
+                    }
+                </form>
+            </div>
+        </div>
+    </main>
+</div>

@@ -1,0 +1,44 @@
+﻿@using FrontendAccountManagement.Web.ViewModels.PermissionManagement
+@using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
+@using FrontendAccountManagement.Web.Extensions
+@model JobTitleViewModel
+@{
+    ViewData["Title"] = Localizer["JobTitle.Title"];
+
+    var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer);
+}
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                @await Html.PartialAsync("Partials/Govuk/_ErrorSummary", errorsViewModel)
+
+                <form asp-controller="PermissionManagement" asp-action="JobTitle" asp-route-id="@Model.Id" method="post">
+                    <div class="govuk-form-group @(errorsViewModel.HasErrorKey(nameof(JobTitleViewModel.JobTitle)) ? " govuk-form-group--error" : "" )">
+                        <h1 class="govuk-heading-l govuk-!-margin-bottom-4">
+                            <label for="@nameof(Model.JobTitle)">
+                                @Localizer["JobTitle.Question"]
+                            </label>
+                        </h1>
+                        <p class="govuk-body govuk-hint" id="JobTitle-hint">@Localizer["JobTitle.Hint"]</p>
+
+                        <div class="govuk-form-group govuk-!-margin-bottom-4">
+                            @await Html.PartialAsync("Partials/Govuk/_FormItemError", errorsViewModel[nameof(JobTitleViewModel.JobTitle)])
+                            <input class="govuk-input govuk-!-width-full @Html.Raw(errorsViewModel.HasErrorKey(nameof(JobTitleViewModel.JobTitle))? "govuk-input--error" : "")"
+                                   type="text"
+                                   gov-for="JobTitle"
+                                   gov-value="@Model.JobTitle"
+                                   aria-describedby="JobTitle-hint">
+                        </div>
+                    </div>
+
+                    <button class="govuk-button" data-module="govuk-button">
+                        @SharedLocalizer["Continue"]
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </main>
+</div>

@@ -1,0 +1,92 @@
+@using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
+@using FrontendAccountManagement.Web.Extensions
+@using FrontendAccountManagement.Web.Controllers.AccountManagement
+@using Microsoft.Extensions.Options
+@using FrontendAccountManagement.Web.Configs
+
+@model FrontendAccountManagement.Web.ViewModels.AccountManagement.TeamMemberPermissionsViewModel
+
+@inject IOptions<DeploymentRoleOptions> DeploymentRoleOption
+
+@{
+    ViewData["Title"] = Localizer["WhatDoYouWantThemToDo"];
+    
+    var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer);
+    var isFirstItem = true;
+}
+
+@using (Html.BeginForm(nameof(AccountManagementController.TeamMemberPermissions), "AccountManagement", FormMethod.Post))
+{
+    <div class="govuk-width-container">
+        <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    @await Html.PartialAsync("Partials/Govuk/_ErrorSummary", errorsViewModel)
+
+                    <div class="govuk-form-group @(ViewData.ModelState.IsValid ? string.Empty : "govuk-form-group--error")">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                                <h1 class="govuk-fieldset__heading govuk-label--l">
+                                    @Localizer["WhatDoYouWantThemToDo"]
+                                </h1>
+                            </legend>
+
+                            @if (!ViewData.ModelState.IsValid)
+                            {
+                                @await Html.PartialAsync("Partials/Govuk/_ErrorList", errorsViewModel)
+                                <br/>
+                            }
+
+                            <div class="govuk-radios" data-module="govuk-radios">
+                                @for (var i = 0; i < Model.ServiceRoles.Count; i++)
+                                {
+                                    if (i >= 1)
+                                    {
+                                        isFirstItem = false;
+                                    }
+
+                                    var serviceRoleKey = Model.ServiceRoles[i].Key;
+                                    var serviceRoleDescriptionKey = Model.ServiceRoles[i].DescriptionKey;
+                                    var isSelected = serviceRoleKey.Equals(Model.SavedUserRole);
+                                    var isRegulatorWithDescriptionKey = DeploymentRoleOption.Value.IsRegulator()
+                                                                        && !string.IsNullOrEmpty(serviceRoleDescriptionKey);
+
+                                    <div class="govuk-radios__item">
+                                        <input class="govuk-radios__input"
+                                               type="radio"
+                                               checked="@isSelected"
+                                               gov-for="SelectedUserRole"
+                                               gov-value="@serviceRoleKey"
+                                               gov-first-option=isFirstItem
+                                               aria-describedby="@(isRegulatorWithDescriptionKey ? serviceRoleKey + "-hint" : "")">
+                                        <label class="govuk-label govuk-radios__label"
+                                               gov-for="SelectedUserRole"
+                                               gov-value="@serviceRoleKey"
+                                               gov-first-option=isFirstItem>
+                                            @SharedLocalizer[serviceRoleKey]
+                                        </label>
+
+                                        @if (isRegulatorWithDescriptionKey)
+                                        {
+                                            <div class="govuk-radios__hint govuk-hint" id="@serviceRoleKey-hint">
+                                                @SharedLocalizer[serviceRoleDescriptionKey]
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    <button class="govuk-button" data-module="govuk-button">
+                        @SharedLocalizer["Continue"]
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+}

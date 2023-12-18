@@ -1,0 +1,118 @@
+﻿@using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
+@using FrontendAccountManagement.Web.Extensions
+@using FrontendAccountManagement.Web.ViewModels.PermissionManagement
+@using FrontendAccountManagement.Core.Sessions
+
+@model FrontendAccountManagement.Web.ViewModels.PermissionManagement.RelationshipWithOrganisationViewModel
+
+@{
+    ViewData["Title"] = Localizer["RelationshipWithOrganisation.Title"];
+    Layout = "_Layout";
+    
+    var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer);
+    var additionalError = errorsViewModel[nameof(RelationshipWithOrganisationViewModel.AdditionalRelationshipInformation)]?.Count > 0;
+}
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                @await Html.PartialAsync("Partials/Govuk/_ErrorSummary", errorsViewModel)
+                
+                <form asp-controller="PermissionManagement" asp-action="RelationshipWithOrganisation" asp-route-id="@Model.Id" method="post">
+                    <div class="govuk-form-group@(!ViewData.ModelState.IsValid && !additionalError ? " govuk-form-group--error" : "")">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                                <h1 class="govuk-fieldset__heading govuk-label--l">
+                                    @Localizer["RelationshipWithOrganisation.Question"]
+                                </h1>
+                            </legend>
+
+                            @if (!ViewData.ModelState.IsValid)
+                            {
+                                @await Html.PartialAsync("Partials/Govuk/_FormItemError",
+                                           errorsViewModel[nameof(RelationshipWithOrganisationViewModel.SelectedRelationshipWithOrganisation)])
+                            }
+
+                            <div class="govuk-radios" data-module="govuk-radios">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" type="radio"
+                                           gov-for="SelectedRelationshipWithOrganisation"
+                                           gov-value="@nameof(RelationshipWithOrganisation.Employee)"
+                                           gov-first-option="true">
+
+                                    <label class="govuk-label govuk-radios__label"
+                                           gov-for="SelectedRelationshipWithOrganisation"
+                                           gov-value="@nameof(RelationshipWithOrganisation.Employee)"
+                                           gov-first-option="true">
+                                        @Localizer["RelationshipWithOrganisation.AsAnEmployee"]
+                                    </label>
+                                </div>
+
+                                @if (!Model.IsComplianceScheme)
+                                {
+                                    <div class="govuk-radios__item">
+                                        <input class="govuk-radios__input" type="radio"
+                                               gov-for="SelectedRelationshipWithOrganisation"
+                                               gov-value="@nameof(RelationshipWithOrganisation.Consultant)">
+
+                                        <label class="govuk-label govuk-radios__label"
+                                               gov-for="SelectedRelationshipWithOrganisation"
+                                               gov-value="@nameof(RelationshipWithOrganisation.Consultant)">
+                                            @Localizer["RelationshipWithOrganisation.AsAConsultant"]
+                                        </label>
+                                    </div>
+
+                                    <div class="govuk-radios__item">
+                                        <input class="govuk-radios__input" type="radio"
+                                               gov-for="SelectedRelationshipWithOrganisation"
+                                               gov-value="@nameof(RelationshipWithOrganisation.ConsultantFromComplianceScheme)">
+
+                                        <label class="govuk-label govuk-radios__label"
+                                               gov-for="SelectedRelationshipWithOrganisation"
+                                               gov-value="@nameof(RelationshipWithOrganisation.ConsultantFromComplianceScheme)">
+                                            @Localizer["RelationshipWithOrganisation.AsAConsultantFromAComplianceScheme"]
+                                        </label>
+                                    </div>
+                                }
+
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" type="radio" aria-controls="SomethingElseInputDiv" aria-expanded="false"
+                                           gov-for="SelectedRelationshipWithOrganisation"
+                                           gov-value="@nameof(RelationshipWithOrganisation.SomethingElse)">
+
+                                    <label class="govuk-label govuk-radios__label"
+                                           gov-for="SelectedRelationshipWithOrganisation"
+                                           gov-value="@nameof(RelationshipWithOrganisation.SomethingElse)">
+                                        @Localizer["RelationshipWithOrganisation.SomethingElse"]
+                                    </label>
+                                </div>
+
+                                <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="SomethingElseInputDiv">
+                                    <div class="govuk-form-group@(!ViewData.ModelState.IsValid && additionalError ? " govuk-form-group--error" : "")">
+                                        <label class="govuk-label" for="@nameof(Model.AdditionalRelationshipInformation)">
+                                            @Localizer["RelationshipWithOrganisation.WhatsTheirRelationship"]
+                                        </label>
+
+                                        @await Html.PartialAsync("Partials/Govuk/_FormItemError",
+                                                   errorsViewModel[nameof(RelationshipWithOrganisationViewModel.AdditionalRelationshipInformation)])
+
+                                        <input class="govuk-input govuk-!-width-full @(additionalError ? "govuk-input--error" : "")"
+                                               type="text"
+                                               gov-for="AdditionalRelationshipInformation"
+                                               gov-value="@Model.AdditionalRelationshipInformation">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    
+                    <button class="govuk-button" data-module="govuk-button">
+                        @SharedLocalizer["Continue"]
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>

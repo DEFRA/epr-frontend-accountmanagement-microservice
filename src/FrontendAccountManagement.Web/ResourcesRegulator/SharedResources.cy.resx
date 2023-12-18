@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Back" xml:space="preserve">
+    <value>Yn ôl</value>
+  </data>
+  <data name="Continue" xml:space="preserve">
+    <value>Parhau</value>
+  </data>
+  <data name="SkipToMainContent" xml:space="preserve">
+    <value>Neidio i’r prif gynnwys</value>
+  </data>
+  <data name="ApplicationTitle" xml:space="preserve">
+    <value>pEPR : Gwasanaeth i Reoleiddwyr</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>Na</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Ie</value>
+  </data>
+  <data name="Change" xml:space="preserve">
+    <value>Newid</value>
+  </data>
+  <data name="Or" xml:space="preserve">
+    <value>neu</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>Llwyddiant</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Gwall</value>
+  </data>
+  <data name="ThereIsAProblem" xml:space="preserve">
+    <value>Mae yna broblem</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Tynnu</value>
+  </data>
+  <data name="Approved.Admin" xml:space="preserve">
+    <value>Rheoli tîm ac uwchlwytho data</value>
+  </data>
+  <data name="Delegated.Admin" xml:space="preserve">
+    <value>Rheoli tîm ac uwchlwytho data</value>
+  </data>
+  <data name="Basic.Admin" xml:space="preserve">
+	<value>Defnyddiwr gweinyddol</value>
+  </data>
+  <data name="Basic.AdminInviteDescription" xml:space="preserve">
+	<value>Mae defnyddwyr gweinyddol yn cael ychwanegu a thynnu aelodau tîm</value>
+  </data>
+  <data name="Basic.Employee" xml:space="preserve">
+    <value>Defnyddiwr sylfaenol</value>
+  </data>
+  <data name="Regulator.SignIn" xml:space="preserve">
+    <value>Mewngofnodi</value>
+  </data>
+  <data name="Regulator.SignOut" xml:space="preserve">
+    <value>Allgofnodi</value>
+  </data>
+  <data name="Regulator.Admin" xml:space="preserve">
+    <value>Defnyddiwr gweinyddol</value>
+  </data>
+  <data name="Regulator.Basic" xml:space="preserve">
+    <value>Defnyddiwr sylfaenol</value>
+  </data>
+  <data name="Custom.BackToHome" xml:space="preserve">
+    <value>Yn ôl i’r hafan </value>
+  </data>
+  <data name="English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Welsh" xml:space="preserve">
+    <value>Cymraeg</value>
+  </data>
+  <data name="Cymraeg" xml:space="preserve">
+    <value>Cymraeg</value>
+  </data>
+  <data name="ErrorHidden" xml:space="preserve">
+    <value>WError:</value>
+  </data>
+  <data name="GovUKTitle" xml:space="preserve">
+    <value>GOV.UK</value>
+  </data>
+</root>

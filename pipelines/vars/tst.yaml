@@ -1,0 +1,6 @@
+variables:
+  azureSubscription: 'AZD-RWD-TST1'
+  docker.imageName: 'frontendaccountmanagementregistry'
+  acr.azureContainerRegistryName: 'tstrwdinfac1401'
+  acr.repositoryName: 'frontendaccountmanagementregistry'
+  serviceName: 'tstrwdwebwa1405'

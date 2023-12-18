@@ -1,0 +1,17 @@
+﻿@using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
+@model ErrorsViewModel
+
+@if (Model.Errors.Count > 0)
+{
+    @foreach (var error in Model.Errors)
+    {
+        var textInsert = Model.TextInserts?.FirstOrDefault(t => t.Key == error.Key).Value;
+
+        @for (var i = 0; i < error.Errors.Count; i++)
+        {
+            <p id="error-@(error.Item1 + i.ToString())" class="govuk-error-message">
+                <span class="govuk-visually-hidden">Error:</span> @Html.Raw(textInsert == null ? error.Errors[i].Message : string.Format(error.Errors[i].Message, textInsert))
+            </p>
+        }
+    }
+}

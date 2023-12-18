@@ -1,0 +1,29 @@
+<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="CheckInvitationDetails" xml:space="preserve">
+        <value>Check invitation details</value>
+    </data>
+    <data name="Email" xml:space="preserve">
+        <value>Email</value>
+    </data>
+    <data name="Change" xml:space="preserve">
+        <value>Change</value>
+    </data>
+    <data name="AccountPermissions" xml:space="preserve">
+        <value>User type</value>
+    </data>
+    <data name="SendInvite" xml:space="preserve">
+        <value>Send Invite</value>
+    </data>
+</root>

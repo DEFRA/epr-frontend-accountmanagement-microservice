@@ -1,0 +1,15 @@
+@model LocalizedHtmlString
+
+@if (Model != null)
+{
+    <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
+        <h2 class="govuk-error-summary__title" id="error-summary-title">
+            @SharedLocalizer["ThereIsAProblem"]
+        </h2>
+        <div class="govuk-error-summary__body">
+            <p id="passport-issued-error" class="govuk-error-message">
+                <span class="govuk-visually-hidden">@SharedLocalizer["ErrorHidden"]</span> @Model
+            </p>
+        </div>
+    </div>
+}

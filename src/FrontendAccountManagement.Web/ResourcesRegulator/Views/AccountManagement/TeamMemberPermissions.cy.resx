@@ -1,0 +1,29 @@
+<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="ManageTeamAndUploadData" xml:space="preserve">
+        <value>Rheoli’r tîm a llwytho data</value>
+    </data>
+    <data name="WhatDoYouWantThemToDo" xml:space="preserve">
+        <value>Pa fath o ddefnyddiwr cyfrif hoffech chi iddyn nhw fod?</value>
+    </data>
+    <data name="SelectWhatYouWantThemToDo" xml:space="preserve">
+        <value>Dewiswch pa fath o ddefnyddiwr cyfrif yr hoffech chi iddyn nhw fod</value>
+    </data>
+    <data name="Basic.Admin" xml:space="preserve">
+        <value>Rheoli’r tîm a llwytho data</value>
+    </data>
+    <data name="Basic.Employee" xml:space="preserve">
+        <value>Uwchlwytho data yn unig</value>
+    </data>
+</root>

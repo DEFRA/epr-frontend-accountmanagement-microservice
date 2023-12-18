@@ -1,0 +1,65 @@
+@using FrontendAccountManagement.Web.Extensions
+@using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
+@using FrontendAccountManagement.Web.ViewModels.AccountManagement
+@using FrontendAccountManagement.Core.Models
+@addTagHelper *, Microsoft.FeatureManagement.AspNetCore
+
+@model ManageAccountViewModel
+
+@{
+    ViewData["Title"] = Localizer["ManageAccountDetails"];
+    var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer);
+}
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    @await Html.PartialAsync("Partials/Govuk/_ErrorSummary", errorsViewModel)
+                }
+
+                @if(Model != null && Model.PersonUpdated != null)
+                {
+                    @await Html.PartialAsync("Partials/_SuccessBanner",  Localizer["PermissionsUpdated", Model.PersonUpdated])
+                }
+
+                @if(Model != null && Model.InviteStatus == EndpointResponseStatus.Success)
+                {
+                    @await Html.PartialAsync("Partials/_SuccessBanner",  Localizer["YouSentInvitation", Model.InvitedUserEmail])
+                }
+                
+                @if(Model != null && Model.InviteStatus == EndpointResponseStatus.UserExists)
+                {
+                    @await Html.PartialAsync("Partials/_ErrorBanner", Localizer["UserAlreadyInvited", Model.InvitedUserEmail])
+                }
+                
+                @if(Model != null && Model.UserRemovedStatus == EndpointResponseStatus.Success)
+                {
+                    @await Html.PartialAsync("Partials/_SuccessBanner", Localizer["UserRemoved", Model.RemovedUsersName])
+                }
+                
+                <h1 class="govuk-heading-l govuk-!-margin-bottom-8">
+                    @Localizer["ManageAccountDetails"]
+                </h1>
+        
+                <h2 class="govuk-heading-m govuk-!-margin-bottom-4">
+                    @Localizer["ManageYourTeam"]
+                </h2>
+        
+                <div class="govuk-!-margin-bottom-4">
+                    @Html.ActionLink(Localizer["AddTeamMember"].Value,
+                        "TeamMemberEmail",
+                        "AccountManagement",
+                        null,
+                        new {@class = "govuk-link govuk-link--no-visited-state govuk-body-m"})   
+                </div>
+                
+                <feature name="RemoveUsers">
+                    @await Component.InvokeAsync("ManageTeam")
+                </feature>
+            </div>
+        </div>
+    </main>
+</div>

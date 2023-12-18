@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EPR.Common.Authorization" Version="1.0.11" />
+    <PackageReference Include="libphonenumber-csharp" Version="8.13.4" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
+    <PackageReference Update="SonarAnalyzer.CSharp" Version="8.50.0.58025" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="2.13.3" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<SonarQubeSetting Include="sonar.coverage.exclusions">
+			<Value>**/AddUserJourneyModel.cs,**/ConnectionPerson.cs,**/ConnectionWithEnrolments.cs,**/CurrentUserAccess.cs,**/DelegatedPersonNominationRequest.cs,**/EndpointResponseStatus.cs,**/InvitedUser.cs,**/InviteUserRequest.cs,**/InvitingUser.cs,**/ManageUserModel.cs,**/RelationshipType.cs,**/RemoveUserJourneyModel.cs,**/ServiceRole.cs,**/UpdatePersonRoleRequest.cs,**/MockedFacadeService.cs,**/PermissionType.cs,**/RelationshipWithOrganisation.cs,**/MockedManageUserModels.cs,**/Program.cs,**/ServiceProviderExtension.cs</Value>
+		</SonarQubeSetting>
+	</ItemGroup>
+
+</Project>

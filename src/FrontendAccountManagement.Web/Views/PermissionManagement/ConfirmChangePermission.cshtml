@@ -1,0 +1,155 @@
+﻿@using FrontendAccountManagement.Web.ViewModels.PermissionManagement
+@using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
+@using FrontendAccountManagement.Web.Extensions
+
+@model ConfirmChangePermissionViewModel
+
+@{
+    ViewData["Title"] = Localizer["ConfirmChangePermission.Title"];
+    
+    var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer);
+    errorsViewModel.TextInserts = new List<(string Key, string Value)>
+    {
+        (nameof(ConfirmChangePermissionViewModel.ConfirmAnswer), Model.DisplayName)
+    };
+    
+    var nationIds = Model.NationIds;
+    const int NoNation = 0;
+    const int England = 1; 
+    const int NorthernIreland = 2; 
+    const int Scotland = 3;
+    const int Wales = 4;
+}
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                @await Html.PartialAsync("Partials/Govuk/_ErrorSummary", errorsViewModel)
+                
+                <h1 class="govuk-fieldset__heading govuk-label--l">
+                    @Localizer["ConfirmChangePermission.Question"]
+                </h1>
+
+                @if (Model.ApprovedByRegulator)
+                {
+                    <p class="govuk-body govuk-!-padding-top-2">@Localizer["ConfirmChangePermission.Approved.Paragraph1", Model.DisplayName]</p>
+                    <p class="govuk-body">@Localizer["ConfirmChangePermission.Approved.Paragraph2", Model.DisplayName]</p>
+                    <p class="govuk-body">@Localizer["ConfirmChangePermission.Approved.Paragraph3", Model.DisplayName]</p>
+                    
+                    <details class="govuk-details" data-module="govuk-details">
+                        <summary class="govuk-details__summary">
+                            <span class="govuk-details__summary-text">
+                                @Localizer["ConfirmChangePermission.Approved.DetailsTitle"]
+                            </span>
+                        </summary>
+                        
+                        <div class="govuk-details__text">
+                            <p class="govuk-body">
+                                @Localizer["ConfirmChangePermission.Approved.DetailsParagraph1"]
+                            </p>
+                            
+                            @if (nationIds.Any(n => n is England or NoNation))
+                            {
+                                <p class="govuk-body">
+                                    <span class="govuk-!-font-weight-bold">@Localizer["ConfirmChangePermission.Approved.EnglandTitle"]</span><br/>
+                                    @Localizer["ConfirmChangePermission.Approved.EnglandContact"]<br/>
+                                    <a href="mailto:@Localizer["ConfirmChangePermission.Approved.EnglandEmail"]" 
+                                       class="govuk-link govuk-link--no-visited-state">@Localizer["ConfirmChangePermission.Approved.EnglandEmail"]</a>
+                                </p>
+                            }
+                            @if (nationIds.Any(n => n is Wales or NoNation))
+                            {
+                                <p class="govuk-body">
+                                    <span class="govuk-!-font-weight-bold">@Localizer["ConfirmChangePermission.Approved.WalesTitle"]</span><br />
+                                    @Localizer["ConfirmChangePermission.Approved.WalesContact"]<br />
+                                    <a href="mailto:@Localizer["ConfirmChangePermission.Approved.WalesEmail"]" 
+                                       class="govuk-link govuk-link--no-visited-state">@Localizer["ConfirmChangePermission.Approved.WalesEmail"]</a>
+                                </p>
+                            }
+                            @if (nationIds.Any(n => n is Scotland or NoNation))
+                            {
+                                <p class="govuk-body">
+                                    <span class="govuk-!-font-weight-bold">@Localizer["ConfirmChangePermission.Approved.ScotlandTitle"]</span><br />
+                                    @Localizer["ConfirmChangePermission.Approved.ScotlandContact"]<br />
+                                    <a href="mailto:@Localizer["ConfirmChangePermission.Approved.ScotlandEmail"]" 
+                                       class="govuk-link govuk-link--no-visited-state">@Localizer["ConfirmChangePermission.Approved.ScotlandEmail"]</a>
+                                </p>
+                            }                            
+                            @if (nationIds.Any(n => n is NorthernIreland or NoNation))
+                            {
+                                <p class="govuk-body">
+                                    <span class="govuk-!-font-weight-bold">@Localizer["ConfirmChangePermission.Approved.NorthernIrelandTitle"]</span><br />
+                                    @Localizer["ConfirmChangePermission.Approved.NorthernIrelandContact"]<br />
+                                    <a href="mailto:@Localizer["ConfirmChangePermission.Approved.NorthernIrelandEmail"]" 
+                                       class="govuk-link govuk-link--no-visited-state">@Localizer["ConfirmChangePermission.Approved.NorthernIrelandEmail"]</a>
+                                </p>
+                            }
+                        </div>
+                    </details>
+                }
+                else
+                {
+                    <p class="govuk-body govuk-!-padding-top-3">@Localizer["ConfirmChangePermission.Unapproved.Paragraph1", Model.DisplayName]</p>
+                }
+
+                <form asp-controller="PermissionManagement" asp-action="ConfirmChangePermission" asp-route-id="@Model.Id" method="post">
+                    <div class="govuk-form-group @(ViewData.ModelState.IsValid ? string.Empty : "govuk-form-group--error")">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                                <p class="govuk-body govuk-!-font-weight-bold govuk-!-font-size-24">
+                                    @Localizer[Model.ApprovedByRegulator 
+                                        ? "ConfirmChangePermission.Approved.Question1" 
+                                        : "ConfirmChangePermission.Unapproved.Question1", Model.DisplayName]
+                                </p>
+                            </legend>
+
+                            @if (!ViewData.ModelState.IsValid)
+                            {
+                                @await Html.PartialAsync("Partials/Govuk/_ErrorList", errorsViewModel)
+                            }
+
+                            <div class="govuk-radios" data-module="govuk-radios">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" type="radio"
+                                           gov-for="ConfirmAnswer"
+                                           gov-value="@YesNoAnswer.Yes"
+                                           gov-first-option="true">
+                                    <label class="govuk-label govuk-radios__label"
+                                           gov-for="ConfirmAnswer"
+                                           gov-value="@YesNoAnswer.Yes"
+                                           gov-first-option="true">
+                                        @Localizer[Model.ApprovedByRegulator 
+                                            ? "ConfirmChangePermission.Approved.Answer1" 
+                                            : "ConfirmChangePermission.Unapproved.Answer1"]
+                                    </label>
+                                </div>
+
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" type="radio"
+                                           gov-for="ConfirmAnswer"
+                                           gov-value="@YesNoAnswer.No"
+                                           gov-first-option="false">
+                                    <label class="govuk-label govuk-radios__label"
+                                           gov-for="ConfirmAnswer"
+                                           gov-value="@YesNoAnswer.No"
+                                           gov-first-option="false">
+                                        @(Model.ApprovedByRegulator
+                                            ? Localizer["ConfirmChangePermission.Approved.Answer2"]
+                                            : Localizer["ConfirmChangePermission.Unapproved.Answer2", Model.DisplayName])
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    
+                    <div class="govuk-form-group">
+                        <button class="govuk-button" data-module="govuk-button">
+                            @Localizer["ConfirmChangePermission.ConfirmAndContinue"]
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>

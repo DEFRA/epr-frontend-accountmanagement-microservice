@@ -1,0 +1,39 @@
+﻿@using FrontendAccountManagement.Web.ViewModels.PermissionManagement
+@using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
+@using FrontendAccountManagement.Web.Extensions
+@using FrontendAccountManagement.Core.Sessions
+
+@model InvitationToChangeSentViewModel
+@{
+    ViewData["Title"] = Localizer["InvitationToChangeSent.Title"];
+}
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <div class="govuk-panel govuk-panel--confirmation">
+                    <h1 class="govuk-panel__body govuk-!-font-weight-bold govuk-!-margin-bottom-0 govuk-!-margin-top-0">
+                        @Localizer["InvitationToChangeSent.Question"]
+                    </h1>
+                </div>
+                <p class="govuk-body">
+                    @Localizer["InvitationToChangeSent.SentEmailToChangePermission", Model.UserDisplayName]
+                </p>
+                <h2 class="govuk-heading-m">@Localizer["InvitationToChangeSent.WhatHappensNext"]</h2>
+                <p class="govuk-body">
+                    @Localizer["InvitationToChangeSent.NeedsToAccept", Model.UserDisplayName]
+                </p>
+                <p class="govuk-body">
+                    @Localizer["InvitationToChangeSent.AfterHasAccepted", Model.UserDisplayName]
+                </p>
+                <p class="govuk-body govuk-!-margin-bottom-6">
+                    @Localizer["InvitationToChangeSent.WillBeAble", Model.UserDisplayName]
+                </p>
+                <a asp-action="ManageAccount" asp-controller="AccountManagement" class="govuk-button" data-module="govuk-button">
+                    @Localizer["InvitationToChangeSent.ReturnToAccountDetails"]
+                </a>
+            </div>
+        </div>
+    </main>
+</div>

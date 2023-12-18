@@ -1,0 +1,161 @@
+﻿@using FrontendAccountManagement.Web.ViewModels.PermissionManagement
+@using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
+@using FrontendAccountManagement.Web.Extensions
+@using FrontendAccountManagement.Web.Constants
+@using FrontendAccountManagement.Core.Sessions
+
+@model CheckDetailsSendInviteViewModel
+
+@{
+    ViewData["Title"] = Localizer["CheckDetailsSendInvite.Title"];
+
+    var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer);
+    
+    string nameOrTitle = String.Empty;
+    string howDoTheyWork = String.Empty;
+    string previousPage = String.Empty;
+    string name = String.Empty;
+    
+    switch(Model.SelectedRelationshipWithOrganisation) 
+    {
+        case RelationshipWithOrganisation.Employee:
+            howDoTheyWork = Localizer["CheckDetailsSendInvite.Employee"].Value;
+            nameOrTitle = Localizer["CheckDetailsSendInvite.JobTitle"].Value;
+            name = Model.JobTitle;
+            previousPage = PagePath.JobTitle;
+            break;
+        case RelationshipWithOrganisation.Consultant:
+            howDoTheyWork = Localizer["CheckDetailsSendInvite.Consultant"].Value;
+            nameOrTitle= Localizer["CheckDetailsSendInvite.NameOfConsultancy"].Value;
+            name = Model.NameOfConsultancy;
+            previousPage = PagePath.NameOfConsultancy;
+            break;
+        case RelationshipWithOrganisation.ConsultantFromComplianceScheme:
+            howDoTheyWork = Localizer["CheckDetailsSendInvite.ConsultantFromComplianceScheme"].Value;
+            nameOrTitle = Localizer["CheckDetailsSendInvite.NameOfComplianceScheme"].Value;
+            name = Model.NameOfComplianceScheme;
+            previousPage = PagePath.NameOfComplianceScheme;
+            break;
+        case RelationshipWithOrganisation.SomethingElse:
+            howDoTheyWork = Model.AdditionalRelationshipInformation;
+            nameOrTitle = Localizer["CheckDetailsSendInvite.NameOfOrganisation"].Value;
+            name = Model.NameOfOrganisation;
+            previousPage = PagePath.NameOfOrganisation;
+            break;
+    }
+}
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                @await Html.PartialAsync("Partials/Govuk/_ErrorSummary", errorsViewModel)
+
+                <form asp-controller="PermissionManagement" asp-action="CheckDetailsSendInvite" asp-route-id="@Model.Id" method="post">
+                    <div class="govuk-form-group">
+                        <h1 class="govuk-heading-l govuk-!-margin-bottom-4">
+                            @Localizer["CheckDetailsSendInvite.Question"]
+                        </h1>
+                        
+                        <dl class="govuk-summary-list govuk-!-margin-bottom-4">
+                            <div class="govuk-summary-list__row">
+                                <div class="govuk-!-margin-right-3">
+                                    <dt class="govuk-summary-list__key">
+                                        @Localizer["CheckDetailsSendInvite.AccountPermissions"]
+                                    </dt>
+                                </div>
+                                <dd class="govuk-summary-list__value">
+                                    @if (Model.PermissionType == PermissionType.Basic)
+                                    {
+                                        @Localizer["CheckDetailsSendInvite.Basic"]
+                                    } else if (Model.PermissionType == PermissionType.Admin)
+                                    {
+                                        @Localizer["CheckDetailsSendInvite.Admin"]
+                                    } else if (Model.PermissionType == PermissionType.Delegated)
+                                    {
+                                        @Localizer["CheckDetailsSendInvite.Delegated"]
+                                    }
+                                </dd>
+                                <dd class="govuk-summary-list__actions">
+                                    <a href="~/@PagePath.ChangeAccountPermissions/@Model.Id" class="govuk-link govuk-link--no-visited-state">
+                                        @SharedLocalizer["Change"]
+                                        <span class="govuk-visually-hidden"></span>
+                                    </a>
+                                </dd>
+                            </div>
+                            
+                            <div class="govuk-summary-list__row">
+                                <div class="govuk-!-margin-right-3">
+                                    <dt class="govuk-summary-list__key">
+                                        @Localizer["CheckDetailsSendInvite.HowDoTheyWork"]
+                                    </dt>
+                                </div>
+                                <dd class="govuk-summary-list__value">
+                                    @howDoTheyWork
+                                </dd>
+                                <dd class="govuk-summary-list__actions">
+                                    <a href="~/@PagePath.RelationshipWithOrganisation/@Model.Id" class="govuk-link govuk-link--no-visited-state">
+                                        @SharedLocalizer["Change"]
+                                        <span class="govuk-visually-hidden"></span>
+                                    </a>
+                                </dd>
+                            </div>
+                            
+                            <div class="govuk-summary-list__row">
+                                <div class="govuk-!-margin-right-3">
+                                    <dt class="govuk-summary-list__key">
+                                        @nameOrTitle
+                                    </dt>
+                                </div>
+                                <dd class="govuk-summary-list__value">
+                                    @name
+                                </dd>
+                                <dd class="govuk-summary-list__actions">
+                                    <a href="~/@previousPage/@Model.Id" class="govuk-link govuk-link--no-visited-state">
+                                        @SharedLocalizer["Change"]
+                                        <span class="govuk-visually-hidden"></span>
+                                    </a>
+                                </dd>
+                            </div>
+                        </dl>
+                        
+                        <h2 class="govuk-heading-m govuk-!-margin-bottom-4">
+                            @Localizer["CheckDetailsSendInvite.Declaration"]
+                        </h2>
+                        
+                        <p class="govuk-body">
+                            @Localizer["CheckDetailsSendInvite.ByEnteringYourName"] @Model.InviteeFullname:
+                        </p>
+                        
+                        <ul class="govuk-list govuk-list--bullet">
+                            <li>
+                                @Localizer["CheckDetailsSendInvite.HasYourPermission"]
+                            </li>
+                            <li>
+                                @Localizer["CheckDetailsSendInvite.UnderstandsTheRegulations"]
+                            </li>
+                            <li>
+                                @Localizer["CheckDetailsSendInvite.HasAccessToInformation"]
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="govuk-form-group@(!ViewData.ModelState.IsValid ? " govuk-form-group--error" : "")">
+                        <div class="govuk-heading-m govuk-!-margin-bottom-2">
+                            <label gov-for="Fullname">@Localizer["CheckDetailsSendInvite.EnterYourFullName"]</label>
+                        </div>
+                        <div class="govuk-form-group govuk-!-margin-bottom-4 @(errorsViewModel.HasErrorKey(nameof(CheckDetailsSendInviteViewModel.Fullname)) ? "govuk-form-group--error" : "")">
+                            @await Html.PartialAsync("Partials/Govuk/_FormItemError", errorsViewModel[nameof(CheckDetailsSendInviteViewModel.Fullname)])
+                            <input class="govuk-input @Html.Raw(errorsViewModel.HasErrorKey(nameof(CheckDetailsSendInviteViewModel.Fullname)) ? "govuk-input--error" : "")"
+                                   type="text"
+                                   gov-for="Fullname"
+                                   gov-value="@Model.Fullname">
+                        </div>
+                    </div>
+                    <button class="govuk-button" data-module="govuk-button">
+                        @Localizer["CheckDetailsSendInvite.SendInvitation"]
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
