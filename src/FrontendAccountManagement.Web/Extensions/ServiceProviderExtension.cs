@@ -144,6 +144,7 @@ public static class ServiceProviderExtension
             {
                 configuration.GetSection("AzureAdB2C").Bind(options);
                 options.ErrorPath = "/error";
+                options.ClaimActions.Add(new CorrelationClaimAction());
             }, options =>
             {
                 options.Cookie.Name = configuration.GetValue<string>("CookieOptions:AuthenticationCookieName");
