@@ -9,6 +9,6 @@ namespace FrontendAccountManagement.Web.ViewModels.PermissionManagement
         public string? DisplayName { get; set; }
         public bool ApprovedByRegulator { get; set; }
         public YesNoAnswer? ConfirmAnswer { get; set; }
-        public List<int> NationIds { get; set; }
+        public List<int>? NationIds { get; set; }
     }
 }
