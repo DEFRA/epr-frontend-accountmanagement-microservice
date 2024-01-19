@@ -27,7 +27,7 @@ parameters:
     - preprod
     - prod
 - name: imageTag
-  displayName: Enter Tag for the Image
+  displayName: Enter Tag for the Image (Docker tag) or Release name (Git repo tag)
   default: ''
   type: string
 
@@ -52,6 +52,7 @@ variables:
     - name: env
       value: PRD1
     - template: vars-regulator/${{ parameters.envToDeploy }}.yaml
+  - template: pipelines/image-tags/${{ parameters.envToDeploy }}.yaml@ReleaseTags
 
 resources:
   repositories:
@@ -60,10 +61,19 @@ resources:
       type: git
       ref: main
 
+    # The repo will be reference the repo by a release tag (if the imageTag parameter contains 'release') otherwise it will pull down the main branch.
+    - repository: ReleaseTags
+      name: RWD-CPR-EPR4P-ADO/epr-app-config-settings
+      type: git
+      ref: ${{ replace(replace(contains(parameters.imageTag, 'RELEASE'),'True',replace('refs/tags/RELEASETAG','RELEASETAG', parameters.imageTag)),'False','main') }}
+
 extends:
   template: epr-deployment-pipeline.yaml@CommonTemplates
   parameters:
-    imageTag: ${{ parameters.imageTag }}
+    ${{ if contains(parameters.imageTag, 'RELEASE') }}:
+      imageTag: $(DEVRWDWEBWAx412)
+    ${{ else }}:
+      imageTag: ${{ parameters.imageTag }}
     azureSubscription: $(azureSubscription)
     acrName: $(acr.azureContainerRegistryName)
     registryName: $(acr.repositoryName)

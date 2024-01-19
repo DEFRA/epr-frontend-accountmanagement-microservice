@@ -17,8 +17,9 @@ public class SecurityHeaderMiddleware
         _next = next;
     }
 
-    public async Task Invoke(HttpContext httpContext)
+    public async Task Invoke(HttpContext httpContext, IConfiguration configuration)
     {
+        string whitelistedFormActionAddresses = configuration["AzureAdB2C:Instance"];
         var scriptNonce = GenerateNonce();
 
         const string permissionsPolicy = "accelerometer=(),ambient-light-sensor=(),autoplay=(),battery=(),camera=(),display-capture=()," +
@@ -27,7 +28,7 @@ public class SecurityHeaderMiddleware
             "oversized-images=(self),payment=(),picture-in-picture=(),publickey-credentials-get=(),speaker-selection=()," +
             "sync-xhr=(self),unoptimized-images=(self),unsized-media=(self),usb=(),screen-wake-lock=(),web-share=(),xr-spatial-tracking=()";
 
-        httpContext.Response.Headers.Add("Content-Security-Policy", GetContentSecurityPolicyHeader(scriptNonce));
+        httpContext.Response.Headers.Add("Content-Security-Policy", GetContentSecurityPolicyHeader(scriptNonce, whitelistedFormActionAddresses));
         httpContext.Response.Headers.Add("Cross-Origin-Embedder-Policy", "require-corp");
         httpContext.Response.Headers.Add("Cross-Origin-Opener-Policy", "same-origin");
         httpContext.Response.Headers.Add("Cross-Origin-Resource-Policy", "same-origin");
@@ -43,7 +44,7 @@ public class SecurityHeaderMiddleware
         await _next(httpContext);
     }
 
-    private static string GetContentSecurityPolicyHeader(string scriptNonce)
+    private static string GetContentSecurityPolicyHeader(string scriptNonce, string whitelistedFormActionAddresses)
     {
         const string defaultSrc = "default-src 'self'";
         const string objectSrc = "object-src 'none'";
@@ -53,7 +54,7 @@ public class SecurityHeaderMiddleware
         const string imgSrc = "img-src 'self' www.googletagmanager.com https://ssl.gstatic.com https://www.gstatic.com " +
                         "https://*.google-analytics.com https://*.googletagmanager.com";
         string scriptSrc = $"script-src 'self' 'nonce-{scriptNonce}' https://tagmanager.google.com https://*.googletagmanager.com";
-        const string formAction = "form-action 'self'";
+        string formAction = $"form-action 'self' {whitelistedFormActionAddresses}";
         const string styleSrc = "style-src 'self' https://tagmanager.google.com https://fonts.googleapis.com";
         const string fontSrc = "font-src 'self' https://fonts.gstatic.com data:";
         const string connectSrc = "connect-src 'self' https://*.google-analytics.com " +
