@@ -4,7 +4,7 @@ stages:
     jobs:
       - job: DeployToDev4Regulators
         displayName: DeployToDev4 (Regulators)
-        condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/main))
+        condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/main'))
         steps:
           - template: templates/deployment.yaml@CommonTemplates
             parameters:
