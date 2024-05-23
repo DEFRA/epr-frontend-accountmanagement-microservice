@@ -53,7 +53,7 @@ public class AccountManagementController : Controller
 
         if (!HasPermissionToView(session.UserData))
         {
-            return RedirectToAction(PagePath.Error, nameof(ErrorController.Index), new
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
             {
                 statusCode = (int)HttpStatusCode.Forbidden
             });

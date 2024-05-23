@@ -67,7 +67,7 @@ public class AccountManagementTests : AccountManagementTestBase
         result.Should().BeOfType<RedirectToActionResult>();
         var redirectResult = (RedirectToActionResult)result;
 
-        redirectResult.ControllerName.Should().Be(nameof(ErrorController.Index));
+        redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
         redirectResult.ActionName.Should().Be(PagePath.Error);
         redirectResult.RouteValues.Should().ContainKey("statusCode");
         redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
@@ -87,7 +87,7 @@ public class AccountManagementTests : AccountManagementTestBase
         result.Should().BeOfType<RedirectToActionResult>();
         var redirectResult = (RedirectToActionResult)result;
 
-        redirectResult.ControllerName.Should().Be(nameof(ErrorController.Index));
+        redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
         redirectResult.ActionName.Should().Be(PagePath.Error);
         redirectResult.RouteValues.Should().ContainKey("statusCode");
         redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
