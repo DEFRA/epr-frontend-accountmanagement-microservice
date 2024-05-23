@@ -67,7 +67,7 @@ public class AccountManagementTests : AccountManagementTestBase
         result.Should().BeOfType<RedirectToActionResult>();
         var redirectResult = (RedirectToActionResult)result;
 
-        redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+        redirectResult.ControllerName.Should().Be(nameof(ErrorController.Index));
         redirectResult.ActionName.Should().Be(PagePath.Error);
         redirectResult.RouteValues.Should().ContainKey("statusCode");
         redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
@@ -87,7 +87,7 @@ public class AccountManagementTests : AccountManagementTestBase
         result.Should().BeOfType<RedirectToActionResult>();
         var redirectResult = (RedirectToActionResult)result;
 
-        redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+        redirectResult.ControllerName.Should().Be(nameof(ErrorController.Index));
         redirectResult.ActionName.Should().Be(PagePath.Error);
         redirectResult.RouteValues.Should().ContainKey("statusCode");
         redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
@@ -100,7 +100,7 @@ public class AccountManagementTests : AccountManagementTestBase
         RemoveUserJourneyModel userDetails = new() { FirstName = "An", LastName = "Test" };
         AccountManagementSession removeUserAccount = new() { RemoveUserStatus = 0, RemoveUserJourney = userDetails };
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-           .Returns(Task.FromResult(new JourneySession { AccountManagementSession =  removeUserAccount }));
+           .Returns(Task.FromResult(new JourneySession { AccountManagementSession = removeUserAccount }));
         // Act
         var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
 

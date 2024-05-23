@@ -1,6 +1,4 @@
-﻿using System.Net;
-using FrontendAccountManagement.Web.Constants;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FrontendAccountManagement.Web.Controllers.Errors;
@@ -8,11 +6,18 @@ namespace FrontendAccountManagement.Web.Controllers.Errors;
 [AllowAnonymous]
 public class ErrorController : Controller
 {
-    
-    [Route(PagePath.Error)]
-    public ViewResult Error(int? statusCode)
+    [Route("{statusCode:int}")]
+    public ViewResult Index(int? statusCode)
     {
-        var errorView = statusCode == (int?)HttpStatusCode.NotFound ? "PageNotFound" : "Error";
-        return View(errorView);
+        Response.StatusCode = statusCode.HasValue ? statusCode.Value : StatusCodes.Status500InternalServerError;
+
+        if (Response.StatusCode == StatusCodes.Status404NotFound)
+        {
+            return View("PageNotFound");
+        }
+        else
+        {
+            return View("Error");
+        }
     }
 }
