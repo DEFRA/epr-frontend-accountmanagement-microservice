@@ -153,4 +153,13 @@
   <data name="Footer.Telephone" xml:space="preserve">
     <value>Telephone</value>
   </data>
+  <data name="Footer.LicenceDescription1" xml:space="preserve">
+    <value>All content is available under the </value>
+  </data>
+  <data name="Footer.LicenceDescription2" xml:space="preserve">
+    <value>Open Government Licence v3.0</value>
+  </data>
+  <data name="Footer.LicenceDescription3" xml:space="preserve">
+    <value>, except where otherwise stated</value>
+  </data>
 </root>

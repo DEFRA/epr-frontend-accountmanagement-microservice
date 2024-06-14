@@ -142,15 +142,24 @@
     <value>Dolenni cymorth</value>
   </data>
   <data name="Footer.CustomerServiceTimes" xml:space="preserve">
-    <value>[Welsh]Monday to Friday, 8:30am to 4:30pm</value>
+    <value>Dydd Llun i ddydd Gwener, 8:30am i 4:30pm</value>
   </data>
   <data name="Footer.Email" xml:space="preserve">
-    <value>[Welsh]Email</value>
+    <value>Ebost</value>
   </data>
   <data name="Footer.GetHelp" xml:space="preserve">
-    <value>[Welsh]Get help</value>
+    <value>Cael Help</value>
   </data>
   <data name="Footer.Telephone" xml:space="preserve">
-    <value>[Welsh]Telephone</value>
+    <value>Ffôn</value>
+  </data>
+  <data name="Footer.LicenceDescription1" xml:space="preserve">
+    <value>Mae’r holl gynnwys ar gael dan y </value>
+  </data>
+  <data name="Footer.LicenceDescription2" xml:space="preserve">
+    <value>Drwydded Llywodraeth Agored, fersiwn 3.0</value>
+  </data>
+  <data name="Footer.LicenceDescription3" xml:space="preserve">
+    <value>, fersiwn 3.0, oni nodir yn wahanol</value>
   </data>
 </root>
