@@ -27,15 +27,16 @@
   
     <ItemGroup>
       <PackageReference Include="EPR.Common.Authorization" Version="1.0.11" />
-      <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
-      <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="7.0.10" />
-      <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="7.0.10" />
-      <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.21" />
-      <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="7.0.10" />
-      <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="2.5.1" />
-      <PackageReference Include="Microsoft.Identity.Web" Version="2.13.3" />
-      <PackageReference Include="Microsoft.Identity.Web.UI" Version="2.13.3" />
-      <PackageReference Update="SonarAnalyzer.CSharp" Version="8.50.0.58025" />
+      <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="8.0.6" />
+      <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="8.0.6" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.6" />
+      <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.6" />
+      <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="3.3.1" />
+      <PackageReference Include="Microsoft.Identity.Web" Version="2.19.1" />
+      <PackageReference Include="Microsoft.Identity.Web.UI" Version="2.19.1" />
+      <PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" />
+      <PackageReference Update="SonarAnalyzer.CSharp" Version="9.27.0.93347" />
     </ItemGroup>
 
     <ItemGroup>
