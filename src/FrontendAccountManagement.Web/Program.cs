@@ -5,6 +5,7 @@ using FrontendAccountManagement.Web.HealthChecks;
 using FrontendAccountManagement.Web.Middleware;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Logging;
 
@@ -20,7 +21,8 @@ builder.Services
 
 builder.Services
     .AddAntiforgery(options => options.Cookie.Name = builder.Configuration.GetValue<string>("CookieOptions:AntiForgeryCookieName"))
-    .AddControllersWithViews(options => {
+    .AddControllersWithViews(options =>
+    {
         options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
     })
     .AddViewLocalization(options =>
@@ -28,8 +30,8 @@ builder.Services
         var deploymentRole = builder.Configuration
             .GetValue<string>(DeploymentRoleOptions.ConfigSection);
 
-        options.ResourcesPath = deploymentRole != DeploymentRoleOptions.RegulatorRoleValue 
-            ? "Resources" 
+        options.ResourcesPath = deploymentRole != DeploymentRoleOptions.RegulatorRoleValue
+            ? "Resources"
             : "ResourcesRegulator";
     })
     .AddDataAnnotationsLocalization();
@@ -100,6 +102,17 @@ app.MapControllerRoute(
 app.MapHealthChecks(
     builder.Configuration.GetValue<string>("HealthCheckPath"),
     HealthCheckOptionBuilder.Build()).AllowAnonymous();
+
+if (builder.Configuration.GetValue<bool>("FeatureManagement:AllowAlertTestEndpoint"))
+{
+    app.MapHealthChecks("/admin/error", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+    {
+        ResultStatusCodes =
+    {
+        [HealthStatus.Healthy] = StatusCodes.Status500InternalServerError
+    }
+    }).AllowAnonymous();
+}
 
 app.MapRazorPages();
 
