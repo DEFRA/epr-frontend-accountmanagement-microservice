@@ -4,7 +4,7 @@ This repostory contains the code for the frontend of the Account Management doma
 
 ## Prerequisites
 
-* .NET 6.0 SDK.
+* .NET 8.0 SDK.
 * Any IDE able to open projects written in c# 10, like Visual Studio or VS Code.
 * Access to epr-packaging-common NuGet package repository.
 
