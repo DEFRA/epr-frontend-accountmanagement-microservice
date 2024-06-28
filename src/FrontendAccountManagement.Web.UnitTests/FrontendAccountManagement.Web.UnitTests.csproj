@@ -33,7 +33,7 @@
         <ProjectReference Include="..\FrontendAccountManagement.Core\FrontendAccountManagement.Core.csproj" />
         <ProjectReference Include="..\FrontendAccountManagement.Web\FrontendAccountManagement.Web.csproj" />
         <PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" />
-        <PackageReference Update="SonarAnalyzer.CSharp" Version="9.27.0.93347" />
+        <PackageReference Update="SonarAnalyzer.CSharp" Version="9.28.0.94264" />
     </ItemGroup>
 
 </Project>
