@@ -299,6 +299,29 @@ public class AccountManagementController : Controller
         return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.RemoveTeamMember, PagePath.ManageAccount);
     }
 
+    /// <summary>
+    /// Displays the "Declaration" page.
+    /// </summary>
+    /// <remarks>
+    /// The page is only displayed when arriving from the "Check your details" page.
+    /// If navigated to directly, the user is forwarded to an error page.
+    /// </remarks>
+	[HttpGet]
+	[Route("declaration")]
+	public async Task<IActionResult> Declaration()
+    {
+        Uri? referer;
+        Uri.TryCreate(this.Request.Headers["Referer"], new UriCreationOptions(), out referer);
+
+        if (referer == null
+            || string.Join(string.Empty, referer?.Segments) != "/manage-account/check-your-details")
+        {
+            return Redirect("/manage-account/this-page-cannot-be-accessed-directly");
+        }
+
+        return View("Declaration");
+    }
+
     private static void SetRemoveUserJourneyValues(JourneySession session, string firstName, string lastName, Guid personId)
     {
         if (session.AccountManagementSession.RemoveUserJourney == null)
