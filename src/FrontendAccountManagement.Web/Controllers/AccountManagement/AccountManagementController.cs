@@ -306,14 +306,11 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        SetBackLink(session, PagePath.UpdateDetailsConfirmation);
         var model = new UpdateDetailsConfirmationViewModel
         {
             Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
             UpdatedDatetime = DateTime.UtcNow
         };
-
-        ViewBag.BackLinkToDisplay = null;
 
         return View(nameof(UpdateDetailsConfirmation), model);
     }
