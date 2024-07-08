@@ -8,7 +8,6 @@ using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.Errors;
-using FrontendAccountManagement.Web.Sessions;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +15,9 @@ using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using FrontendAccountManagement.Web.Extensions;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
+using EPR.Common.Authorization.Sessions;
+using AutoMapper;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 
@@ -28,21 +30,24 @@ public class AccountManagementController : Controller
     private readonly ILogger<AccountManagementController> _logger;
     private readonly ExternalUrlsOptions _urlOptions;
     private readonly DeploymentRoleOptions _deploymentRoleOptions;
+    private readonly IMapper _mapper;
 
     public AccountManagementController(
         ISessionManager<JourneySession> sessionManager,
         IFacadeService facadeService,
         IOptions<ExternalUrlsOptions> urlOptions,
         IOptions<DeploymentRoleOptions> deploymentRoleOptions,
-        ILogger<AccountManagementController> logger)
+        ILogger<AccountManagementController> logger,
+        IMapper mapper)
     {
         _sessionManager = sessionManager;
         _facadeService = facadeService;
         _logger = logger;
         _urlOptions = urlOptions.Value;
         _deploymentRoleOptions = deploymentRoleOptions.Value;
+        _mapper = mapper;
     }
-    
+
     [HttpGet]
     [Route("")]
     [Route(PagePath.ManageAccount)]
@@ -300,6 +305,50 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [Route(PagePath.WhatAreYourDetails)]
+    public async Task<IActionResult> EditUserDetails()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        var model = _mapper.Map<EditUserDetailsViewModel>(session.UserData);
+
+        SetBackLink(session, PagePath.ManageAccount);
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [Route(PagePath.WhatAreYourDetails)]
+    public async Task<IActionResult> EditUserDetails(EditUserDetailsViewModel editUserDetailsViewModel)
+    {
+        // is there a modelstate error for job title, but job title never existed
+        if (ModelState.ContainsKey(nameof(EditUserDetailsViewModel.JobTitle)) &&
+            ModelState.FirstOrDefault(ms => ms.Key == nameof(EditUserDetailsViewModel.JobTitle)).Value.Errors.Any() &&
+            !editUserDetailsViewModel.PropertyExists(m => m.OriginalJobTitle))
+        {
+            // if so, remove the error
+            ModelState.Remove(nameof(EditUserDetailsViewModel.JobTitle));
+        }
+
+        // is there a modelstate error for telephone, but telephone never existed
+        if (ModelState.ContainsKey(nameof(EditUserDetailsViewModel.Telephone)) &&
+            ModelState.FirstOrDefault(ms => ms.Key == nameof(EditUserDetailsViewModel.Telephone)).Value.Errors.Any() &&
+            !editUserDetailsViewModel.PropertyExists(m => m.OriginalTelephone))
+        {
+            // if so, remove the error
+            ModelState.Remove(nameof(EditUserDetailsViewModel.Telephone));
+        }
+
+        if (!ModelState.IsValid)
+        {
+            await SetBackLink(PagePath.ManageAccount);
+            return View(editUserDetailsViewModel);
+        }
+
+        return RedirectToAction("Unknown");
+    }
+
+    [HttpGet]
     [AllowAnonymous]
     [Route(PagePath.UpdateDetailsConfirmation)]
     public async Task<IActionResult> UpdateDetailsConfirmation()
@@ -366,6 +415,12 @@ public class AccountManagementController : Controller
 
         // this also cover if current page not found (index = -1) then it clears all pages
         session.AccountManagementSession.Journey = session.AccountManagementSession.Journey.Take(index + 1).ToList();
+    }
+
+    private async Task SetBackLink(string currentPagePath)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
     }
 
     private void SetBackLink(JourneySession session, string currentPagePath)

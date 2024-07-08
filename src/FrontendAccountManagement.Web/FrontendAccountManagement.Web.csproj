@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
@@ -18,7 +18,7 @@
   </Target>
 
   <Target Name="NpmRunBuildFrontend" DependsOnTargets="NpmInstall" BeforeTargets="BeforeBuild">
-    <Exec Command="npm run build-frontend" />
+    <!--<Exec Command="npm run build-frontend" />-->
   </Target>
 
     <ItemGroup>
@@ -26,8 +26,9 @@
     </ItemGroup>
   
     <ItemGroup>
-      <PackageReference Include="EPR.Common.Authorization" Version="1.0.11" />
-      <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
+      <PackageReference Include="AutoMapper" Version="13.0.1" />
+      <PackageReference Include="EPR.Common.Authorization" Version="1.0.15-rc.607066" />
+	  <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.21" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.21" />
       <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="7.0.10" />
@@ -45,6 +46,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <EmbeddedResource Update="Resources\Views\AccountManagement\EditUserDetails.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>EditUserDetails.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
       <EmbeddedResource Update="Resources\Views\AccountManagement\TeamMemberEmail.en.resx">
         <Generator>ResXFileCodeGenerator</Generator>
         <LastGenOutput>TeamMemberEmail.en.Designer.cs</LastGenOutput>
@@ -140,6 +145,11 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Compile Update="Resources\Views\AccountManagement\EditUserDetails.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>EditUserDetails.resx</DependentUpon>
+      </Compile>
       <Compile Update="Resources\Views\AccountManagement\TeamMemberDetails.Designer.cs">
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>
