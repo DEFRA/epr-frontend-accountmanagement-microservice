@@ -319,6 +319,8 @@ public class AccountManagementController : Controller
             return Redirect("/manage-account/this-page-cannot-be-accessed-directly");
         }
 
+        SetCustomBackLink("/manage-account/check-your-details");
+        
         return View("Declaration");
     }
 
