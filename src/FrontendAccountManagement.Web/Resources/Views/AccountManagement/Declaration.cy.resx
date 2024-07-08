@@ -118,21 +118,21 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Declaration.ButtonText" xml:space="preserve">
-    <value>[Placeholder]Cadarnhau’r manylion a chreu cyfrif</value>
+    <value>[Welsh] Cadarnhau’r manylion a chreu cyfrif</value>
   </data>
   <data name="Declaration.Paragraph1" xml:space="preserve">
-    <value>[Placeholder]Trwy gadarnhau’ch manylion, rydych chi’n cytuno bod yr wybodaeth rydych chi wedi’i rhoi yn gyflawn ac yn gywir.</value>
+    <value>[Welsh] Trwy gadarnhau’ch manylion, rydych chi’n cytuno bod yr wybodaeth rydych chi wedi’i rhoi yn gyflawn ac yn gywir.</value>
   </data>
   <data name="Declaration.Paragraph2" xml:space="preserve">
-    <value>[Placeholder]Rydych chi hefyd yn cytuno yr hoffech i’r rheoleiddiwr gymeradwyo cyfrif ar gyfer eich sefydliad.</value>
+    <value>[Welsh] Rydych chi hefyd yn cytuno yr hoffech i’r rheoleiddiwr gymeradwyo cyfrif ar gyfer eich sefydliad.</value>
   </data>
   <data name="Declaration.Title" xml:space="preserve">
-    <value>[Placeholder]Datganiad</value>
+    <value>[Welsh] Datganiad</value>
   </data>
   <data name="Declaration.ScreenReaderHelpText" xml:space="preserve">
-    <value>[Placeholder]Rhybudd</value>
+    <value>[Welsh] ]Rhybudd</value>
   </data>
   <data name="Declaration.Warning" xml:space="preserve">
-    <value>[Placeholder]Gallwch gael eich dirwyo neu eich erlyn os byddwch yn rhoi’r wybodaeth anghywir.</value>
+    <value>[Welsh] Gallwch gael eich dirwyo neu eich erlyn os byddwch yn rhoi’r wybodaeth anghywir.</value>
   </data>
 </root>
