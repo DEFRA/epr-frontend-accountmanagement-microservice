@@ -8,7 +8,7 @@ using Moq;
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 {
     [TestClass]
-    public class UpdateDetailsConfirmationTests : AccountManagementTestBase
+    public class DetailsChangeRequestedTests : AccountManagementTestBase
     {
         private UserData _userData;
 
@@ -28,20 +28,19 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task UpdateDetailsConfirmation_ShouldReturnViewWithExpectedModel()
+        public async Task DetailsChangeRequested_ShouldReturnViewWithExpectedModel()
         {
             // Act
-            var result = await SystemUnderTest.UpdateDetailsConfirmation();
+            var result = await SystemUnderTest.DetailsChangeRequested();
 
             // Assert
             var viewResult = result as ViewResult;
             viewResult.Should().NotBeNull();
-            viewResult.ViewName.Should().Be(nameof(SystemUnderTest.UpdateDetailsConfirmation));
-            var model = viewResult.Model as UpdateDetailsConfirmationViewModel;
+            viewResult.ViewName.Should().Be(nameof(SystemUnderTest.DetailsChangeRequested));
+            var model = viewResult.Model as DetailsChangeRequestedViewModel;
             model.Should().NotBeNull();
             model.Username.Should().Be("Dwight Schrute");
             model.UpdatedDatetime.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
         }
-
     }
 }

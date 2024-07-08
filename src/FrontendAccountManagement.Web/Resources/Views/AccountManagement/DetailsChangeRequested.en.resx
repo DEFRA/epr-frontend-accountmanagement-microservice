@@ -127,6 +127,6 @@
     <value>What happens next</value>
   </data>
   <data name="WhatHappensNextInformation" xml:space="preserve">
-    <value>nge will need to be reviewed by the regulator. You will be notified within 28 days.</value>
+    <value>Because of your permissions this change will need to be reviewed by the regulator. You will be notified within 28 days.</value>
   </data>
 </root>

@@ -358,7 +358,7 @@ public class AccountManagementController : Controller
         var model = new UpdateDetailsConfirmationViewModel
         {
             Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
-            UpdatedDatetime = DateTime.UtcNow
+            UpdatedDatetime = DateTime.Now
         };
 
         return View(nameof(UpdateDetailsConfirmation), model);
@@ -375,7 +375,7 @@ public class AccountManagementController : Controller
         var model = new DetailsChangeRequestedViewModel
         {
             Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
-            UpdatedDatetime = DateTime.UtcNow
+            UpdatedDatetime = DateTime.Now
         };
 
         return View(nameof(DetailsChangeRequested), model);
