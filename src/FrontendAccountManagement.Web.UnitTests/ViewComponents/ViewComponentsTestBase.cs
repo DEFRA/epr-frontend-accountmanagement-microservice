@@ -1,7 +1,7 @@
 using EPR.Common.Authorization.Models;
+using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
-using FrontendAccountManagement.Web.Sessions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
