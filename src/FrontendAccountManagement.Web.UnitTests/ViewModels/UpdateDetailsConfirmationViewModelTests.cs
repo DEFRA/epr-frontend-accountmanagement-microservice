@@ -26,64 +26,30 @@ namespace FrontendAccountManagement.Web.UnitTests.ViewModels
             result.Should().Be(expectedMessage);
         }
 
-        [TestMethod]
-        public void GetFormattedChangeMessage_ShouldReturnCorrectOrdinal_ForDaysWithSpecialSuffixes()
+        [DataTestMethod]
+        [DataRow("Test User", "2024-06-01", "Changed by Test User at 12:00am on 01st June 2024")]
+        [DataRow("Test User", "2024-06-02", "Changed by Test User at 12:00am on 02nd June 2024")]
+        [DataRow("Test User", "2024-06-03", "Changed by Test User at 12:00am on 03rd June 2024")]
+        [DataRow("Test User", "2024-06-04", "Changed by Test User at 12:00am on 04th June 2024")]
+        [DataRow("Test User", "2024-06-21", "Changed by Test User at 12:00am on 21st June 2024")]
+        [DataRow("Test User", "2024-06-22", "Changed by Test User at 12:00am on 22nd June 2024")]
+        [DataRow("Test User", "2024-06-23", "Changed by Test User at 12:00am on 23rd June 2024")]
+        public void GetFormattedChangeMessage_ShouldReturnCorrectOrdinal_ForDaysWithSpecialSuffixes(
+            string username, string dateString, string expectedMessage)
         {
             // Arrange
-            var username = "Test User";
-            var testCases = new[]
+            var date = DateTime.Parse(dateString);
+            var viewModel = new UpdateDetailsConfirmationViewModel
             {
-                new
-                {
-                    Date = new DateTime(2024, 6, 1),
-                    ExpectedMessage = "Changed by Test User at 12:00am on 01st June 2024"
-                },
-                new
-                {
-                    Date = new DateTime(2024, 6, 2),
-                    ExpectedMessage = "Changed by Test User at 12:00am on 02nd June 2024"
-                },
-                new
-                {
-                    Date = new DateTime(2024, 6, 3),
-                    ExpectedMessage = "Changed by Test User at 12:00am on 03rd June 2024"
-                },
-                new
-                {
-                    Date = new DateTime(2024, 6, 4),
-                    ExpectedMessage = "Changed by Test User at 12:00am on 04th June 2024"
-                },
-                new
-                {
-                    Date = new DateTime(2024, 6, 21),
-                    ExpectedMessage = "Changed by Test User at 12:00am on 21st June 2024"
-                },
-                new
-                {
-                    Date = new DateTime(2024, 6, 22),
-                    ExpectedMessage = "Changed by Test User at 12:00am on 22nd June 2024"
-                },
-                new
-                {
-                    Date = new DateTime(2024, 6, 23),
-                    ExpectedMessage = "Changed by Test User at 12:00am on 23rd June 2024"
-                }
+                Username = username,
+                UpdatedDatetime = date
             };
 
-            foreach (var testCase in testCases)
-            {
-                var viewModel = new UpdateDetailsConfirmationViewModel
-                {
-                    Username = username,
-                    UpdatedDatetime = testCase.Date
-                };
+            // Act
+            var result = viewModel.GetFormattedChangeMessage();
 
-                // Act
-                var result = viewModel.GetFormattedChangeMessage();
-
-                // Assert
-                result.Should().Be(testCase.ExpectedMessage);
-            }
+            // Assert
+            Assert.AreEqual(expectedMessage, result);
         }
     }
 }
