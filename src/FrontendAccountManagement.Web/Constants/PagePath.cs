@@ -28,4 +28,7 @@ public static class PagePath
     public const string Culture = "culture";
     public const string AcknowledgeCookieAcceptance = "acknowledge-cookie-acceptance";
     public const string UpdateCookieAcceptance = "update-cookie-acceptance";
+
+    // Edit user details
+    public const string UpdateDetailsConfirmation = "your-details-have-been-updated";
 }

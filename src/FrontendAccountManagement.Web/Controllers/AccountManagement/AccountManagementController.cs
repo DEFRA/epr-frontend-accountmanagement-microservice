@@ -299,6 +299,22 @@ public class AccountManagementController : Controller
         return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.RemoveTeamMember, PagePath.ManageAccount);
     }
 
+    [HttpGet]
+    [AllowAnonymous]
+    [Route(PagePath.UpdateDetailsConfirmation)]
+    public async Task<IActionResult> UpdateDetailsConfirmation()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        var model = new UpdateDetailsConfirmationViewModel
+        {
+            Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
+            UpdatedDatetime = DateTime.UtcNow
+        };
+
+        return View(nameof(UpdateDetailsConfirmation), model);
+    }
+
     private static void SetRemoveUserJourneyValues(JourneySession session, string firstName, string lastName, Guid personId)
     {
         if (session.AccountManagementSession.RemoveUserJourney == null)
