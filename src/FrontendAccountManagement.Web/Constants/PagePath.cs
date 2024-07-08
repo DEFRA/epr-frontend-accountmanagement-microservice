@@ -30,5 +30,5 @@ public static class PagePath
     public const string UpdateCookieAcceptance = "update-cookie-acceptance";
 
     // Edit user details
-    public const string UpdateDetailsConfirmation = "update-details-confirmation";
+    public const string UpdateDetailsConfirmation = "your-details-have-been-updated";
 }
