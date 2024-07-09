@@ -24,7 +24,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
     {
         private AccountManagementController TestClass { get; set; }
         private Mock<ISessionManager<JourneySession>> SessionManager { get; set; }
-        private Mock<IFacadeService> FaçadeService { get; set; }
+        private Mock<IFacadeService> FacadeService { get; set; }
         private Mock<IOptions<ExternalUrlsOptions>> UrlOptions { get; set; }
         private Mock<IOptions<DeploymentRoleOptions>> DeploymentRoleOptions { get; set; }
         private Mock<ILogger<AccountManagementController>> Logger { get; set; }
@@ -38,13 +38,13 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         public void SetUp()
         {
             this.SessionManager = new Mock<ISessionManager<JourneySession>>();
-            this.FaçadeService = new Mock<IFacadeService>();
+            this.FacadeService = new Mock<IFacadeService>();
             this.UrlOptions = new Mock<IOptions<ExternalUrlsOptions>>();
             this.DeploymentRoleOptions = new Mock<IOptions<DeploymentRoleOptions>>();
             this.Logger = new Mock<ILogger<AccountManagementController>>();
             this.TestClass = new AccountManagementController(
                 this.SessionManager.Object,
-                this.FaçadeService.Object,
+                this.FacadeService.Object,
                 this.UrlOptions.Object,
                 this.DeploymentRoleOptions.Object,
                 this.Logger.Object);
