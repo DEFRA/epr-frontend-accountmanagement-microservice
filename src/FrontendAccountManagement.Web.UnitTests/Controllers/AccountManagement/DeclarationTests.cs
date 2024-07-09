@@ -1,18 +1,18 @@
 using System;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
+using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Controllers.AccountManagement;
-using FrontendAccountManagement.Web.Sessions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Newtonsoft.Json.Linq;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 {
@@ -28,6 +28,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         private Mock<IOptions<ExternalUrlsOptions>> UrlOptions { get; set; }
         private Mock<IOptions<DeploymentRoleOptions>> DeploymentRoleOptions { get; set; }
         private Mock<ILogger<AccountManagementController>> Logger { get; set; }
+        private Mock<IMapper> Mapper { get; set; }
         private HeaderDictionary RequestHeaders { get; set; }
 
         private IDictionary<string, byte[]> SessionData { get; set; }
@@ -42,12 +43,14 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             this.UrlOptions = new Mock<IOptions<ExternalUrlsOptions>>();
             this.DeploymentRoleOptions = new Mock<IOptions<DeploymentRoleOptions>>();
             this.Logger = new Mock<ILogger<AccountManagementController>>();
+            this.Mapper = new Mock<IMapper>();
             this.TestClass = new AccountManagementController(
                 this.SessionManager.Object,
                 this.FacadeService.Object,
                 this.UrlOptions.Object,
                 this.DeploymentRoleOptions.Object,
-                this.Logger.Object);
+                this.Logger.Object,
+                this.Mapper.Object);
 
             // Mock the HTTP context so that we can use it to set the headers.
             this.RequestHeaders = new HeaderDictionary();
