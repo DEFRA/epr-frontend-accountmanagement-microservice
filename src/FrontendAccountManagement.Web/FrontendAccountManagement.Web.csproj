@@ -18,7 +18,7 @@
   </Target>
 
   <Target Name="NpmRunBuildFrontend" DependsOnTargets="NpmInstall" BeforeTargets="BeforeBuild">
-    <!--<Exec Command="npm run build-frontend" />-->
+    <Exec Command="npm run build-frontend" />
   </Target>
 
     <ItemGroup>
