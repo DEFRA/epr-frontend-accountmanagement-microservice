@@ -383,7 +383,12 @@ public class AccountManagementController : Controller
             SetBackLink(session, PagePath.CheckYourDetails);
             return View(model);
         }
-        return View(nameof(CheckYourDetails), userData);
+
+        // Set a navigation token in the session data and the call to the route,
+        // as the declaration page uses them to ensure that users can only arrive via this page.
+        var navigationToken = Guid.NewGuid().ToString();
+        HttpContext.Session.SetString("NavigationToken", navigationToken);
+        return RedirectToAction("declaration", new { navigationToken });
     }
 
     private static void SetRemoveUserJourneyValues(JourneySession session, string firstName, string lastName, Guid personId)
