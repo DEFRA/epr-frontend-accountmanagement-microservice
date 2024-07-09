@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Threading.Tasks;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Newtonsoft.Json.Linq;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 {
@@ -27,6 +29,10 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         private Mock<IOptions<DeploymentRoleOptions>> DeploymentRoleOptions { get; set; }
         private Mock<ILogger<AccountManagementController>> Logger { get; set; }
         private HeaderDictionary RequestHeaders { get; set; }
+
+        private IDictionary<string, byte[]> SessionData { get; set; }
+
+        delegate void SubmitCallback(string key, out byte[] value);
 
         [TestInitialize]
         public void SetUp()
@@ -45,8 +51,23 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             // Mock the HTTP context so that we can use it to set the headers.
             this.RequestHeaders = new HeaderDictionary();
+            
+            var mockSession = new Mock<ISession>();
+            this.SessionData = new Dictionary<string, byte[]>();
+            bool valueExists = false;
+            mockSession.Setup(session => session.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
+                .Callback(new SubmitCallback((string key, out byte[] value) =>
+                {
+                    byte[] v;
+                    SessionData.TryGetValue(key, out v);
+                    value = v;
+                    valueExists = value is not null;
+                }))
+                .Returns(valueExists);
+
             var context = new Mock<HttpContext>();
             context.SetupGet(x => x.Request.Headers).Returns(this.RequestHeaders);
+            context.SetupGet(x => x.Session).Returns(mockSession.Object);
             this.TestClass.ControllerContext.HttpContext = context.Object;
         }
 
@@ -56,11 +77,13 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         [TestMethod]
         public async Task CanCallDeclarationFromCheckYourDetails()
         {
+            var navigationToken = Guid.NewGuid();
+
             // Arrange
-            this.RequestHeaders["Referer"] = "http://some-host/manage-account/check-your-details";
+            this.SessionData["NavigationToken"] = Encoding.UTF8.GetBytes(navigationToken.ToString());
 
             // Act
-            ViewResult result = (ViewResult)await this.TestClass.Declaration();
+            ViewResult result = (ViewResult)await this.TestClass.Declaration(navigationToken.ToString());
 
             // Assert
             Assert.AreEqual("Declaration", result.ViewName);
@@ -69,14 +92,25 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         /// <summary>
         /// Check that the declaration page can't be accessed when accessing it directly.
         /// </summary>
+        /// <remarks>
+        /// The test cases are various combinations of the IDs that the "Check your details" page would send being missing,
+        /// or not matching.
+        /// </remarks>
         [TestMethod]
-        public async Task CannotCallDeclarationDirectly()
+        [DataRow(null,null)]
+        [DataRow("A", null)]
+        [DataRow(null, "B")]
+        [DataRow("A", "B")]
+        public async Task CannotCallDeclarationDirectly(string sessionToken, string requestToken)
         {
             // Arrange
-            this.RequestHeaders["Referer"] = string.Empty;
+            if (sessionToken is not null)
+            {
+                this.SessionData["NavigationToken"] = Encoding.UTF8.GetBytes(sessionToken);
+            }
 
             // Act
-            RedirectResult result = (RedirectResult)await this.TestClass.Declaration();
+            RedirectResult result = (RedirectResult)await this.TestClass.Declaration(requestToken);
 
             // Assert
             Assert.IsInstanceOfType<RedirectResult>(result);

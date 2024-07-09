@@ -306,15 +306,22 @@ public class AccountManagementController : Controller
     /// The page is only displayed when arriving from the "Check your details" page.
     /// If navigated to directly, the user is forwarded to an error page.
     /// </remarks>
+    /// <param name="navigationToken">
+    /// A value used to verify that the user came from the "Check your details" page.
+    /// Its specific value doesn't matter, but it's compared to a copy stored in the session data as an extra layer of validation.
+    /// </param>
 	[HttpGet]
 	[Route("declaration")]
-	public async Task<IActionResult> Declaration()
+	public async Task<IActionResult> Declaration(string navigationToken)
     {
-        Uri? referer;
-        Uri.TryCreate(this.Request.Headers["Referer"], new UriCreationOptions(), out referer);
+        if (!ModelState.IsValid)
+        {
+            BadRequest();
+        }
 
-        if (referer == null
-            || string.Join(string.Empty, referer?.Segments) != "/manage-account/check-your-details")
+        var sessionNavigationToken = HttpContext.Session.GetString("NavigationToken");
+        if (navigationToken is null
+            || sessionNavigationToken != navigationToken)
         {
             return Redirect("/manage-account/this-page-cannot-be-accessed-directly");
         }
