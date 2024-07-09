@@ -304,6 +304,38 @@ public class AccountManagementController : Controller
         return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.RemoveTeamMember, PagePath.ManageAccount);
     }
 
+    /// <summary>
+    /// Displays the "Declaration" page.
+    /// </summary>
+    /// <remarks>
+    /// The page is only displayed when arriving from the "Check your details" page.
+    /// If navigated to directly, the user is forwarded to an error page.
+    /// </remarks>
+    /// <param name="navigationToken">
+    /// A value used to verify that the user came from the "Check your details" page.
+    /// Its specific value doesn't matter, but it's compared to a copy stored in the session data as an extra layer of validation.
+    /// </param>
+	[HttpGet]
+	[Route("declaration")]
+	public async Task<IActionResult> Declaration(string navigationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            BadRequest();
+        }
+
+        var sessionNavigationToken = HttpContext.Session.GetString("NavigationToken");
+        if (navigationToken is null
+            || sessionNavigationToken != navigationToken)
+        {
+            return Redirect("/manage-account/this-page-cannot-be-accessed-directly");
+        }
+
+        SetCustomBackLink("/manage-account/check-your-details");
+        
+        return View("Declaration");
+    }
+
     [HttpGet]
     [Route(PagePath.WhatAreYourDetails)]
     public async Task<IActionResult> EditUserDetails()
