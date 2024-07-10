@@ -26,11 +26,5 @@ namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
         [Required(ErrorMessageResourceName = "TelephoneNumberMissing", ErrorMessageResourceType = typeof(EditUserDetails))]
         [StringLength(50, ErrorMessageResourceName = "TelephoneMaxLength", ErrorMessageResourceType = typeof(EditUserDetails))]
         public string? Telephone { get; set; }
-
-        public bool PropertyExists(Func<EditUserDetailsViewModel, string> propertySelector)
-        {
-            var propertyValue = propertySelector(this);
-            return !string.IsNullOrWhiteSpace(propertyValue);
-        }
     }
 }
