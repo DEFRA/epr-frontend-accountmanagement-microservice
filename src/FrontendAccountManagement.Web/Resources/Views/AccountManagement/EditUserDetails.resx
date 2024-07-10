@@ -123,11 +123,17 @@
   <data name="FirstName" xml:space="preserve">
     <value>First name</value>
   </data>
+  <data name="FirstNameMaxLength" xml:space="preserve">
+    <value>First name must be 50 characters or less</value>
+  </data>
   <data name="FirstNameMissing" xml:space="preserve">
     <value>Enter your first name</value>
   </data>
   <data name="JobTitle" xml:space="preserve">
     <value>Job title</value>
+  </data>
+  <data name="JobTitleMaxLength" xml:space="preserve">
+    <value>Job title must be 50 characters or less</value>
   </data>
   <data name="JobTitleMissing" xml:space="preserve">
     <value>Enter your job title</value>
@@ -135,8 +141,14 @@
   <data name="LastName" xml:space="preserve">
     <value>Last name</value>
   </data>
+  <data name="LastNameMaxLength" xml:space="preserve">
+    <value>Last name must be 50 characters or less</value>
+  </data>
   <data name="LastNameMissing" xml:space="preserve">
-    <value>Last name is a required field</value>
+    <value>Enter your last name</value>
+  </data>
+  <data name="TelephoneMaxLength" xml:space="preserve">
+    <value>Telephone number must be 50 characters or less</value>
   </data>
   <data name="TelephoneNumber" xml:space="preserve">
     <value>Telephone number</value>

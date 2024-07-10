@@ -310,7 +310,7 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         
-        var model = _mapper.Map<EditUserDetailsViewModel>(session.UserData);
+        var model = _mapper.Map<EditUserDetailsViewModel>(User.GetUserData());
 
         SetBackLink(session, PagePath.ManageAccount);
 
@@ -345,7 +345,20 @@ public class AccountManagementController : Controller
             return View(editUserDetailsViewModel);
         }
 
-        return RedirectToAction("Unknown");
+        // need to temporarily save the details for the next page, without saving to the database
+        // however this bit throws an exception at the moment for some reason
+        //TempData.Add("NewUserDetails", editUserDetailsViewModel);
+        
+        return RedirectToAction("CheckYourDetails");
+    }
+
+    [HttpGet]
+    [Route(PagePath.CheckYourDetails)]
+    public async Task<IActionResult> CheckYourDetails()
+    {
+        //var editUserDetailsViewModel = TempData["NewUserDetails"] as EditUserDetailsViewModel;
+
+        return null;
     }
 
     private static void SetRemoveUserJourneyValues(JourneySession session, string firstName, string lastName, Guid personId)
