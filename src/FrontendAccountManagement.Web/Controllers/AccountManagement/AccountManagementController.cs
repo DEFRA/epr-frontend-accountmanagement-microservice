@@ -349,7 +349,6 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
-    [AllowAnonymous]
     [Route(PagePath.UpdateDetailsConfirmation)]
     public async Task<IActionResult> UpdateDetailsConfirmation()
     {
@@ -364,9 +363,7 @@ public class AccountManagementController : Controller
         return View(nameof(UpdateDetailsConfirmation), model);
     }
 
-
     [HttpGet]
-    [AllowAnonymous]
     [Route(PagePath.DetailsChangeRequestedNotification)]
     public async Task<IActionResult> DetailsChangeRequested()
     {
