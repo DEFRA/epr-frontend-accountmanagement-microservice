@@ -2,7 +2,7 @@
 @using FrontendAccountManagement.Web.ViewModels.AccountManagement
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 
-@model UpdateDetailsConfirmationViewModel
+@model DetailsChangeRequestedViewModel
 
 <div class="govuk-width-container">
     <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
@@ -10,11 +10,15 @@
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-panel govuk-panel--confirmation">
                     <h1 class="govuk-panel__body govuk-!-font-weight-bold govuk-!-margin-bottom-0 govuk-!-margin-top-0">
-                        @Localizer["ConfirmationMessage"]
+                        @Localizer["RequestedMessage"]
                     </h1>
                 </div>
                 <p class="govuk-body">
                     @Model.GetFormattedChangeMessage()
+                </p>
+                <h2 class="govuk-heading-m">@Localizer["WhatHappensNextHeader"]</h2>
+                <p class="govuk-body">
+                    @Localizer["WhatHappensNextInformation"]
                 </p>
                 <a asp-action="ManageAccount" asp-controller="AccountManagement" class="govuk-link" data-module="govuk-link">
                     @Localizer["ManageAccountLinkDescription"]

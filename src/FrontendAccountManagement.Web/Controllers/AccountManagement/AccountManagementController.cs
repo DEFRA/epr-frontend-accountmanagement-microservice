@@ -394,7 +394,6 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
-    [AllowAnonymous]
     [Route(PagePath.UpdateDetailsConfirmation)]
     public async Task<IActionResult> UpdateDetailsConfirmation()
     {
@@ -403,10 +402,25 @@ public class AccountManagementController : Controller
         var model = new UpdateDetailsConfirmationViewModel
         {
             Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
-            UpdatedDatetime = DateTime.UtcNow
+            UpdatedDatetime = DateTime.Now
         };
 
         return View(nameof(UpdateDetailsConfirmation), model);
+    }
+
+    [HttpGet]
+    [Route(PagePath.DetailsChangeRequestedNotification)]
+    public async Task<IActionResult> DetailsChangeRequested()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        var model = new DetailsChangeRequestedViewModel
+        {
+            Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
+            UpdatedDatetime = DateTime.Now
+        };
+
+        return View(nameof(DetailsChangeRequested), model);
     }
 
     private static void SetRemoveUserJourneyValues(JourneySession session, string firstName, string lastName, Guid personId)
