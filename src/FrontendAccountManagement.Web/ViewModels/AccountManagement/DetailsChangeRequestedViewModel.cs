@@ -3,9 +3,7 @@
 namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
 {
     [ExcludeFromCodeCoverage]
-    public class DetailsChangeRequestedViewModel
+    public class DetailsChangeRequestedViewModel : BaseConfirmationViewModel
     {
-        public string Username { get; set; }
-        public DateTime UpdatedDatetime { get; set; }
     }
 }
