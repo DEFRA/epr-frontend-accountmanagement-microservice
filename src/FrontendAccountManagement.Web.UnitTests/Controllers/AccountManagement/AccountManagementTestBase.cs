@@ -55,7 +55,7 @@ public abstract class AccountManagementTestBase
         LoggerMock = new Mock<ILogger<AccountManagementController>>();
         TempDataDictionaryMock = new Mock<ITempDataDictionary>();
 
-        SystemUnderTest = new AccountManagementController(SessionManagerMock.Object, FacadeServiceMock.Object, UrlsOptionMock.Object,  DeploymentRoleOptionsMock.Object, LoggerMock.Object);
+        SystemUnderTest = new AccountManagementController(SessionManagerMock.Object, FacadeServiceMock.Object, UrlsOptionMock.Object,  DeploymentRoleOptionsMock.Object);
 
         SystemUnderTest.ControllerContext.HttpContext = HttpContextMock.Object;
         SystemUnderTest.TempData = TempDataDictionaryMock.Object;

@@ -33,7 +33,7 @@ public class HomeControllerTests
         _httpContextMock.Setup(m => m.Session).Returns(_sessionMock.Object);
         _httpResponseMock.Setup(m => m.Cookies).Returns(_responseCookiesMock.Object);
 
-        _systemUnderTest = new HomeController(_loggerMock.Object, _cookieConfig.Object);
+        _systemUnderTest = new HomeController(_cookieConfig.Object);
         _systemUnderTest.ControllerContext.HttpContext = _httpContextMock.Object;
     }
     
