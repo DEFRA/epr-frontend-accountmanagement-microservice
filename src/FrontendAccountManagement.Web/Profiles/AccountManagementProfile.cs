@@ -9,8 +9,9 @@ namespace FrontendAccountManagement.Web.Profiles
         public AccountManagementProfile()
         {
             CreateMap<UserData, EditUserDetailsViewModel>()
-                .ForMember(d => d.JobTitle, o => o.MapFrom(s => s.RoleInOrganisation))
-                .ForMember(d => d.OriginalJobTitle, o => o.MapFrom(s => s.RoleInOrganisation))
+                .ForMember(d => d.JobTitle, o => o.MapFrom(s => s.JobTitle))
+                .ForMember(d => d.OriginalJobTitle, o => o.MapFrom(s => s.JobTitle))
+                .ForMember(d => d.Telephone, o => o.MapFrom(s => s.Telephone))
                 .ForMember(d => d.OriginalTelephone, o => o.MapFrom(s => s.Telephone));
         }
     }
