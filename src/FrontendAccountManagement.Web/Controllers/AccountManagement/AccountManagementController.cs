@@ -323,7 +323,7 @@ public class AccountManagementController : Controller
         if (navigationToken is null
             || sessionNavigationToken != navigationToken)
         {
-            return RedirectToRoute(PagePath.Problem);
+            return View("Problem");
         }
 
         SetBackLink(await _sessionManager.GetSessionAsync(HttpContext.Session), PagePath.Declaration);
