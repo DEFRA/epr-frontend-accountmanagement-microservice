@@ -16,6 +16,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using FrontendAccountManagement.Web.Extensions;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
+using FrontendAccountManagement.Core.Enums;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 
@@ -82,6 +83,44 @@ public class AccountManagementController : Controller
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccount);
 
         SetCustomBackLink(_urlOptions.LandingPageUrl);
+
+
+        var userAccount = await _facadeService.GetUserAccountForDispaly();
+
+        if (userAccount is null)
+        {
+            _logger.LogInformation("User authenticated but account could not be found");
+        }
+        else
+        {
+            model.UserName = string.Format("{0} {1}", userAccount.User.FirstName, userAccount.User.LastName);
+            model.Telephone = userAccount.User?.Telephone;
+            var userOrg = userAccount.User.Organisations?.FirstOrDefault();
+            model.JobTitle = userOrg.JobTitle;
+            model.CompanyName = userOrg.Name;
+            model.OrgAddress = userOrg.OrgAddress;
+            model.EnrolmentStatus = userAccount.User.EnrolmentStatus;
+
+            var serviceRoleId = userAccount.User.ServiceRoleId;
+            var serviceRoleEnum = (ServiceRole)serviceRoleId;
+            var roleInOrganisation = userAccount.User.RoleInOrganisation;
+            var serviceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
+
+            model.ServiceRoleKey = serviceRoleKey;
+
+            //model.UserName = string.Format("{0} {1}", session.UserData.FirstName, session.UserData.LastName);
+            // var userDataClaim = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.UserData);
+            //var currentSessionItem = session?.PermissionManagementSession.Items?.FirstOrDefault();
+            //if (currentSessionItem is { RelationshipWithOrganisation: Core.Sessions.RelationshipWithOrganisation.Employee })
+            //{
+            //    model.JobTitle = currentSessionItem.JobTitle;
+            //}
+            //  var currentPermissionTypeResult = await _facadeService.GetPermissionTypeFromConnectionAsync(organisationId.Value, id, _serviceSettings.ServiceKey);
+            //if (currentPermissionTypeResult.UserId == User.UserId() || currentPermissionTypeResult.PermissionType == null || currentPermissionTypeResult.PermissionType == PermissionType.Approved)
+            //{
+            //    return RedirectHome();
+            //}
+        }
         
         return View(nameof(ManageAccount), model);
     }
