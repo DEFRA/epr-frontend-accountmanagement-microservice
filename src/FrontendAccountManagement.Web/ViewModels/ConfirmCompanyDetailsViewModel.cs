@@ -9,5 +9,7 @@ namespace FrontendAccountManagement.Web.ViewModels
         public string CompaniesHouseNumber { get; set; }
 
         public Address? BusinessAddress { get; set; }
+
+        public string ExternalCompanyHouseChangeRequestLink { get; set; }
     }
 }

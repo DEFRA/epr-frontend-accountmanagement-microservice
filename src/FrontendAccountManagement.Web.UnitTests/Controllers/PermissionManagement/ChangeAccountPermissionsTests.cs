@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using System.Security.Claims;
 using System.Text.Json;
+using Organisation = EPR.Common.Authorization.Models.Organisation;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.PermissionManagement
 {

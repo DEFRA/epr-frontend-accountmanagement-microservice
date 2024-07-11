@@ -428,7 +428,6 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
-    [AllowAnonymous]
     [Route(PagePath.ConfirmCompanyDetails)]
     public async Task<IActionResult> ConfirmCompanyDetails(CompaniesHouseNumberViewModel model)
     {
@@ -452,7 +451,7 @@ public class AccountManagementController : Controller
                 });
             }
         }
-        
+
         var viewModel = new ConfirmCompanyDetailsViewModel
         {
             CompanyName = session.AccountManagementSession.CompaniesHouseSession.Company.Name,
