@@ -308,9 +308,12 @@ public class AccountManagementController : Controller
     [Route(PagePath.WhatAreYourDetails)]
     public async Task<IActionResult> EditUserDetails()
     {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.WhatAreYourDetails);
         var model = _mapper.Map<EditUserDetailsViewModel>(User.GetUserData());
 
-        SetBackLink(PagePath.ManageAccount);
+        SetBackLink(PagePath.WhatAreYourDetails);
 
         return View(model);
     }
