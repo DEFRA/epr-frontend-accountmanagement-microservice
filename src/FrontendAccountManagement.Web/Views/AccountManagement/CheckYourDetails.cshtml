@@ -1,5 +1,5 @@
 ﻿@using FrontendAccountManagement.Web.Constants
-@model FrontendAccountManagement.Web.ViewModels.AccountManagement.CheckYourDetailsViewModel
+@model FrontendAccountManagement.Web.ViewModels.AccountManagement.EditUserDetailsViewModel
 
 @{
     ViewData["Title"] = Localizer["WhatAreYourDetails"];
@@ -47,27 +47,27 @@
                         <div class="govuk-summary-list__row">
                             <div class="govuk-!-margin-right-3">
                                 <dt class="govuk-summary-list__key">
-                                    Localizer["JobTitle"]
+                                    @Localizer["JobTitle"]
                                 </dt>
                             </div>
 
                             <dd class="govuk-summary-list__value">
-                                Localizer[Model.JobTitle].Value
+                                @Localizer[Model.JobTitle].Value
                             </dd>                          
                         </div>
                         }
 
-                        @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+                        @if (!string.IsNullOrEmpty(Model.Telephone))
                         {
                         <div class="govuk-summary-list__row">
                             <div class="govuk-!-margin-right-3">
                                 <dt class="govuk-summary-list__key">
-                                    Localizer["PhoneNumber"]
+                                        @Localizer["TelephoneNumber"]
                                 </dt>
                             </div>
 
                             <dd class="govuk-summary-list__value">
-                                Localizer[Model.PhoneNumber].Value
+                                @Localizer[Model.Telephone].Value
                             </dd>
                         </div>
                         }
@@ -78,7 +78,7 @@
                                     <button class="govuk-button" data-module="govuk-button" type="submit">
                                         @Localizer["SaveAndContinue"]
                                     </button>
-                                  &nbsp;  <a href="~/@PagePath.CheckYourDetails" class="govuk-link govuk-link--no-visited-state">
+                                    &nbsp;  <a href="~/@PagePath.WhatAreYourDetails" class="govuk-link govuk-link--no-visited-state">
                                         @SharedLocalizer["Change"]
                                         <span class="govuk-visually-hidden"></span>
                                     </a>

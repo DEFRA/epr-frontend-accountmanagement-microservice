@@ -350,30 +350,30 @@ public class AccountManagementController : Controller
         // however this bit throws an exception at the moment for some reason
         //TempData.Add("NewUserDetails", editUserDetailsViewModel);
         
-        return RedirectToAction("CheckYourDetails");
+        return RedirectToAction("CheckYourDetails", editUserDetailsViewModel);
     }
     [HttpGet]
     [Route(PagePath.CheckYourDetails)]
-    public async Task<IActionResult> CheckYourDetails()
+    public async Task<IActionResult> CheckYourDetails( )
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
 
         SetBackLink(session, PagePath.CheckYourDetails);
-        var model = new CheckYourDetailsViewModel 
+        var model = new EditUserDetailsViewModel
         {
             FirstName = userData.FirstName,
-            LastName = userData.LastName
-            //JobTitle = userData.JobTitle,
-            //PhoneNumber = userData.PhoneNumber
+            LastName = userData.LastName,
+            JobTitle = userData.JobTitle,
+            Telephone = userData.Telephone
         };
 
-        return View(nameof(CheckYourDetails), model);
+        return View(nameof(PagePath.CheckYourDetails), model);
     }
 
     [HttpPost]
     [Route(PagePath.CheckYourDetails)]
-    public async Task<IActionResult> CheckYourDetails(CheckYourDetailsViewModel model)
+    public async Task<IActionResult> CheckYourDetails(EditUserDetailsViewModel model)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();

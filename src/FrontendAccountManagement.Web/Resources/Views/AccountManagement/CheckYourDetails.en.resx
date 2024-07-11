@@ -129,7 +129,7 @@
   <data name="LastName" xml:space="preserve">
     <value>Last name</value>
   </data>
-  <data name="PhoneNumber" xml:space="preserve">
+  <data name="TelephoneNumber" xml:space="preserve">
     <value>Telephone number</value>
   </data>
   <data name="SaveAndContinue" xml:space="preserve">
