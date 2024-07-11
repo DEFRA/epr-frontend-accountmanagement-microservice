@@ -311,7 +311,7 @@ public class AccountManagementController : Controller
     /// Its specific value doesn't matter, but it's compared to a copy stored in the session data as an extra layer of validation.
     /// </param>
     [HttpGet]
-	[Route(PagePath.Declaration)]
+    [Route(PagePath.Declaration)]
     public async Task<IActionResult> Declaration(string navigationToken)
     {
         if (!ModelState.IsValid)
