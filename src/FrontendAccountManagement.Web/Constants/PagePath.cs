@@ -9,7 +9,6 @@ public static class PagePath
     public const string TeamMemberDetails = "team-member-details";
     public const string RemoveTeamMember = "remove-team-member";
     public const string PreRemoveTeamMember = "pre-remove-team-member";
-    public const string CheckYourDetails = "/manage-account/check-your-details";
     public const string Declaration = "declaration";
     public const string DetailsChangeRequested = "details-change-requested";
 
