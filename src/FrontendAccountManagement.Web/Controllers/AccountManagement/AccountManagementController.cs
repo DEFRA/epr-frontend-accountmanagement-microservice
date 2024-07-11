@@ -313,7 +313,7 @@ public class AccountManagementController : Controller
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.WhatAreYourDetails);
         var model = _mapper.Map<EditUserDetailsViewModel>(User.GetUserData());
 
-        SetBackLink(PagePath.WhatAreYourDetails);
+        SetBackLink(session, PagePath.WhatAreYourDetails);
 
         return View(model);
     }
