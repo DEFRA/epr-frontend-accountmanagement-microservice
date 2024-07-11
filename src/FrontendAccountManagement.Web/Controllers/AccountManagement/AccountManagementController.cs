@@ -423,6 +423,21 @@ public class AccountManagementController : Controller
         return View(nameof(DetailsChangeRequested), model);
     }
 
+    [HttpGet]
+    [Route(PagePath.ConfirmCompanyDetails)]
+    public async Task<IActionResult> ConfirmCompanyDetails()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        var model = new DetailsChangeRequestedViewModel
+        {
+            Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
+            UpdatedDatetime = DateTime.Now
+        };
+
+        return View(nameof(ConfirmCompanyDetails), model);
+    }
+
     private static void SetRemoveUserJourneyValues(JourneySession session, string firstName, string lastName, Guid personId)
     {
         if (session.AccountManagementSession.RemoveUserJourney == null)

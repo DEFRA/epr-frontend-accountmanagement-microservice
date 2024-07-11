@@ -34,5 +34,5 @@ public static class PagePath
     // Edit user details
     public const string UpdateDetailsConfirmation = "your-details-have-been-updated";
     public const string DetailsChangeRequestedNotification = "details-change-requested";
-    
+    public const string ConfirmCompanyDetails = "confirm-company-details";
 }

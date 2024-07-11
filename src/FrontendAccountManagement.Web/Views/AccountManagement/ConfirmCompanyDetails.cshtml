@@ -1,0 +1,47 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+
+@model FrontendAccountManagement.Web.ViewModels.AccountManagement.DetailsChangeRequestedViewModel
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper" id="main-content" role="main">
+        <div class="govuk-breadcrumbs">
+            <ol class="govuk-breadcrumbs__list">
+                <li class="govuk-breadcrumbs__list-item">
+                    <a class="govuk-breadcrumbs__link" href="#">Home</a>
+                </li>
+                <li class="govuk-breadcrumbs__list-item">
+                    Confirm your organisation's details
+                </li>
+            </ol>
+        </div>
+        <h1 class="govuk-heading-l">Confirm your organisation’s details from Companies House</h1>
+        <dl class="govuk-summary-list">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">Company Name</dt>
+                <dd class="govuk-summary-list__value">DUNDER MIFFLIN</dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">Companies House number</dt>
+                <dd class="govuk-summary-list__value">0123456</dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">Address</dt>
+                <dd class="govuk-summary-list__value">
+                    Nobel House<br>
+                    17 Smith Square<br>
+                    London<br>
+                    SW1P 3JR
+                </dd>
+            </div>
+        </dl>
+        <div class="govuk-inset-text">
+            If these details are wrong, you should:
+            <ul class="govuk-list govuk-list--bullet">
+                <li>Check Companies House to see if your organisation’s details are correct – If they aren’t, you can <a class="govuk-link" href="https://www.gov.uk/get-information-about-a-company">change them on Companies House (opens in new tab)</a>.</li>
+            </ul>
+        </div>
+        <form action="#" method="post">
+            <button class="govuk-button" data-module="govuk-button">Continue</button>
+        </form>
+    </main>
+</div>
