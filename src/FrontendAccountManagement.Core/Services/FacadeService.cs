@@ -57,6 +57,24 @@ public class FacadeService : IFacadeService
         return userAccountDto;
     }
 
+    public async Task<UserOrganisationsListModelDto?> GetUserAccountForDispaly()
+    {
+        await PrepareAuthenticatedClient();
+
+        var response = await _httpClient.GetAsync(_getUserAccountPath);
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
+        response.EnsureSuccessStatusCode();
+
+        var userOrganisationsListModelDto = await response.Content.ReadFromJsonAsync<UserOrganisationsListModelDto>();
+
+        return userOrganisationsListModelDto;
+    }
+
     public async Task<IEnumerable<Models.ServiceRole>?> GetAllServiceRolesAsync()
     {
         await PrepareAuthenticatedClient();
