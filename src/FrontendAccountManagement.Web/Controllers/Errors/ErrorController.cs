@@ -8,8 +8,8 @@ namespace FrontendAccountManagement.Web.Controllers.Errors;
 [AllowAnonymous]
 public class ErrorController : Controller
 {
-    
     [Route(PagePath.Error)]
+    [Route(PagePath.Problem, Name = "problem")]
     public ViewResult Error(int? statusCode)
     {
         var errorView = statusCode == (int?)HttpStatusCode.NotFound ? "PageNotFound" : "Error";

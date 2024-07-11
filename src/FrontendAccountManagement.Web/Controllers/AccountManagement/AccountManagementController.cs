@@ -311,8 +311,8 @@ public class AccountManagementController : Controller
     /// Its specific value doesn't matter, but it's compared to a copy stored in the session data as an extra layer of validation.
     /// </param>
 	[HttpGet]
-	[Route("declaration")]
-	public async Task<IActionResult> Declaration(string navigationToken)
+	[Route(PagePath.Declaration)]
+    public async Task<IActionResult> Declaration(string navigationToken)
     {
         if (!ModelState.IsValid)
         {
@@ -323,11 +323,10 @@ public class AccountManagementController : Controller
         if (navigationToken is null
             || sessionNavigationToken != navigationToken)
         {
-            return Redirect("/manage-account/this-page-cannot-be-accessed-directly");
+            return RedirectToRoute(PagePath.Problem);
         }
 
-        SetCustomBackLink("/manage-account/check-your-details");
-        
+        SetBackLink(await _sessionManager.GetSessionAsync(HttpContext.Session), PagePath.Declaration);
         return View("Declaration");
     }
 
