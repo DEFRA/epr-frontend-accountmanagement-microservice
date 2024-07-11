@@ -17,7 +17,11 @@ using FrontendAccountManagement.Web.Extensions;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 using EPR.Common.Authorization.Sessions;
 using AutoMapper;
+using FrontendAccountManagement.Web.ViewModels;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
+using FrontendAccountManagement.Core.Models.CompanyHouse;
+using System.Reflection;
+using System;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 
@@ -424,18 +428,39 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [AllowAnonymous]
     [Route(PagePath.ConfirmCompanyDetails)]
-    public async Task<IActionResult> ConfirmCompanyDetails()
+    public async Task<IActionResult> ConfirmCompanyDetails(CompaniesHouseNumberViewModel model)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var model = new DetailsChangeRequestedViewModel
+        SetBackLink(session, PagePath.ManageAccount);
+
+        if (session.AccountManagementSession.CompaniesHouseSession == null)
         {
-            Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
-            UpdatedDatetime = DateTime.Now
+            try
+            {
+                await PopulateCompanyHouseSession(session, model);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Companies House Lookup failed for {RegistrationNumber}", model.CompaniesHouseNumber);
+
+                return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+                {
+                    statusCode = (int)HttpStatusCode.InternalServerError
+                });
+            }
+        }
+        
+        var viewModel = new ConfirmCompanyDetailsViewModel
+        {
+            CompanyName = session.AccountManagementSession.CompaniesHouseSession.Company.Name,
+            CompaniesHouseNumber = session.AccountManagementSession.CompaniesHouseSession.Company.CompaniesHouseNumber,
+            BusinessAddress = session.AccountManagementSession.CompaniesHouseSession.Company.BusinessAddress
         };
 
-        return View(nameof(ConfirmCompanyDetails), model);
+        return View(nameof(ConfirmCompanyDetails), viewModel);
     }
 
     private static void SetRemoveUserJourneyValues(JourneySession session, string firstName, string lastName, Guid personId)
@@ -527,4 +552,11 @@ public class AccountManagementController : Controller
 
     private static bool IsRegulatorUser(UserData userData) =>
         IsRegulatorAdmin(userData) || IsRegulatorBasic(userData);
+
+    private async Task PopulateCompanyHouseSession(JourneySession session, CompaniesHouseNumberViewModel model)
+    {
+        session.AccountManagementSession.CompaniesHouseSession = new CompaniesHouseSession();
+        var company = await _facadeService.GetCompanyByCompaniesHouseNumberAsync(model.CompaniesHouseNumber);
+        session.AccountManagementSession.CompaniesHouseSession.Company = company;
+    }
 }

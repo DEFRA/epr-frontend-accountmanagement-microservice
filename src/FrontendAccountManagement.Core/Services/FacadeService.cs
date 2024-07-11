@@ -1,15 +1,15 @@
-using System.Net;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Web;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using FrontendAccountManagement.Core.Models;
-using FrontendAccountManagement.Core.Sessions;
-using FrontendAccountManagement.Core.Constants;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Extensions;
-using System.Text.Json;
+using FrontendAccountManagement.Core.Models;
+using FrontendAccountManagement.Core.Models.CompanyHouse;
+using FrontendAccountManagement.Core.Sessions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Identity.Web;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace FrontendAccountManagement.Core.Services;
@@ -241,6 +241,24 @@ public class FacadeService : IFacadeService
         var response = await _httpClient.GetAsync($"organisations/organisation-nation?organisationId={organisationId}");
 
         return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<List<int>>() : new List<int>{0};
+    }
+
+    public async Task<Company?> GetCompanyByCompaniesHouseNumberAsync(string companiesHouseNumber)
+    {
+        await PrepareAuthenticatedClient();
+
+        var response = await _httpClient.GetAsync($"/api/companies-house?id={companiesHouseNumber}");
+
+        if (response.StatusCode == HttpStatusCode.NoContent)
+        {
+            return null;
+        }
+
+        response.EnsureSuccessStatusCode();
+
+        var company = await response.Content.ReadFromJsonAsync<CompaniesHouseCompany>();
+
+        return new Company(company);
     }
 
     private async Task PrepareAuthenticatedClient()

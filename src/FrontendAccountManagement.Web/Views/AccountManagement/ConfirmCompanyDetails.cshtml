@@ -1,47 +1,61 @@
-﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+﻿@model ConfirmCompanyDetailsViewModel
 
-@model FrontendAccountManagement.Web.ViewModels.AccountManagement.DetailsChangeRequestedViewModel
+@using (Html.BeginForm("ConfirmCompanyDetails", "AccountManagement", FormMethod.Post))
+{
+    <div class="govuk-width-container">
+        <main class="govuk-main-wrapper" id="main-content" role="main">
+            <div class="govuk-grid-row">
 
-<div class="govuk-width-container">
-    <main class="govuk-main-wrapper" id="main-content" role="main">
-        <div class="govuk-breadcrumbs">
-            <ol class="govuk-breadcrumbs__list">
-                <li class="govuk-breadcrumbs__list-item">
-                    <a class="govuk-breadcrumbs__link" href="#">Home</a>
-                </li>
-                <li class="govuk-breadcrumbs__list-item">
-                    Confirm your organisation's details
-                </li>
-            </ol>
-        </div>
-        <h1 class="govuk-heading-l">Confirm your organisation’s details from Companies House</h1>
-        <dl class="govuk-summary-list">
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">Company Name</dt>
-                <dd class="govuk-summary-list__value">DUNDER MIFFLIN</dd>
+                <div class="govuk-grid-column-two-thirds">
+                    <h1 class="govuk-heading-l">Confirm your organisation’s details from Companies House</h1>
+                </div>
+                <div class="govuk-inset-text govuk-grid-column-one-half">
+                    <h2 class="govuk-heading-m govuk-!-padding-bottom-4">@Model.CompanyName</h2>
+                    <div class="govuk-!-padding-bottom-4">
+                        <span>Companies House number: </span><br>
+                        <span>@Model.CompaniesHouseNumber</span>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <span></span>Address: <br>
+                        @{
+                            RenderAddressParts(Model.BusinessAddress?.AddressFields!);
+                        }
+                    </div>
+                </div>
+                <div class="govuk-grid-column-two-thirds">
+                    <details class="govuk-details">
+                        <summary class="govuk-details__summary">
+                            <span class="govuk-details__summary-text">
+                                These details are wrong
+                            </span>
+                        </summary>
+                        <div class="govuk-details__text">
+                            <div class="govuk-!-padding-bottom-3">
+                                If these details are wrong, you should:
+                            </div>
+                            <div>
+                                Check Companies House to see if your organisation’s details are correct. If they aren’t, you can <a class="govuk-link" href="https://www.gov.uk/file-changes-to-a-company-with-companies-house" target="_blank">change them on Companies House (opens in new tab)</a>.
+                            </div>
+                        </div>
+                    </details>
+                    <button class="govuk-button" data-module="govuk-button">
+                        @SharedLocalizer["Continue"]
+                    </button>
+                </div>
             </div>
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">Companies House number</dt>
-                <dd class="govuk-summary-list__value">0123456</dd>
-            </div>
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">Address</dt>
-                <dd class="govuk-summary-list__value">
-                    Nobel House<br>
-                    17 Smith Square<br>
-                    London<br>
-                    SW1P 3JR
-                </dd>
-            </div>
-        </dl>
-        <div class="govuk-inset-text">
-            If these details are wrong, you should:
-            <ul class="govuk-list govuk-list--bullet">
-                <li>Check Companies House to see if your organisation’s details are correct – If they aren’t, you can <a class="govuk-link" href="https://www.gov.uk/get-information-about-a-company">change them on Companies House (opens in new tab)</a>.</li>
-            </ul>
-        </div>
-        <form action="#" method="post">
-            <button class="govuk-button" data-module="govuk-button">Continue</button>
-        </form>
-    </main>
-</div>
+        </main>
+    </div>
+}
+
+@{
+    void RenderAddressParts(string?[] addressParts)
+    {
+        foreach (string part in addressParts)
+        {
+            if (!string.IsNullOrWhiteSpace(part))
+            {
+                <div>@part</div>
+            }
+        }
+    }
+}
