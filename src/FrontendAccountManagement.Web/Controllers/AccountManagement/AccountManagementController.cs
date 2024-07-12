@@ -1,27 +1,24 @@
-using System.Net;
+using AutoMapper;
 using EPR.Common.Authorization.Constants;
 using EPR.Common.Authorization.Models;
+using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
+using FrontendAccountManagement.Core.Models.CompanyHouse;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.Errors;
+using FrontendAccountManagement.Web.Extensions;
+using FrontendAccountManagement.Web.ViewModels;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
-using FrontendAccountManagement.Web.Extensions;
+using System.Net;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
-using EPR.Common.Authorization.Sessions;
-using AutoMapper;
-using FrontendAccountManagement.Web.ViewModels;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
-using FrontendAccountManagement.Core.Models.CompanyHouse;
-using System.Reflection;
-using System;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 
@@ -429,34 +426,25 @@ public class AccountManagementController : Controller
 
     [HttpGet]
     [Route(PagePath.ConfirmCompanyDetails)]
-    public async Task<IActionResult> ConfirmCompanyDetails(CompaniesHouseNumberViewModel model)
+    public async Task<IActionResult> ConfirmCompanyDetails(Company companyModel)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
         SetBackLink(session, PagePath.ManageAccount);
 
-        if (session.AccountManagementSession.CompaniesHouseSession == null)
+        if (companyModel is null)
         {
-            try
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
             {
-                await PopulateCompanyHouseSession(session, model);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "Companies House Lookup failed for {RegistrationNumber}", model.CompaniesHouseNumber);
-
-                return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
-                {
-                    statusCode = (int)HttpStatusCode.InternalServerError
-                });
-            }
+                statusCode = (int)HttpStatusCode.InternalServerError
+            });
         }
 
         var viewModel = new ConfirmCompanyDetailsViewModel
         {
-            CompanyName = session.AccountManagementSession.CompaniesHouseSession.Company.Name,
-            CompaniesHouseNumber = session.AccountManagementSession.CompaniesHouseSession.Company.CompaniesHouseNumber,
-            BusinessAddress = session.AccountManagementSession.CompaniesHouseSession.Company.BusinessAddress
+            CompanyName = companyModel.Name,
+            CompaniesHouseNumber = companyModel.CompaniesHouseNumber,
+            BusinessAddress = companyModel.BusinessAddress
         };
 
         return View(nameof(ConfirmCompanyDetails), viewModel);

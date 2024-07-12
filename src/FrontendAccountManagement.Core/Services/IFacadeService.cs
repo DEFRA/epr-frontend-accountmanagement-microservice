@@ -1,6 +1,5 @@
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Models;
-using FrontendAccountManagement.Core.Models.CompanyHouse;
 using FrontendAccountManagement.Core.Sessions;
 
 namespace FrontendAccountManagement.Core.Services;
@@ -28,6 +27,4 @@ public interface IFacadeService
 	Task<UserAccountDto?> GetUserAccount();
 	
 	Task<List<int>> GetNationIds(Guid organisationId);
-
-    Task<Company?> GetCompanyByCompaniesHouseNumberAsync(string companiesHouseNumber);
 }

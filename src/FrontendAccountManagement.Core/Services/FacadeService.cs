@@ -1,7 +1,6 @@
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
-using FrontendAccountManagement.Core.Models.CompanyHouse;
 using FrontendAccountManagement.Core.Sessions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
@@ -242,25 +241,7 @@ public class FacadeService : IFacadeService
 
         return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<List<int>>() : new List<int>{0};
     }
-
-    public async Task<Company?> GetCompanyByCompaniesHouseNumberAsync(string companiesHouseNumber)
-    {
-        await PrepareAuthenticatedClient();
-
-        var response = await _httpClient.GetAsync($"/api/companies-house?id={companiesHouseNumber}");
-
-        if (response.StatusCode == HttpStatusCode.NoContent)
-        {
-            return null;
-        }
-
-        response.EnsureSuccessStatusCode();
-
-        var company = await response.Content.ReadFromJsonAsync<CompaniesHouseCompany>();
-
-        return new Company(company);
-    }
-
+    
     private async Task PrepareAuthenticatedClient()
     {
         if (_httpClient.BaseAddress == null)
