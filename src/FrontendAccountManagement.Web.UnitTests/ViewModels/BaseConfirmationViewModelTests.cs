@@ -1,9 +1,10 @@
-﻿using FrontendAccountManagement.Web.ViewModels.AccountManagement;
+﻿using FrontendAccountManagement.Web.Extensions;
+using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 
 namespace FrontendAccountManagement.Web.UnitTests.ViewModels
 {
     [TestClass]
-    public class UpdateDetailsConfirmationViewModelTests
+    public class BaseConfirmationViewModelTests
     {
 
         [TestMethod]
@@ -12,7 +13,7 @@ namespace FrontendAccountManagement.Web.UnitTests.ViewModels
             // Arrange
             var username = "Dwight Schrute";
             var updatedDateTime = new DateTime(2024, 6, 25, 12, 6, 0);
-            var viewModel = new UpdateDetailsConfirmationViewModel
+            var viewModel = new BaseConfirmationViewModel
             {
                 Username = username,
                 UpdatedDatetime = updatedDateTime
@@ -39,7 +40,7 @@ namespace FrontendAccountManagement.Web.UnitTests.ViewModels
         {
             // Arrange
             var date = DateTime.Parse(dateString);
-            var viewModel = new UpdateDetailsConfirmationViewModel
+            var viewModel = new BaseConfirmationViewModel
             {
                 Username = username,
                 UpdatedDatetime = date

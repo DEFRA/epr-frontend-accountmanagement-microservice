@@ -117,43 +117,22 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="EditUserDetailsTitle" xml:space="preserve">
-    <value>[Welsh]What are your details?</value>
+  <data name="Declaration.ButtonText" xml:space="preserve">
+    <value>Confirm and send</value>
   </data>
-  <data name="FirstName" xml:space="preserve">
-    <value>[Welsh]First name</value>
+  <data name="Declaration.Paragraph1" xml:space="preserve">
+    <value>By confirming your details, you agree that the information you’ve given is complete and correct.</value>
   </data>
-  <data name="FirstNameMaxLength" xml:space="preserve">
-    <value>[Welsh]First name must be 50 characters or less</value>
+  <data name="Declaration.Paragraph2" xml:space="preserve">
+    <value>You also agree that you would like the regulator to approve the changes you have made.</value>
   </data>
-  <data name="FirstNameMissing" xml:space="preserve">
-    <value>[Welsh]Enter your first name</value>
+  <data name="Declaration.Title" xml:space="preserve">
+    <value>Declaration</value>
   </data>
-  <data name="JobTitle" xml:space="preserve">
-    <value>[Welsh]Job title</value>
+  <data name="Declaration.ScreenReaderHelpText" xml:space="preserve">
+    <value>Warning</value>
   </data>
-  <data name="JobTitleMaxLength" xml:space="preserve">
-    <value>[Welsh]Job title must be 50 characters or less</value>
-  </data>
-  <data name="JobTitleMissing" xml:space="preserve">
-    <value>[Welsh]Enter your job title</value>
-  </data>
-  <data name="LastName" xml:space="preserve">
-    <value>[Welsh]Last name</value>
-  </data>
-  <data name="LastNameMaxLength" xml:space="preserve">
-    <value>[Welsh]Last name must be 50 characters or less</value>
-  </data>
-  <data name="LastNameMissing" xml:space="preserve">
-    <value>[Welsh]Enter your last name</value>
-  </data>
-  <data name="TelephoneMaxLength" xml:space="preserve">
-    <value>[Welsh]Telephone number must be 50 characters or less</value>
-  </data>
-  <data name="TelephoneNumber" xml:space="preserve">
-    <value>[Welsh]Telephone number</value>
-  </data>
-  <data name="TelephoneNumberMissing" xml:space="preserve">
-    <value>[Welsh]Enter your telephone number</value>
+  <data name="Declaration.Warning" xml:space="preserve">
+    <value>You can be fined or prosecuted if you give the wrong information.</value>
   </data>
 </root>

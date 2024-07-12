@@ -79,6 +79,15 @@ namespace FrontendAccountManagement.Web.Resources.Views.AccountManagement {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to First name must be 50 characters or less.
+        /// </summary>
+        internal static string FirstNameMaxLength {
+            get {
+                return ResourceManager.GetString("FirstNameMaxLength", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enter your first name.
         /// </summary>
         internal static string FirstNameMissing {
@@ -93,6 +102,15 @@ namespace FrontendAccountManagement.Web.Resources.Views.AccountManagement {
         internal static string JobTitle {
             get {
                 return ResourceManager.GetString("JobTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Job title must be 50 characters or less.
+        /// </summary>
+        internal static string JobTitleMaxLength {
+            get {
+                return ResourceManager.GetString("JobTitleMaxLength", resourceCulture);
             }
         }
         
@@ -115,11 +133,29 @@ namespace FrontendAccountManagement.Web.Resources.Views.AccountManagement {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Last name is a required field.
+        ///   Looks up a localized string similar to Last name must be 50 characters or less.
+        /// </summary>
+        internal static string LastNameMaxLength {
+            get {
+                return ResourceManager.GetString("LastNameMaxLength", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enter your last name.
         /// </summary>
         internal static string LastNameMissing {
             get {
                 return ResourceManager.GetString("LastNameMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Telephone number must be 50 characters or less.
+        /// </summary>
+        internal static string TelephoneMaxLength {
+            get {
+                return ResourceManager.GetString("TelephoneMaxLength", resourceCulture);
             }
         }
         

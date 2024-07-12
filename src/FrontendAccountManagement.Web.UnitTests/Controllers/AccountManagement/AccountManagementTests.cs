@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using FrontendAccountManagement.Core.Models;
 using EPR.Common.Authorization.Models;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 
@@ -161,6 +163,30 @@ public class AccountManagementTests : AccountManagementTestBase
     public async Task GivenOnEditUserDetailsPage_WhenRequested_TheShowUserDetails()
     {
         // Arrange
+        var userData = new UserData
+        {
+
+        };
+
+        // Create a mock identity
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.UserData, JsonSerializer.Serialize(userData)),
+        };
+
+        var identity = new Mock<ClaimsIdentity>();
+        identity.Setup(i => i.IsAuthenticated).Returns(true);
+        identity.Setup(i => i.Claims).Returns(claims);
+
+        // Create a mock ClaimsPrincipal
+        var mockClaimsPrincipal = new Mock<ClaimsPrincipal>();
+        mockClaimsPrincipal.Setup(p => p.Identity).Returns(identity.Object);
+        mockClaimsPrincipal.Setup(p => p.Claims).Returns(claims);
+
+        // Use the mock ClaimsPrincipal in your tests
+        var claimsPrincipal = mockClaimsPrincipal.Object;
+
+        HttpContextMock.Setup(c => c.User).Returns(claimsPrincipal);
 
         // Act
         var result = await SystemUnderTest.EditUserDetails();

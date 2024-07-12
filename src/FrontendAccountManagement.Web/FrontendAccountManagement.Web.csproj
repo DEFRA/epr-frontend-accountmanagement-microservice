@@ -18,7 +18,7 @@
   </Target>
 
   <Target Name="NpmRunBuildFrontend" DependsOnTargets="NpmInstall" BeforeTargets="BeforeBuild">
-    <!--<Exec Command="npm run build-frontend" />-->
+    <Exec Command="npm run build-frontend" />
   </Target>
 
     <ItemGroup>
@@ -27,7 +27,7 @@
   
     <ItemGroup>
       <PackageReference Include="AutoMapper" Version="13.0.1" />
-      <PackageReference Include="EPR.Common.Authorization" Version="1.0.15-rc.607066" />
+      <PackageReference Include="EPR.Common.Authorization" Version="1.0.15-rc.612912" />
 	  <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.21" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.21" />

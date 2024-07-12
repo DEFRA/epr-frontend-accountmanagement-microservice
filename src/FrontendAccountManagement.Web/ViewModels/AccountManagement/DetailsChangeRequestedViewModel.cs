@@ -1,18 +1,9 @@
-﻿using FrontendAccountManagement.Web.Extensions;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
 {
-    public class DetailsChangeRequestedViewModel
+    [ExcludeFromCodeCoverage]
+    public class DetailsChangeRequestedViewModel : BaseConfirmationViewModel
     {
-        public string Username { get; set; }
-        public DateTime UpdatedDatetime { get; set; }
-
-        public string GetFormattedChangeMessage()
-        {
-            var timePart = UpdatedDatetime.ToString("hh:mmtt").ToLower();
-            var datePart = $"{UpdatedDatetime:dd}{UpdatedDatetime.GetDateOrdinal()} {UpdatedDatetime:MMMM yyyy}";
-
-            return $"Requested by {Username} at {timePart} on {datePart}";
-        }
     }
 }
