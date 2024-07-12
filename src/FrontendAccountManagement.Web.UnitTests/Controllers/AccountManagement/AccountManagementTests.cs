@@ -11,7 +11,7 @@ using FrontendAccountManagement.Core.Models;
 using EPR.Common.Authorization.Models;
 using System.Security.Claims;
 using System.Text.Json;
-using commonOrganisation = EPR.Common.Authorization.Models.Organisation;
+using Organisation = EPR.Common.Authorization.Models.Organisation;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 
@@ -139,7 +139,7 @@ public class AccountManagementTests : AccountManagementTestBase
         {
             FirstName = "FName",
             LastName = "LName",
-            Organisations = new List<commonOrganisation>()
+            Organisations = new List<Organisation>()
             {
                 new()
                 {

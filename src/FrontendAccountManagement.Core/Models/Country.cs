@@ -1,9 +1,11 @@
-﻿namespace FrontendAccountManagement.Core.Models
-{
-    public class Country
-    {
-        public string? Name { get; init; }
+﻿using System.Diagnostics.CodeAnalysis;
 
-        public string? Iso { get; init; }
-    }
+namespace FrontendAccountManagement.Core.Models;
+
+[ExcludeFromCodeCoverage]
+public class Country
+{
+    public string? Name { get; init; }
+
+    public string? Iso { get; init; }
 }

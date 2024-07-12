@@ -1,5 +1,8 @@
-﻿namespace FrontendAccountManagement.Core.Models.CompanyHouse;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace FrontendAccountManagement.Core.Models.CompanyHouse;
+
+[ExcludeFromCodeCoverage]
 public class RegisteredOfficeAddress
 {
     public string? SubBuildingName { get; init; }

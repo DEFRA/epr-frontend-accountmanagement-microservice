@@ -568,11 +568,4 @@ public class AccountManagementController : Controller
 
     private static bool IsRegulatorUser(UserData userData) =>
         IsRegulatorAdmin(userData) || IsRegulatorBasic(userData);
-
-    private async Task PopulateCompanyHouseSession(JourneySession session, CompaniesHouseNumberViewModel model)
-    {
-        session.AccountManagementSession.CompaniesHouseSession = new CompaniesHouseSession();
-        var company = await _facadeService.GetCompanyByCompaniesHouseNumberAsync(model.CompaniesHouseNumber);
-        session.AccountManagementSession.CompaniesHouseSession.Company = company;
-    }
 }

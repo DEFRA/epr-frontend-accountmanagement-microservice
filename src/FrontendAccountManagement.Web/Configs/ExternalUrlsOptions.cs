@@ -40,6 +40,7 @@ namespace FrontendAccountManagement.Web.Configs
         public string PrivacyLink { get; set; }
 
         public string CookiesLink { get; set; }
+
         public string CompanyHouseChangeRequestLink { get; set; }
     }
 }
