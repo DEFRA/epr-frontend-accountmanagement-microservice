@@ -461,7 +461,7 @@ public class AccountManagementController : Controller
 
         SetBackLink(session, PagePath.ManageAccount);
 
-        if (companyModel is null)
+        if (companyModel?.BusinessAddress is null)
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
             {
@@ -473,7 +473,8 @@ public class AccountManagementController : Controller
         {
             CompanyName = companyModel.Name,
             CompaniesHouseNumber = companyModel.CompaniesHouseNumber,
-            BusinessAddress = companyModel.BusinessAddress
+            BusinessAddress = companyModel.BusinessAddress,
+            ExternalCompanyHouseChangeRequestLink = _urlOptions.CompanyHouseChangeRequestLink
         };
 
         return View(nameof(ConfirmCompanyDetails), viewModel);
