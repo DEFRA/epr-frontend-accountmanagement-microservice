@@ -1,4 +1,4 @@
-using FrontendAccountManagement.Core.Enums;
+
 using FrontendAccountManagement.Core.Models;
 using System.Diagnostics.CodeAnalysis;
 
@@ -28,7 +28,9 @@ namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
         public string? Telephone { get; set; }
 
         public string? EnrolmentStatus { get; set; }
+
         public string? ServiceRoleKey { get; set; }
 
+        public string? OrganisationType { get; set; }
     }
 }

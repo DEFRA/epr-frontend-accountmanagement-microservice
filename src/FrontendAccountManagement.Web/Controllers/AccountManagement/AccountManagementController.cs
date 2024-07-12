@@ -100,26 +100,12 @@ public class AccountManagementController : Controller
             model.CompanyName = userOrg.Name;
             model.OrgAddress = userOrg.OrgAddress;
             model.EnrolmentStatus = userAccount.User.EnrolmentStatus;
-
             var serviceRoleId = userAccount.User.ServiceRoleId;
             var serviceRoleEnum = (ServiceRole)serviceRoleId;
             var roleInOrganisation = userAccount.User.RoleInOrganisation;
             var serviceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
-
             model.ServiceRoleKey = serviceRoleKey;
-
-            //model.UserName = string.Format("{0} {1}", session.UserData.FirstName, session.UserData.LastName);
-            // var userDataClaim = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.UserData);
-            //var currentSessionItem = session?.PermissionManagementSession.Items?.FirstOrDefault();
-            //if (currentSessionItem is { RelationshipWithOrganisation: Core.Sessions.RelationshipWithOrganisation.Employee })
-            //{
-            //    model.JobTitle = currentSessionItem.JobTitle;
-            //}
-            //  var currentPermissionTypeResult = await _facadeService.GetPermissionTypeFromConnectionAsync(organisationId.Value, id, _serviceSettings.ServiceKey);
-            //if (currentPermissionTypeResult.UserId == User.UserId() || currentPermissionTypeResult.PermissionType == null || currentPermissionTypeResult.PermissionType == PermissionType.Approved)
-            //{
-            //    return RedirectHome();
-            //}
+            model.OrganisationType = userOrg.OrganisationType;
         }
         
         return View(nameof(ManageAccount), model);

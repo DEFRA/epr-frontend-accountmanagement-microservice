@@ -9,6 +9,9 @@ public static class PagePath
     public const string TeamMemberDetails = "team-member-details";
     public const string RemoveTeamMember = "remove-team-member";
     public const string PreRemoveTeamMember = "pre-remove-team-member";
+    public const string WhatAreYourDetails = "what-are-your-details";
+    public const string ConfirmCompanyDetails = "confirm-company-details";
+    public const string UpdateTradingName = "update-trading-name";
 
     // Change role journey paths
     public const string ChangeAccountPermissions = "change-account-permissions";
