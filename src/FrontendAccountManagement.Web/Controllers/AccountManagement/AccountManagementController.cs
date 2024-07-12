@@ -100,99 +100,82 @@ public class AccountManagementController : Controller
 
         var organisationData = userData.Organisations.FirstOrDefault();
 
-        // This is the actual call that doesn't work yet
         var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.OrganisationNumber);
 
-        // Creating a mock response
-        //var companiesHouseData = new CompaniesHouseResponse
-        //{
-        //    Organisation = new OrganisationDto
-        //    {
-        //        Name = "Test organisation name",
-        //        RegistrationNumber = "TSTN341",
-        //        RegisteredOffice = new AddressDto
-        //        {
-        //            SubBuildingName = "Test sub building name",
-        //            BuildingName = "Test building name",
-        //            BuildingNumber = "Test building number",
-        //            Street = "Test street",
-        //            Town = "Test town",
-        //            County = "Test county",
-        //            Postcode = "WC1 2EV",
-        //            Locality = "Test locality",
-        //            DependentLocality = "Test dependent locality",
-        //            Country = new CountryDto
-        //            {
-        //                Name = "United Kingdom",
-        //                Iso = "UK ISO"
-        //            },
-        //            IsUkAddress = true
-        //        },
-        //        OrganisationData = new OrganisationDataDto
-        //        {
-        //            DateOfCreation = DateTime.Now,
-        //            Status = "Test status",
-        //            Type = "Test type"
-        //        }
-        //    },
-        //    AccountCreatedOn = DateTime.Now,
-        //};
-
-        // Will need to compare the data retrieved from the DB with the data returned from the Company House API response
-
-        if (organisationData != null && companiesHouseData != null && organisationData.OrganisationNumber == companiesHouseData.Organisation.RegistrationNumber
-            && organisationData.BuildingName == companiesHouseData.Organisation.RegisteredOffice.BuildingName)
+        if (
+            companiesHouseData != null &&
+            organisationData.Name == companiesHouseData.Organisation.Name &&
+            organisationData.OrganisationType == companiesHouseData.Organisation.OrganisationData.Type &&
+            organisationData.OrganisationNumber == companiesHouseData.Organisation.RegistrationNumber &&
+            organisationData.BuildingName == companiesHouseData.Organisation.RegisteredOffice.BuildingName &&
+            organisationData.BuildingNumber == companiesHouseData.Organisation.RegisteredOffice.BuildingNumber &&
+            organisationData.Street == companiesHouseData.Organisation.RegisteredOffice.Street &&
+            organisationData.Locality == companiesHouseData.Organisation.RegisteredOffice.Locality &&
+            organisationData.DependentLocality == companiesHouseData.Organisation.RegisteredOffice.DependentLocality &&
+            organisationData.Town == companiesHouseData.Organisation.RegisteredOffice.Town &&
+            organisationData.County == companiesHouseData.Organisation.RegisteredOffice.County &&
+            organisationData.Country == companiesHouseData.Organisation.RegisteredOffice.Country.Name &&
+            organisationData.Postcode == companiesHouseData.Organisation.RegisteredOffice.Postcode)
         {
-            return true; // Data matches
+            return true;
         }
 
-        // Data does not match
         return false;
     }
 
+    [HttpGet]
+    [AllowAnonymous]
+    [Route(PagePath.CompanyDetailsCheck)]
     public async Task<ActionResult> CheckData()
     {
         bool isDataMatching = await CompareDataAsync();
 
         if (isDataMatching)
         {
-            return RedirectToAction(PagePath.CompanyDetailsHaveNotChanged); // Redirect to the matched page
+            return RedirectToAction("CompanyDetailsHaveNotChanged");
         }
         else
         {
-            return RedirectToAction("UnmatchedPage"); // Redirect to the unmatched page (PagePath.ConfirmCompanyDetails)
+            return RedirectToAction("CompanyDetailsConfirmation");
         }
     }
 
     [HttpGet]
     [Route(PagePath.CompanyDetailsHaveNotChanged)]
-    public async Task<IActionResult> CompanyDetailsHaveNotChanged(CompaniesHouseResponse companiesHouseResponse)
+    public async Task<IActionResult> CompanyDetailsHaveNotChanged()
     {
-        await CheckData();
+
+        var userData = User.GetUserData();
+
+        var organisationData = userData.Organisations.FirstOrDefault();
+
+        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync("06500244");
+
+        if (companiesHouseData == null)
+        {
+            throw new ArgumentNullException();
+        }
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        //var userData = User.GetUserData();
-
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CompanyDetailsHaveNotChanged);
 
         SetBackLink(session, PagePath.ManageAccount);
-
-        //var organisation = userData.Organisations.FirstOrDefault();
 
         var companiesHouseChangeDetailsUrl = _urlOptions.CompaniesHouseChangeDetailsUrl;
 
         var model = new CompanyDetailsHaveNotChangedViewModel
         {
-            CompanyName = companiesHouseResponse.Organisation.Name,
-            CompanyHouseNumber = companiesHouseResponse.Organisation.RegistrationNumber,
-            BuildingName = companiesHouseResponse.Organisation.RegisteredOffice.BuildingName,
-            BuildingNumber = companiesHouseResponse.Organisation.RegisteredOffice.BuildingNumber,
-            Street = companiesHouseResponse.Organisation.RegisteredOffice.Street,
-            Locality = companiesHouseResponse.Organisation.RegisteredOffice.Locality,
-            DependentLocality = companiesHouseResponse.Organisation.RegisteredOffice.DependentLocality,
-            Town = companiesHouseResponse.Organisation.RegisteredOffice.Town,
-            County = companiesHouseResponse.Organisation.RegisteredOffice.County,
-            Country = companiesHouseResponse.Organisation.RegisteredOffice.Country.Name,
+            CompanyName = companiesHouseData.Organisation.Name,
+            CompanyHouseNumber = companiesHouseData.Organisation.RegistrationNumber,
+            BuildingName = companiesHouseData.Organisation.RegisteredOffice.BuildingName,
+            BuildingNumber = companiesHouseData.Organisation.RegisteredOffice.BuildingNumber,
+            Street = companiesHouseData.Organisation.RegisteredOffice.Street,
+            Locality = companiesHouseData.Organisation.RegisteredOffice.Locality,
+            DependentLocality = companiesHouseData.Organisation.RegisteredOffice.DependentLocality,
+            Town = companiesHouseData.Organisation.RegisteredOffice.Town,
+            County = companiesHouseData.Organisation.RegisteredOffice.County,
+            Country = companiesHouseData.Organisation.RegisteredOffice.Country.Name,
+            Postcode = companiesHouseData.Organisation.RegisteredOffice.Postcode,
             CompaniesHouseChangeDetailsUrl = companiesHouseChangeDetailsUrl
         };
 
@@ -488,12 +471,12 @@ public class AccountManagementController : Controller
         // need to temporarily save the details for the next page, without saving to the database
         // however this bit throws an exception at the moment for some reason
         //TempData.Add("NewUserDetails", editUserDetailsViewModel);
-        
+
         return RedirectToAction("CheckYourDetails", editUserDetailsViewModel);
     }
     [HttpGet]
     [Route(PagePath.CheckYourDetails)]
-    public async Task<IActionResult> CheckYourDetails( )
+    public async Task<IActionResult> CheckYourDetails()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();

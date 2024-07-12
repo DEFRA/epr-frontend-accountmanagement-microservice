@@ -27,6 +27,12 @@
                         {
                             <br>@Model.Street
                         }
+                        @if (!string.IsNullOrEmpty(Model.Locality))
+                        {
+                            <br>
+
+                            @Model.Locality
+                        }
                         @if (!string.IsNullOrEmpty(Model.Town))
                         {
                             <br>@Model.Town
@@ -38,6 +44,10 @@
                         @if (!string.IsNullOrEmpty(Model.Country))
                         {
                             <br>@Model.Country
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Postcode))
+                        {
+                            <br>@Model.Postcode
                         }
                     </p>
                 </div>
