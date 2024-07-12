@@ -39,6 +39,9 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         public void SetUp()
         {
             this.SessionManager = new Mock<ISessionManager<JourneySession>>();
+            this.SessionManager.Setup(session => session.GetSessionAsync(It.IsAny<ISession>()))
+                .Returns(Task.Run(() => new Mock<JourneySession>().Object));
+
             this.FacadeService = new Mock<IFacadeService>();
             this.UrlOptions = new Mock<IOptions<ExternalUrlsOptions>>();
             this.DeploymentRoleOptions = new Mock<IOptions<DeploymentRoleOptions>>();
@@ -113,11 +116,10 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             }
 
             // Act
-            RedirectResult result = (RedirectResult)await this.TestClass.Declaration(requestToken);
+            ViewResult result = (ViewResult)await this.TestClass.Declaration(requestToken);
 
             // Assert
-            Assert.IsInstanceOfType<RedirectResult>(result);
-            Assert.AreEqual("/manage-account/this-page-cannot-be-accessed-directly", result.Url);
+            Assert.AreEqual("Problem", result.ViewName);
         }
     }
 }

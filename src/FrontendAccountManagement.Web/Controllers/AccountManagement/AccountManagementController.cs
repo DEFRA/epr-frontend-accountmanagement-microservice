@@ -319,9 +319,9 @@ public class AccountManagementController : Controller
     /// A value used to verify that the user came from the "Check your details" page.
     /// Its specific value doesn't matter, but it's compared to a copy stored in the session data as an extra layer of validation.
     /// </param>
-	[HttpGet]
-	[Route("declaration")]
-	public async Task<IActionResult> Declaration(string navigationToken)
+    [HttpGet]
+    [Route(PagePath.Declaration)]
+    public async Task<IActionResult> Declaration(string navigationToken)
     {
         if (!ModelState.IsValid)
         {
@@ -332,11 +332,10 @@ public class AccountManagementController : Controller
         if (navigationToken is null
             || sessionNavigationToken != navigationToken)
         {
-            return Redirect("/manage-account/this-page-cannot-be-accessed-directly");
+            return View("Problem");
         }
 
-        SetCustomBackLink("/manage-account/check-your-details");
-        
+        SetBackLink(await _sessionManager.GetSessionAsync(HttpContext.Session), PagePath.Declaration);
         return View("Declaration");
     }
 
@@ -345,10 +344,11 @@ public class AccountManagementController : Controller
     public async Task<IActionResult> EditUserDetails()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        
+
+        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.WhatAreYourDetails);
         var model = _mapper.Map<EditUserDetailsViewModel>(User.GetUserData());
 
-        SetBackLink(session, PagePath.ManageAccount);
+        SetBackLink(session, PagePath.WhatAreYourDetails);
 
         return View(model);
     }
@@ -377,7 +377,7 @@ public class AccountManagementController : Controller
 
         if (!ModelState.IsValid)
         {
-            await SetBackLink(PagePath.ManageAccount);
+            await SetBackLink(PagePath.WhatAreYourDetails);
             return View(editUserDetailsViewModel);
         }
 

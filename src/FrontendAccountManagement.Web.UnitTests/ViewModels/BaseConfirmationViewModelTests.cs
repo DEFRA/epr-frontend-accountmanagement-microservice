@@ -7,8 +7,10 @@ namespace FrontendAccountManagement.Web.UnitTests.ViewModels
     public class BaseConfirmationViewModelTests
     {
 
-        [TestMethod]
-        public void GetFormattedChangeMessage_ShouldReturnCorrectMessage_ForValidInput()
+        [DataTestMethod]
+        [DataRow("Changed")]
+        [DataRow("Requested")]
+        public void GetFormattedChangeMessage_ShouldReturnCorrectMessage_ForValidInput(string action)
         {
             // Arrange
             var username = "Dwight Schrute";
@@ -20,21 +22,21 @@ namespace FrontendAccountManagement.Web.UnitTests.ViewModels
             };
 
             // Act
-            var result = viewModel.GetFormattedChangeMessage();
+            var result = viewModel.GetFormattedChangeMessage(action);
 
             // Assert
-            var expectedMessage = "Requested by Dwight Schrute at 12:06pm on 25th June 2024";
+            var expectedMessage = $"{action} by Dwight Schrute at 12:06pm on 25th June 2024";
             result.Should().Be(expectedMessage);
         }
 
         [DataTestMethod]
-        [DataRow("Test User", "2024-06-01", "Requested by Test User at 12:00am on 01st June 2024")]
-        [DataRow("Test User", "2024-06-02", "Requested by Test User at 12:00am on 02nd June 2024")]
-        [DataRow("Test User", "2024-06-03", "Requested by Test User at 12:00am on 03rd June 2024")]
-        [DataRow("Test User", "2024-06-04", "Requested by Test User at 12:00am on 04th June 2024")]
-        [DataRow("Test User", "2024-06-21", "Requested by Test User at 12:00am on 21st June 2024")]
-        [DataRow("Test User", "2024-06-22", "Requested by Test User at 12:00am on 22nd June 2024")]
-        [DataRow("Test User", "2024-06-23", "Requested by Test User at 12:00am on 23rd June 2024")]
+        [DataRow("Test User", "2024-06-01", "Changed by Test User at 12:00am on 01st June 2024")]
+        [DataRow("Test User", "2024-06-02", "Changed by Test User at 12:00am on 02nd June 2024")]
+        [DataRow("Test User", "2024-06-03", "Changed by Test User at 12:00am on 03rd June 2024")]
+        [DataRow("Test User", "2024-06-04", "Changed by Test User at 12:00am on 04th June 2024")]
+        [DataRow("Test User", "2024-06-21", "Changed by Test User at 12:00am on 21st June 2024")]
+        [DataRow("Test User", "2024-06-22", "Changed by Test User at 12:00am on 22nd June 2024")]
+        [DataRow("Test User", "2024-06-23", "Changed by Test User at 12:00am on 23rd June 2024")]
         public void GetFormattedChangeMessage_ShouldReturnCorrectOrdinal_ForDaysWithSpecialSuffixes(
             string username, string dateString, string expectedMessage)
         {
@@ -47,7 +49,7 @@ namespace FrontendAccountManagement.Web.UnitTests.ViewModels
             };
 
             // Act
-            var result = viewModel.GetFormattedChangeMessage();
+            var result = viewModel.GetFormattedChangeMessage("Changed");
 
             // Assert
             Assert.AreEqual(expectedMessage, result);
