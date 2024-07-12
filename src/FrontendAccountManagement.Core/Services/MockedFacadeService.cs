@@ -1,6 +1,7 @@
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.MockedData;
 using FrontendAccountManagement.Core.Models;
+using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using FrontendAccountManagement.Core.Sessions;
 
 namespace FrontendAccountManagement.Core.Services;
@@ -83,7 +84,7 @@ public class MockedFacadeService : IFacadeService
     {
         throw new NotImplementedException();
     }
-        
+
     public Task NominateToDelegatedPerson(Guid connectionId, Guid organisationId, string serviceKey, DelegatedPersonNominationRequest nominationRequest)
     {
         return Task.CompletedTask;
@@ -91,6 +92,11 @@ public class MockedFacadeService : IFacadeService
 
     public Task<List<int>> GetNationIds(Guid organisationId)
     {
-        return Task.FromResult(new List<int>{1,2});
+        return Task.FromResult(new List<int> { 1, 2 });
+    }
+
+    public Task<CompaniesHouseResponse> GetCompaniesHouseResponseAsync(string companyHouseNumber)
+    {
+        return Task.FromResult<CompaniesHouseResponse?>(null);
     }
 }

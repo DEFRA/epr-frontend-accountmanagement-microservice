@@ -16,6 +16,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using FrontendAccountManagement.Web.Extensions;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
+using FrontendAccountManagement.Core.Models.CompaniesHouse;
+using PhoneNumbers;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 
@@ -42,7 +44,7 @@ public class AccountManagementController : Controller
         _urlOptions = urlOptions.Value;
         _deploymentRoleOptions = deploymentRoleOptions.Value;
     }
-    
+
     [HttpGet]
     [Route("")]
     [Route(PagePath.ManageAccount)]
@@ -58,7 +60,7 @@ public class AccountManagementController : Controller
                 statusCode = (int)HttpStatusCode.Forbidden
             });
         }
-        
+
         session.AccountManagementSession.AddUserJourney = null;
         if (session.AccountManagementSession.RemoveUserStatus != null)
         {
@@ -68,11 +70,11 @@ public class AccountManagementController : Controller
             session.AccountManagementSession.RemoveUserStatus = null;
             session.AccountManagementSession.RemoveUserJourney = null;
         }
-        
+
         if (session.AccountManagementSession.AddUserStatus != null)
         {
             model.InviteStatus = session.AccountManagementSession.AddUserStatus;
-            model.InvitedUserEmail =session.AccountManagementSession.InviteeEmailAddress;
+            model.InvitedUserEmail = session.AccountManagementSession.InviteeEmailAddress;
             session.AccountManagementSession.InviteeEmailAddress = null;
             session.AccountManagementSession.AddUserStatus = null;
         }
@@ -82,10 +84,116 @@ public class AccountManagementController : Controller
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccount);
 
         SetCustomBackLink(_urlOptions.LandingPageUrl);
-        
+
         return View(nameof(ManageAccount), model);
     }
-    
+
+    private async Task<bool> CompareDataAsync()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var userData = User.GetUserData();
+
+        var organisationData = userData.Organisations.FirstOrDefault();
+
+        // This is the actual call that doesn't work yet
+        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.OrganisationNumber);
+
+        // Creating a mock response
+        //var companiesHouseData = new CompaniesHouseResponse
+        //{
+        //    Organisation = new OrganisationDto
+        //    {
+        //        Name = "Test organisation name",
+        //        RegistrationNumber = "TSTN341",
+        //        RegisteredOffice = new AddressDto
+        //        {
+        //            SubBuildingName = "Test sub building name",
+        //            BuildingName = "Test building name",
+        //            BuildingNumber = "Test building number",
+        //            Street = "Test street",
+        //            Town = "Test town",
+        //            County = "Test county",
+        //            Postcode = "WC1 2EV",
+        //            Locality = "Test locality",
+        //            DependentLocality = "Test dependent locality",
+        //            Country = new CountryDto
+        //            {
+        //                Name = "United Kingdom",
+        //                Iso = "UK ISO"
+        //            },
+        //            IsUkAddress = true
+        //        },
+        //        OrganisationData = new OrganisationDataDto
+        //        {
+        //            DateOfCreation = DateTime.Now,
+        //            Status = "Test status",
+        //            Type = "Test type"
+        //        }
+        //    },
+        //    AccountCreatedOn = DateTime.Now,
+        //};
+
+        // Will need to compare the data retrieved from the DB with the data returned from the Company House API response
+
+        if (organisationData != null && companiesHouseData != null && organisationData.OrganisationNumber == companiesHouseData.Organisation.RegistrationNumber
+            && organisationData.BuildingName == companiesHouseData.Organisation.RegisteredOffice.BuildingName)
+        {
+            return true; // Data matches
+        }
+
+        // Data does not match
+        return false;
+    }
+
+    public async Task<ActionResult> CheckData()
+    {
+        bool isDataMatching = await CompareDataAsync();
+
+        if (isDataMatching)
+        {
+            return RedirectToAction(PagePath.CompanyDetailsHaveNotChanged); // Redirect to the matched page
+        }
+        else
+        {
+            return RedirectToAction("UnmatchedPage"); // Redirect to the unmatched page (PagePath.ConfirmCompanyDetails)
+        }
+    }
+
+    [HttpGet]
+    [Route(PagePath.CompanyDetailsHaveNotChanged)]
+    public async Task<IActionResult> CompanyDetailsHaveNotChanged(CompaniesHouseResponse companiesHouseResponse)
+    {
+        await CheckData();
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        //var userData = User.GetUserData();
+
+        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CompanyDetailsHaveNotChanged);
+
+        SetBackLink(session, PagePath.ManageAccount);
+
+        //var organisation = userData.Organisations.FirstOrDefault();
+
+        var companiesHouseChangeDetailsUrl = _urlOptions.CompaniesHouseChangeDetailsUrl;
+
+        var model = new CompanyDetailsHaveNotChangedViewModel
+        {
+            CompanyName = companiesHouseResponse.Organisation.Name,
+            CompanyHouseNumber = companiesHouseResponse.Organisation.RegistrationNumber,
+            BuildingName = companiesHouseResponse.Organisation.RegisteredOffice.BuildingName,
+            BuildingNumber = companiesHouseResponse.Organisation.RegisteredOffice.BuildingNumber,
+            Street = companiesHouseResponse.Organisation.RegisteredOffice.Street,
+            Locality = companiesHouseResponse.Organisation.RegisteredOffice.Locality,
+            DependentLocality = companiesHouseResponse.Organisation.RegisteredOffice.DependentLocality,
+            Town = companiesHouseResponse.Organisation.RegisteredOffice.Town,
+            County = companiesHouseResponse.Organisation.RegisteredOffice.County,
+            Country = companiesHouseResponse.Organisation.RegisteredOffice.Country.Name,
+            CompaniesHouseChangeDetailsUrl = companiesHouseChangeDetailsUrl
+        };
+
+        return View(nameof(CompanyDetailsHaveNotChanged), model);
+    }
+
     [HttpGet]
     [Route(PagePath.TeamMemberEmail)]
     public async Task<IActionResult> TeamMemberEmail()
@@ -104,7 +212,7 @@ public class AccountManagementController : Controller
 
         return View(nameof(TeamMemberEmail), model);
     }
-    
+
     [HttpPost]
     [Route(PagePath.TeamMemberEmail)]
     public async Task<IActionResult> TeamMemberEmail(TeamMemberEmailViewModel model)
@@ -122,16 +230,16 @@ public class AccountManagementController : Controller
 
         return await SaveSessionAndRedirect(session, nameof(TeamMemberPermissions), PagePath.TeamMemberEmail, PagePath.TeamMemberPermissions);
     }
-    
+
     [HttpGet]
     [Route(PagePath.TeamMemberPermissions)]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     public async Task<IActionResult> TeamMemberPermissions()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        
+
         SetBackLink(session, PagePath.TeamMemberPermissions);
-        
+
         var serviceRoles = await _facadeService.GetAllServiceRolesAsync();
         if (serviceRoles == null || !serviceRoles.Any())
         {
@@ -158,10 +266,10 @@ public class AccountManagementController : Controller
                 .OrderByDescending(x => x.Key).ToList();
             model.SavedUserRole = session.AccountManagementSession.AddUserJourney.UserRole;
         }
-        
+
         return View(nameof(TeamMemberPermissions), model);
     }
-    
+
     [HttpPost]
     [Route(PagePath.TeamMemberPermissions)]
     public async Task<IActionResult> TeamMemberPermissions(TeamMemberPermissionsViewModel model)
@@ -176,7 +284,7 @@ public class AccountManagementController : Controller
             model.ServiceRoles = serviceRoles
                 .Where(x => x.ServiceRoleId == 3)
                 .OrderByDescending(x => x.Key).ToList();
-            
+
             return View(nameof(TeamMemberPermissions), model);
         }
 
@@ -185,14 +293,14 @@ public class AccountManagementController : Controller
 
         return await SaveSessionAndRedirect(session, nameof(TeamMemberDetails), PagePath.TeamMemberPermissions, PagePath.TeamMemberDetails);
     }
-    
+
     [HttpGet]
     [AllowAnonymous]
     [Route(PagePath.TeamMemberDetails)]
     public async Task<IActionResult> TeamMemberDetails()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        
+
         SetBackLink(session, PagePath.TeamMemberDetails);
         var model = new TeamMemberDetailsViewModel
         {
@@ -232,12 +340,12 @@ public class AccountManagementController : Controller
                 RoleKey = session.AccountManagementSession.RoleKey
             }
         };
-        
+
         session.AccountManagementSession.AddUserStatus = await _facadeService.SendUserInvite(request);
-        
+
         return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.TeamMemberDetails, PagePath.ManageAccount);
     }
-    
+
     [HttpPost]
     [Route(PagePath.PreRemoveTeamMember)]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
@@ -247,9 +355,9 @@ public class AccountManagementController : Controller
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         SetRemoveUserJourneyValues(session, firstName, lastName, personId);
         await SaveSession(session);
-        return RedirectToAction("RemoveTeamMemberConfirmation","AccountManagement");
+        return RedirectToAction("RemoveTeamMemberConfirmation", "AccountManagement");
     }
-    
+
     [HttpGet]
     [Route(PagePath.RemoveTeamMember)]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
@@ -271,7 +379,7 @@ public class AccountManagementController : Controller
 
         return View(nameof(RemoveTeamMemberConfirmation), model);
     }
-    
+
     [HttpPost]
     [Route(PagePath.RemoveTeamMember)]
     public async Task<IActionResult> RemoveTeamMemberConfirmation(RemoveTeamMemberConfirmationViewModel model)
@@ -284,16 +392,16 @@ public class AccountManagementController : Controller
             SetBackLink(session, PagePath.TeamMemberPermissions);
             return View(model);
         }
-        
+
         var personExternalId = model.PersonId.ToString();
-        var organisation = userData.Organisations.FirstOrDefault();        
+        var organisation = userData.Organisations.FirstOrDefault();
         if (organisation?.Id == null)
         {
             return RedirectToAction(nameof(ManageAccount));
         }
         var organisationId = organisation!.Id.ToString();
         var serviceRoleId = userData.ServiceRoleId;
-        var result = await _facadeService.RemoveUserForOrganisation(personExternalId, organisationId, serviceRoleId );
+        var result = await _facadeService.RemoveUserForOrganisation(personExternalId, organisationId, serviceRoleId);
         session.AccountManagementSession.RemoveUserStatus = result;
 
         return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.RemoveTeamMember, PagePath.ManageAccount);
@@ -318,7 +426,7 @@ public class AccountManagementController : Controller
             session.AccountManagementSession.RemoveUserJourney.PersonId = personId;
         }
     }
-    
+
     private async Task<RedirectToActionResult> SaveSessionAndRedirect(
         JourneySession session,
         string actionName,
@@ -338,7 +446,7 @@ public class AccountManagementController : Controller
 
         await SaveSession(session);
     }
-    
+
     private async Task SaveSession(JourneySession session)
     {
         await _sessionManager.SaveSessionAsync(HttpContext.Session, session);

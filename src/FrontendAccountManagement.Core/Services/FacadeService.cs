@@ -11,6 +11,7 @@ using FrontendAccountManagement.Core.Extensions;
 using System.Text.Json;
 using System.Text;
 using System.Text.Json.Serialization;
+using FrontendAccountManagement.Core.Models.CompaniesHouse;
 
 namespace FrontendAccountManagement.Core.Services;
 
@@ -83,7 +84,7 @@ public class FacadeService : IFacadeService
             return EndpointResponseStatus.UserExists;
         }
 
-        throw (new Exception(response.Content.ToString()));
+        throw new Exception(response.Content.ToString());
     }
 
     public async Task<ConnectionPerson?> GetPersonDetailsFromConnectionAsync(Guid organisationId, Guid connectionId, string serviceKey)
@@ -203,7 +204,7 @@ public class FacadeService : IFacadeService
         request.Headers.Add("X-EPR-Organisation", organisationId.ToString());
 
         var response = await _httpClient.SendAsync(request);
-         
+
         response.EnsureSuccessStatusCode();
     }
 
@@ -240,7 +241,26 @@ public class FacadeService : IFacadeService
 
         var response = await _httpClient.GetAsync($"organisations/organisation-nation?organisationId={organisationId}");
 
-        return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<List<int>>() : new List<int>{0};
+        return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<List<int>>() : new List<int> { 0 };
+    }
+
+    public async Task<CompaniesHouseResponse> GetCompaniesHouseResponseAsync(string companyHouseNumber)
+    {
+        await PrepareAuthenticatedClient();
+
+        var response = await _httpClient.GetAsync($"/api/companies-house?id={companyHouseNumber}");
+
+        if (response.StatusCode == HttpStatusCode.NoContent)
+        {
+            return null;
+        }
+
+        response.EnsureSuccessStatusCode();
+
+        var companiesHouseData = await response.Content.ReadFromJsonAsync<CompaniesHouseResponse>();
+
+        return companiesHouseData;
+
     }
 
     private async Task PrepareAuthenticatedClient()
