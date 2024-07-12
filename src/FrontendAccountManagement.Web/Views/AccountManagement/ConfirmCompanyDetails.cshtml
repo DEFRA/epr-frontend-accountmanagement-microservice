@@ -7,16 +7,16 @@
             <div class="govuk-grid-row">
 
                 <div class="govuk-grid-column-two-thirds">
-                    <h1 class="govuk-heading-l">Confirm your organisation’s details from Companies House</h1>
+                    <h1 class="govuk-heading-l">@Localizer["ConfirmationTitle"]</h1>
                 </div>
                 <div class="govuk-inset-text govuk-grid-column-one-half">
                     <h2 class="govuk-heading-m govuk-!-padding-bottom-4">@Model.CompanyName</h2>
                     <div class="govuk-!-padding-bottom-4">
-                        <span>Companies House number: </span><br>
+                        <span>@Localizer["CompanyHouseNumber"] </span><br>
                         <span>@Model.CompaniesHouseNumber</span>
                     </div>
                     <div class="govuk-summary-list__row">
-                        <span></span>Address: <br>
+                        <span>@Localizer["CompaniesHouseAddress"]</span><br>
                         @{
                             RenderAddressParts(Model.BusinessAddress?.AddressFields!);
                         }
@@ -26,16 +26,18 @@
                     <details class="govuk-details">
                         <summary class="govuk-details__summary">
                             <span class="govuk-details__summary-text">
-                                These details are wrong
+                                @Localizer["WrongDetails"]
                             </span>
                         </summary>
                         <div class="govuk-details__text">
                             <div class="govuk-!-padding-bottom-3">
-                                If these details are wrong, you should:
+                                @Localizer["WrongDetailsHelp"]
                             </div>
                             <div>
-                                Check Companies House to see if your organisation’s details are correct. If they aren’t, you can 
-                                <a class="govuk-link" href="@Model.ExternalCompanyHouseChangeRequestLink" target="_blank">change them on Companies House (opens in new tab)</a>.
+                                @Localizer["WrongDetailsDescription"]
+                                <a class="govuk-link" href="@Model.ExternalCompanyHouseChangeRequestLink" target="_blank">
+                                    @Localizer["WrongDetailsDescription2"]
+                                </a>.
                             </div>
                         </div>
                     </details>
