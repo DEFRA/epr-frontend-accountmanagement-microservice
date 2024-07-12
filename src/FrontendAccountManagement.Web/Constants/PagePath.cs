@@ -9,6 +9,10 @@ public static class PagePath
     public const string TeamMemberDetails = "team-member-details";
     public const string RemoveTeamMember = "remove-team-member";
     public const string PreRemoveTeamMember = "pre-remove-team-member";
+    public const string Declaration = "declaration";
+    public const string DetailsChangeRequested = "details-change-requested";
+    public const string WhatAreYourDetails = "what-are-your-details";
+    public const string CheckYourDetails = "check-your-details";
     public const string CompanyDetailsHaveNotChanged = "company-details-have-not-changed";
 
     // Change role journey paths
@@ -26,7 +30,13 @@ public static class PagePath
     public const string Accessibility = "accessibility";
     public const string SignedOut = "signed-out";
     public const string Error = "error";
+    public const string Problem = "problem";
     public const string Culture = "culture";
     public const string AcknowledgeCookieAcceptance = "acknowledge-cookie-acceptance";
     public const string UpdateCookieAcceptance = "update-cookie-acceptance";
+
+    // Edit user details
+    public const string UpdateDetailsConfirmation = "your-details-have-been-updated";
+    public const string DetailsChangeRequestedNotification = "details-change-requested";
+    
 }

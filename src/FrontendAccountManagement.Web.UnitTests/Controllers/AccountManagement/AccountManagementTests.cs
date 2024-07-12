@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using FrontendAccountManagement.Core.Models;
 using EPR.Common.Authorization.Models;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 
@@ -155,5 +157,133 @@ public class AccountManagementTests : AccountManagementTestBase
         // Assert
         result.Should().BeOfType<ViewResult>();
         result.ViewName.Should().Be(null);
+    }
+
+    [TestMethod]
+    public async Task GivenOnEditUserDetailsPage_WhenRequested_TheShowUserDetails()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+
+        };
+
+        // Create a mock identity
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.UserData, JsonSerializer.Serialize(userData)),
+        };
+
+        var identity = new Mock<ClaimsIdentity>();
+        identity.Setup(i => i.IsAuthenticated).Returns(true);
+        identity.Setup(i => i.Claims).Returns(claims);
+
+        // Create a mock ClaimsPrincipal
+        var mockClaimsPrincipal = new Mock<ClaimsPrincipal>();
+        mockClaimsPrincipal.Setup(p => p.Identity).Returns(identity.Object);
+        mockClaimsPrincipal.Setup(p => p.Claims).Returns(claims);
+
+        // Use the mock ClaimsPrincipal in your tests
+        var claimsPrincipal = mockClaimsPrincipal.Object;
+
+        HttpContextMock.Setup(c => c.User).Returns(claimsPrincipal);
+
+        // Act
+        var result = await SystemUnderTest.EditUserDetails();
+
+        // Assert
+        result.Should().BeOfType<ViewResult>();
+
+        var viewResult = result as ViewResult;
+        viewResult.ViewName.Should().Be(null);
+
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+        AutoMapperMock.Verify(m => m.Map<EditUserDetailsViewModel>(It.IsAny<UserData>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GivenOnEditUserDetailsPage_WhenPageSubbmitedWithValidData_RedirectsToNextPage()
+    {
+        // Arrange
+        var editUserDetailsViewModel = new EditUserDetailsViewModel
+        {
+            FirstName = "FirstName",
+            LastName = "LastName",
+            OriginalJobTitle = "Job",
+            JobTitle = "Job",
+            OriginalTelephone = "Telephone",
+            Telephone = "Telepohne"
+        };
+
+        // Act
+        var result = await SystemUnderTest.EditUserDetails(editUserDetailsViewModel);
+
+        // Assert
+        var viewResult = result as RedirectToActionResult;
+        Assert.IsNotNull(viewResult);
+    }
+
+    [TestMethod]
+    [DataRow("JobTitle")]
+    [DataRow("Telephone")]
+    public async Task GivenOnEditUserDetailsPage_WhenPageSubbmitedWithInvalidData_ReturnsOriginalPage(string fieldValidationError)
+    {
+        // Arrange
+        if (fieldValidationError == "JobTitle")
+        {
+            SystemUnderTest.ModelState.AddModelError("JobTitle", "JobTitle is missing");
+        }
+        else
+        {
+            SystemUnderTest.ModelState.AddModelError("Telephone", "JobTitle is missing");
+        }
+
+        var editUserDetailsViewModel = new EditUserDetailsViewModel
+        {
+            FirstName = "FirstName",
+            LastName = "LastName",
+            OriginalJobTitle = "Job",
+            JobTitle = "Job",
+            OriginalTelephone = "Telephone",
+            Telephone = "Telepohne"
+        };
+
+        // Act
+        var result = await SystemUnderTest.EditUserDetails(editUserDetailsViewModel) as ViewResult;
+
+        Assert.IsNotNull(result);
+        Assert.IsTrue(string.IsNullOrWhiteSpace(result.ViewName));
+        Assert.AreSame(editUserDetailsViewModel, result.Model);
+    }
+
+    [TestMethod]
+    [DataRow("JobTitle")]
+    [DataRow("Telephone")]
+    public async Task GivenOnEditUserDetailsPage_WhenPageSubbmitedWithInvalidDataAndNoOriginalValues_RedirectsToNextPage(string fieldValidationError)
+    {
+        // Arrange
+        if (fieldValidationError == "JobTitle")
+        {
+            SystemUnderTest.ModelState.AddModelError("JobTitle", "JobTitle is missing");
+        }
+        else
+        {
+            SystemUnderTest.ModelState.AddModelError("Telephone", "JobTitle is missing");
+        }
+
+        var editUserDetailsViewModel = new EditUserDetailsViewModel
+        {
+            FirstName = "FirstName",
+            LastName = "LastName",
+            JobTitle = "Job",
+            Telephone = "Telepohne"
+        };
+
+        // Act
+        var result = await SystemUnderTest.EditUserDetails(editUserDetailsViewModel);
+
+        // assert
+        var viewResult = result as RedirectToActionResult;
+        Assert.IsNotNull(viewResult);
     }
 }

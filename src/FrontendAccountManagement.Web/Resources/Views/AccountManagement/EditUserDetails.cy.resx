@@ -117,28 +117,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ManageAccountDetails" xml:space="preserve">
-    <value>Manage account details</value>
+  <data name="EditUserDetailsTitle" xml:space="preserve">
+    <value>[Welsh]What are your details?</value>
   </data>
-  <data name="ManageYourTeam" xml:space="preserve">
-    <value>Manage your team</value>
+  <data name="FirstName" xml:space="preserve">
+    <value>[Welsh]First name</value>
   </data>
-  <data name="AddTeamMember" xml:space="preserve">
-    <value>Add team member</value>
+  <data name="FirstNameMaxLength" xml:space="preserve">
+    <value>[Welsh]First name must be 50 characters or less</value>
   </data>
-  <data name="YouSentInvitation" xml:space="preserve">
-    <value>You sent an invitation to {0}</value>
+  <data name="FirstNameMissing" xml:space="preserve">
+    <value>[Welsh]Enter your first name</value>
   </data>
-  <data name="UserAlreadyInvited" xml:space="preserve">
-    <value>Someone on your team has already sent an invitation to {0}</value>
+  <data name="JobTitle" xml:space="preserve">
+    <value>[Welsh]Job title</value>
   </data>
-  <data name="UserRemoved" xml:space="preserve">
-    <value>You removed {0} from your team</value>
+  <data name="JobTitleMaxLength" xml:space="preserve">
+    <value>[Welsh]Job title must be 50 characters or less</value>
   </data>
-  <data name="PermissionsUpdated" xml:space="preserve">
-    <value>{0}’s permissions updated</value>
+  <data name="JobTitleMissing" xml:space="preserve">
+    <value>[Welsh]Enter your job title</value>
   </data>
-  <data name="CheckYourDetails" xml:space="preserve">
-    <value>Check your details</value>
+  <data name="LastName" xml:space="preserve">
+    <value>[Welsh]Last name</value>
+  </data>
+  <data name="LastNameMaxLength" xml:space="preserve">
+    <value>[Welsh]Last name must be 50 characters or less</value>
+  </data>
+  <data name="LastNameMissing" xml:space="preserve">
+    <value>[Welsh]Enter your last name</value>
+  </data>
+  <data name="TelephoneMaxLength" xml:space="preserve">
+    <value>[Welsh]Telephone number must be 50 characters or less</value>
+  </data>
+  <data name="TelephoneNumber" xml:space="preserve">
+    <value>[Welsh]Telephone number</value>
+  </data>
+  <data name="TelephoneNumberMissing" xml:space="preserve">
+    <value>[Welsh]Enter your telephone number</value>
   </data>
 </root>
