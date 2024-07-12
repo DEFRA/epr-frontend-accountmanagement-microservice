@@ -1,4 +1,5 @@
-﻿using FrontendAccountManagement.Web.ViewModels.AccountManagement;
+﻿using FrontendAccountManagement.Web.Extensions;
+using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 
 namespace FrontendAccountManagement.Web.UnitTests.ViewModels
 {
@@ -12,14 +13,14 @@ namespace FrontendAccountManagement.Web.UnitTests.ViewModels
             // Arrange
             var username = "Dwight Schrute";
             var updatedDateTime = new DateTime(2024, 6, 25, 12, 6, 0);
-            var viewModel = new DetailsChangeRequestedViewModel
+            var viewModel = new DetailsChangeRequestedViewModel()
             {
                 Username = username,
                 UpdatedDatetime = updatedDateTime
             };
 
             // Act
-            var result = viewModel.GetFormattedChangeMessage();
+            var result = viewModel.GetFormattedChangeMessage("Requested");
 
             // Assert
             var expectedMessage = "Requested by Dwight Schrute at 12:06pm on 25th June 2024";
@@ -46,7 +47,7 @@ namespace FrontendAccountManagement.Web.UnitTests.ViewModels
             };
 
             // Act
-            var result = viewModel.GetFormattedChangeMessage();
+            var result = viewModel.GetFormattedChangeMessage("Requested");
 
             // Assert
             Assert.AreEqual(expectedMessage, result);

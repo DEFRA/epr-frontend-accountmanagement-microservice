@@ -7,8 +7,10 @@ namespace FrontendAccountManagement.Web.UnitTests.ViewModels
     public class BaseConfirmationViewModelTests
     {
 
-        [TestMethod]
-        public void GetFormattedChangeMessage_ShouldReturnCorrectMessage_ForValidInput()
+        [DataTestMethod]
+        [DataRow("Changed")]
+        [DataRow("Requested")]
+        public void GetFormattedChangeMessage_ShouldReturnCorrectMessage_ForValidInput(string action)
         {
             // Arrange
             var username = "Dwight Schrute";
@@ -20,10 +22,10 @@ namespace FrontendAccountManagement.Web.UnitTests.ViewModels
             };
 
             // Act
-            var result = viewModel.GetFormattedChangeMessage();
+            var result = viewModel.GetFormattedChangeMessage(action);
 
             // Assert
-            var expectedMessage = "Changed by Dwight Schrute at 12:06pm on 25th June 2024";
+            var expectedMessage = $"{action} by Dwight Schrute at 12:06pm on 25th June 2024";
             result.Should().Be(expectedMessage);
         }
 
@@ -47,7 +49,7 @@ namespace FrontendAccountManagement.Web.UnitTests.ViewModels
             };
 
             // Act
-            var result = viewModel.GetFormattedChangeMessage();
+            var result = viewModel.GetFormattedChangeMessage("Changed");
 
             // Assert
             Assert.AreEqual(expectedMessage, result);
