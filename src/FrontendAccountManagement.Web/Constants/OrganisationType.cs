@@ -2,6 +2,7 @@ namespace FrontendAccountManagement.Web.Constants;
 
 public static class OrganisationType
 {
+    
     public const string NotSet = "Not Set";
     public const string CompaniesHouseCompany = "Companies House Company";
     public const string NonCompaniesHouseCompany = "Non Companies House Company";
