@@ -990,5 +990,76 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             response.Result.Should().BeEquivalentTo(expectedResponse);
             httpTestHandler.Dispose();
         }
+
+        [TestMethod]
+        public async Task GetUserAccountForDispaly_IsSuccessful()
+        {
+            // Arrange
+            var firstName = "First";
+            var lastName = "Last";
+            var telephone = "07542999392";
+            var jobTitle = "Test Job Title";
+            var orgName = "Test Organisation Name";
+            var expectedResponse = new UserOrganisationsListModelDto
+            {
+                User = new UserDetailsModel
+                {
+                    Id = Guid.NewGuid(),
+                    FirstName = firstName,
+                    LastName = lastName,
+                    Telephone = telephone,
+                    Organisations = new List<OrganisationDetailModel>()
+                }
+            };
+            expectedResponse.User.Organisations.Add(new OrganisationDetailModel { JobTitle = jobTitle, Name = orgName , Id = Guid.NewGuid() });
+
+            var httpTestHandler = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(JsonSerializer.Serialize(expectedResponse))
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpTestHandler);
+
+            // Act
+            var response = await _facadeService.GetUserAccountForDispaly();
+
+            // Assert
+            Assert.IsNotNull(response);
+            Assert.AreEqual(firstName, response.User.FirstName);
+            Assert.AreEqual(lastName, response.User.LastName);
+            Assert.AreEqual(telephone, response.User.Telephone);
+            Assert.AreEqual(jobTitle, response.User.Organisations.FirstOrDefault().JobTitle);
+            Assert.AreEqual(orgName, response.User.Organisations.FirstOrDefault().Name);
+            httpTestHandler.Dispose();
+        }
+
+        [TestMethod]
+        public async Task GetUserAccountForDispaly_IsUnsuccessful()
+        {
+            // Arrange
+            var httpTestHandler = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.NotFound
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpTestHandler);
+
+            // Act
+            var response = await _facadeService.GetUserAccountForDispaly();
+            // Assert
+            Assert.IsNull(response);
+            httpTestHandler.Dispose();
+        }
     }
 }

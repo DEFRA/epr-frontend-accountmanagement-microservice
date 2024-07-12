@@ -45,52 +45,64 @@
                 <h1 class="govuk-heading-l govuk-!-margin-bottom-8">
                     @Localizer["ManageAccountDetails"]
                 </h1>
-
-                <dl class="govuk-summary-list govuk-!-margin-bottom-0">
-                    <h2 class="govuk-heading-m govuk-!-margin-bottom-4">
-                        @Localizer["YourOrganisation"]
-                    </h2>
-                    <dd class="govuk-summary-list__actions">
-                        <a href="~/@PagePath.ManageAccount" class="govuk-link govuk-link--no-visited-state">
-                            @SharedLocalizer["Change"]
-                            <span class="govuk-visually-hidden"></span>
-                        </a>
-                    </dd>
-                </dl>
-
-                <dl class="govuk-summary-list govuk-!-margin-bottom-0">
-                    <div class="govuk-summary-list__row">
-                        <div class="govuk-!-margin-right-3">
-                            <dt class="govuk-summary-list__key">
-                                @Localizer["CompanyName"]
-                            </dt>
-                        </div>
-                        <dd class="govuk-summary-list__value">
-                            @Model.CompanyName
+                @if (!string.IsNullOrEmpty(Model.OrganisationType) && Model.OrganisationType != OrganisationType.NotSet)
+                {
+                    <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+                        <h2 class="govuk-heading-m govuk-!-margin-bottom-4">
+                            @Localizer["YourOrganisation"]
+                        </h2>
+                        <dd class="govuk-summary-list__actions">
+                            @if (Model.OrganisationType == OrganisationType.CompaniesHouseCompany)
+                            {
+                                <a href="~/@PagePath.ConfirmCompanyDetails" class="govuk-link govuk-link--no-visited-state">
+                                    @SharedLocalizer["Change"]
+                                    <span class="govuk-visually-hidden"></span>
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="~/@PagePath.UpdateTradingName" class="govuk-link govuk-link--no-visited-state">
+                                    @SharedLocalizer["Change"]
+                                    <span class="govuk-visually-hidden"></span>
+                                </a>
+                            }
                         </dd>
-                    </div>
-                    <div class="govuk-summary-list__row">
-                        <div class="govuk-!-margin-right-3">
-                            <dt class="govuk-summary-list__key">
-                                @Localizer["OrganisationAddress"]
-                            </dt>
+                    </dl>
+
+                    <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+                        <div class="govuk-summary-list__row">
+                            <div class="govuk-!-margin-right-3">
+                                <dt class="govuk-summary-list__key">
+                                    @Localizer["CompanyName"]
+                                </dt>
+                            </div>
+                            <dd class="govuk-summary-list__value">
+                                @Model.CompanyName
+                            </dd>
                         </div>
-                        <dd class="govuk-summary-list__value">
-                            @Model.OrgAddress
-                        </dd>
-                    </div>
-                </dl>
-                <br />
+                        <div class="govuk-summary-list__row">
+                            <div class="govuk-!-margin-right-3">
+                                <dt class="govuk-summary-list__key">
+                                    @Localizer["OrganisationAddress"]
+                                </dt>
+                            </div>
+                            <dd class="govuk-summary-list__value">
+                                @Model.OrgAddress
+                            </dd>
+                        </div>
+                    </dl>
+                    <br />
+                }
                 <dl class="govuk-summary-list govuk-!-margin-bottom-0">
                     <h2 class="govuk-heading-m govuk-!-margin-bottom-4">
                         @Localizer["YourDetails"]
                     </h2>
-                <dd class="govuk-summary-list__actions">
-                    <a href="~/@PagePath.ManageAccount" class="govuk-link govuk-link--no-visited-state">
-                        @SharedLocalizer["Change"]
-                        <span class="govuk-visually-hidden"></span>
-                    </a>
-                </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a href="~/@PagePath.WhatAreYourDetails" class="govuk-link govuk-link--no-visited-state">
+                            @SharedLocalizer["Change"]
+                            <span class="govuk-visually-hidden"></span>
+                        </a>
+                    </dd>
                 </dl>
                 <dl class="govuk-summary-list govuk-!-margin-bottom-0">
                     <div class="govuk-summary-list__row">
@@ -99,30 +111,33 @@
                         </div>
                         <dd class="govuk-summary-list__value">@Model.UserName</dd>
                     </div>
-
-                    <div class="govuk-summary-list__row">
-                        <div class="govuk-!-margin-right-3">
-                            <dt class="govuk-summary-list__key">
-                                @Localizer["JobTitle"]
-                            </dt>
+                    @if (Model != null && !string.IsNullOrEmpty(Model.JobTitle))
+                    {
+                        <div class="govuk-summary-list__row">
+                            <div class="govuk-!-margin-right-3">
+                                <dt class="govuk-summary-list__key">
+                                    @Localizer["JobTitle"]
+                                </dt>
+                            </div>
+                            <dd class="govuk-summary-list__value">
+                                @Model.JobTitle
+                            </dd>
                         </div>
-                        <dd class="govuk-summary-list__value">
-                            @Model.JobTitle
-                        </dd>
+                    }
+                    @if (Model != null && !string.IsNullOrEmpty(Model.Telephone))
+                    {
+                        <div class="govuk-summary-list__row">
+                            <div class="govuk-!-margin-right-3">
+                                <dt class="govuk-summary-list__key">
+                                    @Localizer["TelephoneNumber"]
+                                </dt>
+                            </div>
+                            <dd class="govuk-summary-list__value">
+                                @Model.Telephone
+                            </dd>
 
-                    </div>
-
-                    <div class="govuk-summary-list__row">
-                        <div class="govuk-!-margin-right-3">
-                            <dt class="govuk-summary-list__key">
-                                @Localizer["TelephoneNumber"]
-                            </dt>
                         </div>
-                        <dd class="govuk-summary-list__value">
-                            @Model.Telephone
-                        </dd>
-
-                    </div>
+                    }
 
                     <div class="govuk-summary-list__row">
                         <div class="govuk-!-margin-right-3">
@@ -158,6 +173,7 @@
                 <feature name="RemoveUsers">
                     @await Component.InvokeAsync("ManageTeam")
                 </feature>
+
             </div>
         </div>
     </main>

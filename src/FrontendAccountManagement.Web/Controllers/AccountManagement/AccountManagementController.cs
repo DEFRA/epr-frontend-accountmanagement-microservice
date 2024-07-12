@@ -106,14 +106,12 @@ public class AccountManagementController : Controller
             model.CompanyName = userOrg.Name;
             model.OrgAddress = userOrg.OrgAddress;
             model.EnrolmentStatus = userAccount.User.EnrolmentStatus;
-
             var serviceRoleId = userAccount.User.ServiceRoleId;
             var serviceRoleEnum = (ServiceRole)serviceRoleId;
             var roleInOrganisation = userAccount.User.RoleInOrganisation;
             var serviceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
-
             model.ServiceRoleKey = serviceRoleKey;
-
+            model.OrganisationType = userOrg.OrganisationType;
         }
         
         return View(nameof(ManageAccount), model);
