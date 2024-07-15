@@ -15,6 +15,9 @@ namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
         [StringLength(50, ErrorMessageResourceName = "LastNameMaxLength", ErrorMessageResourceType = typeof(EditUserDetails))]
         public string LastName { get; set; }
 
+        public string? OriginalFirstName { get; set; }
+        public string? OriginalLastName { get; set; }
+
         public string? OriginalJobTitle { get; set; }
 
         public string? OriginalTelephone { get; set; }

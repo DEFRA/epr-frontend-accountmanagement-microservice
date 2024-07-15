@@ -54,15 +54,7 @@
                         "AccountManagement",
                         null,
                         new {@class = "govuk-link govuk-link--no-visited-state govuk-body-m"})   
-                </div>
-
-                <div class="govuk-!-margin-bottom-4">
-                    @Html.ActionLink(Localizer["CheckYourDetails"].Value,
-                             "CheckYourDetails",
-                             "AccountManagement",
-                             null,
-                             new { @class = "govuk-link govuk-link--no-visited-state govuk-body-m" })
-                </div>
+                </div>             
                 
                 <feature name="RemoveUsers">
                     @await Component.InvokeAsync("ManageTeam")
