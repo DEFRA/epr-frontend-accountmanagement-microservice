@@ -331,7 +331,9 @@ public class AccountManagementController : Controller
             return View("Problem");
         }
 
-        SetBackLink(await _sessionManager.GetSessionAsync(HttpContext.Session), PagePath.Declaration);
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        SaveSessionAndJourney(session, PagePath.CheckYourDetails, PagePath.Declaration);
+        SetBackLink(session, PagePath.Declaration);
         return View("Declaration");
     }
 
@@ -399,6 +401,8 @@ public class AccountManagementController : Controller
             Telephone = userData.Telephone
         };
 
+        SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.CheckYourDetails);
+        SetBackLink(session, PagePath.CheckYourDetails);
         return View(nameof(PagePath.CheckYourDetails), model);
     }
 
