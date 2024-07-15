@@ -93,9 +93,10 @@ public class AccountManagementController : Controller
         return View(nameof(ManageAccount), model);
     }
 
-    private async Task<bool> CompareDataAsync()
+    private async Task<(bool, CompaniesHouseResponse, Organisation)> CompareDataAsync()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
         var userData = User.GetUserData();
 
         var organisationData = userData.Organisations.FirstOrDefault();
@@ -117,10 +118,10 @@ public class AccountManagementController : Controller
             organisationData.Country == companiesHouseData.Organisation.RegisteredOffice.Country.Name &&
             organisationData.Postcode == companiesHouseData.Organisation.RegisteredOffice.Postcode)
         {
-            return true;
+            return (true, companiesHouseData, organisationData);
         }
 
-        return false;
+        return (false, companiesHouseData, organisationData);
     }
 
     [HttpGet]
@@ -128,32 +129,28 @@ public class AccountManagementController : Controller
     [Route(PagePath.CompanyDetailsCheck)]
     public async Task<ActionResult> CheckData()
     {
-        bool isDataMatching = await CompareDataAsync();
+        var (isDataMatching, companiesHouseData, organisationData) = await CompareDataAsync();
 
         if (isDataMatching)
         {
-            return RedirectToAction("CompanyDetailsHaveNotChanged");
+            return RedirectToAction("CompanyDetailsHaveNotChanged", (companiesHouseData, organisationData));
         }
         else
         {
-            return RedirectToAction("CompanyDetailsConfirmation");
+            return RedirectToAction("CompanyDetailsConfirmation", companiesHouseData);
         }
     }
 
     [HttpGet]
     [Route(PagePath.CompanyDetailsHaveNotChanged)]
-    public async Task<IActionResult> CompanyDetailsHaveNotChanged()
+    public async Task<IActionResult> CompanyDetailsHaveNotChanged(CompaniesHouseResponse companiesHouseData, Organisation organisationData)
     {
 
         var userData = User.GetUserData();
 
-        var organisationData = userData.Organisations.FirstOrDefault();
-
-        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync("06500244");
-
-        if (companiesHouseData == null)
+        if (!(userData.ServiceRole == "Approved Person" || userData.ServiceRole == "Delegated Person"))
         {
-            throw new ArgumentNullException();
+            throw new UnauthorizedAccessException();
         }
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
