@@ -414,3 +414,4 @@ FodyWeavers.xsd
 
 # Git Merge Files
 *.orig
+/src/FrontendAccountManagement.Web/appsettings.development.json
