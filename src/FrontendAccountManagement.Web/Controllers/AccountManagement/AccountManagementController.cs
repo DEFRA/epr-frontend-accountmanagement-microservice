@@ -457,13 +457,11 @@ public class AccountManagementController : Controller
     [Route(PagePath.ConfirmCompanyDetails)]
     public async Task<IActionResult> ConfirmCompanyDetails()
     {
-        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-
         SetCustomBackLink(PagePath.ManageAccount);
 
         var userData = User.GetUserData();
 
-        var organisationData = userData.Organisations.FirstOrDefault();
+        var organisationData = userData.Organisations.First();
 
         var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.OrganisationNumber);
 

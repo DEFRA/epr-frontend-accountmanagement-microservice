@@ -24,7 +24,7 @@ namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
 
         public string? Country { get; set; }
 
-        private string Separator => !string.IsNullOrEmpty(BuildingNumber) ? " " : "";
+        private string Separator => !string.IsNullOrWhiteSpace(BuildingNumber) ? " " : "";
 
         private string BuildingNumberAndStreet => $"{BuildingNumber}{Separator}{Street}";
 
