@@ -337,6 +337,13 @@ public class AccountManagementController : Controller
         return View("Declaration");
     }
 
+    [HttpPost]
+    [Route(PagePath.Declaration)]
+    public async Task<IActionResult> Declaration()
+    {
+        return RedirectToAction(nameof(DetailsChangeRequested));
+    }
+
     [HttpGet]
     [Route(PagePath.WhatAreYourDetails)]
     public async Task<IActionResult> EditUserDetails()
