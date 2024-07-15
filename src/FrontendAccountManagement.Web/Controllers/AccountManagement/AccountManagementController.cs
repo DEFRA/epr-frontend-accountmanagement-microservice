@@ -19,6 +19,7 @@ using Microsoft.Identity.Web;
 using System.Net;
 using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
+using FrontendAccountManagement.Core.Enums;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 
@@ -88,6 +89,28 @@ public class AccountManagementController : Controller
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccount);
 
         SetCustomBackLink(_urlOptions.LandingPageUrl);
+
+        var userAccount = await _facadeService.GetUserAccountForDispaly();
+
+        if (userAccount is null)
+        {
+            _logger.LogInformation("User authenticated but account could not be found");
+        }
+        else
+        {
+            model.UserName = string.Format("{0} {1}", userAccount.User.FirstName, userAccount.User.LastName);
+            model.Telephone = userAccount.User?.Telephone;
+            var userOrg = userAccount.User.Organisations?.FirstOrDefault();
+            model.JobTitle = userOrg.JobTitle;
+            model.CompanyName = userOrg.Name;
+            model.OrganisationAddress = userOrg.OrganisationAddress;
+            model.EnrolmentStatus = userAccount.User.EnrolmentStatus;
+            var serviceRoleId = userAccount.User.ServiceRoleId;
+            var serviceRoleEnum = (ServiceRole)serviceRoleId;
+            var roleInOrganisation = userAccount.User.RoleInOrganisation;
+            model.ServiceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
+            model.OrganisationType = userOrg.OrganisationType;
+        }
 
         return View(nameof(ManageAccount), model);
     }

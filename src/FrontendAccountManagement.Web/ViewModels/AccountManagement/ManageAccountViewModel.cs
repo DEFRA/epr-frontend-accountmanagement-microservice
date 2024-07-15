@@ -1,3 +1,4 @@
+
 using FrontendAccountManagement.Core.Models;
 using System.Diagnostics.CodeAnalysis;
 
@@ -15,5 +16,21 @@ namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
         public string? InvitedUserEmail { get; set; }
 
         public string? PersonUpdated { get; set; }
+
+        public string? CompanyName { get; set; }
+
+        public string? OrganisationAddress { get; set; }
+
+        public string? UserName { get; set; }
+
+        public string? JobTitle { get; set; }
+
+        public string? Telephone { get; set; }
+
+        public string? EnrolmentStatus { get; set; }
+
+        public string? ServiceRoleKey { get; set; }
+
+        public string? OrganisationType { get; set; }
     }
 }

@@ -9,9 +9,12 @@ public static class PagePath
     public const string TeamMemberDetails = "team-member-details";
     public const string RemoveTeamMember = "remove-team-member";
     public const string PreRemoveTeamMember = "pre-remove-team-member";
+    public const string WhatAreYourDetails = "what-are-your-details";
+    public const string ConfirmCompanyDetails = "confirm-company-details";
+    public const string CompanyDetailsCheck = "company-details-check";
+    public const string UpdateTradingName = "update-trading-name";
     public const string Declaration = "declaration";
     public const string DetailsChangeRequested = "details-change-requested";
-    public const string WhatAreYourDetails = "what-are-your-details";
     public const string CheckYourDetails = "check-your-details";
 
     // Change role journey paths
@@ -37,5 +40,4 @@ public static class PagePath
     // Edit user details
     public const string UpdateDetailsConfirmation = "your-details-have-been-updated";
     public const string DetailsChangeRequestedNotification = "details-change-requested";
-    public const string ConfirmCompanyDetails = "confirm-company-details";
 }

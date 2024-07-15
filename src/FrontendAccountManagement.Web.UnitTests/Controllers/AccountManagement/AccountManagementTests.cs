@@ -9,6 +9,10 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using FrontendAccountManagement.Core.Models;
 using EPR.Common.Authorization.Models;
+using System.Security.Policy;
+using System;
+using FrontendAccountManagement.Core.Enums;
+using EPR.Common.Authorization.Constants;
 using System.Security.Claims;
 using System.Text.Json;
 using Organisation = EPR.Common.Authorization.Models.Organisation;
@@ -19,6 +23,19 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 public class AccountManagementTests : AccountManagementTestBase
 {
     private const string ViewName = "ManageAccount";
+    private const string FirstName = "Test First Name";
+    private const string LastName = "Test Last Name";
+    private const string Telephone = "07545822431";
+
+    private const string JobTitle = "Test Job Title";
+    private const string OrganisationName = "Test Organization Name";
+    private const string OrganisationType = "Companies House Company";
+    private const string OrganisationAddress = "Test Organisation Address";
+
+    private const string RoleInOrganisation = "Admin";
+    private const int ServiceRoleId = 1;
+    private const string ServiceRoleKey = "Approved.Admin";
+    
 
     [TestInitialize]
     public void Setup()
@@ -158,6 +175,46 @@ public class AccountManagementTests : AccountManagementTestBase
         // Assert
         result.Should().BeOfType<ViewResult>();
         result.ViewName.Should().Be(null);
+    }
+
+    [TestMethod]
+    public async Task GivenOnManageAccountPage_WhenManageAccountHttpGetCalled_ThenManageAccountViewModelReturnedWithAdditionalFieldsToDisplay()
+    {
+        // Act
+        var userData = new UserData()
+        {
+            FirstName = FirstName,
+            LastName = LastName
+        };
+
+        var userDataToDispaly = new UserOrganisationsListModelDto();
+        userDataToDispaly.User = new UserDetailsModel() { FirstName = FirstName, LastName = LastName, Telephone = Telephone, ServiceRoleId = ServiceRoleId, RoleInOrganisation = RoleInOrganisation };
+        userDataToDispaly.User.Organisations = new List<OrganisationDetailModel>
+            {
+                new OrganisationDetailModel() { 
+                    JobTitle = JobTitle, 
+                    Id = Guid.NewGuid(), 
+                    Name = OrganisationName, 
+                    OrganisationType = OrganisationType, 
+                    OrganisationAddress = OrganisationAddress
+                }
+            };
+        SetupBase(userData: userData, userDataToDispaly: userDataToDispaly);
+        var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
+        var model = result.Model as ManageAccountViewModel;
+
+        // Assert
+        result.Should().BeOfType<ViewResult>();
+        result.ViewName.Should().Be(ViewName);
+        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
+
+        Assert.AreEqual(string.Format("{0} {1}", FirstName, LastName), model.UserName);
+        Assert.AreEqual(JobTitle, model.JobTitle);
+        Assert.AreEqual(Telephone, model.Telephone);
+        Assert.AreEqual(OrganisationName, model.CompanyName);
+        Assert.AreEqual(OrganisationAddress, model.OrganisationAddress);
+        Assert.AreEqual(OrganisationType, model.OrganisationType);
+        Assert.AreEqual(ServiceRoleKey, model.ServiceRoleKey);
     }
 
     [TestMethod]
