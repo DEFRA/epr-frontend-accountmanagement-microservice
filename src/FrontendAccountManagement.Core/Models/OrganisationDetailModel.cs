@@ -13,7 +13,7 @@ public class OrganisationDetailModel
 
     public int? NationId { get; set; }
 
-    public string OrgAddress { get; set; }
+    public string? OrganisationAddress { get; set; }
 
     public string? JobTitle { get; set; }
 }
