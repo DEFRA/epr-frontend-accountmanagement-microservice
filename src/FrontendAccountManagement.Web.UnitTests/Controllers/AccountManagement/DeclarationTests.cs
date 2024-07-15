@@ -90,24 +90,25 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             Assert.AreEqual("Declaration", result.ViewName);
         }
 
+        /// <summary>
+        /// Checks that a bad request returned if the model is not valid.
+        /// </summary>
         [TestMethod]
         public async Task DeclarationGet_ErrorsWhenModelIsBad()
         {
             // Arrange
-            for (int i = 0; i <= 100; i++)
-            {
-                this.TestClass.ModelState.AddModelError("Error", "Something went wrong.");
-            }
+            this.TestClass.ModelState.AddModelError("Error", "Something went wrong.");
 
             // Act
-
             IActionResult result = await this.TestClass.Declaration();
 
             // Assert
             Assert.IsInstanceOfType<BadRequestResult>(result);
         }
 
-
+        /// <summary>
+        /// Checks that the declaration page's post action redirects to the "Details change requested" page.
+        /// </summary>
         [TestMethod]
         public async Task DeclarationPost_CanCall()
         {
