@@ -4,7 +4,6 @@ using EPR.Common.Authorization.Models;
 using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
-using FrontendAccountManagement.Core.Models.CompanyHouse;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
@@ -18,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using System.Net;
+using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
@@ -455,13 +455,13 @@ public class AccountManagementController : Controller
 
     [HttpGet]
     [Route(PagePath.ConfirmCompanyDetails)]
-    public async Task<IActionResult> ConfirmCompanyDetails(Company companyModel)
+    public async Task<IActionResult> ConfirmCompanyDetails(CompaniesHouseResponse companyModel)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
         SetBackLink(session, PagePath.ManageAccount);
 
-        if (companyModel?.BusinessAddress is null)
+        if (companyModel?.Organisation?.RegisteredOffice is null)
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
             {
@@ -469,13 +469,7 @@ public class AccountManagementController : Controller
             });
         }
 
-        var viewModel = new ConfirmCompanyDetailsViewModel
-        {
-            CompanyName = companyModel.Name,
-            CompaniesHouseNumber = companyModel.CompaniesHouseNumber,
-            BusinessAddress = companyModel.BusinessAddress,
-            ExternalCompanyHouseChangeRequestLink = _urlOptions.CompanyHouseChangeRequestLink
-        };
+        var viewModel = _mapper.Map<ConfirmCompanyDetailsViewModel>(companyModel);
 
         return View(nameof(ConfirmCompanyDetails), viewModel);
     }

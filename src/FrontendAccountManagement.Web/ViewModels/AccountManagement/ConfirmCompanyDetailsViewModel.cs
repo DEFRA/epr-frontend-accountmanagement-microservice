@@ -1,5 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using FrontendAccountManagement.Core.Models;
+﻿using FrontendAccountManagement.Core.Models.CompaniesHouse;
+using System.Diagnostics.CodeAnalysis;
 
 namespace FrontendAccountManagement.Web.ViewModels.AccountManagement;
 
@@ -10,7 +10,7 @@ public class ConfirmCompanyDetailsViewModel
 
     public string CompaniesHouseNumber { get; set; }
 
-    public Address? BusinessAddress { get; set; }
+    public AddressViewModel? BusinessAddress { get; set; }
 
     public string ExternalCompanyHouseChangeRequestLink { get; set; }
 }
