@@ -8,7 +8,6 @@ namespace FrontendAccountManagement.Web.Controllers.Errors;
 [AllowAnonymous]
 public class ErrorController : Controller
 {
-    
     [Route(PagePath.Error)]
     public ViewResult Error(int? statusCode)
     {

@@ -304,6 +304,39 @@ public class AccountManagementController : Controller
         return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.RemoveTeamMember, PagePath.ManageAccount);
     }
 
+    /// <summary>
+    /// Displays the "Declaration" page.
+    /// </summary>
+    /// <remarks>
+    /// The page is only displayed when arriving from the "Check your details" page.
+    /// If navigated to directly, the user is forwarded to an error page.
+    /// </remarks>
+    /// <param name="navigationToken">
+    /// A value used to verify that the user came from the "Check your details" page.
+    /// Its specific value doesn't matter, but it's compared to a copy stored in the session data as an extra layer of validation.
+    /// </param>
+    [HttpGet]
+    [Route(PagePath.Declaration)]
+    public async Task<IActionResult> Declaration()
+    {
+        if (!ModelState.IsValid)
+        {
+            BadRequest();
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        SaveSessionAndJourney(session, PagePath.CheckYourDetails, PagePath.Declaration);
+        SetBackLink(session, PagePath.Declaration);
+        return View(nameof(Declaration));
+    }
+
+    [HttpPost]
+    [Route(PagePath.Declaration, Name = "Declaration")]
+    public async Task<IActionResult> DeclarationPost()
+    {
+        return RedirectToAction(nameof(DetailsChangeRequested));
+    }
+
     [HttpGet]
     [Route(PagePath.WhatAreYourDetails)]
     public async Task<IActionResult> EditUserDetails()
@@ -324,7 +357,7 @@ public class AccountManagementController : Controller
     {
         // is there a modelstate error for job title, but job title never existed
         if (ModelState.ContainsKey(nameof(EditUserDetailsViewModel.JobTitle)) &&
-            ModelState.FirstOrDefault(ms => ms.Key == nameof(EditUserDetailsViewModel.JobTitle)).Value.Errors.Any() && 
+            ModelState.FirstOrDefault(ms => ms.Key == nameof(EditUserDetailsViewModel.JobTitle)).Value.Errors.Any() &&
             !editUserDetailsViewModel.PropertyExists(m => m.OriginalJobTitle))
         {
             // if so, remove the error
@@ -342,7 +375,7 @@ public class AccountManagementController : Controller
 
         if (!ModelState.IsValid)
         {
-            await SetBackLink(PagePath.ManageAccount);
+            await SetBackLink(PagePath.WhatAreYourDetails);
             return View(editUserDetailsViewModel);
         }
 
@@ -368,6 +401,8 @@ public class AccountManagementController : Controller
             Telephone = userData.Telephone
         };
 
+        SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.CheckYourDetails);
+        SetBackLink(session, PagePath.CheckYourDetails);
         return View(nameof(PagePath.CheckYourDetails), model);
     }
 
@@ -384,11 +419,37 @@ public class AccountManagementController : Controller
             return View(model);
         }
 
-        // Set a navigation token in the session data and the call to the route,
-        // as the declaration page uses them to ensure that users can only arrive via this page.
-        var navigationToken = Guid.NewGuid().ToString();
-        HttpContext.Session.SetString("NavigationToken", navigationToken);
-        return RedirectToAction("declaration", new { navigationToken });
+        return RedirectToAction("declaration");
+    }
+
+    [HttpGet]
+    [Route(PagePath.UpdateDetailsConfirmation)]
+    public async Task<IActionResult> UpdateDetailsConfirmation()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        var model = new UpdateDetailsConfirmationViewModel
+        {
+            Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
+            UpdatedDatetime = DateTime.Now
+        };
+
+        return View(nameof(UpdateDetailsConfirmation), model);
+    }
+
+    [HttpGet]
+    [Route(PagePath.DetailsChangeRequestedNotification)]
+    public async Task<IActionResult> DetailsChangeRequested()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        var model = new DetailsChangeRequestedViewModel
+        {
+            Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
+            UpdatedDatetime = DateTime.Now
+        };
+
+        return View(nameof(DetailsChangeRequested), model);
     }
 
     private static void SetRemoveUserJourneyValues(JourneySession session, string firstName, string lastName, Guid personId)
