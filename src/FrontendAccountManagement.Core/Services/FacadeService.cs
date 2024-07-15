@@ -10,6 +10,7 @@ using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Extensions;
 using System.Text.Json;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace FrontendAccountManagement.Core.Services;
 
