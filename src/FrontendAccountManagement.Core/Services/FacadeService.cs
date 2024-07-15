@@ -1,15 +1,15 @@
-using FrontendAccountManagement.Core.Enums;
-using FrontendAccountManagement.Core.Extensions;
-using FrontendAccountManagement.Core.Models;
-using FrontendAccountManagement.Core.Sessions;
+using System.Net;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
-using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
+using FrontendAccountManagement.Core.Models;
+using FrontendAccountManagement.Core.Sessions;
+using FrontendAccountManagement.Core.Constants;
+using FrontendAccountManagement.Core.Enums;
+using FrontendAccountManagement.Core.Extensions;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using System.Text;
 
 namespace FrontendAccountManagement.Core.Services;
 
@@ -241,7 +241,7 @@ public class FacadeService : IFacadeService
 
         return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<List<int>>() : new List<int>{0};
     }
-    
+
     private async Task PrepareAuthenticatedClient()
     {
         if (_httpClient.BaseAddress == null)
