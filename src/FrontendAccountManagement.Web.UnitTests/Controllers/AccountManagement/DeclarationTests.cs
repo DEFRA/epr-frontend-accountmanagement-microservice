@@ -81,7 +81,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         /// Check that the declaration page can be accessed when reaching it via the "Check your details" page.
         /// </summary>
         [TestMethod]
-        public async Task CanCallDeclarationGet()
+        public async Task DeclarationGet_CanCall()
         {
             // Act
             var result = (ViewResult)await this.TestClass.Declaration();
@@ -90,9 +90,26 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             Assert.AreEqual("Declaration", result.ViewName);
         }
 
-        
         [TestMethod]
-        public async Task CanCallDeclarationPost()
+        public async Task DeclarationGet_ErrorsWhenModelIsBad()
+        {
+            // Arrange
+            for (int i = 0; i <= 100; i++)
+            {
+                this.TestClass.ModelState.AddModelError("Error", "Something went wrong.");
+            }
+
+            // Act
+
+            IActionResult result = await this.TestClass.Declaration();
+
+            // Assert
+            Assert.IsInstanceOfType<BadRequestResult>(result);
+        }
+
+
+        [TestMethod]
+        public async Task DeclarationPost_CanCall()
         {
             // Act
             var result = (RedirectToActionResult)await this.TestClass.DeclarationPost();

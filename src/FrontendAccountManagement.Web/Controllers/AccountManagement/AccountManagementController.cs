@@ -407,7 +407,7 @@ public class AccountManagementController : Controller
     {
         if (!ModelState.IsValid)
         {
-            BadRequest();
+            return BadRequest();
         }
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
