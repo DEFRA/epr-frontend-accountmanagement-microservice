@@ -81,45 +81,24 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         /// Check that the declaration page can be accessed when reaching it via the "Check your details" page.
         /// </summary>
         [TestMethod]
-        public async Task CanCallDeclarationFromCheckYourDetails()
+        public async Task CanCallDeclarationGet()
         {
-            var navigationToken = Guid.NewGuid();
-
-            // Arrange
-            this.SessionData["NavigationToken"] = Encoding.UTF8.GetBytes(navigationToken.ToString());
-
             // Act
-            ViewResult result = (ViewResult)await this.TestClass.Declaration(navigationToken.ToString());
+            var result = (ViewResult)await this.TestClass.Declaration();
 
             // Assert
             Assert.AreEqual("Declaration", result.ViewName);
         }
 
-        /// <summary>
-        /// Check that the declaration page can't be accessed when accessing it directly.
-        /// </summary>
-        /// <remarks>
-        /// The test cases are various combinations of the IDs that the "Check your details" page would send being missing,
-        /// or not matching.
-        /// </remarks>
+        
         [TestMethod]
-        [DataRow(null,null)]
-        [DataRow("A", null)]
-        [DataRow(null, "B")]
-        [DataRow("A", "B")]
-        public async Task CannotCallDeclarationDirectly(string sessionToken, string requestToken)
+        public async Task CanCallDeclarationPost()
         {
-            // Arrange
-            if (sessionToken is not null)
-            {
-                this.SessionData["NavigationToken"] = Encoding.UTF8.GetBytes(sessionToken);
-            }
-
             // Act
-            ViewResult result = (ViewResult)await this.TestClass.Declaration(requestToken);
+            var result = (RedirectToActionResult)await this.TestClass.DeclarationPost();
 
             // Assert
-            Assert.AreEqual("Problem", result.ViewName);
+            Assert.AreEqual("DetailsChangeRequested", result.ActionName);
         }
     }
 }

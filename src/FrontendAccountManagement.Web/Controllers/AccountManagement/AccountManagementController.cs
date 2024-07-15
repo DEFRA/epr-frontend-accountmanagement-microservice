@@ -317,29 +317,22 @@ public class AccountManagementController : Controller
     /// </param>
     [HttpGet]
     [Route(PagePath.Declaration)]
-    public async Task<IActionResult> Declaration(string navigationToken)
+    public async Task<IActionResult> Declaration()
     {
         if (!ModelState.IsValid)
         {
             BadRequest();
         }
 
-        var sessionNavigationToken = HttpContext.Session.GetString("NavigationToken");
-        if (navigationToken is null
-            || sessionNavigationToken != navigationToken)
-        {
-            return View("Problem");
-        }
-
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         SaveSessionAndJourney(session, PagePath.CheckYourDetails, PagePath.Declaration);
         SetBackLink(session, PagePath.Declaration);
-        return View("Declaration");
+        return View(nameof(Declaration));
     }
 
     [HttpPost]
-    [Route(PagePath.Declaration)]
-    public async Task<IActionResult> Declaration()
+    [Route(PagePath.Declaration, Name = "Declaration")]
+    public async Task<IActionResult> DeclarationPost()
     {
         return RedirectToAction(nameof(DetailsChangeRequested));
     }
@@ -426,11 +419,7 @@ public class AccountManagementController : Controller
             return View(model);
         }
 
-        // Set a navigation token in the session data and the call to the route,
-        // as the declaration page uses them to ensure that users can only arrive via this page.
-        var navigationToken = Guid.NewGuid().ToString();
-        HttpContext.Session.SetString("NavigationToken", navigationToken);
-        return RedirectToAction("declaration", new { navigationToken });
+        return RedirectToAction("declaration");
     }
 
     [HttpGet]
