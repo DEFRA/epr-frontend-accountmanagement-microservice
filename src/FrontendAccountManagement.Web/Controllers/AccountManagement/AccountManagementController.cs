@@ -454,13 +454,12 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
-    [AllowAnonymous]
     [Route(PagePath.ConfirmCompanyDetails)]
     public async Task<IActionResult> ConfirmCompanyDetails()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        SetBackLink(session, PagePath.ManageAccount);
+        SetCustomBackLink(PagePath.ManageAccount);
 
         var userData = User.GetUserData();
 
@@ -472,7 +471,7 @@ public class AccountManagementController : Controller
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
             {
-                statusCode = (int)HttpStatusCode.InternalServerError
+                statusCode = (int)HttpStatusCode.NotFound
             });
         }
 
