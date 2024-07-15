@@ -3,6 +3,7 @@ using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Extensions;
 using FrontendAccountManagement.Web.HealthChecks;
 using FrontendAccountManagement.Web.Middleware;
+using FrontendAccountManagement.Web.Profiles;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;

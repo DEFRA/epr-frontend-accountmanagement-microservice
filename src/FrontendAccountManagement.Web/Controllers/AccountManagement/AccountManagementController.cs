@@ -1,6 +1,7 @@
-using System.Net;
+using AutoMapper;
 using EPR.Common.Authorization.Constants;
 using EPR.Common.Authorization.Models;
+using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Services;
@@ -8,17 +9,17 @@ using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.Errors;
+using FrontendAccountManagement.Web.Extensions;
+using FrontendAccountManagement.Web.ViewModels;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
-using FrontendAccountManagement.Web.Extensions;
-using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
-using EPR.Common.Authorization.Sessions;
-using AutoMapper;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
+using System.Net;
 using FrontendAccountManagement.Core.Models.CompaniesHouse;
+using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 using PhoneNumbers;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
@@ -165,7 +166,7 @@ public class AccountManagementController : Controller
 
         SetBackLink(session, PagePath.ManageAccount);
 
-        var companiesHouseChangeDetailsUrl = _urlOptions.CompaniesHouseChangeDetailsUrl;
+        var companiesHouseChangeDetailsUrl = _urlOptions.CompanyHouseChangeRequestLink;
 
         var model = _mapper.Map<CompanyDetailsHaveNotChangedViewModel>(
             companiesHouseData,
@@ -401,22 +402,24 @@ public class AccountManagementController : Controller
     /// </param>
     [HttpGet]
     [Route(PagePath.Declaration)]
-    public async Task<IActionResult> Declaration(string navigationToken)
+    public async Task<IActionResult> Declaration()
     {
         if (!ModelState.IsValid)
         {
             BadRequest();
         }
 
-        var sessionNavigationToken = HttpContext.Session.GetString("NavigationToken");
-        if (navigationToken is null
-            || sessionNavigationToken != navigationToken)
-        {
-            return View("Problem");
-        }
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        SaveSessionAndJourney(session, PagePath.CheckYourDetails, PagePath.Declaration);
+        SetBackLink(session, PagePath.Declaration);
+        return View(nameof(Declaration));
+    }
 
-        SetBackLink(await _sessionManager.GetSessionAsync(HttpContext.Session), PagePath.Declaration);
-        return View("Declaration");
+    [HttpPost]
+    [Route(PagePath.Declaration, Name = "Declaration")]
+    public async Task<IActionResult> DeclarationPost()
+    {
+        return RedirectToAction(nameof(DetailsChangeRequested));
     }
 
     [HttpGet]
@@ -483,6 +486,8 @@ public class AccountManagementController : Controller
             Telephone = userData.Telephone
         };
 
+        SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.CheckYourDetails);
+        SetBackLink(session, PagePath.CheckYourDetails);
         return View(nameof(PagePath.CheckYourDetails), model);
     }
 
@@ -499,11 +504,7 @@ public class AccountManagementController : Controller
             return View(model);
         }
 
-        // Set a navigation token in the session data and the call to the route,
-        // as the declaration page uses them to ensure that users can only arrive via this page.
-        var navigationToken = Guid.NewGuid().ToString();
-        HttpContext.Session.SetString("NavigationToken", navigationToken);
-        return RedirectToAction("declaration", new { navigationToken });
+        return RedirectToAction("declaration");
     }
 
     [HttpGet]
@@ -534,6 +535,31 @@ public class AccountManagementController : Controller
         };
 
         return View(nameof(DetailsChangeRequested), model);
+    }
+
+    [HttpGet]
+    [Route(PagePath.ConfirmCompanyDetails)]
+    public async Task<IActionResult> ConfirmCompanyDetails()
+    {
+        SetCustomBackLink(PagePath.ManageAccount);
+
+        var userData = User.GetUserData();
+
+        var organisationData = userData.Organisations.First();
+
+        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.OrganisationNumber);
+
+        if (companiesHouseData?.Organisation?.RegisteredOffice is null)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.NotFound
+            });
+        }
+
+        var viewModel = _mapper.Map<ConfirmCompanyDetailsViewModel>(companiesHouseData);
+
+        return View(nameof(ConfirmCompanyDetails), viewModel);
     }
 
     private static void SetRemoveUserJourneyValues(JourneySession session, string firstName, string lastName, Guid personId)

@@ -25,9 +25,9 @@ public interface IFacadeService
 
     Task<EndpointResponseStatus> RemoveUserForOrganisation(string personExternalId, string organisationId, int serviceRoleId);
 
-    Task<UserAccountDto?> GetUserAccount();
-
-    Task<List<int>> GetNationIds(Guid organisationId);
+	Task<UserAccountDto?> GetUserAccount();
+	
+	Task<List<int>> GetNationIds(Guid organisationId);
 
     Task<CompaniesHouseResponse> GetCompaniesHouseResponseAsync(string companyHouseNumber);
 }

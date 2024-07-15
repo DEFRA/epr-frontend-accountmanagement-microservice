@@ -27,12 +27,4 @@ namespace FrontendAccountManagement.Core.Models.CompaniesHouse
 
         public bool IsUkAddress { get; set; }
     }
-
-    public class CountryDto
-    {
-        public string? Name { get; set; }
-
-        public string? Iso { get; set; }
-
-    }
 }

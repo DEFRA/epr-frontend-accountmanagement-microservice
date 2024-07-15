@@ -41,6 +41,6 @@ namespace FrontendAccountManagement.Web.Configs
 
         public string CookiesLink { get; set; }
 
-        public string CompaniesHouseChangeDetailsUrl { get; set; }
+        public string CompanyHouseChangeRequestLink { get; set; }
     }
 }

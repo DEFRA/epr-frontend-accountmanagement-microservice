@@ -1,0 +1,62 @@
+﻿@model FrontendAccountManagement.Web.ViewModels.AccountManagement.ConfirmCompanyDetailsViewModel
+
+@using (Html.BeginForm("ConfirmCompanyDetails", "AccountManagement", FormMethod.Post))
+{
+    <div class="govuk-width-container">
+        <main class="govuk-main-wrapper" id="main-content" role="main">
+            <div class="govuk-grid-row">
+
+                <div class="govuk-grid-column-two-thirds">
+                    <h1 class="govuk-heading-l">@Localizer["ConfirmationTitle"]</h1>
+                </div>
+                <div class="govuk-inset-text govuk-grid-column-one-half">
+                    <h2 class="govuk-heading-m govuk-!-padding-bottom-4">@Model.CompanyName</h2>
+                    <div class="govuk-!-padding-bottom-4">
+                        <span>@Localizer["CompanyHouseNumber"] </span><br>
+                        <span>@Model.CompaniesHouseNumber</span>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <span>@Localizer["CompaniesHouseAddress"]</span><br>
+                        @{
+                            RenderAddressParts(Model.BusinessAddress?.AddressFields!);
+                        }
+                    </div>
+                </div>
+                <div class="govuk-grid-column-two-thirds">
+                    <details class="govuk-details">
+                        <summary class="govuk-details__summary">
+                            <span class="govuk-details__summary-text">
+                                @Localizer["WrongDetails"]
+                            </span>
+                        </summary>
+                        <div class="govuk-details__text">
+                            <div class="govuk-!-padding-bottom-3">
+                                @Localizer["WrongDetailsHelp"]
+                            </div>
+                            <div>
+                                @Localizer["WrongDetailsDescription"] 
+                                <a class="govuk-link" href="@Model.ExternalCompanyHouseChangeRequestLink" target="_blank"> @Localizer["WrongDetailsDescription2"]</a>
+                            </div>
+                        </div>
+                    </details>
+                    <button class="govuk-button" data-module="govuk-button">
+                        @SharedLocalizer["Continue"]
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+}
+
+@{
+    void RenderAddressParts(string?[] addressParts)
+    {
+        foreach (string part in addressParts)
+        {
+            if (!string.IsNullOrWhiteSpace(part))
+            {
+                <div>@part</div>
+            }
+        }
+    }
+}
