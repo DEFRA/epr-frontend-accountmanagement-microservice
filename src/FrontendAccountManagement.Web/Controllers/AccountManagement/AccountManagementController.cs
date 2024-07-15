@@ -93,7 +93,7 @@ public class AccountManagementController : Controller
         return View(nameof(ManageAccount), model);
     }
 
-    private async Task<(bool, CompaniesHouseResponse, Organisation)> CompareDataAsync()
+    private async Task<bool> CompareDataAsync()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
@@ -101,7 +101,12 @@ public class AccountManagementController : Controller
 
         var organisationData = userData.Organisations.FirstOrDefault();
 
-        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.OrganisationNumber);
+        if (organisationData == null)
+        {
+            throw new ArgumentNullException(nameof(organisationData));
+        }
+
+        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync("06500244");
 
         if (
             companiesHouseData != null &&
@@ -118,10 +123,10 @@ public class AccountManagementController : Controller
             organisationData.Country == companiesHouseData.Organisation.RegisteredOffice.Country.Name &&
             organisationData.Postcode == companiesHouseData.Organisation.RegisteredOffice.Postcode)
         {
-            return (true, companiesHouseData, organisationData);
+            return true;
         }
 
-        return (false, companiesHouseData, organisationData);
+        return false;
     }
 
     [HttpGet]
@@ -129,24 +134,25 @@ public class AccountManagementController : Controller
     [Route(PagePath.CompanyDetailsCheck)]
     public async Task<ActionResult> CheckData()
     {
-        var (isDataMatching, companiesHouseData, organisationData) = await CompareDataAsync();
+        var isDataMatching = await CompareDataAsync();
 
         if (isDataMatching)
         {
-            return RedirectToAction("CompanyDetailsHaveNotChanged", (companiesHouseData, organisationData));
+            return RedirectToAction("CompanyDetailsHaveNotChanged");
         }
         else
         {
-            return RedirectToAction("CompanyDetailsConfirmation", companiesHouseData);
+            return RedirectToAction("CompanyDetailsHaveNotChanged");
         }
     }
 
     [HttpGet]
     [Route(PagePath.CompanyDetailsHaveNotChanged)]
-    public async Task<IActionResult> CompanyDetailsHaveNotChanged(CompaniesHouseResponse companiesHouseData, Organisation organisationData)
+    public async Task<IActionResult> CompanyDetailsHaveNotChanged()
     {
-
         var userData = User.GetUserData();
+
+        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync("06500244");
 
         if (!(userData.ServiceRole == "Approved Person" || userData.ServiceRole == "Delegated Person"))
         {
@@ -154,27 +160,17 @@ public class AccountManagementController : Controller
         }
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CompanyDetailsHaveNotChanged);
 
         SetBackLink(session, PagePath.ManageAccount);
 
         var companiesHouseChangeDetailsUrl = _urlOptions.CompaniesHouseChangeDetailsUrl;
 
-        var model = new CompanyDetailsHaveNotChangedViewModel
-        {
-            CompanyName = companiesHouseData.Organisation.Name,
-            CompanyHouseNumber = companiesHouseData.Organisation.RegistrationNumber,
-            BuildingName = companiesHouseData.Organisation.RegisteredOffice.BuildingName,
-            BuildingNumber = companiesHouseData.Organisation.RegisteredOffice.BuildingNumber,
-            Street = companiesHouseData.Organisation.RegisteredOffice.Street,
-            Locality = companiesHouseData.Organisation.RegisteredOffice.Locality,
-            DependentLocality = companiesHouseData.Organisation.RegisteredOffice.DependentLocality,
-            Town = companiesHouseData.Organisation.RegisteredOffice.Town,
-            County = companiesHouseData.Organisation.RegisteredOffice.County,
-            Country = companiesHouseData.Organisation.RegisteredOffice.Country.Name,
-            Postcode = companiesHouseData.Organisation.RegisteredOffice.Postcode,
-            CompaniesHouseChangeDetailsUrl = companiesHouseChangeDetailsUrl
-        };
+        var model = _mapper.Map<CompanyDetailsHaveNotChangedViewModel>(
+            companiesHouseData,
+            opts =>
+                opts.Items["CompaniesHouseChangeDetailsUrl"] = companiesHouseChangeDetailsUrl);
 
         return View(nameof(CompanyDetailsHaveNotChanged), model);
     }
