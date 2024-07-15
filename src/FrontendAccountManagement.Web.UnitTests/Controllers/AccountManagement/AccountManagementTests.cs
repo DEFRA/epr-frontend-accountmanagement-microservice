@@ -25,9 +25,9 @@ public class AccountManagementTests : AccountManagementTestBase
     private const string Telephone = "07545822431";
 
     private const string JobTitle = "Test Job Title";
-    private const string OrgName = "Test Organization Name";
+    private const string OrganisationName = "Test Organization Name";
     private const string OrganisationType = "Companies House Company";
-    private const string OrgAddress = "Test Organisation Address";
+    private const string OrganisationAddress = "Test Organisation Address";
 
     private const string RoleInOrganisation = "Admin";
     private const int ServiceRoleId = 1;
@@ -191,9 +191,9 @@ public class AccountManagementTests : AccountManagementTestBase
                 new OrganisationDetailModel() { 
                     JobTitle = JobTitle, 
                     Id = Guid.NewGuid(), 
-                    Name = OrgName, 
+                    Name = OrganisationName, 
                     OrganisationType = OrganisationType, 
-                    OrgAddress = OrgAddress
+                    OrganisationAddress = OrganisationAddress
                 }
             };
         SetupBase(userData: userData, userDataToDispaly: userDataToDispaly);
@@ -208,8 +208,8 @@ public class AccountManagementTests : AccountManagementTestBase
         Assert.AreEqual(string.Format("{0} {1}", FirstName, LastName), model.UserName);
         Assert.AreEqual(JobTitle, model.JobTitle);
         Assert.AreEqual(Telephone, model.Telephone);
-        Assert.AreEqual(OrgName, model.CompanyName);
-        Assert.AreEqual(OrgAddress, model.OrgAddress);
+        Assert.AreEqual(OrganisationName, model.CompanyName);
+        Assert.AreEqual(OrganisationAddress, model.OrganisationAddress);
         Assert.AreEqual(OrganisationType, model.OrganisationType);
         Assert.AreEqual(ServiceRoleKey, model.ServiceRoleKey);
     }

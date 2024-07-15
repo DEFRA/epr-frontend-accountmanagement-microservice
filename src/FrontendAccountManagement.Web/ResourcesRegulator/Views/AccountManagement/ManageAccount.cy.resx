@@ -139,27 +139,27 @@
     <value>Caniatâd {0} wedi’i ddiweddaru</value>
   </data>
   <data name="JobTitle" xml:space="preserve">
-    <value>Job title - wales text here</value>
+    <value>[Welsh] Job title</value>
   </data>
   <data name="OrganisationAddress" xml:space="preserve">
-    <value>Address - wales text here</value>
+    <value>[Welsh] Address</value>
   </data>
   <data name="Permissions" xml:space="preserve">
-    <value>Permissions - wales text here</value>
+    <value>[Welsh] Permissions</value>
   </data>
   <data name="TelephoneNumber" xml:space="preserve">
-    <value>Telephone number - wales text here</value>
+    <value>[Welsh] Telephone number</value>
   </data>
   <data name="CompanyName" xml:space="preserve">
-    <value>Company name - wales text here</value>
+    <value>[Welsh] Company name</value>
   </data>
   <data name="YourDetails" xml:space="preserve">
-    <value>Your details - wales text here</value>
+    <value>[Welsh] Your details</value>
   </data>
   <data name="YourName" xml:space="preserve">
-    <value>Name - wales text here</value>
+    <value>[Welsh] Name</value>
   </data>
   <data name="YourOrganisation" xml:space="preserve">
-    <value>Your organisation - wales text here</value>
+    <value>[Welsh] Your organisation</value>
   </data>
 </root>

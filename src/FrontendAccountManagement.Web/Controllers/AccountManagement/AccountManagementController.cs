@@ -84,7 +84,6 @@ public class AccountManagementController : Controller
 
         SetCustomBackLink(_urlOptions.LandingPageUrl);
 
-
         var userAccount = await _facadeService.GetUserAccountForDispaly();
 
         if (userAccount is null)
@@ -98,16 +97,15 @@ public class AccountManagementController : Controller
             var userOrg = userAccount.User.Organisations?.FirstOrDefault();
             model.JobTitle = userOrg.JobTitle;
             model.CompanyName = userOrg.Name;
-            model.OrgAddress = userOrg.OrgAddress;
+            model.OrganisationAddress = userOrg.OrganisationAddress;
             model.EnrolmentStatus = userAccount.User.EnrolmentStatus;
             var serviceRoleId = userAccount.User.ServiceRoleId;
             var serviceRoleEnum = (ServiceRole)serviceRoleId;
             var roleInOrganisation = userAccount.User.RoleInOrganisation;
-            var serviceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
-            model.ServiceRoleKey = serviceRoleKey;
+            model.ServiceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
             model.OrganisationType = userOrg.OrganisationType;
         }
-        
+
         return View(nameof(ManageAccount), model);
     }
     

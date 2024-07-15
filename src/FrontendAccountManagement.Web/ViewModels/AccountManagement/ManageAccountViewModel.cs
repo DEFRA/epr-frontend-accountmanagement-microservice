@@ -19,7 +19,7 @@ namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
 
         public string? CompanyName { get; set; }
 
-        public string? OrgAddress { get; set; }
+        public string? OrganisationAddress { get; set; }
 
         public string? UserName { get; set; }
 
