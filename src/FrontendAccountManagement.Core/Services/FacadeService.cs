@@ -22,6 +22,7 @@ public class FacadeService : IFacadeService
     private readonly string _baseAddress;
     private readonly string _serviceRolesPath;
     private readonly string _getUserAccountPath;
+    private readonly string _getCompanyFromCompaniesHousePath;
     private readonly string[] _scopes;
 
     public FacadeService(HttpClient httpClient, ITokenAcquisition tokenAcquisition, IConfiguration configuration)
@@ -31,6 +32,7 @@ public class FacadeService : IFacadeService
         _baseAddress = configuration["FacadeAPI:Address"];
         _serviceRolesPath = configuration["FacadeAPI:GetServiceRolesPath"];
         _getUserAccountPath = configuration["FacadeAPI:GetUserAccountPath"];
+        _getCompanyFromCompaniesHousePath = configuration["FacadeAPI:GetCompanyFromCompaniesHousePath"];
         _scopes = new[]
         {
             configuration["FacadeAPI:DownStreamScope"],
@@ -248,7 +250,7 @@ public class FacadeService : IFacadeService
     {
         await PrepareAuthenticatedClient();
 
-        var response = await _httpClient.GetAsync($"/api/companies-house?id={companyHouseNumber}");
+        var response = await _httpClient.GetAsync($"{_getCompanyFromCompaniesHousePath}?id={companyHouseNumber}");
 
         if (response.StatusCode == HttpStatusCode.NoContent)
         {
