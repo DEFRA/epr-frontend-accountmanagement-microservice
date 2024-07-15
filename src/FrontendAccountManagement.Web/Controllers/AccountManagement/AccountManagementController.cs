@@ -454,14 +454,21 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [AllowAnonymous]
     [Route(PagePath.ConfirmCompanyDetails)]
-    public async Task<IActionResult> ConfirmCompanyDetails(CompaniesHouseResponse companyModel)
+    public async Task<IActionResult> ConfirmCompanyDetails()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
         SetBackLink(session, PagePath.ManageAccount);
 
-        if (companyModel?.Organisation?.RegisteredOffice is null)
+        var userData = User.GetUserData();
+
+        var organisationData = userData.Organisations.FirstOrDefault();
+
+        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.OrganisationNumber);
+
+        if (companiesHouseData?.Organisation?.RegisteredOffice is null)
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
             {
@@ -469,7 +476,7 @@ public class AccountManagementController : Controller
             });
         }
 
-        var viewModel = _mapper.Map<ConfirmCompanyDetailsViewModel>(companyModel);
+        var viewModel = _mapper.Map<ConfirmCompanyDetailsViewModel>(companiesHouseData);
 
         return View(nameof(ConfirmCompanyDetails), viewModel);
     }
