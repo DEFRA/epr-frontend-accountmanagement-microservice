@@ -142,7 +142,7 @@ public class AccountManagementController : Controller
         }
         else
         {
-            return RedirectToAction("ConfirmCompanydetails");
+            return RedirectToAction("ConfirmCompanyDetails");
         }
     }
 
