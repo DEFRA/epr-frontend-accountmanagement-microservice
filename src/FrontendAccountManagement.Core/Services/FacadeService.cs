@@ -11,6 +11,7 @@ using FrontendAccountManagement.Core.Extensions;
 using System.Text.Json;
 using System.Text;
 using System.Text.Json.Serialization;
+using FrontendAccountManagement.Core.Models.CompaniesHouse;
 
 namespace FrontendAccountManagement.Core.Services;
 
@@ -21,6 +22,7 @@ public class FacadeService : IFacadeService
     private readonly string _baseAddress;
     private readonly string _serviceRolesPath;
     private readonly string _getUserAccountPath;
+    private readonly string _getCompanyFromCompaniesHousePath;
     private readonly string[] _scopes;
 
     public FacadeService(HttpClient httpClient, ITokenAcquisition tokenAcquisition, IConfiguration configuration)
@@ -30,6 +32,7 @@ public class FacadeService : IFacadeService
         _baseAddress = configuration["FacadeAPI:Address"];
         _serviceRolesPath = configuration["FacadeAPI:GetServiceRolesPath"];
         _getUserAccountPath = configuration["FacadeAPI:GetUserAccountPath"];
+        _getCompanyFromCompaniesHousePath = configuration["FacadeAPI:GetCompanyFromCompaniesHousePath"];
         _scopes = new[]
         {
             configuration["FacadeAPI:DownStreamScope"],
@@ -241,6 +244,25 @@ public class FacadeService : IFacadeService
         var response = await _httpClient.GetAsync($"organisations/organisation-nation?organisationId={organisationId}");
 
         return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<List<int>>() : new List<int>{0};
+    }
+
+    public async Task<CompaniesHouseResponse> GetCompaniesHouseResponseAsync(string companyHouseNumber)
+    {
+        await PrepareAuthenticatedClient();
+
+        var response = await _httpClient.GetAsync($"{_getCompanyFromCompaniesHousePath}?id={companyHouseNumber}");
+
+        if (response.StatusCode == HttpStatusCode.NoContent)
+        {
+            return null;
+        }
+
+        response.EnsureSuccessStatusCode();
+
+        var companiesHouseData = await response.Content.ReadFromJsonAsync<CompaniesHouseResponse>();
+
+        return companiesHouseData;
+
     }
 
     private async Task PrepareAuthenticatedClient()

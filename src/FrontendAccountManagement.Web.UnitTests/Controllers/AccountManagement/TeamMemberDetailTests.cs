@@ -7,6 +7,7 @@ using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Organisation = EPR.Common.Authorization.Models.Organisation;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 

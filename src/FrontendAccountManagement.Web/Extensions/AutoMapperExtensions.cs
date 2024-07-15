@@ -17,6 +17,7 @@ namespace FrontendAccountManagement.Web.Extensions
             var mapperConfig = new MapperConfiguration(mc =>
             {
                 mc.AddProfile(new AccountManagementProfile());
+                mc.AddProfile(new CompaniesHouseResponseMapper());
                 mc.AllowNullCollections = true;
             });
 

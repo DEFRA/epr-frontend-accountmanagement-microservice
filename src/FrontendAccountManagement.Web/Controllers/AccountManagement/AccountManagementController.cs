@@ -1,6 +1,7 @@
-using System.Net;
+using AutoMapper;
 using EPR.Common.Authorization.Constants;
 using EPR.Common.Authorization.Models;
+using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Services;
@@ -8,16 +9,16 @@ using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.Errors;
+using FrontendAccountManagement.Web.Extensions;
+using FrontendAccountManagement.Web.ViewModels;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
-using FrontendAccountManagement.Web.Extensions;
+using System.Net;
+using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
-using EPR.Common.Authorization.Sessions;
-using AutoMapper;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 
@@ -450,6 +451,31 @@ public class AccountManagementController : Controller
         };
 
         return View(nameof(DetailsChangeRequested), model);
+    }
+
+    [HttpGet]
+    [Route(PagePath.ConfirmCompanyDetails)]
+    public async Task<IActionResult> ConfirmCompanyDetails()
+    {
+        SetCustomBackLink(PagePath.ManageAccount);
+
+        var userData = User.GetUserData();
+
+        var organisationData = userData.Organisations.First();
+
+        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.OrganisationNumber);
+
+        if (companiesHouseData?.Organisation?.RegisteredOffice is null)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.NotFound
+            });
+        }
+
+        var viewModel = _mapper.Map<ConfirmCompanyDetailsViewModel>(companiesHouseData);
+
+        return View(nameof(ConfirmCompanyDetails), viewModel);
     }
 
     private static void SetRemoveUserJourneyValues(JourneySession session, string firstName, string lastName, Guid personId)
