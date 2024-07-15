@@ -2,8 +2,8 @@
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Extensions;
 using FrontendAccountManagement.Web.HealthChecks;
-using FrontendAccountManagement.Web.Mappers;
 using FrontendAccountManagement.Web.Middleware;
+using FrontendAccountManagement.Web.Profiles;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
@@ -21,7 +21,6 @@ builder.Services
 
 builder.Services
     .AddAutoMapper(typeof(Program))
-    .AddAutoMapper(typeof(CompaniesHouseResponseMapper))
     .AddAntiforgery(options => options.Cookie.Name = builder.Configuration.GetValue<string>("CookieOptions:AntiForgeryCookieName"))
     .AddControllersWithViews(options => {
         options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());

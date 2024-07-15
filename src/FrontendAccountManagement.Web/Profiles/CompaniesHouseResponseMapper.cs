@@ -2,9 +2,9 @@
 using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 
-namespace FrontendAccountManagement.Web.Mappers
+namespace FrontendAccountManagement.Web.Profiles
 {
-    internal class CompaniesHouseResponseMapper : Profile
+    public class CompaniesHouseResponseMapper : Profile
     {
         public CompaniesHouseResponseMapper()
         {
@@ -14,7 +14,6 @@ namespace FrontendAccountManagement.Web.Mappers
                 .ForMember(dest => dest.BusinessAddress, opt => opt.MapFrom(src => src.Organisation.RegisteredOffice))
                 .ForMember(dest => dest.ExternalCompanyHouseChangeRequestLink, opt => opt.Ignore());
 
-            // Mapping from AddressDto to AddressViewModel
             CreateMap<AddressDto, AddressViewModel>()
                 .ForMember(dest => dest.Country, opt => opt.MapFrom(src => src.Country.Name));
         }
