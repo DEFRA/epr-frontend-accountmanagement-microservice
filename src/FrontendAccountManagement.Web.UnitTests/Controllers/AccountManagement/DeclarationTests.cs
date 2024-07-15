@@ -105,7 +105,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             // Assert
             Assert.IsInstanceOfType<BadRequestResult>(result);
         }
-
+        
         /// <summary>
         /// Checks that the declaration page's post action redirects to the "Details change requested" page.
         /// </summary>
