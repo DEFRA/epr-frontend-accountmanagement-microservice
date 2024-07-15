@@ -354,27 +354,6 @@ public class AccountManagementController : Controller
         return View(nameof(Declaration));
     }
 
-    [HttpPost]
-    [Route(PagePath.Declaration, Name = "Declaration")]
-    public async Task<IActionResult> DeclarationPost()
-    {
-        return RedirectToAction(nameof(DetailsChangeRequested));
-    }
-
-    [HttpGet]
-    [Route(PagePath.Declaration)]
-    public async Task<IActionResult> Declaration()
-    {
-        if (!ModelState.IsValid)
-        {
-            BadRequest();
-        }
-
-        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        SaveSessionAndJourney(session, PagePath.CheckYourDetails, PagePath.Declaration);
-        SetBackLink(session, PagePath.Declaration);
-        return View(nameof(Declaration));
-    }
 
     [HttpPost]
     [Route(PagePath.Declaration, Name = "Declaration")]

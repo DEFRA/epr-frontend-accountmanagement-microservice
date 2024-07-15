@@ -15,8 +15,6 @@ public static class PagePath
     public const string ConfirmCompanyDetails = "confirm-company-details";
     public const string CompanyDetailsCheck = "company-details-check";
     public const string UpdateTradingName = "update-trading-name";
-    public const string Declaration = "declaration";
-    public const string DetailsChangeRequested = "details-change-requested";
     public const string CheckYourDetails = "check-your-details";
 
     // Change role journey paths
