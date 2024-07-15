@@ -90,7 +90,7 @@ public abstract class AccountManagementTestBase
             userDataToDispaly.User = new UserDetailsModel() { FirstName = "Test First Name", LastName = "Test Last Name", Telephone = "07545822431"  };
             userDataToDispaly.User.Organisations = new List<OrganisationDetailModel>
             {
-                new OrganisationDetailModel() { JobTitle = "Test Job Title", Id = Guid.NewGuid(), Name = "Test Organization Name", OrganisationType = "Companies House Company", OrgAddress = "Test Organisation Address" }
+                new OrganisationDetailModel() { JobTitle = "Test Job Title", Id = Guid.NewGuid(), Name = "Test Organization Name", OrganisationType = "Companies House Company", OrganisationAddress = "Test Organisation Address" }
             };
         }
     }
