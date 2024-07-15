@@ -11,6 +11,7 @@ public static class PagePath
     public const string PreRemoveTeamMember = "pre-remove-team-member";
     public const string WhatAreYourDetails = "what-are-your-details";
     public const string ConfirmCompanyDetails = "confirm-company-details";
+    public const string CompanyDetailsCheck = "company-details-check";
     public const string UpdateTradingName = "update-trading-name";
     public const string Declaration = "declaration";
     public const string DetailsChangeRequested = "details-change-requested";
