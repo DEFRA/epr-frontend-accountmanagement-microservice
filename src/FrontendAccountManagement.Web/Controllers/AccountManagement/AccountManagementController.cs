@@ -447,21 +447,15 @@ public class AccountManagementController : Controller
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
 
-        //if (!ModelState.IsValid)
-        //{
-        //    SetBackLink(session, PagePath.CheckYourDetails);
-        //    return View(model);
-        //}
-
         string servicerole = userData.ServiceRole ?? string.Empty;
 
         if (servicerole.ToLower() == "admin")
         {
-            return RedirectToAction("your-details-have-been-updated");
+            return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
         }
         else
         {
-            return RedirectToAction("declaration");
+            return RedirectToAction(nameof(PagePath.Declaration));
         }
         
     }

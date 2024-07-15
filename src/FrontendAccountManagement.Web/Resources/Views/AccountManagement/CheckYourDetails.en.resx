@@ -120,8 +120,8 @@
   <data name="FirstName" xml:space="preserve">
     <value>First name</value>
   </data>
-  <data name="WhatAreYourDetails" xml:space="preserve">
-    <value>What are your details?</value>
+  <data name="CheckYourDetails" xml:space="preserve">
+    <value>Check your details</value>
   </data>
   <data name="JobTitle" xml:space="preserve">
     <value>Job title</value>
