@@ -156,9 +156,9 @@ public class AccountManagementController : Controller
 
         var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync("06500244"); // This needs to change
 
-        if (!(userData.ServiceRole == "Approved Person" || userData.ServiceRole == "Delegated Person"))
+        if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
         {
-            throw new UnauthorizedAccessException();
+            return Unauthorized();
         }
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
