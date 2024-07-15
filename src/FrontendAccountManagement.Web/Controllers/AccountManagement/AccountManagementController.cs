@@ -131,7 +131,6 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
-    [AllowAnonymous]
     [Route(PagePath.CompanyDetailsCheck)]
     public async Task<ActionResult> CheckData()
     {
@@ -143,7 +142,7 @@ public class AccountManagementController : Controller
         }
         else
         {
-            return RedirectToAction("CompanyDetailsHaveNotChanged");
+            return RedirectToAction("ConfirmCompanydetails");
         }
     }
 
@@ -152,6 +151,8 @@ public class AccountManagementController : Controller
     public async Task<IActionResult> CompanyDetailsHaveNotChanged()
     {
         var userData = User.GetUserData();
+
+        var organisationData = userData.Organisations.First();
 
         var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync("06500244"); // This needs to change
 
