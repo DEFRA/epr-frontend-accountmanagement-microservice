@@ -12,6 +12,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
+using FrontendAccountManagement.Core.Models.CompaniesHouse;
+using System.Net.Http.Json;
 
 namespace FrontendAccountManagement.Core.UnitTests.Services
 {
@@ -940,11 +942,11 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
         {
             // Arrange
             var organisationId = Guid.NewGuid();
-            var expectedResponse = new List<int>{2};
+            var expectedResponse = new List<int> { 2 };
 
             var httpTestHandler = new HttpResponseMessage
             {
-                StatusCode = HttpStatusCode.OK           ,
+                StatusCode = HttpStatusCode.OK,
                 Content = new StringContent(JsonSerializer.Serialize(expectedResponse))
             };
 
@@ -963,13 +965,13 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             response.Result.Should().BeEquivalentTo(expectedResponse);
             httpTestHandler.Dispose();
         }
-        
+
         [TestMethod]
         public async Task GetNationId_WithValidRequest_IsUnsuccessful_ReturnsZero()
         {
             // Arrange
             var organisationId = Guid.NewGuid();
-            var expectedResponse = new List<int>{0};
+            var expectedResponse = new List<int> { 0 };
             var httpTestHandler = new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.NotFound
@@ -983,12 +985,90 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 .ReturnsAsync(httpTestHandler);
 
             // Act
-            var response =  _facadeService.GetNationIds(organisationId);
+            var response = _facadeService.GetNationIds(organisationId);
 
             // Assert
             Assert.IsNotNull(response);
             response.Result.Should().BeEquivalentTo(expectedResponse);
             httpTestHandler.Dispose();
+        }
+
+        [TestMethod]
+        public async Task GetCompaniesHouseResponseAsync_NoContent_ReturnsNull()
+        {
+            // Arrange
+            var companyHouseNumber = "12345678";
+            var responseMessage = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.NoContent
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(responseMessage);
+
+            // Act
+            var result = await _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber);
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
+        [TestMethod]
+        public async Task GetCompaniesHouseResponseAsync_Success_ReturnsCompaniesHouseResponse()
+        {
+            // Arrange
+            var companyHouseNumber = "12345678";
+            var expectedResponse = new CompaniesHouseResponse
+            {
+                Organisation = new OrganisationDto
+                {
+                    Name = "Test company name"
+                }
+            };
+            var responseMessage = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = JsonContent.Create(expectedResponse)
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(responseMessage);
+
+            // Act
+            var result = await _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Test company name", result.Organisation.Name);
+        }
+
+        [TestMethod]
+        public async Task GetCompaniesHouseResponseAsync_Error_ThrowsException()
+        {
+            // Arrange
+            var companyHouseNumber = "12345678";
+            var responseMessage = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.BadRequest
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(responseMessage);
+
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<HttpRequestException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
         }
     }
 }
