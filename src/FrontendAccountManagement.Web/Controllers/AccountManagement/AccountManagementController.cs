@@ -110,8 +110,8 @@ public class AccountManagementController : Controller
             var roleInOrganisation = userAccount.User.RoleInOrganisation;
             model.ServiceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
             model.OrganisationType = userOrg.OrganisationType;
+            model.HasPermissionToChangeCompany = HasPermissionToChangeCompany(userAccount);
         }
-
         return View(nameof(ManageAccount), model);
     }
 
@@ -604,4 +604,17 @@ public class AccountManagementController : Controller
 
     private static bool IsRegulatorUser(UserData userData) =>
         IsRegulatorAdmin(userData) || IsRegulatorBasic(userData);
+
+    private static bool HasPermissionToChangeCompany(UserOrganisationsListModelDto userData)
+    {
+        var serviceRoleId = userData.User.ServiceRoleId;
+        var serviceRoleEnum = (ServiceRole)serviceRoleId;
+        var roleInOrganisation = userData.User.RoleInOrganisation;
+        if ((serviceRoleEnum == ServiceRole.Approved || serviceRoleEnum == ServiceRole.Delegated) 
+            && !string.IsNullOrEmpty(roleInOrganisation) && roleInOrganisation == PersonRole.Admin.ToString())
+        {
+            return true;
+        }
+        return false;
+    }
 }
