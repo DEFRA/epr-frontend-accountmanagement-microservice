@@ -405,8 +405,6 @@ public class AccountManagementController : Controller
         }
 
         // need to temporarily save the details for the next page, without saving to the database
-        // however this bit throws an exception at the moment for some reason
-        // TempData.Add("NewUserDetails", editUserDetailsViewModel);
         TempData.Add("NewUserDetails", System.Text.Json.JsonSerializer.Serialize(editUserDetailsViewModel));
         return RedirectToAction("CheckYourDetails", editUserDetailsViewModel);
     }
@@ -423,7 +421,7 @@ public class AccountManagementController : Controller
         {
             editUserDetailsViewModel = System.Text.Json.JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData["NewUserDetails"] as string);
         }
-        catch (Exception) { }
+        catch (Exception) {/* handle exception gracefully since TempData can be null  */ }
 
 
         SetBackLink(session, PagePath.CheckYourDetails);
@@ -432,7 +430,7 @@ public class AccountManagementController : Controller
             FirstName = editUserDetailsViewModel.FirstName ?? userData.FirstName,
             LastName = editUserDetailsViewModel.LastName ?? userData.LastName,
             JobTitle = editUserDetailsViewModel.JobTitle ?? userData.JobTitle,
-            Telephone = editUserDetailsViewModel.Telephone ??  userData.Telephone
+            Telephone = editUserDetailsViewModel.Telephone ?? userData.Telephone
         };
 
         SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.CheckYourDetails);
@@ -447,17 +445,12 @@ public class AccountManagementController : Controller
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
 
-        string servicerole = userData.ServiceRole ?? string.Empty;
+        var serviceRole = userData.ServiceRole ?? string.Empty;
 
-        if (servicerole.ToLower() == "admin")
-        {
+        if (serviceRole.ToLower() == "basic user")
             return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
-        }
         else
-        {
             return RedirectToAction(nameof(PagePath.Declaration));
-        }
-        
     }
 
     [HttpGet]
