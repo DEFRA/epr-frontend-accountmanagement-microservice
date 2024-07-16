@@ -423,7 +423,7 @@ public class AccountManagementController : Controller
         {
             editUserDetailsViewModel = System.Text.Json.JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData["NewUserDetails"] as string);
         }
-        catch (Exception) { }
+        catch (Exception) { /* TempData can be null*/ }
 
 
         SetBackLink(session, PagePath.CheckYourDetails);
@@ -445,19 +445,14 @@ public class AccountManagementController : Controller
     public async Task<IActionResult> CheckYourDetails(EditUserDetailsViewModel model)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        var userData = User.GetUserData();
+        var userData = User.GetUserData();      
 
-        string servicerole = userData.ServiceRole ?? string.Empty;
+        var serviceRole = userData.ServiceRole ?? string.Empty;
 
-        if (servicerole.ToLower() == "admin")
-        {
+        if (serviceRole.ToLower() == "basic user")
             return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
-        }
         else
-        {
-            return RedirectToAction(nameof(PagePath.Declaration));
-        }
-        
+            return RedirectToAction(nameof(PagePath.Declaration));   
     }
 
     [HttpGet]
