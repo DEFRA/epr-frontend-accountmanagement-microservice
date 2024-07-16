@@ -32,5 +32,7 @@ namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
         public string? ServiceRoleKey { get; set; }
 
         public string? OrganisationType { get; set; }
+
+        public bool? HasPermissionToChangeCompany { get; set; } = false;
     }
 }
