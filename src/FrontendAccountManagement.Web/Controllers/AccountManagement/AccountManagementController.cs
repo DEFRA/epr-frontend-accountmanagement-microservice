@@ -138,7 +138,7 @@ public class AccountManagementController : Controller
             opts =>
                 opts.Items["CompaniesHouseChangeDetailsUrl"] = companiesHouseChangeDetailsUrl);
 
-        return View(nameof(CompanyDetailsHaveNotChanged), model);
+        return View(model);
     }
 
     [HttpGet]
