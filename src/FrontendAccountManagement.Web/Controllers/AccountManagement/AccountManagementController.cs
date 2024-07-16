@@ -79,7 +79,7 @@ public class AccountManagementController : Controller
         if (session.AccountManagementSession.AddUserStatus != null)
         {
             model.InviteStatus = session.AccountManagementSession.AddUserStatus;
-            model.InvitedUserEmail =session.AccountManagementSession.InviteeEmailAddress;
+            model.InvitedUserEmail = session.AccountManagementSession.InviteeEmailAddress;
             session.AccountManagementSession.InviteeEmailAddress = null;
             session.AccountManagementSession.AddUserStatus = null;
         }
@@ -276,7 +276,7 @@ public class AccountManagementController : Controller
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         SetRemoveUserJourneyValues(session, firstName, lastName, personId);
         await SaveSession(session);
-        return RedirectToAction("RemoveTeamMemberConfirmation","AccountManagement");
+        return RedirectToAction("RemoveTeamMemberConfirmation", "AccountManagement");
     }
 
     [HttpGet]
@@ -322,7 +322,7 @@ public class AccountManagementController : Controller
         }
         var organisationId = organisation!.Id.ToString();
         var serviceRoleId = userData.ServiceRoleId;
-        var result = await _facadeService.RemoveUserForOrganisation(personExternalId, organisationId, serviceRoleId );
+        var result = await _facadeService.RemoveUserForOrganisation(personExternalId, organisationId, serviceRoleId);
         session.AccountManagementSession.RemoveUserStatus = result;
 
         return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.RemoveTeamMember, PagePath.ManageAccount);
@@ -353,6 +353,7 @@ public class AccountManagementController : Controller
         SetBackLink(session, PagePath.Declaration);
         return View(nameof(Declaration));
     }
+
 
     [HttpPost]
     [Route(PagePath.Declaration, Name = "Declaration")]
@@ -405,24 +406,33 @@ public class AccountManagementController : Controller
 
         // need to temporarily save the details for the next page, without saving to the database
         // however this bit throws an exception at the moment for some reason
-        //TempData.Add("NewUserDetails", editUserDetailsViewModel);
-        
+        // TempData.Add("NewUserDetails", editUserDetailsViewModel);
+        TempData.Add("NewUserDetails", System.Text.Json.JsonSerializer.Serialize(editUserDetailsViewModel));
         return RedirectToAction("CheckYourDetails", editUserDetailsViewModel);
     }
     [HttpGet]
     [Route(PagePath.CheckYourDetails)]
-    public async Task<IActionResult> CheckYourDetails( )
+    public async Task<IActionResult> CheckYourDetails()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
 
+        var editUserDetailsViewModel = new EditUserDetailsViewModel();
+
+        try
+        {
+            editUserDetailsViewModel = System.Text.Json.JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData["NewUserDetails"] as string);
+        }
+        catch (Exception) { }
+
+
         SetBackLink(session, PagePath.CheckYourDetails);
         var model = new EditUserDetailsViewModel
         {
-            FirstName = userData.FirstName,
-            LastName = userData.LastName,
-            JobTitle = userData.JobTitle,
-            Telephone = userData.Telephone
+            FirstName = editUserDetailsViewModel.FirstName ?? userData.FirstName,
+            LastName = editUserDetailsViewModel.LastName ?? userData.LastName,
+            JobTitle = editUserDetailsViewModel.JobTitle ?? userData.JobTitle,
+            Telephone = editUserDetailsViewModel.Telephone ??  userData.Telephone
         };
 
         SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.CheckYourDetails);
@@ -437,13 +447,17 @@ public class AccountManagementController : Controller
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
 
-        if (!ModelState.IsValid)
-        {
-            SetBackLink(session, PagePath.CheckYourDetails);
-            return View(model);
-        }
+        string servicerole = userData.ServiceRole ?? string.Empty;
 
-        return RedirectToAction("declaration");
+        if (servicerole.ToLower() == "admin")
+        {
+            return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
+        }
+        else
+        {
+            return RedirectToAction(nameof(PagePath.Declaration));
+        }
+        
     }
 
     [HttpGet]
