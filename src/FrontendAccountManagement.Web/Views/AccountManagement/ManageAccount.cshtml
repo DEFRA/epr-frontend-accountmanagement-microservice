@@ -51,6 +51,8 @@
                         <h2 class="govuk-heading-m govuk-!-margin-bottom-4">
                             @Localizer["YourOrganisation"]
                         </h2>
+                        @if (Model.HasPermissionToChangeCompany.HasValue && Model.HasPermissionToChangeCompany.Value)
+                        {
                         <dd class="govuk-summary-list__actions">
                             @if (Model.OrganisationType == OrganisationType.CompaniesHouseCompany)
                             {
@@ -67,6 +69,8 @@
                                 </a>
                             }
                         </dd>
+                        }
+
                     </dl>
 
                     <dl class="govuk-summary-list govuk-!-margin-bottom-0">
