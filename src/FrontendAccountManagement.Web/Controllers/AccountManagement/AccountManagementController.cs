@@ -118,7 +118,7 @@ public class AccountManagementController : Controller
 
         var organisationData = userData.Organisations.First();
 
-        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.OrganisationNumber); // 06500244
+        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.OrganisationNumber);
 
         if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
         {
@@ -443,13 +443,8 @@ public class AccountManagementController : Controller
         var userData = User.GetUserData();
 
         SetBackLink(session, PagePath.CheckYourDetails);
-        var model = new EditUserDetailsViewModel
-        {
-            FirstName = userData.FirstName,
-            LastName = userData.LastName,
-            JobTitle = userData.JobTitle,
-            Telephone = userData.Telephone
-        };
+
+        var model = _mapper.Map<EditUserDetailsViewModel>(userData);
 
         SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.CheckYourDetails);
         SetBackLink(session, PagePath.CheckYourDetails);

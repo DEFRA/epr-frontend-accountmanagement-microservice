@@ -15,6 +15,10 @@
                     <p><strong>@Model.CompanyName</strong></p>
                     <p>@Localizer["CompaniesHouseNumber"]<br>@Model.CompanyHouseNumber</p>
                     <p>@Localizer["Address"]
+                        @if (!string.IsNullOrEmpty(Model.SubBuildingName))
+                        {
+                            <br>@Model.SubBuildingName
+                        }
                         @if (!string.IsNullOrEmpty(Model.BuildingName))
                         {
                             <br>@Model.BuildingName

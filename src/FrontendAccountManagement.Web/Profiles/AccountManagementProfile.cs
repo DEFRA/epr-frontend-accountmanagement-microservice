@@ -2,8 +2,6 @@
 using EPR.Common.Authorization.Models;
 using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
-using System.Diagnostics.Metrics;
-using System.IO;
 
 namespace FrontendAccountManagement.Web.Profiles
 {
@@ -20,6 +18,7 @@ namespace FrontendAccountManagement.Web.Profiles
             CreateMap<CompaniesHouseResponse, CompanyDetailsHaveNotChangedViewModel>()
                 .ForMember(d => d.CompanyName, o => o.MapFrom(s => s.Organisation.Name))
                 .ForMember(d => d.CompanyHouseNumber, o => o.MapFrom(s => s.Organisation.RegistrationNumber))
+                .ForMember(d => d.SubBuildingName, o => o.MapFrom(s => s.Organisation.RegisteredOffice.SubBuildingName))
                 .ForMember(d => d.BuildingName, o => o.MapFrom(s => s.Organisation.RegisteredOffice.BuildingName))
                 .ForMember(d => d.BuildingNumber, o => o.MapFrom(s => s.Organisation.RegisteredOffice.BuildingNumber))
                 .ForMember(d => d.Street, o => o.MapFrom(s => s.Organisation.RegisteredOffice.Street))
