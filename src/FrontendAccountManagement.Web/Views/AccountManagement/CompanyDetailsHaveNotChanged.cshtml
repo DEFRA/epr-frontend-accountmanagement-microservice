@@ -1,0 +1,71 @@
+﻿@using FrontendAccountManagement.Web.Constants
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@model FrontendAccountManagement.Web.ViewModels.AccountManagement.CompanyDetailsHaveNotChangedViewModel
+
+@{
+    ViewData["Title"] = Localizer["PageTitle"];
+}
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-l">@Localizer["PageHeading"]</h1>
+                <div class="govuk-body govuk-inset-text">
+                    <p><strong>@Model.CompanyName</strong></p>
+                    <p>@Localizer["CompaniesHouseNumber"]<br>@Model.CompanyHouseNumber</p>
+                    <p>@Localizer["Address"]
+                        @if (!string.IsNullOrEmpty(Model.SubBuildingName))
+                        {
+                            <br>@Model.SubBuildingName
+                        }
+                        @if (!string.IsNullOrEmpty(Model.BuildingName))
+                        {
+                            <br>@Model.BuildingName
+                        }
+                        @if (!string.IsNullOrEmpty(Model.BuildingNumber))
+                        {
+                            <br>@Model.BuildingNumber
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Street))
+                        {
+                            <br>@Model.Street
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Locality))
+                        {
+                            <br>
+
+                            @Model.Locality
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Town))
+                        {
+                            <br>@Model.Town
+                        }
+                        @if (!string.IsNullOrEmpty(Model.County))
+                        {
+                            <br>@Model.County
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Country))
+                        {
+                            <br>@Model.Country
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Postcode))
+                        {
+                            <br>@Model.Postcode
+                        }
+                    </p>
+                </div>
+                <details class="govuk-details" data-module="govuk-details">
+                    <summary class="govuk-details__summary">
+                        <span class="govuk-details__summary-text">@Localizer["TheseDetailsAreWrong"]</span>
+                    </summary>
+                    <div class="govuk-details__text">
+                        <p>@Localizer["WrongDetailsP1"]</p>
+                        <p>@Localizer["WrongDetailsP2"]<a target="_blank" rel="noreferrer" class="govuk-link" href="@Model.CompaniesHouseChangeDetailsUrl">@Localizer["WrongDetailsP3"]</a>.</p>
+                    </div>
+                </details>
+                <a class="govuk-link" href="@PagePath.ManageAccount">@Localizer["GoBack"]</a>
+            </div>
+        </div>
+    </main>
+</div>

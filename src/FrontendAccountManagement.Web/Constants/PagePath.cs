@@ -16,6 +16,7 @@ public static class PagePath
     public const string Declaration = "declaration";
     public const string DetailsChangeRequested = "details-change-requested";
     public const string CheckYourDetails = "check-your-details";
+    public const string CompanyDetailsHaveNotChanged = "company-details-have-not-changed";
 
     // Change role journey paths
     public const string ChangeAccountPermissions = "change-account-permissions";
