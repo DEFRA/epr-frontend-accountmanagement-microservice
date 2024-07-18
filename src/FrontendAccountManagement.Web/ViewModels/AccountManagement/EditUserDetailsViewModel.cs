@@ -1,4 +1,5 @@
 ﻿using FrontendAccountManagement.Web.Resources.Views.AccountManagement;
+using FrontendAccountManagement.Web.ViewModels.Attributes;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
@@ -28,6 +29,7 @@ namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
 
         [Required(ErrorMessageResourceName = "TelephoneNumberMissing", ErrorMessageResourceType = typeof(EditUserDetails))]
         [StringLength(50, ErrorMessageResourceName = "TelephoneMaxLength", ErrorMessageResourceType = typeof(EditUserDetails))]
+        [TelephoneNumberValidation]
         public string? Telephone { get; set; }
     }
 }
