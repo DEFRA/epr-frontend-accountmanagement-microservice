@@ -139,7 +139,7 @@ public class AccountManagementController : Controller
 
         var organisationData = userData.Organisations.First();
 
-        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.OrganisationNumber);
+        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.CompaniesHouseNumber);
 
         if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
         {
@@ -150,7 +150,7 @@ public class AccountManagementController : Controller
 
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CompanyDetailsHaveNotChanged);
 
-        SetBackLink(session, PagePath.ManageAccount);
+        SetBackLink(session, PagePath.CompanyDetailsHaveNotChanged);
 
         var companiesHouseChangeDetailsUrl = _urlOptions.CompanyHouseChangeRequestLink;
 
@@ -479,7 +479,7 @@ public class AccountManagementController : Controller
             FirstName = editUserDetailsViewModel.FirstName ?? userData.FirstName,
             LastName = editUserDetailsViewModel.LastName ?? userData.LastName,
             JobTitle = editUserDetailsViewModel.JobTitle ?? userData.JobTitle,
-            Telephone = editUserDetailsViewModel.Telephone ??  userData.Telephone
+            Telephone = editUserDetailsViewModel.Telephone ?? userData.Telephone
         };
 
         SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.CheckYourDetails);
@@ -492,14 +492,14 @@ public class AccountManagementController : Controller
     public async Task<IActionResult> CheckYourDetails(EditUserDetailsViewModel model)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        var userData = User.GetUserData();      
+        var userData = User.GetUserData();
 
         var serviceRole = userData.ServiceRole ?? string.Empty;
 
         if (serviceRole.ToLower() == "basic user")
             return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
         else
-            return RedirectToAction(nameof(PagePath.Declaration));   
+            return RedirectToAction(nameof(PagePath.Declaration));
     }
 
     [HttpGet]
@@ -570,13 +570,14 @@ public class AccountManagementController : Controller
             throw new ArgumentNullException(nameof(organisationData));
         }
 
-        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.OrganisationNumber);
+        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.CompaniesHouseNumber);
 
         if (
             companiesHouseData != null &&
             organisationData.Name == companiesHouseData.Organisation.Name &&
+            organisationData.TradingName == companiesHouseData.Organisation.TradingName &&
             organisationData.OrganisationType == companiesHouseData.Organisation.OrganisationData.Type &&
-            organisationData.OrganisationNumber == companiesHouseData.Organisation.RegistrationNumber &&
+            organisationData.SubBuildingName == companiesHouseData.Organisation.RegisteredOffice.SubBuildingName &&
             organisationData.BuildingName == companiesHouseData.Organisation.RegisteredOffice.BuildingName &&
             organisationData.BuildingNumber == companiesHouseData.Organisation.RegisteredOffice.BuildingNumber &&
             organisationData.Street == companiesHouseData.Organisation.RegisteredOffice.Street &&
@@ -688,7 +689,7 @@ public class AccountManagementController : Controller
         var serviceRoleId = userData.User.ServiceRoleId;
         var serviceRoleEnum = (ServiceRole)serviceRoleId;
         var roleInOrganisation = userData.User.RoleInOrganisation;
-        if ((serviceRoleEnum == ServiceRole.Approved || serviceRoleEnum == ServiceRole.Delegated) 
+        if ((serviceRoleEnum == ServiceRole.Approved || serviceRoleEnum == ServiceRole.Delegated)
             && !string.IsNullOrEmpty(roleInOrganisation) && roleInOrganisation == PersonRole.Admin.ToString())
         {
             return true;
