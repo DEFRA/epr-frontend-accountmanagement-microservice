@@ -557,6 +557,22 @@ public class AccountManagementController : Controller
         return View(nameof(ConfirmCompanyDetails), viewModel);
     }
 
+    [HttpGet]
+    [Route(PagePath.CompanyDetailsUpdated)]
+    public async Task<IActionResult> CompanyDetailsUpdated()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var changeDate = DateTime.Now;
+
+        var model = new CompanyDetailsUpdatedViewModel
+        {
+            UserName = $"{session.UserData.FirstName} {session.UserData.LastName}",
+            ChangeTime = $"{changeDate:HH:mm}",
+            ChangeDate = $"{changeDate:dd MMMM yyyy}",
+        };
+        return View(nameof(CompanyDetailsUpdated), model);
+    }
+
     private async Task<bool> CompareDataAsync()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
