@@ -576,7 +576,6 @@ public class AccountManagementController : Controller
             companiesHouseData != null &&
             organisationData.Name == companiesHouseData.Organisation.Name &&
             organisationData.TradingName == companiesHouseData.Organisation.TradingName &&
-            organisationData.OrganisationType == companiesHouseData.Organisation.OrganisationData.Type &&
             organisationData.SubBuildingName == companiesHouseData.Organisation.RegisteredOffice.SubBuildingName &&
             organisationData.BuildingName == companiesHouseData.Organisation.RegisteredOffice.BuildingName &&
             organisationData.BuildingNumber == companiesHouseData.Organisation.RegisteredOffice.BuildingNumber &&
