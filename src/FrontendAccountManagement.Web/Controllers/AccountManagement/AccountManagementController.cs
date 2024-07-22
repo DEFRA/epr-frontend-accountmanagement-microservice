@@ -453,9 +453,8 @@ public class AccountManagementController : Controller
 
         // need to temporarily save the details for the next page, without saving to the database
         // however this bit throws an exception at the moment for some reason
-        // TempData.Add("NewUserDetails", editUserDetailsViewModel);
         TempData.Add("NewUserDetails", System.Text.Json.JsonSerializer.Serialize(editUserDetailsViewModel));
-        return RedirectToAction("CheckYourDetails", editUserDetailsViewModel);
+        return RedirectToAction(nameof(PagePath.CheckYourDetails));
     }
     [HttpGet]
     [Route(PagePath.CheckYourDetails)]
