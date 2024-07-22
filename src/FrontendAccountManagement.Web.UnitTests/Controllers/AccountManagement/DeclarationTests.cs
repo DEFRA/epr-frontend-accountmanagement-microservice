@@ -81,45 +81,42 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         /// Check that the declaration page can be accessed when reaching it via the "Check your details" page.
         /// </summary>
         [TestMethod]
-        public async Task CanCallDeclarationFromCheckYourDetails()
+        public async Task DeclarationGet_CanCall()
         {
-            var navigationToken = Guid.NewGuid();
-
-            // Arrange
-            this.SessionData["NavigationToken"] = Encoding.UTF8.GetBytes(navigationToken.ToString());
-
             // Act
-            ViewResult result = (ViewResult)await this.TestClass.Declaration(navigationToken.ToString());
+            var result = (ViewResult)await this.TestClass.Declaration();
 
             // Assert
             Assert.AreEqual("Declaration", result.ViewName);
         }
 
         /// <summary>
-        /// Check that the declaration page can't be accessed when accessing it directly.
+        /// Checks that a bad request returned if the model is not valid.
         /// </summary>
-        /// <remarks>
-        /// The test cases are various combinations of the IDs that the "Check your details" page would send being missing,
-        /// or not matching.
-        /// </remarks>
         [TestMethod]
-        [DataRow(null,null)]
-        [DataRow("A", null)]
-        [DataRow(null, "B")]
-        [DataRow("A", "B")]
-        public async Task CannotCallDeclarationDirectly(string sessionToken, string requestToken)
+        public async Task DeclarationGet_ErrorsWhenModelIsBad()
         {
             // Arrange
-            if (sessionToken is not null)
-            {
-                this.SessionData["NavigationToken"] = Encoding.UTF8.GetBytes(sessionToken);
-            }
+            this.TestClass.ModelState.AddModelError("Error", "Something went wrong.");
 
             // Act
-            ViewResult result = (ViewResult)await this.TestClass.Declaration(requestToken);
+            IActionResult result = await this.TestClass.Declaration();
 
             // Assert
-            Assert.AreEqual("Problem", result.ViewName);
+            Assert.IsInstanceOfType<BadRequestResult>(result);
+        }
+        
+        /// <summary>
+        /// Checks that the declaration page's post action redirects to the "Details change requested" page.
+        /// </summary>
+        [TestMethod]
+        public async Task DeclarationPost_CanCall()
+        {
+            // Act
+            var result = (RedirectToActionResult)await this.TestClass.DeclarationPost();
+
+            // Assert
+            Assert.AreEqual("DetailsChangeRequested", result.ActionName);
         }
     }
 }

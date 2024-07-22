@@ -19,6 +19,7 @@ using Microsoft.Identity.Web;
 using System.Net;
 using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
+using FrontendAccountManagement.Core.Enums;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 
@@ -78,7 +79,7 @@ public class AccountManagementController : Controller
         if (session.AccountManagementSession.AddUserStatus != null)
         {
             model.InviteStatus = session.AccountManagementSession.AddUserStatus;
-            model.InvitedUserEmail =session.AccountManagementSession.InviteeEmailAddress;
+            model.InvitedUserEmail = session.AccountManagementSession.InviteeEmailAddress;
             session.AccountManagementSession.InviteeEmailAddress = null;
             session.AccountManagementSession.AddUserStatus = null;
         }
@@ -89,7 +90,76 @@ public class AccountManagementController : Controller
 
         SetCustomBackLink(_urlOptions.LandingPageUrl);
 
+        var userAccount = await _facadeService.GetUserAccountForDispaly();
+
+        if (userAccount is null)
+        {
+            _logger.LogInformation("User authenticated but account could not be found");
+        }
+        else
+        {
+            model.UserName = string.Format("{0} {1}", userAccount.User.FirstName, userAccount.User.LastName);
+            model.Telephone = userAccount.User?.Telephone;
+            var userOrg = userAccount.User.Organisations?.FirstOrDefault();
+            model.JobTitle = userOrg.JobTitle;
+            model.CompanyName = userOrg.Name;
+            model.OrganisationAddress = userOrg.OrganisationAddress;
+            model.EnrolmentStatus = userAccount.User.EnrolmentStatus;
+            var serviceRoleId = userAccount.User.ServiceRoleId;
+            var serviceRoleEnum = (ServiceRole)serviceRoleId;
+            var roleInOrganisation = userAccount.User.RoleInOrganisation;
+            model.ServiceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
+            model.OrganisationType = userOrg.OrganisationType;
+            model.HasPermissionToChangeCompany = HasPermissionToChangeCompany(userAccount);
+        }
         return View(nameof(ManageAccount), model);
+    }
+
+    [HttpGet]
+    [Route(PagePath.CompanyDetailsCheck)]
+    public async Task<ActionResult> CheckData()
+    {
+        var isDataMatching = await CompareDataAsync();
+
+        if (isDataMatching)
+        {
+            return RedirectToAction(nameof(CompanyDetailsHaveNotChanged));
+        }
+        else
+        {
+            return RedirectToAction(nameof(ConfirmCompanyDetails));
+        }
+    }
+
+    [HttpGet]
+    [Route(PagePath.CompanyDetailsHaveNotChanged)]
+    public async Task<IActionResult> CompanyDetailsHaveNotChanged()
+    {
+        var userData = User.GetUserData();
+
+        var organisationData = userData.Organisations.First();
+
+        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.CompaniesHouseNumber);
+
+        if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
+        {
+            return Unauthorized();
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CompanyDetailsHaveNotChanged);
+
+        SetBackLink(session, PagePath.CompanyDetailsHaveNotChanged);
+
+        var companiesHouseChangeDetailsUrl = _urlOptions.CompanyHouseChangeRequestLink;
+
+        var model = _mapper.Map<CompanyDetailsHaveNotChangedViewModel>(
+            companiesHouseData,
+            opts =>
+                opts.Items["CompaniesHouseChangeDetailsUrl"] = companiesHouseChangeDetailsUrl);
+
+        return View(model);
     }
 
     [HttpGet]
@@ -253,7 +323,7 @@ public class AccountManagementController : Controller
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         SetRemoveUserJourneyValues(session, firstName, lastName, personId);
         await SaveSession(session);
-        return RedirectToAction("RemoveTeamMemberConfirmation","AccountManagement");
+        return RedirectToAction("RemoveTeamMemberConfirmation", "AccountManagement");
     }
 
     [HttpGet]
@@ -299,7 +369,7 @@ public class AccountManagementController : Controller
         }
         var organisationId = organisation!.Id.ToString();
         var serviceRoleId = userData.ServiceRoleId;
-        var result = await _facadeService.RemoveUserForOrganisation(personExternalId, organisationId, serviceRoleId );
+        var result = await _facadeService.RemoveUserForOrganisation(personExternalId, organisationId, serviceRoleId);
         session.AccountManagementSession.RemoveUserStatus = result;
 
         return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.RemoveTeamMember, PagePath.ManageAccount);
@@ -318,22 +388,25 @@ public class AccountManagementController : Controller
     /// </param>
     [HttpGet]
     [Route(PagePath.Declaration)]
-    public async Task<IActionResult> Declaration(string navigationToken)
+    public async Task<IActionResult> Declaration()
     {
         if (!ModelState.IsValid)
         {
-            BadRequest();
+            return BadRequest();
         }
 
-        var sessionNavigationToken = HttpContext.Session.GetString("NavigationToken");
-        if (navigationToken is null
-            || sessionNavigationToken != navigationToken)
-        {
-            return View("Problem");
-        }
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        SaveSessionAndJourney(session, PagePath.CheckYourDetails, PagePath.Declaration);
+        SetBackLink(session, PagePath.Declaration);
+        return View(nameof(Declaration));
+    }
 
-        SetBackLink(await _sessionManager.GetSessionAsync(HttpContext.Session), PagePath.Declaration);
-        return View("Declaration");
+
+    [HttpPost]
+    [Route(PagePath.Declaration, Name = "Declaration")]
+    public async Task<IActionResult> DeclarationPost()
+    {
+        return RedirectToAction(nameof(DetailsChangeRequested));
     }
 
     [HttpGet]
@@ -380,26 +453,37 @@ public class AccountManagementController : Controller
 
         // need to temporarily save the details for the next page, without saving to the database
         // however this bit throws an exception at the moment for some reason
-        //TempData.Add("NewUserDetails", editUserDetailsViewModel);
-        
+        // TempData.Add("NewUserDetails", editUserDetailsViewModel);
+        TempData.Add("NewUserDetails", System.Text.Json.JsonSerializer.Serialize(editUserDetailsViewModel));
         return RedirectToAction("CheckYourDetails", editUserDetailsViewModel);
     }
     [HttpGet]
     [Route(PagePath.CheckYourDetails)]
-    public async Task<IActionResult> CheckYourDetails( )
+    public async Task<IActionResult> CheckYourDetails()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
 
+        var editUserDetailsViewModel = new EditUserDetailsViewModel();
+
+        try
+        {
+            editUserDetailsViewModel = System.Text.Json.JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData["NewUserDetails"] as string);
+        }
+        catch (Exception) { /* TempData can be null*/ }
+
+
         SetBackLink(session, PagePath.CheckYourDetails);
         var model = new EditUserDetailsViewModel
         {
-            FirstName = userData.FirstName,
-            LastName = userData.LastName,
-            JobTitle = userData.JobTitle,
-            Telephone = userData.Telephone
+            FirstName = editUserDetailsViewModel.FirstName ?? userData.FirstName,
+            LastName = editUserDetailsViewModel.LastName ?? userData.LastName,
+            JobTitle = editUserDetailsViewModel.JobTitle ?? userData.JobTitle,
+            Telephone = editUserDetailsViewModel.Telephone ?? userData.Telephone
         };
 
+        SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.CheckYourDetails);
+        SetBackLink(session, PagePath.CheckYourDetails);
         return View(nameof(PagePath.CheckYourDetails), model);
     }
 
@@ -410,17 +494,12 @@ public class AccountManagementController : Controller
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
 
-        if (!ModelState.IsValid)
-        {
-            SetBackLink(session, PagePath.CheckYourDetails);
-            return View(model);
-        }
+        var serviceRole = userData.ServiceRole ?? string.Empty;
 
-        // Set a navigation token in the session data and the call to the route,
-        // as the declaration page uses them to ensure that users can only arrive via this page.
-        var navigationToken = Guid.NewGuid().ToString();
-        HttpContext.Session.SetString("NavigationToken", navigationToken);
-        return RedirectToAction("declaration", new { navigationToken });
+        if (serviceRole.ToLower() == "basic user")
+            return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
+        else
+            return RedirectToAction(nameof(PagePath.Declaration));
     }
 
     [HttpGet]
@@ -476,6 +555,42 @@ public class AccountManagementController : Controller
         var viewModel = _mapper.Map<ConfirmCompanyDetailsViewModel>(companiesHouseData);
 
         return View(nameof(ConfirmCompanyDetails), viewModel);
+    }
+
+    private async Task<bool> CompareDataAsync()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        var userData = User.GetUserData();
+
+        var organisationData = userData.Organisations.FirstOrDefault();
+
+        if (organisationData == null)
+        {
+            throw new ArgumentNullException(nameof(organisationData));
+        }
+
+        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.CompaniesHouseNumber);
+
+        if (
+            companiesHouseData != null &&
+            organisationData.Name == companiesHouseData.Organisation.Name &&
+            organisationData.TradingName == companiesHouseData.Organisation.TradingName &&
+            organisationData.SubBuildingName == companiesHouseData.Organisation.RegisteredOffice.SubBuildingName &&
+            organisationData.BuildingName == companiesHouseData.Organisation.RegisteredOffice.BuildingName &&
+            organisationData.BuildingNumber == companiesHouseData.Organisation.RegisteredOffice.BuildingNumber &&
+            organisationData.Street == companiesHouseData.Organisation.RegisteredOffice.Street &&
+            organisationData.Locality == companiesHouseData.Organisation.RegisteredOffice.Locality &&
+            organisationData.DependentLocality == companiesHouseData.Organisation.RegisteredOffice.DependentLocality &&
+            organisationData.Town == companiesHouseData.Organisation.RegisteredOffice.Town &&
+            organisationData.County == companiesHouseData.Organisation.RegisteredOffice.County &&
+            organisationData.Country == companiesHouseData.Organisation.RegisteredOffice.Country.Name &&
+            organisationData.Postcode == companiesHouseData.Organisation.RegisteredOffice.Postcode)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private static void SetRemoveUserJourneyValues(JourneySession session, string firstName, string lastName, Guid personId)
@@ -567,4 +682,17 @@ public class AccountManagementController : Controller
 
     private static bool IsRegulatorUser(UserData userData) =>
         IsRegulatorAdmin(userData) || IsRegulatorBasic(userData);
+
+    private static bool HasPermissionToChangeCompany(UserOrganisationsListModelDto userData)
+    {
+        var serviceRoleId = userData.User.ServiceRoleId;
+        var serviceRoleEnum = (ServiceRole)serviceRoleId;
+        var roleInOrganisation = userData.User.RoleInOrganisation;
+        if ((serviceRoleEnum == ServiceRole.Approved || serviceRoleEnum == ServiceRole.Delegated)
+            && !string.IsNullOrEmpty(roleInOrganisation) && roleInOrganisation == PersonRole.Admin.ToString())
+        {
+            return true;
+        }
+        return false;
+    }
 }
