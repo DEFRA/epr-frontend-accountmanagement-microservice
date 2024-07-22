@@ -20,6 +20,7 @@ using System.Net;
 using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 using FrontendAccountManagement.Core.Enums;
+using FrontendAccountManagement.Web.Controllers.Attributes;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 
@@ -536,13 +537,11 @@ public class AccountManagementController : Controller
     [Route(PagePath.ConfirmCompanyDetails)]
     public async Task<IActionResult> ConfirmCompanyDetails()
     {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
         SetCustomBackLink(PagePath.ManageAccount);
 
-        var userData = User.GetUserData();
-
-        var organisationData = userData.Organisations.First();
-
-        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.OrganisationNumber);
+        var companiesHouseData = session.AccountManagementSession.CompaniesHouseSession.CompaniesHouseResponse;
 
         if (companiesHouseData?.Organisation?.RegisteredOffice is null)
         {
@@ -555,6 +554,51 @@ public class AccountManagementController : Controller
         var viewModel = _mapper.Map<ConfirmCompanyDetailsViewModel>(companiesHouseData);
 
         return View(nameof(ConfirmCompanyDetails), viewModel);
+    }
+
+    [HttpGet]
+    [Route(PagePath.UkNation)]
+    public async Task<IActionResult> UkNation()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        SetBackLink(session, PagePath.ConfirmCompanyDetails);
+
+        return View();
+    }
+
+    [HttpPost]
+    [Route(PagePath.UkNation)]
+    public async Task<IActionResult> UkNation(UkNationViewModel model)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        if (!ModelState.IsValid)
+        {
+            if (model.UkNation == null)
+            {
+                ModelState.ClearValidationState(nameof(model.UkNation));
+                ModelState.AddModelError(nameof(model.UkNation), "UkNation.ErrorMessage");
+            }
+            SetBackLink(session, PagePath.ConfirmCompanyDetails);
+            return View(model);
+        }
+
+        var addressDto = session.AccountManagementSession.CompaniesHouseSession.CompaniesHouseResponse.Organisation
+            .RegisteredOffice;
+
+        var address = _mapper.Map<AddressViewModel>(addressDto);
+
+        var checkYourOrganisaiotnModel = new CheckYourOrganisationDetailsViewModel
+        {
+            OrganisationId = session.UserData.Organisations.FirstOrDefault()?.Id ?? Guid.Empty,
+            Address = string.Join(", ", address),
+            TradingName = session.AccountManagementSession.OrganisationName,
+            UkNation = model.UkNation.Value
+        };
+        TempData["CheckYourOrganisationDetailsKey"] = System.Text.Json.JsonSerializer.Serialize(checkYourOrganisaiotnModel);
+
+        return await SaveSessionAndRedirect(session, string.Empty, PagePath.UkNation, string.Empty);
     }
 
     private async Task<bool> CompareDataAsync()
@@ -571,7 +615,8 @@ public class AccountManagementController : Controller
         }
 
         var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.CompaniesHouseNumber);
-
+        session.AccountManagementSession.CompaniesHouseSession.CompaniesHouseResponse = companiesHouseData;
+        
         if (
             companiesHouseData != null &&
             organisationData.Name == companiesHouseData.Organisation.Name &&
