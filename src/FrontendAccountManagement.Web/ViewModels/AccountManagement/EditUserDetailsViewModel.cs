@@ -29,7 +29,7 @@ namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
 
         [Required(ErrorMessageResourceName = "TelephoneNumberMissing", ErrorMessageResourceType = typeof(EditUserDetails))]
         [StringLength(50, ErrorMessageResourceName = "TelephoneMaxLength", ErrorMessageResourceType = typeof(EditUserDetails))]
-        [TelephoneNumberValidation]
+        [TelephoneNumberValidation(ErrorMessage = "Enter a valid telephone number")]
         public string? Telephone { get; set; }
     }
 }
