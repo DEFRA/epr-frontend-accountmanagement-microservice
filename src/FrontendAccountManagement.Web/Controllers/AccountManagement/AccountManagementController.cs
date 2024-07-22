@@ -120,16 +120,17 @@ public class AccountManagementController : Controller
     [Route(PagePath.CompanyDetailsCheck)]
     public async Task<ActionResult> CheckData()
     {
-        var isDataMatching = await CompareDataAsync();
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var isDataMatching = await CompareDataAsync(session);
 
         if (isDataMatching)
         {
-            return RedirectToAction(nameof(CompanyDetailsHaveNotChanged));
+            return await SaveSessionAndRedirect(session, nameof(CompanyDetailsHaveNotChanged),
+                PagePath.CompanyDetailsCheck, PagePath.CompanyDetailsHaveNotChanged);
         }
-        else
-        {
-            return RedirectToAction(nameof(ConfirmCompanyDetails));
-        }
+
+        return await SaveSessionAndRedirect(session, nameof(ConfirmCompanyDetails), 
+            PagePath.CompanyDetailsCheck, PagePath.ConfirmCompanyDetails);
     }
 
     [HttpGet]
@@ -541,7 +542,7 @@ public class AccountManagementController : Controller
 
         SetCustomBackLink(PagePath.ManageAccount);
 
-        var companiesHouseData = session.AccountManagementSession.CompaniesHouseSession.CompaniesHouseResponse;
+        var companiesHouseData = session.CompaniesHouseSession.CompaniesHouseResponse;
 
         if (companiesHouseData?.Organisation?.RegisteredOffice is null)
         {
@@ -584,7 +585,7 @@ public class AccountManagementController : Controller
             return View(model);
         }
 
-        var addressDto = session.AccountManagementSession.CompaniesHouseSession.CompaniesHouseResponse.Organisation
+        var addressDto = session.CompaniesHouseSession.CompaniesHouseResponse.Organisation
             .RegisteredOffice;
 
         var address = _mapper.Map<AddressViewModel>(addressDto);
@@ -601,10 +602,8 @@ public class AccountManagementController : Controller
         return await SaveSessionAndRedirect(session, string.Empty, PagePath.UkNation, string.Empty);
     }
 
-    private async Task<bool> CompareDataAsync()
+    private async Task<bool> CompareDataAsync(JourneySession session)
     {
-        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-
         var userData = User.GetUserData();
 
         var organisationData = userData.Organisations.FirstOrDefault();
@@ -615,27 +614,21 @@ public class AccountManagementController : Controller
         }
 
         var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.CompaniesHouseNumber);
-        session.AccountManagementSession.CompaniesHouseSession.CompaniesHouseResponse = companiesHouseData;
+        session.CompaniesHouseSession.CompaniesHouseResponse = companiesHouseData;
         
-        if (
-            companiesHouseData != null &&
-            organisationData.Name == companiesHouseData.Organisation.Name &&
-            organisationData.TradingName == companiesHouseData.Organisation.TradingName &&
-            organisationData.SubBuildingName == companiesHouseData.Organisation.RegisteredOffice.SubBuildingName &&
-            organisationData.BuildingName == companiesHouseData.Organisation.RegisteredOffice.BuildingName &&
-            organisationData.BuildingNumber == companiesHouseData.Organisation.RegisteredOffice.BuildingNumber &&
-            organisationData.Street == companiesHouseData.Organisation.RegisteredOffice.Street &&
-            organisationData.Locality == companiesHouseData.Organisation.RegisteredOffice.Locality &&
-            organisationData.DependentLocality == companiesHouseData.Organisation.RegisteredOffice.DependentLocality &&
-            organisationData.Town == companiesHouseData.Organisation.RegisteredOffice.Town &&
-            organisationData.County == companiesHouseData.Organisation.RegisteredOffice.County &&
-            organisationData.Country == companiesHouseData.Organisation.RegisteredOffice.Country.Name &&
-            organisationData.Postcode == companiesHouseData.Organisation.RegisteredOffice.Postcode)
-        {
-            return true;
-        }
-
-        return false;
+        return companiesHouseData != null &&
+               organisationData.Name == companiesHouseData.Organisation.Name &&
+               organisationData.TradingName == companiesHouseData.Organisation.TradingName &&
+               organisationData.SubBuildingName == companiesHouseData.Organisation.RegisteredOffice.SubBuildingName &&
+               organisationData.BuildingName == companiesHouseData.Organisation.RegisteredOffice.BuildingName &&
+               organisationData.BuildingNumber == companiesHouseData.Organisation.RegisteredOffice.BuildingNumber &&
+               organisationData.Street == companiesHouseData.Organisation.RegisteredOffice.Street &&
+               organisationData.Locality == companiesHouseData.Organisation.RegisteredOffice.Locality &&
+               organisationData.DependentLocality == companiesHouseData.Organisation.RegisteredOffice.DependentLocality &&
+               organisationData.Town == companiesHouseData.Organisation.RegisteredOffice.Town &&
+               organisationData.County == companiesHouseData.Organisation.RegisteredOffice.County &&
+               organisationData.Country == companiesHouseData.Organisation.RegisteredOffice.Country.Name &&
+               organisationData.Postcode == companiesHouseData.Organisation.RegisteredOffice.Postcode;
     }
 
     private static void SetRemoveUserJourneyValues(JourneySession session, string firstName, string lastName, Guid personId)
