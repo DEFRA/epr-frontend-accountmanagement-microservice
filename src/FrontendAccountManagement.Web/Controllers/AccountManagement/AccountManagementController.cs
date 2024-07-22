@@ -542,7 +542,7 @@ public class AccountManagementController : Controller
 
         var organisationData = userData.Organisations.First();
 
-        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.OrganisationNumber);
+        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.CompaniesHouseNumber);
 
         if (companiesHouseData?.Organisation?.RegisteredOffice is null)
         {
