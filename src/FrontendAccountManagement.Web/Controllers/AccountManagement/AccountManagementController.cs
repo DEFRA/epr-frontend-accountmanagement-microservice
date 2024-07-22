@@ -10,14 +10,12 @@ using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.Errors;
 using FrontendAccountManagement.Web.Extensions;
-using FrontendAccountManagement.Web.ViewModels;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using System.Net;
-using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Web.Controllers.Attributes;
@@ -538,8 +536,8 @@ public class AccountManagementController : Controller
             return Unauthorized();
         }
 
-        SetCustomBackLink(PagePath.ManageAccount);
-
+        SetCustomBackLink(PagePath.ManageAccount, false);
+        
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
         var companiesHouseData = session.CompaniesHouseSession.CompaniesHouseResponse;
@@ -553,6 +551,7 @@ public class AccountManagementController : Controller
         }
 
         var viewModel = _mapper.Map<ConfirmCompanyDetailsViewModel>(companiesHouseData);
+        viewModel.ExternalCompanyHouseChangeRequestLink = _urlOptions.CompanyHouseChangeRequestLink;
 
         return View(nameof(ConfirmCompanyDetails), viewModel);
     }
@@ -568,7 +567,7 @@ public class AccountManagementController : Controller
     [Route(PagePath.UkNation)]
     public async Task<IActionResult> UkNation()
     {
-        SetCustomBackLink(PagePath.ConfirmCompanyDetails);
+        SetCustomBackLink(PagePath.ConfirmCompanyDetails, false);
 
         return View(nameof(UkNation));
     }
@@ -579,7 +578,7 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        SetCustomBackLink(PagePath.ConfirmCompanyDetails);
+        SetCustomBackLink(PagePath.ConfirmCompanyDetails, false);
 
         if (!ModelState.IsValid)
         {
@@ -596,14 +595,14 @@ public class AccountManagementController : Controller
 
         var address = _mapper.Map<AddressViewModel>(addressDto);
 
-        var checkYourOrganisaiotnModel = new CheckYourOrganisationDetailsViewModel
+        var checkYourOrganisationModel = new CheckYourOrganisationDetailsViewModel
         {
             OrganisationId = session.UserData.Organisations.FirstOrDefault()?.Id ?? Guid.Empty,
             Address = string.Join(", ", address.AddressFields.Where(field => !string.IsNullOrWhiteSpace(field))),
             TradingName = session.CompaniesHouseSession?.CompaniesHouseResponse?.Organisation?.Name,
             UkNation = model.UkNation.Value
         };
-        TempData["CheckYourOrganisationDetailsKey"] = System.Text.Json.JsonSerializer.Serialize(checkYourOrganisaiotnModel);
+        TempData["CheckYourOrganisationDetailsKey"] = System.Text.Json.JsonSerializer.Serialize(checkYourOrganisationModel);
 
         return RedirectToAction(nameof(UkNation));
     }
@@ -701,9 +700,16 @@ public class AccountManagementController : Controller
         ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
     }
 
-    private void SetCustomBackLink(string pagePath)
+    private void SetCustomBackLink(string pagePath, bool showCustomBackLabel = true)
     {
-        ViewBag.CustomBackLinkToDisplay = pagePath;
+        if (showCustomBackLabel)
+        {
+            ViewBag.CustomBackLinkToDisplay = pagePath;
+        }
+        else
+        {
+            ViewBag.BackLinkToDisplay = pagePath;
+        }
     }
 
     private bool HasPermissionToView(UserData userData)
