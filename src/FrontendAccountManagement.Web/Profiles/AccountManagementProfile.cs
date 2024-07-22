@@ -17,7 +17,9 @@ namespace FrontendAccountManagement.Web.Profiles
 
             CreateMap<CompaniesHouseResponse, CompanyDetailsHaveNotChangedViewModel>()
                 .ForMember(d => d.CompanyName, o => o.MapFrom(s => s.Organisation.Name))
-                .ForMember(d => d.CompanyHouseNumber, o => o.MapFrom(s => s.Organisation.RegistrationNumber))
+                .ForMember(d => d.TradingName, o => o.MapFrom(s => s.Organisation.TradingName))
+                .ForMember(d => d.RegistrationNumber, o => o.MapFrom(s => s.Organisation.RegistrationNumber))
+                .ForMember(d => d.CompaniesHouseNumber, o => o.MapFrom(s => s.Organisation.RegistrationNumber))
                 .ForMember(d => d.SubBuildingName, o => o.MapFrom(s => s.Organisation.RegisteredOffice.SubBuildingName))
                 .ForMember(d => d.BuildingName, o => o.MapFrom(s => s.Organisation.RegisteredOffice.BuildingName))
                 .ForMember(d => d.BuildingNumber, o => o.MapFrom(s => s.Organisation.RegisteredOffice.BuildingNumber))

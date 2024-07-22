@@ -9,7 +9,11 @@ namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
 
         public string CompanyName { get; set; }
 
-        public string CompanyHouseNumber { get; set; }
+        public string? TradingName { get; set; }
+
+        public string? RegistrationNumber { get; set; }
+
+        public string CompaniesHouseNumber { get; set; }
 
         public string? BuildingName { get; set; }
 
