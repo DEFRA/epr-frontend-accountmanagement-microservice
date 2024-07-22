@@ -137,18 +137,13 @@ public class AccountManagementController : Controller
     [Route(PagePath.CompanyDetailsHaveNotChanged)]
     public async Task<IActionResult> CompanyDetailsHaveNotChanged()
     {
-        var userData = User.GetUserData();
-
-        var organisationData = userData.Organisations.First();
-
-        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.CompaniesHouseNumber);
-
         if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
         {
             return Unauthorized();
         }
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var companiesHouseData = session.CompaniesHouseSession.CompaniesHouseResponse;
 
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CompanyDetailsHaveNotChanged);
 
@@ -538,9 +533,14 @@ public class AccountManagementController : Controller
     [Route(PagePath.ConfirmCompanyDetails)]
     public async Task<IActionResult> ConfirmCompanyDetails()
     {
-        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
+        {
+            return Unauthorized();
+        }
 
         SetCustomBackLink(PagePath.ManageAccount);
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
         var companiesHouseData = session.CompaniesHouseSession.CompaniesHouseResponse;
 
@@ -557,15 +557,20 @@ public class AccountManagementController : Controller
         return View(nameof(ConfirmCompanyDetails), viewModel);
     }
 
+    [HttpPost]
+    [Route(PagePath.ConfirmCompanyDetails)]
+    public async Task<IActionResult> ConfirmDetailsOfTheCompany()
+    {
+        return RedirectToAction(nameof(UkNation));
+    }
+
     [HttpGet]
     [Route(PagePath.UkNation)]
     public async Task<IActionResult> UkNation()
     {
-        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        SetCustomBackLink(PagePath.ConfirmCompanyDetails);
 
-        SetBackLink(session, PagePath.ConfirmCompanyDetails);
-
-        return View();
+        return View(nameof(UkNation));
     }
 
     [HttpPost]
@@ -574,6 +579,8 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
+        SetCustomBackLink(PagePath.ConfirmCompanyDetails);
+
         if (!ModelState.IsValid)
         {
             if (model.UkNation == null)
@@ -581,7 +588,6 @@ public class AccountManagementController : Controller
                 ModelState.ClearValidationState(nameof(model.UkNation));
                 ModelState.AddModelError(nameof(model.UkNation), "UkNation.ErrorMessage");
             }
-            SetBackLink(session, PagePath.ConfirmCompanyDetails);
             return View(model);
         }
 
@@ -593,13 +599,13 @@ public class AccountManagementController : Controller
         var checkYourOrganisaiotnModel = new CheckYourOrganisationDetailsViewModel
         {
             OrganisationId = session.UserData.Organisations.FirstOrDefault()?.Id ?? Guid.Empty,
-            Address = string.Join(", ", address),
-            TradingName = session.AccountManagementSession.OrganisationName,
+            Address = string.Join(", ", address.AddressFields.Where(field => !string.IsNullOrWhiteSpace(field))),
+            TradingName = session.CompaniesHouseSession?.CompaniesHouseResponse?.Organisation?.Name,
             UkNation = model.UkNation.Value
         };
         TempData["CheckYourOrganisationDetailsKey"] = System.Text.Json.JsonSerializer.Serialize(checkYourOrganisaiotnModel);
 
-        return await SaveSessionAndRedirect(session, string.Empty, PagePath.UkNation, string.Empty);
+        return RedirectToAction(nameof(UkNation));
     }
 
     private async Task<bool> CompareDataAsync(JourneySession session)
