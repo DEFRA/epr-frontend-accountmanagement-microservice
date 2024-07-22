@@ -495,7 +495,7 @@ public class AccountManagementController : Controller
 
         var serviceRole = userData.ServiceRole ?? string.Empty;
 
-        if (serviceRole.ToLower() == "basic user")
+        if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower())
             return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
         else
             return RedirectToAction(nameof(PagePath.Declaration));

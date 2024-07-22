@@ -36,7 +36,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task UpdateDetailsConfirmation_ShouldReturnViewWithExpectedModel()
+        public async Task CheckYourDetails_ShouldReturnViewWithExpectedModel()  
         {
             // Act
             var result = await SystemUnderTest.CheckYourDetails();
