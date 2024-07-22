@@ -604,7 +604,17 @@ public class AccountManagementController : Controller
         };
         TempData["CheckYourOrganisationDetailsKey"] = System.Text.Json.JsonSerializer.Serialize(checkYourOrganisationModel);
 
-        return RedirectToAction(nameof(UkNation));
+        return RedirectToAction(nameof(CheckCompaniesHouseDetails));
+    }
+
+    [HttpPost]
+    [Route(PagePath.CheckCompaniesHouseDetails)]
+    public async Task<IActionResult> CheckCompaniesHouseDetails(CheckYourOrganisationDetailsViewModel model)
+    {
+        return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+        {
+            statusCode = (int)HttpStatusCode.NotFound
+        });
     }
 
     private async Task<bool> CompareDataAsync(JourneySession session)
