@@ -483,7 +483,7 @@ public class AccountManagementController : Controller
             Telephone = editUserDetailsViewModel.Telephone ?? userData.Telephone
         };
 
-        ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey[^1];
+        ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.LastOrDefault(string.Empty);
         SaveSessionAndJourney(session, PagePath.CheckYourDetails);
 
         return View(nameof(PagePath.CheckYourDetails), model);
