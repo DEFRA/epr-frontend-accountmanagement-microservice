@@ -551,7 +551,7 @@ public class AccountManagementController : Controller
         // must be approved or delegated user
         if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
         {
-            return Forbid();
+            return Unauthorized();
         }
         
         // deserialize data from TempStorage
@@ -577,6 +577,12 @@ public class AccountManagementController : Controller
     [Route(PagePath.CheckCompaniesHouseDetails)]
     public async Task<IActionResult> CheckCompaniesHouseDetails(CheckYourOrganisationDetailsViewModel viewModel)
     {
+        // must be approved or delegated user
+        if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
+        {
+            return Unauthorized();
+        }
+
         if (!ModelState.IsValid)
         {
             TempData[CheckYourOrganisationDetailsKey] = JsonSerializer.Serialize(viewModel);

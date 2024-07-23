@@ -378,16 +378,19 @@ public class AccountManagementTests : AccountManagementTestBase
         SetupUserData(string.Empty);
 
         // act
-        var result = await SystemUnderTest.CheckCompaniesHouseDetails() as ForbidResult;
+        var result = await SystemUnderTest.CheckCompaniesHouseDetails() as UnauthorizedResult;
 
         // assert
         Assert.IsNotNull(result);
     }
 
     [TestMethod]
-    public async Task PostCheckCompaniesHouseDetails_ValidParameters_RequestsToSaveData()
+    [DataRow("Approved Person")]
+    [DataRow("Delegated Person")]
+    public async Task PostCheckCompaniesHouseDetails_ValidParameters_RequestsToSaveData(string serviceRole)
     {
         // Arrange
+        SetupUserData(serviceRole);
         var organisationId = Guid.NewGuid();
         var ukNation = UkNation.England;
         var viewModel = new CheckYourOrganisationDetailsViewModel
@@ -409,9 +412,13 @@ public class AccountManagementTests : AccountManagementTestBase
     }
 
     [TestMethod]
-    public async Task PostCheckCompaniesHouseDetails_InvalidModelState_ReturnsOriginalView()
+    [DataRow("Approved Person")]
+    [DataRow("Delegated Person")]
+    public async Task PostCheckCompaniesHouseDetails_InvalidModelState_ReturnsOriginalView(string serviceRole)
     {
         // Arrange
+        SetupUserData(serviceRole);
+
         SystemUnderTest.ModelState.AddModelError("Error", "Error");
         var viewModel = new CheckYourOrganisationDetailsViewModel();
 
