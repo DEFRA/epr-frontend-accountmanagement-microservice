@@ -465,14 +465,16 @@ public class AccountManagementController : Controller
 
         var editUserDetailsViewModel = new EditUserDetailsViewModel();
 
-        try
+        if (TempData["NewUserDetails"] != null)
         {
-            editUserDetailsViewModel = System.Text.Json.JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData["NewUserDetails"] as string);
+            try
+            {
+                editUserDetailsViewModel = System.Text.Json.JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData["NewUserDetails"] as string);
+            }
+            catch (Exception ex)
+            { _logger.LogInformation(ex.Message); }
         }
-        catch (Exception) { /* TempData can be null*/ }
 
-
-        SetBackLink(session, PagePath.CheckYourDetails);
         var model = new EditUserDetailsViewModel
         {
             FirstName = editUserDetailsViewModel.FirstName ?? userData.FirstName,
