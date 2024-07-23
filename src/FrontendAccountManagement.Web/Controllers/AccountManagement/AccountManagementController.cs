@@ -417,6 +417,16 @@ public class AccountManagementController : Controller
 
         var model = _mapper.Map<EditUserDetailsViewModel>(User.GetUserData());
 
+        if (TempData["AmendedUserDetails"] != null)
+        {
+            try
+            {
+                model = System.Text.Json.JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData["AmendedUserDetails"] as string);
+            }
+            catch (Exception ex)
+            { _logger.LogInformation(ex.Message); }
+        }
+
         SaveSessionAndJourney(session, PagePath.CheckYourDetails, PagePath.WhatAreYourDetails);
         SetBackLink(session, PagePath.WhatAreYourDetails);
 
@@ -453,7 +463,9 @@ public class AccountManagementController : Controller
 
         // need to temporarily save the details for the next page, without saving to the database
         // however this bit throws an exception at the moment for some reason
-        TempData.Add("NewUserDetails", System.Text.Json.JsonSerializer.Serialize(editUserDetailsViewModel));
+        if (TempData["NewUserDetails"] == null)
+            TempData.Add("NewUserDetails", System.Text.Json.JsonSerializer.Serialize(editUserDetailsViewModel));
+
         return RedirectToAction(nameof(PagePath.CheckYourDetails));
     }
     [HttpGet]
@@ -486,7 +498,11 @@ public class AccountManagementController : Controller
         ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.LastOrDefault();
         SaveSessionAndJourney(session, PagePath.CheckYourDetails);
 
-        return View(nameof(PagePath.CheckYourDetails), model);
+        if (TempData["AmendedUserDetails"] == null)
+        {
+            TempData.Add("AmendedUserDetails", System.Text.Json.JsonSerializer.Serialize(editUserDetailsViewModel));
+        }
+        return View(model);
     }
 
     [HttpPost]
