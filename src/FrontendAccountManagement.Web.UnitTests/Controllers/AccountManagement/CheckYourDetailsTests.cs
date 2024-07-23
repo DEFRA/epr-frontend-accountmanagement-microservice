@@ -59,6 +59,23 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             model.LastName.Should().Be("TestLast");
         }
 
+        [TestMethod]
+        public async Task CheckYourDetailsPost_ShouldReturnActionName() 
+        {
+            // Act        
+            var editUserDetailsViewModel = new EditUserDetailsViewModel
+            {
+                FirstName = "TestFirst",
+                LastName = "TestLast",
+            };
+
+            var result = await SystemUnderTest.CheckYourDetails(editUserDetailsViewModel);
+
+            // Assert
+            result.Should().NotBeNull();
+            ((RedirectToActionResult)result).ActionName.Should().NotBeNull();
+        }
+
         /// <summary>
         /// Checks that the journey history is updated in the expected way when navigating from different pages.
         /// </summary>
@@ -76,6 +93,8 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             CollectionAssert.AreEqual(expected, _journeySession.AccountManagementSession.Journey);
         }
 
+        #region Private
+        
         private static IEnumerable<object[]> CheckYourDetailsData
         {
             get
@@ -105,5 +124,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 };
             }
         }
+
+        #endregion
     }
 }
