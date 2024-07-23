@@ -10,14 +10,12 @@ using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.Errors;
 using FrontendAccountManagement.Web.Extensions;
-using FrontendAccountManagement.Web.ViewModels;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using System.Net;
-using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 using FrontendAccountManagement.Core.Enums;
 
@@ -536,13 +534,12 @@ public class AccountManagementController : Controller
     [Route(PagePath.ConfirmCompanyDetails)]
     public async Task<IActionResult> ConfirmCompanyDetails()
     {
-        SetCustomBackLink(PagePath.ManageAccount);
-
+        SetCustomBackLink(PagePath.ManageAccount, false);
         var userData = User.GetUserData();
 
         var organisationData = userData.Organisations.First();
 
-        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.OrganisationNumber);
+        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.CompaniesHouseNumber);
 
         if (companiesHouseData?.Organisation?.RegisteredOffice is null)
         {
@@ -553,6 +550,7 @@ public class AccountManagementController : Controller
         }
 
         var viewModel = _mapper.Map<ConfirmCompanyDetailsViewModel>(companiesHouseData);
+        viewModel.ExternalCompanyHouseChangeRequestLink = _urlOptions.CompanyHouseChangeRequestLink;
 
         return View(nameof(ConfirmCompanyDetails), viewModel);
     }
@@ -657,9 +655,16 @@ public class AccountManagementController : Controller
         ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
     }
 
-    private void SetCustomBackLink(string pagePath)
+    private void SetCustomBackLink(string pagePath, bool showCustomBackLabel = true)
     {
-        ViewBag.CustomBackLinkToDisplay = pagePath;
+        if (showCustomBackLabel)
+        {
+            ViewBag.CustomBackLinkToDisplay = pagePath;
+        }
+        else
+        {
+            ViewBag.BackLinkToDisplay = pagePath;
+        }
     }
 
     private bool HasPermissionToView(UserData userData)
