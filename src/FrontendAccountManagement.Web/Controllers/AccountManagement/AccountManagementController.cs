@@ -483,7 +483,7 @@ public class AccountManagementController : Controller
             Telephone = editUserDetailsViewModel.Telephone ?? userData.Telephone
         };
 
-        ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.LastOrDefault(string.Empty);
+        ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.LastOrDefault();
         SaveSessionAndJourney(session, PagePath.CheckYourDetails);
 
         return View(nameof(PagePath.CheckYourDetails), model);
@@ -630,8 +630,8 @@ public class AccountManagementController : Controller
     /// Saves the session data and adds a step to the list detailing the user's journey through the site.
     /// </summary>
     /// <param name="session">The session data to save.</param>
-    /// <param name="sourcePagePath">The page this step of the journey starts from (typically the current page).</param>
-    /// <param name="destinationPagePath">The page this step of the journey ends at (typically the page we're about to redirect to).</param>
+    /// <param name="sourcePagePath">The page this step of the journey starts from (typically the page we've just come from.).</param>
+    /// <param name="destinationPagePath">The page this step of the journey ends at (typically the current page.).</param>
     /// <returns>A <see cref="Task"/>.</returns>
     /// <remarks>
     /// This version of the method only allows one entry for each page - if the user navigates to a page they've already been to,
@@ -651,7 +651,7 @@ public class AccountManagementController : Controller
     /// Saves the session data and adds a step to the list detailing the user's journey through the site.
     /// </summary>
     /// <param name="session">The session data to save.</param>
-    /// <param name="sourcePagePath">The page this step of the journey starts from (typically the current page).</param>
+    /// <param name="sourcePagePath">The page this step of the journey ends at (typically the current page).</param>
     /// <returns>A <see cref="Task"/>.</returns>
     /// <remarks>
     /// This version of the method allows duplicate journey steps, and doesn't wind back the journey history when the user returns to a page they've visited previously.
@@ -662,7 +662,7 @@ public class AccountManagementController : Controller
     {
         var journey = session.AccountManagementSession.Journey;
 
-        if (journey[^1] != sourcePagePath)
+        if (journey.LastOrDefault() != sourcePagePath)
         {
             session.AccountManagementSession.Journey.Add(sourcePagePath);
         }

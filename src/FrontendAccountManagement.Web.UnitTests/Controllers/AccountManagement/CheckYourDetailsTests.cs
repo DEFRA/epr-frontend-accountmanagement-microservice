@@ -19,6 +19,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
     public class CheckYourDetailsTests : AccountManagementTestBase
     {
         private UserData _userData;
+        private JourneySession _journeySession;
 
         [TestInitialize]
         public void Setup()
@@ -31,8 +32,15 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             SetupBase(_userData);
 
+            _journeySession = new JourneySession
+            {
+                UserData = _userData,
+                AccountManagementSession = new AccountManagementSession() { Journey = new List<string>() }
+            };
+
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-                .Returns(Task.FromResult(new JourneySession { UserData = _userData }));
+                .Returns(Task.FromResult(_journeySession)
+                   );
         }
 
         [TestMethod]
@@ -49,6 +57,53 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             model.Should().NotBeNull();
             model.FirstName.Should().Be("TestFirst");
             model.LastName.Should().Be("TestLast");
+        }
+
+        /// <summary>
+        /// Checks that the journey history is updated in the expected way when navigating from different pages.
+        /// </summary>
+        [TestMethod]
+        [DynamicData(nameof(CheckYourDetailsData))]
+        public async Task CheckYourDetails_DontAddToJourneyOnRefresh(List<string> input, List<string> expected)
+        {
+            // Arrange
+            _journeySession.AccountManagementSession.Journey = input;
+
+            // Act
+            SystemUnderTest.CheckYourDetails();
+
+            // Assert
+            CollectionAssert.AreEqual(expected, _journeySession.AccountManagementSession.Journey);
+        }
+
+        private static IEnumerable<object[]> CheckYourDetailsData
+        {
+            get
+            {
+                return new[]
+                {
+                    // Check journey is added to correctly when navigating from the management page.
+                    new[]
+                    {
+                        new List<string> { "manage" },
+                        new List<string> { "manage", "check-your-details" },
+                    },
+
+                    // Check the journey is added to correctly when navigating from the "what-are-your-details" page.
+                    new[]
+                    {
+                        new List<string> { "manage", "check-your-details", "what-are-your-details" },
+                        new List<string> { "manage", "check-your-details", "what-are-your-details", "check-your-details" },
+                    },
+
+                    // Check the journey isn't changed when the user refreshes the page.
+                    new[] 
+                    {
+                        new List<string> { "manage", "check-your-details" }, 
+                        new List<string> { "manage", "check-your-details" },
+                    }
+                };
+            }
         }
     }
 }
