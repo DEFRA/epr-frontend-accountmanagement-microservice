@@ -103,7 +103,6 @@ namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
         public async Task<IActionResult> ChangeAccountPermissions(ChangeAccountPermissionViewModel model, Guid id)
         {
             var pagePath = $"{PagePath.ChangeAccountPermissions}/{id}";
-            var nextPagePath = $"{PagePath.ManageAccount}";
 
             var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
@@ -149,40 +148,10 @@ namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
 
             currentSessionItem.PermissionType = model.PermissionType;
 
-            var actionName = string.Empty;
-            PersonRole? personRole = null;
-            switch (currentPermissionTypeResult.PermissionType)
-            {
-                case PermissionType.Basic:
-                    if (model.PermissionType == PermissionType.Admin)
-                    {
-                        personRole = PersonRole.Admin;
-                    }
-                    else if (model.PermissionType == PermissionType.Delegated)
-                    {
-                        nextPagePath = $"{PagePath.RelationshipWithOrganisation}/{id}";
-                        actionName = nameof(RelationshipWithOrganisation);
-                    }
-                    break;
-                case PermissionType.Admin:
-                    if (model.PermissionType == PermissionType.Basic)
-                    {
-                        personRole = PersonRole.Employee;
-                    }
-                    else if (model.PermissionType == PermissionType.Delegated)
-                    {
-                        nextPagePath = $"{PagePath.RelationshipWithOrganisation}/{id}";
-                        actionName = nameof(RelationshipWithOrganisation);
-                    }
-                    break;
-                case PermissionType.Delegated:
-                    if (model.PermissionType != PermissionType.Delegated)
-                    {
-                        nextPagePath = $"{PagePath.ConfirmChangePermission}/{id}";
-                        actionName = nameof(ConfirmChangePermission);
-                    }
-                    break;
-            }
+            (string nextPagePath, string actionName, PersonRole? personRole) = GetCahngeAccountPermissionDataToDecideNextAction(
+                model,
+                currentPermissionTypeResult.PermissionType,
+                id);
 
             if (personRole != null)
             {
@@ -196,10 +165,8 @@ namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
             {
                 return await RemoveSessionItemAndRedirectHomeAsync(session, id);
             }
-            else
-            {
-                return await SaveSessionAndRedirect(session, actionName, pagePath, nextPagePath, id);
-            }
+
+            return await SaveSessionAndRedirect(session, actionName, pagePath, nextPagePath, id);
         }
 
         [HttpGet]
@@ -836,6 +803,50 @@ namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
                     }
                 }
             }
+        }
+    
+        private (string, string, PersonRole?) GetCahngeAccountPermissionDataToDecideNextAction(
+            ChangeAccountPermissionViewModel model,
+            PermissionType? currentPermissionTypeResult,
+            Guid id)
+        {
+            var nextPagePath = $"{PagePath.ManageAccount}";
+            var actionName = string.Empty;
+            PersonRole? personRole = null;
+            switch (currentPermissionTypeResult)
+            {
+                case PermissionType.Basic:
+                    if (model.PermissionType == PermissionType.Admin)
+                    {
+                        personRole = PersonRole.Admin;
+                    }
+                    else if (model.PermissionType == PermissionType.Delegated)
+                    {
+                        nextPagePath = $"{PagePath.RelationshipWithOrganisation}/{id}";
+                        actionName = nameof(RelationshipWithOrganisation);
+                    }
+                    break;
+                case PermissionType.Admin:
+                    if (model.PermissionType == PermissionType.Basic)
+                    {
+                        personRole = PersonRole.Employee;
+                    }
+                    else if (model.PermissionType == PermissionType.Delegated)
+                    {
+                        nextPagePath = $"{PagePath.RelationshipWithOrganisation}/{id}";
+                        actionName = nameof(RelationshipWithOrganisation);
+                    }
+                    break;
+                case PermissionType.Delegated:
+                    if (model.PermissionType != PermissionType.Delegated)
+                    {
+                        nextPagePath = $"{PagePath.ConfirmChangePermission}/{id}";
+                        actionName = nameof(ConfirmChangePermission);
+                    }
+                    break;
+            }
+
+            return (nextPagePath, actionName, personRole);
         }
     }
 }
