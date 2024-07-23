@@ -85,6 +85,6 @@ public class UkNationTests : AccountManagementTestBase
 
         // Assert
         var redirectToActionResult = result as RedirectToActionResult;
-        Assert.AreEqual(nameof(SystemUnderTest.UkNation), redirectToActionResult.ActionName);
+        Assert.AreEqual(nameof(SystemUnderTest.CheckCompaniesHouseDetails), redirectToActionResult.ActionName);
     }
 }
