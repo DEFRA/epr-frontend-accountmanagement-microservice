@@ -16,7 +16,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using System.Net;
-using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 using FrontendAccountManagement.Core.Enums;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
@@ -123,23 +122,56 @@ public class AccountManagementController : Controller
             var roleInOrganisation = userAccount.RoleInOrganisation;
             model.ServiceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
             model.OrganisationType = userOrg.OrganisationType;
+            model.HasPermissionToChangeCompany = HasPermissionToChangeCompany(userAccount);
+        }
+        return View(nameof(ManageAccount), model);
+    }
 
-            // ****** IF YOU ARE REVIEWING THIS AND IT'S STILL HERE PLEASE COMMENT TO REMIND ME TO REMOVE IT ******
-            
-            // stubbing data
-            var viewModel = new CheckYourOrganisationDetailsViewModel
-            {
-                OrganisationId = organisation.Id ?? Guid.NewGuid(),
-                TradingName = "Red Squirrel Software",
-                Address = "5 Bluebell Drive, Keynsham, Bristol, BS31 1FP",
-                UkNation = Constants.Enums.UkNation.NorthernIreland
-            };
-            TempData[CheckYourOrganisationDetailsKey] = JsonSerializer.Serialize(viewModel);
-            
+    [HttpGet]
+    [Route(PagePath.CompanyDetailsCheck)]
+    public async Task<ActionResult> CheckData()
+    {
+        var isDataMatching = await CompareDataAsync();
 
+        if (isDataMatching)
+        {
+            return RedirectToAction(nameof(CompanyDetailsHaveNotChanged));
+        }
+        else
+        {
+            return RedirectToAction(nameof(ConfirmCompanyDetails));
+        }
+    }
+
+    [HttpGet]
+    [Route(PagePath.CompanyDetailsHaveNotChanged)]
+    public async Task<IActionResult> CompanyDetailsHaveNotChanged()
+    {
+        var userData = User.GetUserData();
+
+        var organisationData = userData.Organisations.First();
+
+        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.CompaniesHouseNumber);
+
+        if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
+        {
+            return Unauthorized();
         }
 
-        return View(nameof(ManageAccount), model);
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CompanyDetailsHaveNotChanged);
+
+        SetBackLink(session, PagePath.CompanyDetailsHaveNotChanged);
+
+        var companiesHouseChangeDetailsUrl = _urlOptions.CompanyHouseChangeRequestLink;
+
+        var model = _mapper.Map<CompanyDetailsHaveNotChangedViewModel>(
+            companiesHouseData,
+            opts =>
+                opts.Items["CompaniesHouseChangeDetailsUrl"] = companiesHouseChangeDetailsUrl);
+
+        return View(model);
     }
 
     [HttpGet]
@@ -449,7 +481,7 @@ public class AccountManagementController : Controller
         {
             editUserDetailsViewModel = System.Text.Json.JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData["NewUserDetails"] as string);
         }
-        catch (Exception) { }
+        catch (Exception) { /* TempData can be null*/ }
 
 
         SetBackLink(session, PagePath.CheckYourDetails);
@@ -458,7 +490,7 @@ public class AccountManagementController : Controller
             FirstName = editUserDetailsViewModel.FirstName ?? userData.FirstName,
             LastName = editUserDetailsViewModel.LastName ?? userData.LastName,
             JobTitle = editUserDetailsViewModel.JobTitle ?? userData.JobTitle,
-            Telephone = editUserDetailsViewModel.Telephone ??  userData.Telephone
+            Telephone = editUserDetailsViewModel.Telephone ?? userData.Telephone
         };
 
         SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.CheckYourDetails);
@@ -472,16 +504,14 @@ public class AccountManagementController : Controller
     {
         var userData = User.GetUserData();
 
-        string servicerole = userData.ServiceRole ?? string.Empty;
+        var serviceRole = userData.ServiceRole ?? string.Empty;
 
-        if (servicerole.ToLower() == "admin")
-        {
+        if (serviceRole.ToLower() == "basic user")
             return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
-        }
         else
-        {
             return RedirectToAction(nameof(PagePath.Declaration));
         }
+        
     }
 
     [HttpGet]
@@ -518,13 +548,12 @@ public class AccountManagementController : Controller
     [Route(PagePath.ConfirmCompanyDetails)]
     public async Task<IActionResult> ConfirmCompanyDetails()
     {
-        SetCustomBackLink(PagePath.ManageAccount);
-
+        SetCustomBackLink(PagePath.ManageAccount, false);
         var userData = User.GetUserData();
 
         var organisationData = userData.Organisations.First();
 
-        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.OrganisationNumber);
+        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.CompaniesHouseNumber);
 
         if (companiesHouseData?.Organisation?.RegisteredOffice is null)
         {
@@ -535,6 +564,7 @@ public class AccountManagementController : Controller
         }
 
         var viewModel = _mapper.Map<ConfirmCompanyDetailsViewModel>(companiesHouseData);
+        viewModel.ExternalCompanyHouseChangeRequestLink = _urlOptions.CompanyHouseChangeRequestLink;
 
         return View(viewModel);
     }
@@ -612,6 +642,42 @@ public class AccountManagementController : Controller
         return null;
     }
 
+    private async Task<bool> CompareDataAsync()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        var userData = User.GetUserData();
+
+        var organisationData = userData.Organisations.FirstOrDefault();
+
+        if (organisationData == null)
+        {
+            throw new ArgumentNullException(nameof(organisationData));
+        }
+
+        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.CompaniesHouseNumber);
+
+        if (
+            companiesHouseData != null &&
+            organisationData.Name == companiesHouseData.Organisation.Name &&
+            organisationData.TradingName == companiesHouseData.Organisation.TradingName &&
+            organisationData.SubBuildingName == companiesHouseData.Organisation.RegisteredOffice.SubBuildingName &&
+            organisationData.BuildingName == companiesHouseData.Organisation.RegisteredOffice.BuildingName &&
+            organisationData.BuildingNumber == companiesHouseData.Organisation.RegisteredOffice.BuildingNumber &&
+            organisationData.Street == companiesHouseData.Organisation.RegisteredOffice.Street &&
+            organisationData.Locality == companiesHouseData.Organisation.RegisteredOffice.Locality &&
+            organisationData.DependentLocality == companiesHouseData.Organisation.RegisteredOffice.DependentLocality &&
+            organisationData.Town == companiesHouseData.Organisation.RegisteredOffice.Town &&
+            organisationData.County == companiesHouseData.Organisation.RegisteredOffice.County &&
+            organisationData.Country == companiesHouseData.Organisation.RegisteredOffice.Country.Name &&
+            organisationData.Postcode == companiesHouseData.Organisation.RegisteredOffice.Postcode)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     private static void SetRemoveUserJourneyValues(JourneySession session, string firstName, string lastName, Guid personId)
     {
         if (session.AccountManagementSession.RemoveUserJourney == null)
@@ -676,9 +742,16 @@ public class AccountManagementController : Controller
         ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
     }
 
-    private void SetCustomBackLink(string pagePath)
+    private void SetCustomBackLink(string pagePath, bool showCustomBackLabel = true)
     {
-        ViewBag.CustomBackLinkToDisplay = pagePath;
+        if (showCustomBackLabel)
+        {
+            ViewBag.CustomBackLinkToDisplay = pagePath;
+        }
+        else
+        {
+            ViewBag.BackLinkToDisplay = pagePath;
+        }
     }
 
     private bool HasPermissionToView(UserData userData)
@@ -701,4 +774,17 @@ public class AccountManagementController : Controller
 
     private static bool IsRegulatorUser(UserData userData) =>
         IsRegulatorAdmin(userData) || IsRegulatorBasic(userData);
+
+    private static bool HasPermissionToChangeCompany(UserOrganisationsListModelDto userData)
+    {
+        var serviceRoleId = userData.User.ServiceRoleId;
+        var serviceRoleEnum = (ServiceRole)serviceRoleId;
+        var roleInOrganisation = userData.User.RoleInOrganisation;
+        if ((serviceRoleEnum == ServiceRole.Approved || serviceRoleEnum == ServiceRole.Delegated)
+            && !string.IsNullOrEmpty(roleInOrganisation) && roleInOrganisation == PersonRole.Admin.ToString())
+        {
+            return true;
+        }
+        return false;
+    }
 }

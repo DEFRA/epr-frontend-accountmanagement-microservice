@@ -1,5 +1,4 @@
-﻿using FrontendAccountManagement.Core.Models.CompaniesHouse;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace FrontendAccountManagement.Web.ViewModels.AccountManagement;
 
