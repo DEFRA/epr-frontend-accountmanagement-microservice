@@ -65,7 +65,7 @@ public class UkNationTests : AccountManagementTestBase
 
         session.CompaniesHouseSession = new CompaniesHouseSession
         {
-            CompaniesHouseResponse = new CompaniesHouseResponse
+            CompaniesHouseData = new CompaniesHouseResponse
             {
                 Organisation = new OrganisationDto
                 {

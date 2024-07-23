@@ -68,7 +68,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
                 .Returns(Task.FromResult(new JourneySession
                 {
-                    CompaniesHouseSession = new CompaniesHouseSession { CompaniesHouseResponse = _companiesHouseResponse }
+                    CompaniesHouseSession = new CompaniesHouseSession { CompaniesHouseData = _companiesHouseResponse }
                 }));
 
             // Act

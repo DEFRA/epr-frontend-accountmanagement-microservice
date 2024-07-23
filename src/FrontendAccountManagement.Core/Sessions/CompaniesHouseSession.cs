@@ -4,5 +4,5 @@ namespace FrontendAccountManagement.Core.Sessions;
 
 public record CompaniesHouseSession
 {
-    public CompaniesHouseResponse CompaniesHouseResponse { get; set; }
+    public CompaniesHouseResponse CompaniesHouseData { get; set; }
 }

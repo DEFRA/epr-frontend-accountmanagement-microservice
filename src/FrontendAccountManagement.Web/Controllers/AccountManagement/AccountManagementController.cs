@@ -139,7 +139,7 @@ public class AccountManagementController : Controller
         }
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        var companiesHouseData = session.CompaniesHouseSession.CompaniesHouseResponse;
+        var companiesHouseData = session.CompaniesHouseSession.CompaniesHouseData;
 
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CompanyDetailsHaveNotChanged);
 
@@ -539,7 +539,7 @@ public class AccountManagementController : Controller
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ConfirmCompanyDetails);
         SetBackLink(session, PagePath.ConfirmCompanyDetails);
 
-        var companiesHouseData = session.CompaniesHouseSession.CompaniesHouseResponse;
+        var companiesHouseData = session.CompaniesHouseSession.CompaniesHouseData;
 
         if (companiesHouseData?.Organisation?.RegisteredOffice is null)
         {
@@ -589,7 +589,7 @@ public class AccountManagementController : Controller
             return View(model);
         }
 
-        var addressDto = session.CompaniesHouseSession.CompaniesHouseResponse.Organisation
+        var addressDto = session.CompaniesHouseSession.CompaniesHouseData.Organisation
             .RegisteredOffice;
 
         var address = _mapper.Map<AddressViewModel>(addressDto);
@@ -598,7 +598,7 @@ public class AccountManagementController : Controller
         {
             OrganisationId = session.UserData.Organisations.FirstOrDefault()?.Id ?? Guid.Empty,
             Address = string.Join(", ", address.AddressFields.Where(field => !string.IsNullOrWhiteSpace(field))),
-            TradingName = session.CompaniesHouseSession?.CompaniesHouseResponse?.Organisation?.Name,
+            TradingName = session.CompaniesHouseSession?.CompaniesHouseData?.Organisation?.Name,
             UkNation = model.UkNation.Value
         };
         TempData["CheckYourOrganisationDetailsKey"] = System.Text.Json.JsonSerializer.Serialize(checkYourOrganisationModel);
@@ -628,7 +628,7 @@ public class AccountManagementController : Controller
         }
 
         var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.CompaniesHouseNumber);
-        session.CompaniesHouseSession.CompaniesHouseResponse = companiesHouseData;
+        session.CompaniesHouseSession.CompaniesHouseData = companiesHouseData;
         
         await SaveSession(session);
 
