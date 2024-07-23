@@ -19,5 +19,6 @@ namespace FrontendAccountManagement.Core.Sessions
         public EndpointResponseStatus? RemoveUserStatus { get; set; }
         
         public EndpointResponseStatus? AddUserStatus { get; set; }
+
     }
 }

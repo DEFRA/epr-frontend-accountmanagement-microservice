@@ -20,6 +20,8 @@ using System.Net;
 using System.Text.Json;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
+using FrontendAccountManagement.Core.Enums;
+using FrontendAccountManagement.Web.Controllers.Attributes;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 
@@ -130,34 +132,28 @@ public class AccountManagementController : Controller
     [Route(PagePath.CompanyDetailsCheck)]
     public async Task<ActionResult> CheckData()
     {
-        var isDataMatching = await CompareDataAsync();
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var isDataMatching = await CompareDataAsync(session);
 
         if (isDataMatching)
         {
             return RedirectToAction(nameof(CompanyDetailsHaveNotChanged));
         }
-        else
-        {
-            return RedirectToAction(nameof(ConfirmCompanyDetails));
-        }
+
+        return RedirectToAction(nameof(ConfirmCompanyDetails));
     }
 
     [HttpGet]
     [Route(PagePath.CompanyDetailsHaveNotChanged)]
     public async Task<IActionResult> CompanyDetailsHaveNotChanged()
     {
-        var userData = User.GetUserData();
-
-        var organisationData = userData.Organisations.First();
-
-        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.CompaniesHouseNumber);
-
         if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
         {
             return Unauthorized();
         }
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var companiesHouseData = session.CompaniesHouseSession.CompaniesHouseData;
 
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CompanyDetailsHaveNotChanged);
 
@@ -546,12 +542,17 @@ public class AccountManagementController : Controller
     [Route(PagePath.ConfirmCompanyDetails)]
     public async Task<IActionResult> ConfirmCompanyDetails()
     {
-        SetCustomBackLink(PagePath.ManageAccount, false);
-        var userData = User.GetUserData();
+        if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
+        {
+            return Unauthorized();
+        }
 
-        var organisationData = userData.Organisations.First();
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.CompaniesHouseNumber);
+        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ConfirmCompanyDetails);
+        SetBackLink(session, PagePath.ConfirmCompanyDetails);
+
+        var companiesHouseData = session.CompaniesHouseSession.CompaniesHouseData;
 
         if (companiesHouseData?.Organisation?.RegisteredOffice is null)
         {
@@ -640,10 +641,69 @@ public class AccountManagementController : Controller
         return null;
     }
 
-    private async Task<bool> CompareDataAsync()
+    [HttpPost]
+    [Route(PagePath.ConfirmCompanyDetails)]
+    public async Task<IActionResult> ConfirmDetailsOfTheCompany()
+    {
+        return RedirectToAction(nameof(UkNation));
+    }
+
+    [HttpGet]
+    [Route(PagePath.UkNation)]
+    public async Task<IActionResult> UkNation()
+    {
+        SetCustomBackLink(PagePath.ConfirmCompanyDetails, false);
+
+        return View();
+    }
+
+    [HttpPost]
+    [Route(PagePath.UkNation)]
+    public async Task<IActionResult> UkNation(UkNationViewModel model)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
+        SetCustomBackLink(PagePath.ConfirmCompanyDetails, false);
+
+        if (!ModelState.IsValid)
+        {
+            if (model.UkNation == null)
+            {
+                ModelState.ClearValidationState(nameof(model.UkNation));
+                ModelState.AddModelError(nameof(model.UkNation), "UkNation.ErrorMessage");
+            }
+            return View(model);
+        }
+
+        var addressDto = session.CompaniesHouseSession.CompaniesHouseData.Organisation
+            .RegisteredOffice;
+
+        var address = _mapper.Map<AddressViewModel>(addressDto);
+
+        var checkYourOrganisationModel = new CheckYourOrganisationDetailsViewModel
+        {
+            OrganisationId = session.UserData.Organisations.FirstOrDefault()?.Id ?? Guid.Empty,
+            Address = string.Join(", ", address.AddressFields.Where(field => !string.IsNullOrWhiteSpace(field))),
+            TradingName = session.CompaniesHouseSession?.CompaniesHouseData?.Organisation?.Name,
+            UkNation = model.UkNation.Value
+        };
+        TempData["CheckYourOrganisationDetailsKey"] = System.Text.Json.JsonSerializer.Serialize(checkYourOrganisationModel);
+
+        return RedirectToAction(nameof(CheckCompaniesHouseDetails));
+    }
+
+    [HttpPost]
+    [Route(PagePath.CheckCompaniesHouseDetails)]
+    public async Task<IActionResult> CheckCompaniesHouseDetails(CheckYourOrganisationDetailsViewModel model)
+    {
+        return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+        {
+            statusCode = (int)HttpStatusCode.NotFound
+        });
+    }
+
+    private async Task<bool> CompareDataAsync(JourneySession session)
+    {
         var userData = User.GetUserData();
 
         var organisationData = userData.Organisations.FirstOrDefault();
@@ -654,26 +714,23 @@ public class AccountManagementController : Controller
         }
 
         var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.CompaniesHouseNumber);
+        session.CompaniesHouseSession.CompaniesHouseData = companiesHouseData;
+        
+        await SaveSession(session);
 
-        if (
-            companiesHouseData != null &&
-            organisationData.Name == companiesHouseData.Organisation.Name &&
-            organisationData.TradingName == companiesHouseData.Organisation.TradingName &&
-            organisationData.SubBuildingName == companiesHouseData.Organisation.RegisteredOffice.SubBuildingName &&
-            organisationData.BuildingName == companiesHouseData.Organisation.RegisteredOffice.BuildingName &&
-            organisationData.BuildingNumber == companiesHouseData.Organisation.RegisteredOffice.BuildingNumber &&
-            organisationData.Street == companiesHouseData.Organisation.RegisteredOffice.Street &&
-            organisationData.Locality == companiesHouseData.Organisation.RegisteredOffice.Locality &&
-            organisationData.DependentLocality == companiesHouseData.Organisation.RegisteredOffice.DependentLocality &&
-            organisationData.Town == companiesHouseData.Organisation.RegisteredOffice.Town &&
-            organisationData.County == companiesHouseData.Organisation.RegisteredOffice.County &&
-            organisationData.Country == companiesHouseData.Organisation.RegisteredOffice.Country.Name &&
-            organisationData.Postcode == companiesHouseData.Organisation.RegisteredOffice.Postcode)
-        {
-            return true;
-        }
-
-        return false;
+        return companiesHouseData != null &&
+               organisationData.Name == companiesHouseData.Organisation.Name &&
+               organisationData.TradingName == companiesHouseData.Organisation.TradingName &&
+               organisationData.SubBuildingName == companiesHouseData.Organisation.RegisteredOffice.SubBuildingName &&
+               organisationData.BuildingName == companiesHouseData.Organisation.RegisteredOffice.BuildingName &&
+               organisationData.BuildingNumber == companiesHouseData.Organisation.RegisteredOffice.BuildingNumber &&
+               organisationData.Street == companiesHouseData.Organisation.RegisteredOffice.Street &&
+               organisationData.Locality == companiesHouseData.Organisation.RegisteredOffice.Locality &&
+               organisationData.DependentLocality == companiesHouseData.Organisation.RegisteredOffice.DependentLocality &&
+               organisationData.Town == companiesHouseData.Organisation.RegisteredOffice.Town &&
+               organisationData.County == companiesHouseData.Organisation.RegisteredOffice.County &&
+               organisationData.Country == companiesHouseData.Organisation.RegisteredOffice.Country.Name &&
+               organisationData.Postcode == companiesHouseData.Organisation.RegisteredOffice.Postcode;
     }
 
     private static void SetRemoveUserJourneyValues(JourneySession session, string firstName, string lastName, Guid personId)

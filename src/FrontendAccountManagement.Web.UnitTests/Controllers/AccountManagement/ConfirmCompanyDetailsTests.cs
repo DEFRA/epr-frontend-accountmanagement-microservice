@@ -8,6 +8,10 @@ using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Net;
+using System.Security.Claims;
+using System.Text.Json;
+using FrontendAccountManagement.Core.Sessions;
+using Microsoft.AspNetCore.Http;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 {
@@ -41,6 +45,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         {
             // Arrange
             _companiesHouseResponse.Organisation.RegisteredOffice = null;
+            SetupUserData("Approved Person");
 
             // Act
             var result = await SystemUnderTest.ConfirmCompanyDetails();
@@ -58,14 +63,57 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         {
             // Arrange
             _companiesHouseResponse.Organisation.RegisteredOffice = _fixture.Create<AddressDto>();
+            SetupUserData("Approved Person");
+
+            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+                .Returns(Task.FromResult(new JourneySession
+                {
+                    CompaniesHouseSession = new CompaniesHouseSession { CompaniesHouseData = _companiesHouseResponse }
+                }));
 
             // Act
             var result = await SystemUnderTest.ConfirmCompanyDetails();
 
             // Assert
             var viewResult = result as ViewResult;
-            Assert.IsNull(viewResult.ViewName);
+            Assert.IsNotNull(viewResult);
+            Assert.AreEqual(nameof(AccountManagementController.ConfirmCompanyDetails), viewResult.ViewName);
             Assert.AreEqual(_viewModel, viewResult.Model);
+        }
+
+        private void SetupUserData(string serviceRole)
+        {
+            var userData = new UserData
+            {
+                ServiceRole = serviceRole,
+                Organisations = new List<Organisation>
+                {
+                    new Organisation
+                    {
+
+                    }
+                }
+            };
+
+            // Create a mock identity
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.UserData, JsonSerializer.Serialize(userData)),
+            };
+
+            var identity = new Mock<ClaimsIdentity>();
+            identity.Setup(i => i.IsAuthenticated).Returns(true);
+            identity.Setup(i => i.Claims).Returns(claims);
+
+            // Create a mock ClaimsPrincipal
+            var mockClaimsPrincipal = new Mock<ClaimsPrincipal>();
+            mockClaimsPrincipal.Setup(p => p.Identity).Returns(identity.Object);
+            mockClaimsPrincipal.Setup(p => p.Claims).Returns(claims);
+
+            // Use the mock ClaimsPrincipal in your tests
+            var claimsPrincipal = mockClaimsPrincipal.Object;
+
+            HttpContextMock.Setup(c => c.User).Returns(claimsPrincipal);
         }
     }
 }
