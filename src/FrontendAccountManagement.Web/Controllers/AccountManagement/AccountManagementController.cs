@@ -123,12 +123,10 @@ public class AccountManagementController : Controller
 
         if (isDataMatching)
         {
-            return await SaveSessionAndRedirect(session, nameof(CompanyDetailsHaveNotChanged),
-                PagePath.CompanyDetailsCheck, PagePath.CompanyDetailsHaveNotChanged);
+            return RedirectToAction(nameof(CompanyDetailsHaveNotChanged));
         }
 
-        return await SaveSessionAndRedirect(session, nameof(ConfirmCompanyDetails), 
-            PagePath.CompanyDetailsCheck, PagePath.ConfirmCompanyDetails);
+        return RedirectToAction(nameof(ConfirmCompanyDetails));
     }
 
     [HttpGet]
@@ -145,7 +143,7 @@ public class AccountManagementController : Controller
 
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CompanyDetailsHaveNotChanged);
 
-        SetCustomBackLink(PagePath.ManageAccount, false);
+        SetBackLink(session, PagePath.CompanyDetailsHaveNotChanged);
 
         var companiesHouseChangeDetailsUrl = _urlOptions.CompanyHouseChangeRequestLink;
 
@@ -536,9 +534,10 @@ public class AccountManagementController : Controller
             return Unauthorized();
         }
 
-        SetCustomBackLink(PagePath.ManageAccount, false);
-        
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ConfirmCompanyDetails);
+        SetBackLink(session, PagePath.ConfirmCompanyDetails);
 
         var companiesHouseData = session.CompaniesHouseSession.CompaniesHouseResponse;
 
@@ -631,6 +630,8 @@ public class AccountManagementController : Controller
         var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.CompaniesHouseNumber);
         session.CompaniesHouseSession.CompaniesHouseResponse = companiesHouseData;
         
+        await SaveSession(session);
+
         return companiesHouseData != null &&
                organisationData.Name == companiesHouseData.Organisation.Name &&
                organisationData.TradingName == companiesHouseData.Organisation.TradingName &&
