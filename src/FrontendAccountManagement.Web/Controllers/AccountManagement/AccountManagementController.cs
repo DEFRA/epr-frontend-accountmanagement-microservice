@@ -415,9 +415,9 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.WhatAreYourDetails);
         var model = _mapper.Map<EditUserDetailsViewModel>(User.GetUserData());
 
+        SaveSessionAndJourney(session, PagePath.CheckYourDetails, PagePath.WhatAreYourDetails);
         SetBackLink(session, PagePath.WhatAreYourDetails);
 
         return View(model);
@@ -483,8 +483,9 @@ public class AccountManagementController : Controller
             Telephone = editUserDetailsViewModel.Telephone ?? userData.Telephone
         };
 
-        SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.CheckYourDetails);
-        SetBackLink(session, PagePath.CheckYourDetails);
+        ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey[^1];
+        SaveSessionAndJourney(session, PagePath.CheckYourDetails);
+
         return View(nameof(PagePath.CheckYourDetails), model);
     }
 
@@ -625,14 +626,49 @@ public class AccountManagementController : Controller
         return RedirectToAction(actionName);
     }
 
-    private async Task SaveSessionAndJourney(JourneySession session, string currentPagePath, string? nextPagePath)
+    /// <summary>
+    /// Saves the session data and adds a step to the list detailing the user's journey through the site.
+    /// </summary>
+    /// <param name="session">The session data to save.</param>
+    /// <param name="sourcePagePath">The page this step of the journey starts from (typically the current page).</param>
+    /// <param name="destinationPagePath">The page this step of the journey ends at (typically the page we're about to redirect to).</param>
+    /// <returns>A <see cref="Task"/>.</returns>
+    /// <remarks>
+    /// This version of the method only allows one entry for each page - if the user navigates to a page they've already been to,
+    /// the journey history gets rolled back to the last time they visited that page.
+    /// It doesn't take into account loops in the journey - see the other overload of this method.
+    /// </remarks>
+    private async Task SaveSessionAndJourney(JourneySession session, string sourcePagePath, string? destinationPagePath)
     {
-        ClearRestOfJourney(session, currentPagePath);
+        ClearRestOfJourney(session, sourcePagePath);
 
-        session.AccountManagementSession.Journey.AddIfNotExists(nextPagePath);
+        session.AccountManagementSession.Journey.AddIfNotExists(destinationPagePath);
 
         await SaveSession(session);
     }
+
+    /// <summary>
+    /// Saves the session data and adds a step to the list detailing the user's journey through the site.
+    /// </summary>
+    /// <param name="session">The session data to save.</param>
+    /// <param name="sourcePagePath">The page this step of the journey starts from (typically the current page).</param>
+    /// <returns>A <see cref="Task"/>.</returns>
+    /// <remarks>
+    /// This version of the method allows duplicate journey steps, and doesn't wind back the journey history when the user returns to a page they've visited previously.
+    /// This prevents it from loosing history and breaking the back button when the user goes through loops in the journey
+    /// such as "check-your-details -> what-are-your-details -> check-your-details".
+    /// </remarks>
+    private async Task SaveSessionAndJourney(JourneySession session, string? sourcePagePath)
+    {
+        var journey = session.AccountManagementSession.Journey;
+
+        if (journey[^1] != sourcePagePath)
+        {
+            session.AccountManagementSession.Journey.Add(sourcePagePath);
+        }
+        await SaveSession(session);
+    }
+
 
     private async Task SaveSession(JourneySession session)
     {
