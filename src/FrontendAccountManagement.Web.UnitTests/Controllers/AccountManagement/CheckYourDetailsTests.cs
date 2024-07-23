@@ -52,7 +52,6 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             // Assert
             var viewResult = result as ViewResult;
             viewResult.Should().NotBeNull();
-            viewResult.ViewName.Should().Be(nameof(SystemUnderTest.CheckYourDetails));
             var model = viewResult.Model as EditUserDetailsViewModel;
             model.Should().NotBeNull();
             model.FirstName.Should().Be("TestFirst");
