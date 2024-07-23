@@ -145,7 +145,7 @@ public class AccountManagementController : Controller
 
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CompanyDetailsHaveNotChanged);
 
-        SetBackLink(session, PagePath.CompanyDetailsHaveNotChanged);
+        SetCustomBackLink(PagePath.ManageAccount, false);
 
         var companiesHouseChangeDetailsUrl = _urlOptions.CompanyHouseChangeRequestLink;
 
@@ -569,7 +569,7 @@ public class AccountManagementController : Controller
     {
         SetCustomBackLink(PagePath.ConfirmCompanyDetails, false);
 
-        return View(nameof(UkNation));
+        return View();
     }
 
     [HttpPost]

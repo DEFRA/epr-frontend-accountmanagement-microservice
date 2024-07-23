@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="UkNation.England" xml:space="preserve">
-    <value>England</value>
-  </data>
   <data name="UkNation.ErrorMessage" xml:space="preserve">
     <value>Select where in the UK your organisation is based</value>
   </data>
@@ -129,20 +126,11 @@
   <data name="UkNation.ForUkOrganisations" xml:space="preserve">
     <value>For UK organisations this should be:</value>
   </data>
-  <data name="UkNation.NorthernIreland" xml:space="preserve">
-    <value>Northern Ireland</value>
-  </data>
   <data name="UkNation.PrincipalPlaceOfBusiness" xml:space="preserve">
-    <value>your principal place of business</value>
+    <value>Your principal place of business</value>
   </data>
   <data name="UkNation.PrincipalPlaceOfBusinessIfNotRegistered" xml:space="preserve">
-    <value>your principal place of business (if you’re not registered)</value>
-  </data>
-  <data name="UkNation.Scotland" xml:space="preserve">
-    <value>Scotland</value>
-  </data>
-  <data name="UkNation.Wales" xml:space="preserve">
-    <value>Wales</value>
+    <value>Your principal place of business (if you’re not registered)</value>
   </data>
   <data name="UkNation.WeNeedToKnow" xml:space="preserve">
     <value>We need to know which UK nation you’re based in.</value>
@@ -151,13 +139,13 @@
     <value>Where in the UK is your business based?</value>
   </data>
   <data name="UkNation.WhereYourHeadOfficeIs" xml:space="preserve">
-    <value>where your head office is</value>
+    <value>Where your head office is</value>
   </data>
   <data name="UkNation.WhereYourOrganisationIsRegistered" xml:space="preserve">
-    <value>where your organisation is registered</value>
+    <value>Where your organisation is registered</value>
   </data>
   <data name="UkNation.WhereYourUKBranchIs" xml:space="preserve">
-    <value>where your UK branch or UK postal address is</value>
+    <value>Where your UK branch or UK postal address is</value>
   </data>
   <data name="UkNation.YourUKNation" xml:space="preserve">
     <value>Your UK nation</value>
