@@ -432,60 +432,6 @@ public class AccountManagementTests : AccountManagementTestBase
         Assert.IsInstanceOfType<CheckYourOrganisationDetailsViewModel>(result.Model);
     }
 
-    private UserData SetupUserData(
-        string serviceRole)
-    {
-        var userData = new UserData
-        {
-            FirstName = FirstName,
-            LastName = LastName,
-            JobTitle = JobTitle,
-            Telephone = Telephone,
-            ServiceRole = serviceRole,
-            ServiceRoleId = ServiceRoleId,
-            RoleInOrganisation = RoleInOrganisation,
-
-            Organisations = new List<Organisation>
-            {
-                new Organisation
-                {
-                    Id = Guid.NewGuid(),
-                    Name = OrganisationName,
-                    OrganisationType = OrganisationType,
-                    SubBuildingName = SubBuildingName,
-                    BuildingNumber = BuildingNumber,
-                    BuildingName = BuildingName,
-                    Street = Street,
-                    Town = Town,
-                    County = County,
-                    Postcode = Postcode,
-                }
-            }
-        };
-
-        // Create a mock identity
-        var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.UserData, JsonSerializer.Serialize(userData)),
-        };
-
-        var identity = new Mock<ClaimsIdentity>();
-        identity.Setup(i => i.IsAuthenticated).Returns(true);
-        identity.Setup(i => i.Claims).Returns(claims);
-
-        // Create a mock ClaimsPrincipal
-        var mockClaimsPrincipal = new Mock<ClaimsPrincipal>();
-        mockClaimsPrincipal.Setup(p => p.Identity).Returns(identity.Object);
-        mockClaimsPrincipal.Setup(p => p.Claims).Returns(claims);
-
-        // Use the mock ClaimsPrincipal in your tests
-        var claimsPrincipal = mockClaimsPrincipal.Object;
-
-        HttpContextMock.Setup(c => c.User).Returns(claimsPrincipal);
-
-        return userData;
-    }
-
     [TestMethod]
     public async Task GivenOnCompanyDetailsHaveNotChangedPage_ForAnApprovedPerson_WhenRequested_ThenShowView()
     {
@@ -540,16 +486,33 @@ public class AccountManagementTests : AccountManagementTestBase
         SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Never);
     }
 
-    private void SetupUserData(string serviceRole)
+    private UserData SetupUserData(
+        string serviceRole)
     {
         var userData = new UserData
         {
+            FirstName = FirstName,
+            LastName = LastName,
+            JobTitle = JobTitle,
+            Telephone = Telephone,
             ServiceRole = serviceRole,
+            ServiceRoleId = ServiceRoleId,
+            RoleInOrganisation = RoleInOrganisation,
+
             Organisations = new List<Organisation>
             {
                 new Organisation
                 {
-
+                    Id = Guid.NewGuid(),
+                    Name = OrganisationName,
+                    OrganisationType = OrganisationType,
+                    SubBuildingName = SubBuildingName,
+                    BuildingNumber = BuildingNumber,
+                    BuildingName = BuildingName,
+                    Street = Street,
+                    Town = Town,
+                    County = County,
+                    Postcode = Postcode,
                 }
             }
         };
@@ -573,5 +536,7 @@ public class AccountManagementTests : AccountManagementTestBase
         var claimsPrincipal = mockClaimsPrincipal.Object;
 
         HttpContextMock.Setup(c => c.User).Returns(claimsPrincipal);
+
+        return userData;
     }
 }

@@ -2,6 +2,7 @@ using AutoMapper;
 using EPR.Common.Authorization.Constants;
 using EPR.Common.Authorization.Models;
 using EPR.Common.Authorization.Sessions;
+using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Services;
@@ -16,11 +17,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using System.Net;
-using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
-using FrontendAccountManagement.Core.Enums;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
-using FrontendAccountManagement.Web.Constants.Enums;
 using System.Text.Json;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
+using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 
@@ -468,6 +467,7 @@ public class AccountManagementController : Controller
         TempData.Add("NewUserDetails", System.Text.Json.JsonSerializer.Serialize(editUserDetailsViewModel));
         return RedirectToAction(nameof(PagePath.CheckYourDetails));
     }
+    
     [HttpGet]
     [Route(PagePath.CheckYourDetails)]
     public async Task<IActionResult> CheckYourDetails()
@@ -510,8 +510,6 @@ public class AccountManagementController : Controller
             return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
         else
             return RedirectToAction(nameof(PagePath.Declaration));
-        }
-        
     }
 
     [HttpGet]
@@ -775,11 +773,11 @@ public class AccountManagementController : Controller
     private static bool IsRegulatorUser(UserData userData) =>
         IsRegulatorAdmin(userData) || IsRegulatorBasic(userData);
 
-    private static bool HasPermissionToChangeCompany(UserOrganisationsListModelDto userData)
+    private static bool HasPermissionToChangeCompany(UserData userData)
     {
-        var serviceRoleId = userData.User.ServiceRoleId;
+        var serviceRoleId = userData.ServiceRoleId;
         var serviceRoleEnum = (ServiceRole)serviceRoleId;
-        var roleInOrganisation = userData.User.RoleInOrganisation;
+        var roleInOrganisation = userData.RoleInOrganisation;
         if ((serviceRoleEnum == ServiceRole.Approved || serviceRoleEnum == ServiceRole.Delegated)
             && !string.IsNullOrEmpty(roleInOrganisation) && roleInOrganisation == PersonRole.Admin.ToString())
         {
