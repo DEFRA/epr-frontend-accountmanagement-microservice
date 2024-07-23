@@ -46,6 +46,15 @@
     </ItemGroup>
 
     <ItemGroup>
+      <EmbeddedResource Update="Resources\Enums\UkNationResource.cy.resx">
+        <SubType>Designer</SubType>
+        <Generator>PublicResXFileCodeGenerator</Generator>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Enums\UkNationResource.resx">
+        <SubType>Designer</SubType>
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>UkNationResource.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
       <EmbeddedResource Update="Resources\Views\AccountManagement\EditUserDetails.resx">
         <Generator>ResXFileCodeGenerator</Generator>
         <LastGenOutput>EditUserDetails.Designer.cs</LastGenOutput>
@@ -145,6 +154,11 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Compile Update="Resources\Enums\UkNationResource.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>UkNationResource.resx</DependentUpon>
+      </Compile>
       <Compile Update="Resources\Views\AccountManagement\EditUserDetails.Designer.cs">
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>
