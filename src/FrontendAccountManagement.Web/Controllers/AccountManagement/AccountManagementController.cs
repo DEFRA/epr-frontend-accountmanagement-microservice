@@ -648,15 +648,6 @@ public class AccountManagementController : Controller
         return RedirectToAction(nameof(UkNation));
     }
 
-    [HttpGet]
-    [Route(PagePath.UkNation)]
-    public async Task<IActionResult> UkNation()
-    {
-        SetCustomBackLink(PagePath.ConfirmCompanyDetails, false);
-
-        return View();
-    }
-
     [HttpPost]
     [Route(PagePath.UkNation)]
     public async Task<IActionResult> UkNation(UkNationViewModel model)
@@ -690,16 +681,6 @@ public class AccountManagementController : Controller
         TempData["CheckYourOrganisationDetailsKey"] = System.Text.Json.JsonSerializer.Serialize(checkYourOrganisationModel);
 
         return RedirectToAction(nameof(CheckCompaniesHouseDetails));
-    }
-
-    [HttpPost]
-    [Route(PagePath.CheckCompaniesHouseDetails)]
-    public async Task<IActionResult> CheckCompaniesHouseDetails(CheckYourOrganisationDetailsViewModel model)
-    {
-        return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
-        {
-            statusCode = (int)HttpStatusCode.NotFound
-        });
     }
 
     private async Task<bool> CompareDataAsync(JourneySession session)
