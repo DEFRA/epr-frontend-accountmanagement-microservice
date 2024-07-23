@@ -117,37 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="UkNation.ErrorMessage" xml:space="preserve">
-    <value>Dewiswch ble yn y Deyrnas Unedig mae’ch sefydliad wedi’i leoli</value>
+  <data name="England" xml:space="preserve">
+    <value>Lloegr</value>
   </data>
-  <data name="UkNation.ForNonUkOrganisations" xml:space="preserve">
-    <value>Yn achos sefydliadau o’r tu allan i’r Deyrnas Unedig, eich gwlad chi yw un o’r canlynol:</value>
+  <data name="NorthernIreland" xml:space="preserve">
+    <value>Gogledd Iwerddon</value>
   </data>
-  <data name="UkNation.ForUkOrganisations" xml:space="preserve">
-    <value>Yn achos sefydliadau’r Deyrnas Unedig, eich gwlad chi yw:</value>
+  <data name="Scotland" xml:space="preserve">
+    <value>Yr Alban</value>
   </data>
-  <data name="UkNation.PrincipalPlaceOfBusiness" xml:space="preserve">
-    <value>eich prif le busnes</value>
-  </data>
-  <data name="UkNation.PrincipalPlaceOfBusinessIfNotRegistered" xml:space="preserve">
-    <value>eich prif le busnes (os nad ydych chi wedi cofrestru)</value>
-  </data>
-  <data name="UkNation.WeNeedToKnow" xml:space="preserve">
-    <value>Mae angen inni wybod ym mha wlad yn y Deyrnas Unedig rydych chi.</value>
-  </data>
-  <data name="UkNation.WhereInTheIsYourUKBusinessBased" xml:space="preserve">
-    <value>Ble yn y Deyrnas Unedig mae eich sefydliad wedi’i leoli?</value>
-  </data>
-  <data name="UkNation.WhereYourHeadOfficeIs" xml:space="preserve">
-    <value>ble mae’ch pencadlys</value>
-  </data>
-  <data name="UkNation.WhereYourOrganisationIsRegistered" xml:space="preserve">
-    <value>ble mae’ch sefydliad wedi’i gofrestru</value>
-  </data>
-  <data name="UkNation.WhereYourUKBranchIs" xml:space="preserve">
-    <value>ble mae’ch cangen yn y Deyrnas Unedig neu eich cyfeiriad post yn y Deyrnas Unedig</value>
-  </data>
-  <data name="UkNation.YourUKNation" xml:space="preserve">
-    <value>Eich gwlad yn y Deyrnas Unedig</value>
+  <data name="Wales" xml:space="preserve">
+    <value>Cymru</value>
   </data>
 </root>
