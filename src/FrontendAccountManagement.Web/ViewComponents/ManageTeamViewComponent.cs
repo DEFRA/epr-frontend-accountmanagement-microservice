@@ -31,8 +31,8 @@ public class ManageTeamViewComponent : ViewComponent
         var roleInOrganisation = userData.RoleInOrganisation;
         var serviceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
         
-        var users = _facadeService.GetUsersForOrganisationAsync(organisationId, serviceRoleId).Result.ToList();
-        var manageTeam = new RemoveUserRules(serviceRoleKey, users);
+        var users = await _facadeService.GetUsersForOrganisationAsync(organisationId, serviceRoleId);
+        var manageTeam = new RemoveUserRules(serviceRoleKey, users.ToList());
         var updatedUsers = manageTeam.SetRemovableUsers();
 
         var model = new ManageTeamModel

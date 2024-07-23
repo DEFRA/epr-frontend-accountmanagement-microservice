@@ -64,7 +64,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             // Assert
             var viewResult = result as ViewResult;
-            Assert.AreEqual(nameof(AccountManagementController.ConfirmCompanyDetails), viewResult.ViewName);
+            Assert.IsNull(viewResult.ViewName);
             Assert.AreEqual(_viewModel, viewResult.Model);
         }
     }

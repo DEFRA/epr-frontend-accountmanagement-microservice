@@ -10,7 +10,6 @@ using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.Errors;
 using FrontendAccountManagement.Web.Extensions;
-using FrontendAccountManagement.Web.ViewModels;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +19,9 @@ using System.Net;
 using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 using FrontendAccountManagement.Core.Enums;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
+using FrontendAccountManagement.Web.Constants.Enums;
+using System.Text.Json;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 
@@ -27,6 +29,8 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 public class AccountManagementController : Controller
 {
     private const string RolesNotFoundException = "Could not retrieve service roles or none found";
+    private const string CheckYourOrganisationDetailsKey = "CheckYourOrganisationDetails";
+    private const string OrganisationDetailsUpdatedTimeKey = "OrganisationDetailsUpdatedTime";
     private readonly ISessionManager<JourneySession> _sessionManager;
     private readonly IFacadeService _facadeService;
     private readonly ILogger<AccountManagementController> _logger;
@@ -90,7 +94,7 @@ public class AccountManagementController : Controller
 
         SetCustomBackLink(_urlOptions.LandingPageUrl);
 
-        var userAccount = await _facadeService.GetUserAccountForDispaly();
+        var userAccount = User.GetUserData();
 
         if (userAccount is null)
         {
@@ -98,18 +102,41 @@ public class AccountManagementController : Controller
         }
         else
         {
-            model.UserName = string.Format("{0} {1}", userAccount.User.FirstName, userAccount.User.LastName);
-            model.Telephone = userAccount.User?.Telephone;
-            var userOrg = userAccount.User.Organisations?.FirstOrDefault();
-            model.JobTitle = userOrg.JobTitle;
+            var organisation = userAccount.Organisations.First();
+            model.UserName = string.Format("{0} {1}", userAccount.FirstName, userAccount.LastName);
+            model.Telephone = userAccount.Telephone;
+            var userOrg = userAccount.Organisations?.FirstOrDefault();
+            model.JobTitle = userAccount.JobTitle;
             model.CompanyName = userOrg.Name;
-            model.OrganisationAddress = userOrg.OrganisationAddress;
-            model.EnrolmentStatus = userAccount.User.EnrolmentStatus;
-            var serviceRoleId = userAccount.User.ServiceRoleId;
+            model.OrganisationAddress = string.Join(", ", new[] {
+                organisation.SubBuildingName,
+                organisation.BuildingNumber,
+                organisation.BuildingName,
+                organisation.Street,
+                organisation.Town,
+                organisation.County,
+                organisation.Postcode,
+            }.Where(s => !string.IsNullOrWhiteSpace(s)));
+            model.EnrolmentStatus = userAccount.EnrolmentStatus;
+            var serviceRoleId = userAccount.ServiceRoleId;
             var serviceRoleEnum = (ServiceRole)serviceRoleId;
-            var roleInOrganisation = userAccount.User.RoleInOrganisation;
+            var roleInOrganisation = userAccount.RoleInOrganisation;
             model.ServiceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
             model.OrganisationType = userOrg.OrganisationType;
+
+            // ****** IF YOU ARE REVIEWING THIS AND IT'S STILL HERE PLEASE COMMENT TO REMIND ME TO REMOVE IT ******
+            
+            // stubbing data
+            var viewModel = new CheckYourOrganisationDetailsViewModel
+            {
+                OrganisationId = organisation.Id ?? Guid.NewGuid(),
+                TradingName = "Red Squirrel Software",
+                Address = "5 Bluebell Drive, Keynsham, Bristol, BS31 1FP",
+                UkNation = Constants.Enums.UkNation.NorthernIreland
+            };
+            TempData[CheckYourOrganisationDetailsKey] = JsonSerializer.Serialize(viewModel);
+            
+
         }
 
         return View(nameof(ManageAccount), model);
@@ -406,9 +433,8 @@ public class AccountManagementController : Controller
 
         // need to temporarily save the details for the next page, without saving to the database
         // however this bit throws an exception at the moment for some reason
-        // TempData.Add("NewUserDetails", editUserDetailsViewModel);
         TempData.Add("NewUserDetails", System.Text.Json.JsonSerializer.Serialize(editUserDetailsViewModel));
-        return RedirectToAction("CheckYourDetails", editUserDetailsViewModel);
+        return RedirectToAction(nameof(PagePath.CheckYourDetails));
     }
     [HttpGet]
     [Route(PagePath.CheckYourDetails)]
@@ -437,14 +463,13 @@ public class AccountManagementController : Controller
 
         SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.CheckYourDetails);
         SetBackLink(session, PagePath.CheckYourDetails);
-        return View(nameof(PagePath.CheckYourDetails), model);
+        return View(model);
     }
 
     [HttpPost]
     [Route(PagePath.CheckYourDetails)]
     public async Task<IActionResult> CheckYourDetails(EditUserDetailsViewModel model)
     {
-        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
 
         string servicerole = userData.ServiceRole ?? string.Empty;
@@ -457,7 +482,6 @@ public class AccountManagementController : Controller
         {
             return RedirectToAction(nameof(PagePath.Declaration));
         }
-        
     }
 
     [HttpGet]
@@ -472,7 +496,7 @@ public class AccountManagementController : Controller
             UpdatedDatetime = DateTime.Now
         };
 
-        return View(nameof(UpdateDetailsConfirmation), model);
+        return View(model);
     }
 
     [HttpGet]
@@ -512,7 +536,74 @@ public class AccountManagementController : Controller
 
         var viewModel = _mapper.Map<ConfirmCompanyDetailsViewModel>(companiesHouseData);
 
-        return View(nameof(ConfirmCompanyDetails), viewModel);
+        return View(viewModel);
+    }
+
+    /// <summary>
+    /// Displays a page with the updated data from the "choose your nation" page
+    /// for the user to confirm they have entered the correct information
+    /// </summary>
+    /// <returns>async IActionResult containing the view</returns>
+    [HttpGet]
+    [Route(PagePath.CheckCompaniesHouseDetails)]
+    public async Task<IActionResult> CheckCompaniesHouseDetails()
+    {
+        // must be approved or delegated user
+        if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
+        {
+            return Forbid();
+        }
+        
+        // deserialize data from TempStorage
+        var viewModel = JsonSerializer.Deserialize<CheckYourOrganisationDetailsViewModel>(
+            TempData[CheckYourOrganisationDetailsKey] as string);
+        
+        // keep the data for one more request cycle, just in case the page is refreshed
+        TempData.Keep(CheckYourOrganisationDetailsKey);
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CheckCompaniesHouseDetails);
+
+        SetBackLink(session, PagePath.CheckCompaniesHouseDetails);
+        return View(viewModel);
+    }
+
+    /// <summary>
+    /// Displays a page with the updated data from the "choose your nation" page
+    /// for the user to confirm they have entered the correct information
+    /// </summary>
+    /// <returns>async IActionResult containing the redirect to the next page</returns>
+    [HttpPost]
+    [Route(PagePath.CheckCompaniesHouseDetails)]
+    public async Task<IActionResult> CheckCompaniesHouseDetails(CheckYourOrganisationDetailsViewModel viewModel)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData[CheckYourOrganisationDetailsKey] = JsonSerializer.Serialize(viewModel);
+            return View(viewModel);
+        }
+
+        _facadeService.UpdateNationIdByOrganisationId(
+            viewModel.OrganisationId,
+            (int)viewModel.UkNation);
+
+        // save the date/time that the update was performed for the next page
+        TempData[OrganisationDetailsUpdatedTimeKey] = DateTime.Now;
+
+        return RedirectToAction(nameof(CompanyDetailsUpdated));
+    }
+
+    [HttpGet]
+    [Route(PagePath.UkNation)]
+    public async Task<IActionResult> UkNation()
+    {
+        return View();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> CompanyDetailsUpdated()
+    {
+        return null;
     }
 
     private static void SetRemoveUserJourneyValues(JourneySession session, string firstName, string lastName, Guid personId)

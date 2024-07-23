@@ -27,7 +27,7 @@
   
     <ItemGroup>
       <PackageReference Include="AutoMapper" Version="13.0.1" />
-      <PackageReference Include="EPR.Common.Authorization" Version="1.0.15-rc.612912" />
+      <PackageReference Include="EPR.Common.Authorization" Version="1.0.15-rc.617678" />
 	  <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.21" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.21" />
@@ -46,6 +46,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <EmbeddedResource Update="Resources\Enums\UkNationResources.resx">
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>UkNationResources.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
       <EmbeddedResource Update="Resources\Views\AccountManagement\EditUserDetails.resx">
         <Generator>ResXFileCodeGenerator</Generator>
         <LastGenOutput>EditUserDetails.Designer.cs</LastGenOutput>
@@ -145,6 +149,11 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Compile Update="Resources\Enums\UkNationResources.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>UkNationResources.resx</DependentUpon>
+      </Compile>
       <Compile Update="Resources\Views\AccountManagement\EditUserDetails.Designer.cs">
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>

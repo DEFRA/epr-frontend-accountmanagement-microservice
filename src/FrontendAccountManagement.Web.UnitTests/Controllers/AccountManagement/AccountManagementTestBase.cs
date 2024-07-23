@@ -50,8 +50,8 @@ public abstract class AccountManagementTestBase
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
             .Returns(Task.FromResult(new JourneySession { UserData = { ServiceRoleId = userServiceRoleId } }));
 
-        FacadeServiceMock.Setup(sm => sm.GetUserAccountForDispaly())
-            .Returns(Task.FromResult(userDataToDispaly));
+        //FacadeServiceMock.Setup(sm => sm.GetUserAccountForDispaly())
+        //    .Returns(Task.FromResult(userDataToDispaly));
 
         DeploymentRoleOptionsMock.Setup(options => options.Value)
             .Returns(new DeploymentRoleOptions { DeploymentRole = deploymentRole });

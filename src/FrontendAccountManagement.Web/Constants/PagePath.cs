@@ -16,6 +16,9 @@ public static class PagePath
     public const string CompanyDetailsCheck = "company-details-check";
     public const string UpdateTradingName = "update-trading-name";
     public const string CheckYourDetails = "check-your-details";
+    public const string CheckCompaniesHouseDetails = "check-companies-house-details";
+    public const string UkNation = "uk-nation";
+    public const string CompanyDetailsUpdated = "company-details-updated";
 
     // Change role journey paths
     public const string ChangeAccountPermissions = "change-account-permissions";

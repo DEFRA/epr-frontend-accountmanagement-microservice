@@ -12,6 +12,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
+using FrontendAccountManagement.Core.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace FrontendAccountManagement.Core.UnitTests.Services
 {
@@ -23,7 +25,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
         private Mock<ITokenAcquisition> _tokenAcquisitionMock = null!;
         private HttpClient _httpClient = null!;
         private FacadeService _facadeService = null!;
-        private IConfiguration _configuration;
+        private Mock<IOptions<FacadeApiConfiguration>> _configuration;
 
         [TestInitialize]
         public void Setup()
@@ -45,11 +47,17 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 {"FacadeAPI:DownStreamScope", "https://eprb2cdev.onmicrosoft.com/account-creation-facade/account-creation" }
             };
 
-            _configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(inMemorySettings)
-                .Build();
+            _configuration = new Mock<IOptions<FacadeApiConfiguration>>();
 
-            _facadeService = new FacadeService(_httpClient, _tokenAcquisitionMock.Object, _configuration);
+            _configuration.Setup(c => c.Value).Returns(new FacadeApiConfiguration
+            {
+
+            });
+
+            _facadeService = new FacadeService(
+                _httpClient,
+                _tokenAcquisitionMock.Object,
+                _configuration.Object);
         }
 
         [TestMethod]
@@ -992,74 +1000,34 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task GetUserAccountForDispaly_IsSuccessful()
+        public async Task UpdateNationIdByOrganisationId_CallsEndPoint()
         {
             // Arrange
-            var firstName = "First";
-            var lastName = "Last";
-            var telephone = "07542999392";
-            var jobTitle = "Test Job Title";
-            var orgName = "Test Organisation Name";
-            var expectedResponse = new UserOrganisationsListModelDto
-            {
-                User = new UserDetailsModel
-                {
-                    Id = Guid.NewGuid(),
-                    FirstName = firstName,
-                    LastName = lastName,
-                    Telephone = telephone,
-                    Organisations = new List<OrganisationDetailModel>()
-                }
-            };
-            expectedResponse.User.Organisations.Add(new OrganisationDetailModel { JobTitle = jobTitle, Name = orgName , Id = Guid.NewGuid() });
+            var organisationId = Guid.NewGuid();
+            var ukNation = 3;
 
-            var httpTestHandler = new HttpResponseMessage
+            var expectedResponse = new HttpResponseMessage(HttpStatusCode.OK)
             {
-                StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(JsonSerializer.Serialize(expectedResponse))
             };
 
             _mockHandler.Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
+                .Setup<Task<HttpResponseMessage>>("SendAsync",
                     ItExpr.IsAny<HttpRequestMessage>(),
                     ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(httpTestHandler);
+                .ReturnsAsync(expectedResponse).Verifiable();
 
             // Act
-            var response = await _facadeService.GetUserAccountForDispaly();
+            await _facadeService.UpdateNationIdByOrganisationId(
+                organisationId,
+                ukNation);
 
             // Assert
-            Assert.IsNotNull(response);
-            Assert.AreEqual(firstName, response.User.FirstName);
-            Assert.AreEqual(lastName, response.User.LastName);
-            Assert.AreEqual(telephone, response.User.Telephone);
-            Assert.AreEqual(jobTitle, response.User.Organisations.FirstOrDefault().JobTitle);
-            Assert.AreEqual(orgName, response.User.Organisations.FirstOrDefault().Name);
-            httpTestHandler.Dispose();
-        }
-
-        [TestMethod]
-        public async Task GetUserAccountForDispaly_IsUnsuccessful()
-        {
-            // Arrange
-            var httpTestHandler = new HttpResponseMessage
-            {
-                StatusCode = HttpStatusCode.NotFound
-            };
-
-            _mockHandler.Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(httpTestHandler);
-
-            // Act
-            var response = await _facadeService.GetUserAccountForDispaly();
-            // Assert
-            Assert.IsNull(response);
-            httpTestHandler.Dispose();
+            _mockHandler.Protected().Verify(
+                "SendAsync",
+                Times.Once(),
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Put),
+                ItExpr.IsAny<CancellationToken>()
+            );
         }
     }
 }

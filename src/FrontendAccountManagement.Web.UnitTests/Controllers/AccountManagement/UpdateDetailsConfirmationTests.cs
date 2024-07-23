@@ -36,7 +36,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             // Assert
             var viewResult = result as ViewResult;
             viewResult.Should().NotBeNull();
-            viewResult.ViewName.Should().Be(nameof(SystemUnderTest.UpdateDetailsConfirmation));
+            viewResult.ViewName.Should().Be(null);
             var model = viewResult.Model as UpdateDetailsConfirmationViewModel;
             model.Should().NotBeNull();
             model.Username.Should().Be("Dwight Schrute");
