@@ -9,15 +9,14 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using FrontendAccountManagement.Core.Models;
 using EPR.Common.Authorization.Models;
-using System.Security.Policy;
 using System;
 using FrontendAccountManagement.Core.Enums;
-using EPR.Common.Authorization.Constants;
 using System.Security.Claims;
 using System.Text.Json;
 using Organisation = EPR.Common.Authorization.Models.Organisation;
 using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using AutoMapper;
+using FrontendAccountManagement.Web.Constants.Enums;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 
@@ -32,7 +31,14 @@ public class AccountManagementTests : AccountManagementTestBase
     private const string JobTitle = "Test Job Title";
     private const string OrganisationName = "Test Organization Name";
     private const string OrganisationType = "Companies House Company";
-    private const string OrganisationAddress = "Test Organisation Address";
+
+    private const string SubBuildingName = "Unit 5";
+    private const string BuildingNumber = "10";
+    private const string BuildingName = "Building";
+    private const string Street = "A Street";
+    private const string Town = "A Town";
+    private const string County = "County";
+    private const string Postcode = "AB1 1BA";
 
     private const string RoleInOrganisation = "Admin";
     private const int ServiceRoleId = 1;
@@ -48,6 +54,9 @@ public class AccountManagementTests : AccountManagementTestBase
     [TestMethod]
     public async Task GivenOnManageAccountPage_WhenManageAccountHttpGetCalled_WithNoJourneyPathSet_ThenShowManageAccountPage()
     {
+        // Arrange
+        SetupUserData(string.Empty);
+
         // Act
         var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
 
@@ -63,6 +72,36 @@ public class AccountManagementTests : AccountManagementTestBase
         // Arrange
         SetupBase(deploymentRole: DeploymentRoleOptions.RegulatorRoleValue,
             userServiceRoleId: (int)Core.Enums.ServiceRole.RegulatorAdmin);
+
+        var userData = new UserData
+        {
+            Organisations = new List<Organisation>
+            {
+                new Organisation
+                {
+                }
+            }
+        };
+
+        // Create a mock identity
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.UserData, JsonSerializer.Serialize(userData)),
+        };
+
+        var identity = new Mock<ClaimsIdentity>();
+        identity.Setup(i => i.IsAuthenticated).Returns(true);
+        identity.Setup(i => i.Claims).Returns(claims);
+
+        // Create a mock ClaimsPrincipal
+        var mockClaimsPrincipal = new Mock<ClaimsPrincipal>();
+        mockClaimsPrincipal.Setup(p => p.Identity).Returns(identity.Object);
+        mockClaimsPrincipal.Setup(p => p.Claims).Returns(claims);
+
+        // Use the mock ClaimsPrincipal in your tests
+        var claimsPrincipal = mockClaimsPrincipal.Object;
+
+        HttpContextMock.Setup(c => c.User).Returns(claimsPrincipal);
 
         // Act
         var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
@@ -118,11 +157,14 @@ public class AccountManagementTests : AccountManagementTestBase
     [TestMethod]
     public async Task GivenOnManageAccountPage_WhenManageAccountHttpGetCalled_WithRemoveUserStatusNotNull_ThenShowManageAccountPage()
     {
-        // Arrange      
+        // Arrange
+        SetupUserData(string.Empty);
+
         RemoveUserJourneyModel userDetails = new() { FirstName = "An", LastName = "Test" };
         AccountManagementSession removeUserAccount = new() { RemoveUserStatus = 0, RemoveUserJourney = userDetails };
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
            .Returns(Task.FromResult(new JourneySession { AccountManagementSession = removeUserAccount }));
+
         // Act
         var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
 
@@ -135,7 +177,9 @@ public class AccountManagementTests : AccountManagementTestBase
     [TestMethod]
     public async Task GivenOnManageAccountPage_WhenManageAccountHttpGetCalled_WithAddUserStatusNotNull_ThenShowManageAccountPage()
     {
-        // Arrange      
+        // Arrange
+        SetupUserData(string.Empty);
+
         AddUserJourneyModel userDetails = new() { Email = "an.other@test.com", UserRole = "Test" };
         AccountManagementSession addUserAccount = new() { AddUserStatus = 0, AddUserJourney = userDetails };
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
@@ -183,25 +227,9 @@ public class AccountManagementTests : AccountManagementTestBase
     public async Task GivenOnManageAccountPage_WhenManageAccountHttpGetCalled_ThenManageAccountViewModelReturnedWithAdditionalFieldsToDisplay()
     {
         // Act
-        var userData = new UserData()
-        {
-            FirstName = FirstName,
-            LastName = LastName
-        };
-
-        var userDataToDispaly = new UserOrganisationsListModelDto();
-        userDataToDispaly.User = new UserDetailsModel() { FirstName = FirstName, LastName = LastName, Telephone = Telephone, ServiceRoleId = ServiceRoleId, RoleInOrganisation = RoleInOrganisation };
-        userDataToDispaly.User.Organisations = new List<OrganisationDetailModel>
-            {
-                new OrganisationDetailModel() { 
-                    JobTitle = JobTitle, 
-                    Id = Guid.NewGuid(), 
-                    Name = OrganisationName, 
-                    OrganisationType = OrganisationType, 
-                    OrganisationAddress = OrganisationAddress
-                }
-            };
-        SetupBase(userData: userData, userDataToDispaly: userDataToDispaly);
+        var userData = SetupUserData(string.Empty);
+        
+        SetupBase(userData: userData);
         var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
         var model = result.Model as ManageAccountViewModel;
 
@@ -214,7 +242,7 @@ public class AccountManagementTests : AccountManagementTestBase
         Assert.AreEqual(JobTitle, model.JobTitle);
         Assert.AreEqual(Telephone, model.Telephone);
         Assert.AreEqual(OrganisationName, model.CompanyName);
-        Assert.AreEqual(OrganisationAddress, model.OrganisationAddress);
+        Assert.AreEqual($"{SubBuildingName}, {BuildingNumber}, {BuildingName}, {Street}, {Town}, {County}, {Postcode}", model.OrganisationAddress);
         Assert.AreEqual(OrganisationType, model.OrganisationType);
         Assert.AreEqual(ServiceRoleKey, model.ServiceRoleKey);
     }
@@ -325,6 +353,87 @@ public class AccountManagementTests : AccountManagementTestBase
     }
 
     [TestMethod]
+    [DataRow("Approved Person")]
+    [DataRow("Delegated Person")]
+    public async Task GetCheckCompaniesHouseDetails_AllowedPerson_ReturnedPageAsExpected(string serviceRole)
+    {
+        // Arrange
+        SetupUserData(serviceRole);
+
+        var viewModel = new CheckYourOrganisationDetailsViewModel();
+
+        TempDataDictionaryMock.Setup(t => t["CheckYourOrganisationDetails"]).Returns(
+            JsonSerializer.Serialize(viewModel));
+
+        // Act
+        var result = await SystemUnderTest.CheckCompaniesHouseDetails() as ViewResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.IsTrue(string.IsNullOrWhiteSpace(result.ViewName));
+        Assert.IsInstanceOfType<CheckYourOrganisationDetailsViewModel>(result.Model);
+    }
+
+    [TestMethod]
+    public async Task GetCheckCompaniesHouseDetails_DisallowedPerson_ReturnedPageAsExpected()
+    {
+        // arrange
+        SetupUserData(string.Empty);
+
+        // act
+        var result = await SystemUnderTest.CheckCompaniesHouseDetails() as UnauthorizedResult;
+
+        // assert
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    [DataRow("Approved Person")]
+    [DataRow("Delegated Person")]
+    public async Task PostCheckCompaniesHouseDetails_ValidParameters_RequestsToSaveData(string serviceRole)
+    {
+        // Arrange
+        SetupUserData(serviceRole);
+        var organisationId = Guid.NewGuid();
+        var ukNation = UkNation.England;
+        var viewModel = new CheckYourOrganisationDetailsViewModel
+        {
+            OrganisationId = organisationId,
+            UkNation = ukNation
+        };
+
+        // Act
+        var result = await SystemUnderTest.CheckCompaniesHouseDetails(viewModel) as RedirectToActionResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        FacadeServiceMock.Verify(s =>
+            s.UpdateNationIdByOrganisationId(
+                organisationId,
+                (int)ukNation),
+            Times.Once);
+    }
+
+    [TestMethod]
+    [DataRow("Approved Person")]
+    [DataRow("Delegated Person")]
+    public async Task PostCheckCompaniesHouseDetails_InvalidModelState_ReturnsOriginalView(string serviceRole)
+    {
+        // Arrange
+        SetupUserData(serviceRole);
+
+        SystemUnderTest.ModelState.AddModelError("Error", "Error");
+        var viewModel = new CheckYourOrganisationDetailsViewModel();
+
+        // Act
+        var result = await SystemUnderTest.CheckCompaniesHouseDetails(viewModel) as ViewResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.IsInstanceOfType<CheckYourOrganisationDetailsViewModel>(result.Model);
+    }
+
+    [TestMethod]
     public async Task GivenOnCompanyDetailsHaveNotChangedPage_ForAnApprovedPerson_WhenRequested_ThenShowView()
     {
         // Arrange
@@ -378,16 +487,33 @@ public class AccountManagementTests : AccountManagementTestBase
         SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Never);
     }
 
-    private void SetupUserData(string serviceRole)
+    private UserData SetupUserData(
+        string serviceRole)
     {
         var userData = new UserData
         {
+            FirstName = FirstName,
+            LastName = LastName,
+            JobTitle = JobTitle,
+            Telephone = Telephone,
             ServiceRole = serviceRole,
+            ServiceRoleId = ServiceRoleId,
+            RoleInOrganisation = RoleInOrganisation,
+
             Organisations = new List<Organisation>
             {
                 new Organisation
                 {
-
+                    Id = Guid.NewGuid(),
+                    Name = OrganisationName,
+                    OrganisationType = OrganisationType,
+                    SubBuildingName = SubBuildingName,
+                    BuildingNumber = BuildingNumber,
+                    BuildingName = BuildingName,
+                    Street = Street,
+                    Town = Town,
+                    County = County,
+                    Postcode = Postcode,
                 }
             }
         };
@@ -411,5 +537,7 @@ public class AccountManagementTests : AccountManagementTestBase
         var claimsPrincipal = mockClaimsPrincipal.Object;
 
         HttpContextMock.Setup(c => c.User).Returns(claimsPrincipal);
+
+        return userData;
     }
 }

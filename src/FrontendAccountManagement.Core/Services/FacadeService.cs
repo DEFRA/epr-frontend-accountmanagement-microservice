@@ -12,6 +12,8 @@ using System.Text.Json;
 using System.Text;
 using System.Text.Json.Serialization;
 using FrontendAccountManagement.Core.Models.CompaniesHouse;
+using Microsoft.Extensions.Options;
+using FrontendAccountManagement.Core.Configuration;
 
 namespace FrontendAccountManagement.Core.Services;
 
@@ -23,19 +25,26 @@ public class FacadeService : IFacadeService
     private readonly string _serviceRolesPath;
     private readonly string _getUserAccountPath;
     private readonly string _getCompanyFromCompaniesHousePath;
+    private readonly string _putNationIdByOrganisationIdPath;
     private readonly string[] _scopes;
 
-    public FacadeService(HttpClient httpClient, ITokenAcquisition tokenAcquisition, IConfiguration configuration)
+    public FacadeService(
+        HttpClient httpClient,
+        ITokenAcquisition tokenAcquisition,
+        IOptions<FacadeApiConfiguration> options)
     {
+        var config = options.Value;
+
         _httpClient = httpClient;
         _tokenAcquisition = tokenAcquisition;
-        _baseAddress = configuration["FacadeAPI:Address"];
-        _serviceRolesPath = configuration["FacadeAPI:GetServiceRolesPath"];
-        _getUserAccountPath = configuration["FacadeAPI:GetUserAccountPath"];
-        _getCompanyFromCompaniesHousePath = configuration["FacadeAPI:GetCompanyFromCompaniesHousePath"];
+        _baseAddress = config.Address;
+        _serviceRolesPath = config.GetServiceRolesPath;
+        _getUserAccountPath = config.GetUserAccountPath;
+        _getCompanyFromCompaniesHousePath = config.GetCompanyFromCompaniesHousePath;
+        _putNationIdByOrganisationIdPath = config.PutNationIdByOrganisationIdPath;
         _scopes = new[]
         {
-            configuration["FacadeAPI:DownStreamScope"],
+            config.DownStreamScope,
         };
     }
 
@@ -57,23 +66,23 @@ public class FacadeService : IFacadeService
         return userAccountDto;
     }
 
-    public async Task<UserOrganisationsListModelDto?> GetUserAccountForDispaly()
-    {
-        await PrepareAuthenticatedClient();
+    //public async Task<UserOrganisationsListModelDto?> GetUserAccountForDispaly()
+    //{
+    //    await PrepareAuthenticatedClient();
 
-        var response = await _httpClient.GetAsync(_getUserAccountPath);
+    //    var response = await _httpClient.GetAsync(_getUserAccountPath);
 
-        if (response.StatusCode == HttpStatusCode.NotFound)
-        {
-            return null;
-        }
+    //    if (response.StatusCode == HttpStatusCode.NotFound)
+    //    {
+    //        return null;
+    //    }
 
-        response.EnsureSuccessStatusCode();
+    //    response.EnsureSuccessStatusCode();
 
-        var userOrganisationsListModelDto = await response.Content.ReadFromJsonAsync<UserOrganisationsListModelDto>();
+    //    var userOrganisationsListModelDto = await response.Content.ReadFromJsonAsync<UserOrganisationsListModelDto>();
 
-        return userOrganisationsListModelDto;
-    }
+    //    return userOrganisationsListModelDto;
+    //}
 
     public async Task<IEnumerable<Models.ServiceRole>?> GetAllServiceRolesAsync()
     {
@@ -281,6 +290,24 @@ public class FacadeService : IFacadeService
 
         return companiesHouseData;
 
+    }
+
+    /// <summary>
+    /// Requests the facade to update the nation id for a
+    /// given organisation id
+    /// </summary>
+    /// <param name="organisationId">The organisation id to update</param>
+    /// <param name="nationId">The nation id to use</param>
+    /// <returns>An async task</returns>
+    public async Task UpdateNationIdByOrganisationId(
+        Guid organisationId,
+        int nationId)
+    {
+        await PrepareAuthenticatedClient();
+
+        var response = await _httpClient.PutAsJsonAsync($"{_putNationIdByOrganisationIdPath}?organisationId={organisationId}", nationId);
+
+        response.EnsureSuccessStatusCode();
     }
 
     private async Task PrepareAuthenticatedClient()
