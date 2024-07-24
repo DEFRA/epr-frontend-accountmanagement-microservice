@@ -422,9 +422,19 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.WhatAreYourDetails);
         var model = _mapper.Map<EditUserDetailsViewModel>(User.GetUserData());
 
+        if (TempData["AmendedUserDetails"] != null)
+        {
+            try
+            {
+                model = System.Text.Json.JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData["AmendedUserDetails"] as string);
+            }
+            catch (Exception ex)
+            { _logger.LogInformation(ex.Message); }
+        }
+
+        SaveSessionAndJourney(session, PagePath.CheckYourDetails, PagePath.WhatAreYourDetails);
         SetBackLink(session, PagePath.WhatAreYourDetails);
 
         return View(model);
@@ -460,7 +470,9 @@ public class AccountManagementController : Controller
 
         // need to temporarily save the details for the next page, without saving to the database
         // however this bit throws an exception at the moment for some reason
-        TempData.Add("NewUserDetails", System.Text.Json.JsonSerializer.Serialize(editUserDetailsViewModel));
+        if (TempData["NewUserDetails"] == null)
+            TempData.Add("NewUserDetails", System.Text.Json.JsonSerializer.Serialize(editUserDetailsViewModel));
+
         return RedirectToAction(nameof(PagePath.CheckYourDetails));
     }
     
@@ -473,14 +485,16 @@ public class AccountManagementController : Controller
 
         var editUserDetailsViewModel = new EditUserDetailsViewModel();
 
-        try
+        if (TempData["NewUserDetails"] != null)
         {
-            editUserDetailsViewModel = System.Text.Json.JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData["NewUserDetails"] as string);
+            try
+            {
+                editUserDetailsViewModel = System.Text.Json.JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData["NewUserDetails"] as string);
+            }
+            catch (Exception ex)
+            { _logger.LogInformation(ex.Message); }
         }
-        catch (Exception) { /* TempData can be null*/ }
 
-
-        SetBackLink(session, PagePath.CheckYourDetails);
         var model = new EditUserDetailsViewModel
         {
             FirstName = editUserDetailsViewModel.FirstName ?? userData.FirstName,
@@ -489,8 +503,14 @@ public class AccountManagementController : Controller
             Telephone = editUserDetailsViewModel.Telephone ?? userData.Telephone
         };
 
-        SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.CheckYourDetails);
-        SetBackLink(session, PagePath.CheckYourDetails);
+        ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.LastOrDefault();
+        SaveSessionAndJourney(session, PagePath.CheckYourDetails);
+
+        if (TempData["AmendedUserDetails"] == null)
+        {
+            TempData.Add("AmendedUserDetails", System.Text.Json.JsonSerializer.Serialize(editUserDetailsViewModel));
+        }
+
         return View(model);
     }
 
@@ -502,7 +522,7 @@ public class AccountManagementController : Controller
 
         var serviceRole = userData.ServiceRole ?? string.Empty;
 
-        if (serviceRole.ToLower() == "basic user")
+        if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower())
             return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
         else
             return RedirectToAction(nameof(PagePath.Declaration));
@@ -745,14 +765,49 @@ public class AccountManagementController : Controller
         return RedirectToAction(actionName);
     }
 
-    private async Task SaveSessionAndJourney(JourneySession session, string currentPagePath, string? nextPagePath)
+    /// <summary>
+    /// Saves the session data and adds a step to the list detailing the user's journey through the site.
+    /// </summary>
+    /// <param name="session">The session data to save.</param>
+    /// <param name="sourcePagePath">The page this step of the journey starts from (typically the page we've just come from.).</param>
+    /// <param name="destinationPagePath">The page this step of the journey ends at (typically the current page.).</param>
+    /// <returns>A <see cref="Task"/>.</returns>
+    /// <remarks>
+    /// This version of the method only allows one entry for each page - if the user navigates to a page they've already been to,
+    /// the journey history gets rolled back to the last time they visited that page.
+    /// It doesn't take into account loops in the journey - see the other overload of this method.
+    /// </remarks>
+    private async Task SaveSessionAndJourney(JourneySession session, string sourcePagePath, string? destinationPagePath)
     {
-        ClearRestOfJourney(session, currentPagePath);
+        ClearRestOfJourney(session, sourcePagePath);
 
-        session.AccountManagementSession.Journey.AddIfNotExists(nextPagePath);
+        session.AccountManagementSession.Journey.AddIfNotExists(destinationPagePath);
 
         await SaveSession(session);
     }
+
+    /// <summary>
+    /// Saves the session data and adds a step to the list detailing the user's journey through the site.
+    /// </summary>
+    /// <param name="session">The session data to save.</param>
+    /// <param name="sourcePagePath">The page this step of the journey ends at (typically the current page).</param>
+    /// <returns>A <see cref="Task"/>.</returns>
+    /// <remarks>
+    /// This version of the method allows duplicate journey steps, and doesn't wind back the journey history when the user returns to a page they've visited previously.
+    /// This prevents it from loosing history and breaking the back button when the user goes through loops in the journey
+    /// such as "check-your-details -> what-are-your-details -> check-your-details".
+    /// </remarks>
+    private async Task SaveSessionAndJourney(JourneySession session, string? sourcePagePath)
+    {
+        var journey = session.AccountManagementSession.Journey;
+
+        if (journey.LastOrDefault() != sourcePagePath)
+        {
+            session.AccountManagementSession.Journey.Add(sourcePagePath);
+        }
+        await SaveSession(session);
+    }
+
 
     private async Task SaveSession(JourneySession session)
     {
