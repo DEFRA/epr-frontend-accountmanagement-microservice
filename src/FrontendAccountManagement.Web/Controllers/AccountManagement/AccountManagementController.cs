@@ -434,7 +434,7 @@ public class AccountManagementController : Controller
             { _logger.LogInformation(ex.Message); }
         }
 
-        SaveSessionAndJourney(session, PagePath.CheckYourDetails, PagePath.WhatAreYourDetails);
+        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.WhatAreYourDetails);
         SetBackLink(session, PagePath.WhatAreYourDetails);
 
         return View(model);
@@ -649,13 +649,6 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
-    [Route(PagePath.UkNation)]
-    public async Task<IActionResult> UkNation()
-    {
-        return View();
-    }
-
-    [HttpGet]
     public async Task<IActionResult> CompanyDetailsUpdated()
     {
         return null;
@@ -668,6 +661,15 @@ public class AccountManagementController : Controller
         return RedirectToAction(nameof(UkNation));
     }
 
+    [HttpGet]
+    [Route(PagePath.UkNation)]
+    public async Task<IActionResult> UkNation()
+    {
+        SetCustomBackLink(PagePath.ConfirmCompanyDetails, false);
+
+        return View();
+    }
+
     [HttpPost]
     [Route(PagePath.UkNation)]
     public async Task<IActionResult> UkNation(UkNationViewModel model)
@@ -678,11 +680,6 @@ public class AccountManagementController : Controller
 
         if (!ModelState.IsValid)
         {
-            if (model.UkNation == null)
-            {
-                ModelState.ClearValidationState(nameof(model.UkNation));
-                ModelState.AddModelError(nameof(model.UkNation), "UkNation.ErrorMessage");
-            }
             return View(model);
         }
 
@@ -698,7 +695,7 @@ public class AccountManagementController : Controller
             TradingName = session.CompaniesHouseSession?.CompaniesHouseData?.Organisation?.Name,
             UkNation = model.UkNation.Value
         };
-        TempData["CheckYourOrganisationDetailsKey"] = System.Text.Json.JsonSerializer.Serialize(checkYourOrganisationModel);
+        TempData[CheckYourOrganisationDetailsKey] = System.Text.Json.JsonSerializer.Serialize(checkYourOrganisationModel);
 
         return RedirectToAction(nameof(CheckCompaniesHouseDetails));
     }

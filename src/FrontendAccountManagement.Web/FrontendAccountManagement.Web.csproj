@@ -71,6 +71,10 @@
         <Generator>ResXFileCodeGenerator</Generator>
         <LastGenOutput>TeamMemberDetails.Designer.cs</LastGenOutput>
       </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\AccountManagement\UkNation.resx">
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>UkNation.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
       <EmbeddedResource Update="Resources\Views\PermissionManagement\CheckDetailsSendInvite.cy.resx">
         <SubType>Designer</SubType>
       </EmbeddedResource>
@@ -168,6 +172,11 @@
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>
         <DependentUpon>TeamMemberDetails.resx</DependentUpon>
+      </Compile>
+      <Compile Update="Resources\Views\AccountManagement\UkNation.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>UkNation.resx</DependentUpon>
       </Compile>
     </ItemGroup>
 

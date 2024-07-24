@@ -52,8 +52,6 @@ public class UkNationTests : AccountManagementTestBase
         var viewResult = result as ViewResult;
 
         Assert.AreEqual(model, viewResult.Model);
-        Assert.IsTrue(SystemUnderTest.ModelState.ContainsKey("UkNation"));
-        Assert.AreEqual("UkNation.ErrorMessage", SystemUnderTest.ModelState["UkNation"].Errors.First().ErrorMessage);
     }
 
     [TestMethod]
