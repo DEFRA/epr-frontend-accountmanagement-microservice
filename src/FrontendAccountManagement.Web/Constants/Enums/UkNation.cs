@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using FrontendAccountManagement;
 using FrontendAccountManagement.Web.Resources.Enums;
 
 namespace FrontendAccountManagement.Web.Constants.Enums;

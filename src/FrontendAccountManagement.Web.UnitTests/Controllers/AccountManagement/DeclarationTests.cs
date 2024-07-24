@@ -1,5 +1,3 @@
-using System;
-using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using EPR.Common.Authorization.Sessions;

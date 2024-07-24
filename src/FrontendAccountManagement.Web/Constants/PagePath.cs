@@ -16,10 +16,11 @@ public static class PagePath
     public const string Declaration = "declaration";
     public const string DetailsChangeRequestedNotification = "details-change-requested";
     public const string CheckYourDetails = "check-your-details";
+    public const string CheckCompaniesHouseDetails = "check-companies-house-details";
+    public const string UkNation = "uk-nation";
+    public const string CompanyDetailsUpdated = "company-details-updated";
     public const string CompanyDetailsHaveNotChanged = "company-details-have-not-changed";
     public const string UpdateDetailsConfirmation = "your-details-have-been-updated";
-    public const string UkNation = "uk-nation";
-    public const string CheckCompaniesHouseDetails = "check-companies-house-details";
 
     // Change role journey paths
     public const string ChangeAccountPermissions = "change-account-permissions";
