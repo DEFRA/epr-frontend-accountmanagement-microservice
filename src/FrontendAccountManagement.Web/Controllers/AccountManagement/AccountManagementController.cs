@@ -22,6 +22,8 @@ using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Web.Controllers.Attributes;
+using Microsoft.Extensions.Logging;
+using System;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 
@@ -31,6 +33,8 @@ public class AccountManagementController : Controller
     private const string RolesNotFoundException = "Could not retrieve service roles or none found";
     private const string CheckYourOrganisationDetailsKey = "CheckYourOrganisationDetails";
     private const string OrganisationDetailsUpdatedTimeKey = "OrganisationDetailsUpdatedTime";
+    private const string AmendedUserDetails = "AmendedUserDetails";
+    private const string NewUserDetails = "NewUserDetails";
     private readonly ISessionManager<JourneySession> _sessionManager;
     private readonly IFacadeService _facadeService;
     private readonly ILogger<AccountManagementController> _logger;
@@ -424,14 +428,14 @@ public class AccountManagementController : Controller
 
         var model = _mapper.Map<EditUserDetailsViewModel>(User.GetUserData());
 
-        if (TempData["AmendedUserDetails"] != null)
+        if (TempData[AmendedUserDetails] != null)
         {
             try
             {
-                model = System.Text.Json.JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData["AmendedUserDetails"] as string);
+                model = System.Text.Json.JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetails] as string);
             }
-            catch (Exception ex)
-            { _logger.LogInformation(ex.Message); }
+            catch (Exception exception) 
+            { _logger.LogInformation(exception, "Deserialising NewUserDetails Failed."); }
         }
 
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.WhatAreYourDetails);
@@ -468,14 +472,12 @@ public class AccountManagementController : Controller
             return View(editUserDetailsViewModel);
         }
 
-        // need to temporarily save the details for the next page, without saving to the database
-        // however this bit throws an exception at the moment for some reason
-        if (TempData["NewUserDetails"] == null)
-            TempData.Add("NewUserDetails", System.Text.Json.JsonSerializer.Serialize(editUserDetailsViewModel));
+        if (TempData[NewUserDetails] == null)
+            TempData.Add(NewUserDetails, JsonSerializer.Serialize(editUserDetailsViewModel));
 
         return RedirectToAction(nameof(PagePath.CheckYourDetails));
     }
-    
+
     [HttpGet]
     [Route(PagePath.CheckYourDetails)]
     public async Task<IActionResult> CheckYourDetails()
@@ -485,14 +487,14 @@ public class AccountManagementController : Controller
 
         var editUserDetailsViewModel = new EditUserDetailsViewModel();
 
-        if (TempData["NewUserDetails"] != null)
+        if (TempData[NewUserDetails] != null)
         {
             try
             {
-                editUserDetailsViewModel = System.Text.Json.JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData["NewUserDetails"] as string);
+                editUserDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[NewUserDetails] as string);
             }
-            catch (Exception ex)
-            { _logger.LogInformation(ex.Message); }
+            catch (Exception exception)
+            { _logger.LogInformation(exception, "Deserialising NewUserDetails Failed."); }
         }
 
         var model = new EditUserDetailsViewModel
@@ -500,15 +502,19 @@ public class AccountManagementController : Controller
             FirstName = editUserDetailsViewModel.FirstName ?? userData.FirstName,
             LastName = editUserDetailsViewModel.LastName ?? userData.LastName,
             JobTitle = editUserDetailsViewModel.JobTitle ?? userData.JobTitle,
-            Telephone = editUserDetailsViewModel.Telephone ?? userData.Telephone
+            Telephone = editUserDetailsViewModel.Telephone ?? userData.Telephone,
+            OriginalFirstName = editUserDetailsViewModel.OriginalFirstName ?? string.Empty,
+            OriginalLastName = editUserDetailsViewModel.OriginalLastName ?? string.Empty,
+            OriginalJobTitle = editUserDetailsViewModel.OriginalJobTitle ?? string.Empty,
+            OriginalTelephone = editUserDetailsViewModel.OriginalTelephone ?? string.Empty
         };
 
         ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.LastOrDefault();
         SaveSessionAndJourney(session, PagePath.CheckYourDetails);
 
-        if (TempData["AmendedUserDetails"] == null)
+        if (TempData[AmendedUserDetails] == null)
         {
-            TempData.Add("AmendedUserDetails", System.Text.Json.JsonSerializer.Serialize(editUserDetailsViewModel));
+            TempData.Add(AmendedUserDetails, JsonSerializer.Serialize(editUserDetailsViewModel));
         }
 
         return View(model);
@@ -521,11 +527,22 @@ public class AccountManagementController : Controller
         var userData = User.GetUserData();
 
         var serviceRole = userData.ServiceRole ?? string.Empty;
+        var roleInOrganisation = userData.RoleInOrganisation ?? string.Empty;
 
-        if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower())
+        // User has a service role of "basic" And an organisation role of "Admin"
+        if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower() && roleInOrganisation == RoleInOrganisation.Admin)
+        {
+            //TODO: save data to db
+
             return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
-        else
+        }
+        else //Approved or Delegated users
+        {
+            //TODO: if only Telephone updated then save to db
+           // redirect to: PagePath.UpdateDetailsConfirmation
+
             return RedirectToAction(nameof(PagePath.Declaration));
+        }
     }
 
     [HttpGet]
@@ -602,11 +619,11 @@ public class AccountManagementController : Controller
         {
             return Unauthorized();
         }
-        
+
         // deserialize data from TempStorage
         var viewModel = JsonSerializer.Deserialize<CheckYourOrganisationDetailsViewModel>(
             TempData[CheckYourOrganisationDetailsKey] as string);
-        
+
         // keep the data for one more request cycle, just in case the page is refreshed
         TempData.Keep(CheckYourOrganisationDetailsKey);
 
@@ -713,7 +730,7 @@ public class AccountManagementController : Controller
 
         var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.CompaniesHouseNumber);
         session.CompaniesHouseSession.CompaniesHouseData = companiesHouseData;
-        
+
         await SaveSession(session);
 
         return companiesHouseData != null &&

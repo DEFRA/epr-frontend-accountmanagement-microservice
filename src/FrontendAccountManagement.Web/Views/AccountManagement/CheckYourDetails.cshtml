@@ -7,6 +7,16 @@
 
 @using (Html.BeginForm(FormMethod.Post))
 {
+    @Html.HiddenFor(x => x.FirstName)
+    @Html.HiddenFor(x => x.LastName)
+    @Html.HiddenFor(x => x.JobTitle)
+    @Html.HiddenFor(x => x.Telephone)
+
+    @Html.HiddenFor(x => x.OriginalFirstName)
+    @Html.HiddenFor(x => x.OriginalLastName)
+    @Html.HiddenFor(x => x.OriginalJobTitle)
+    @Html.HiddenFor(x => x.OriginalTelephone)
+
     <div class="govuk-width-container">
         <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
             <h1 class="govuk-fieldset__heading govuk-label--l">
@@ -39,50 +49,49 @@
 
                             <dd class="govuk-summary-list__value">
                                 @Localizer[Model.LastName].Value
-                            </dd>                           
+                            </dd>
                         </div>
 
                         @if (!string.IsNullOrEmpty(Model.JobTitle))
-                        { 
-                        <div class="govuk-summary-list__row">
-                            <div class="govuk-!-margin-right-3">
-                                <dt class="govuk-summary-list">
-                                    @Localizer["JobTitle"]:
-                                </dt>
-                            </div>
+                        {
+                            <div class="govuk-summary-list__row">
+                                <div class="govuk-!-margin-right-3">
+                                    <dt class="govuk-summary-list">
+                                        @Localizer["JobTitle"]:
+                                    </dt>
+                                </div>
 
-                            <dd class="govuk-summary-list__value">
-                                @Localizer[Model.JobTitle].Value
-                            </dd>                          
-                        </div>
+                                <dd class="govuk-summary-list__value">
+                                    @Localizer[Model.JobTitle].Value
+                                </dd>
+                            </div>
                         }
 
                         @if (!string.IsNullOrEmpty(Model.Telephone))
                         {
-                        <div class="govuk-summary-list__row">
-                            <div class="govuk-!-margin-right-3">
-                                <dt class="govuk-summary-list">
+                            <div class="govuk-summary-list__row">
+                                <div class="govuk-!-margin-right-3">
+                                    <dt class="govuk-summary-list">
                                         @Localizer["TelephoneNumber"]:
-                                </dt>
-                            </div>
+                                    </dt>
+                                </div>
 
-                            <dd class="govuk-summary-list__value">
-                                @Localizer[Model.Telephone].Value
-                            </dd>
-                        </div>
+                                <dd class="govuk-summary-list__value">
+                                    @Localizer[Model.Telephone].Value
+                                </dd>
+                            </div>
                         }
 
-                            <div class="govuk-!-margin-right-3">
-                                <dt class="govuk-summary-list__value">
-                                    <button class="govuk-button" data-module="govuk-button" type="submit">
-                                        @Localizer["SaveAndContinue"]
-                                    </button>
-                                    &nbsp;  <a href="~/@PagePath.WhatAreYourDetails" class="govuk-link govuk-link--no-visited-state">
-                                        @SharedLocalizer["Change"]
-
-                                    </a>
-                                </dt>
-                            </div>
+                        <div class="govuk-!-margin-right-3">
+                            <dt class="govuk-summary-list__value">
+                                <button class="govuk-button" data-module="govuk-button" type="submit">
+                                    @Localizer["SaveAndContinue"]
+                                </button>
+                                &nbsp;  <a href="~/@PagePath.WhatAreYourDetails" class="govuk-link govuk-link--no-visited-state">
+                                    @SharedLocalizer["Change"]
+                                </a>
+                            </dt>
+                        </div>
                     </dl>
 
                     <br />
