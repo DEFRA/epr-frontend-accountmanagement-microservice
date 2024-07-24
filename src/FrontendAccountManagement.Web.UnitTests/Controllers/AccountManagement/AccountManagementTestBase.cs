@@ -48,7 +48,7 @@ public abstract class AccountManagementTestBase
         SetUpUserData(userData);
 
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-            .Returns(Task.FromResult(new JourneySession { UserData = { ServiceRoleId = userServiceRoleId } }));
+            .Returns(Task.FromResult(new JourneySession { UserData = userData ?? new UserData { ServiceRoleId = userServiceRoleId } }));
 
         DeploymentRoleOptionsMock.Setup(options => options.Value)
             .Returns(new DeploymentRoleOptions { DeploymentRole = deploymentRole });

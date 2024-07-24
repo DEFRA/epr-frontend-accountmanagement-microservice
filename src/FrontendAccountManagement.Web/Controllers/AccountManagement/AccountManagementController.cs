@@ -22,6 +22,7 @@ using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Web.Controllers.Attributes;
+using System.Globalization;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 
@@ -593,14 +594,15 @@ public class AccountManagementController : Controller
     public async Task<IActionResult> CompanyDetailsUpdated()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        var changeDate = DateTime.Now;
-
+        TempData.TryGetValue("OrganisationDetailsUpdatedTime", out var changeDate);
         var model = new CompanyDetailsUpdatedViewModel
         {
             UserName = $"{session.UserData.FirstName} {session.UserData.LastName}",
             ChangeTime = $"{changeDate:HH:mm}",
             ChangeDate = $"{changeDate:dd MMMM yyyy}",
         };
+
+        TempData.Keep("OrganisationDetailsUpdatedTime");
         return View(nameof(CompanyDetailsUpdated), model);
     }
 
