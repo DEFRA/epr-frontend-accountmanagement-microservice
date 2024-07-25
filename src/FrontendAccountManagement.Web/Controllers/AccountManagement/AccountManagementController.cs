@@ -129,7 +129,8 @@ public class AccountManagementController : Controller
             var roleInOrganisation = userAccount.RoleInOrganisation;
             model.ServiceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
             model.OrganisationType = userOrg.OrganisationType;
-            model.HasPermissionToChangeCompany = HasPermissionToChangeCompany(userAccount);
+            model.HasPermissionToChangeCompany = HasPermissionToChangeCompany(session.UserData);
+            model.IsBasicUser = IsBasicUser(session.UserData);
         }
         return View(nameof(ManageAccount), model);
     }
@@ -892,9 +893,8 @@ public class AccountManagementController : Controller
         {
             return IsRegulatorAdmin(userData);
         }
-
         // regulator users cannot view if producer deployment
-        return !IsRegulatorUser(userData);
+        return !IsRegulatorUser(userData) || IsBasicUser(userData);
     }
 
     private static bool IsRegulatorAdmin(UserData userData) =>
@@ -905,6 +905,9 @@ public class AccountManagementController : Controller
 
     private static bool IsRegulatorUser(UserData userData) =>
         IsRegulatorAdmin(userData) || IsRegulatorBasic(userData);
+
+    private static bool IsBasicUser(UserData userData) =>
+       userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Basic;
 
     private static bool HasPermissionToChangeCompany(UserData userData)
     {
@@ -918,4 +921,5 @@ public class AccountManagementController : Controller
         }
         return false;
     }
+
 }
