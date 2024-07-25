@@ -535,17 +535,25 @@ public class AccountManagementController : Controller
         var serviceRole = userData.ServiceRole ?? string.Empty;
         var roleInOrganisation = userData.RoleInOrganisation ?? string.Empty;
 
+        var userDetailsDto = _mapper.Map<UserDetailsDto>(model);
+
         // User has a service role of "basic" And an organisation role of "Admin"
         if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower() && roleInOrganisation == RoleInOrganisation.Admin)
         {
-            //TODO: save data to db
+            _facadeService.UpdateUserDetails(userData.Id, userDetailsDto);
 
             return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
         }
-        else //Approved or Delegated users
+        else //Approved or Delegated users - User.IsDelegatedPerson || User.IsApprovedPerson
         {
-            //TODO: if only Telephone updated then save to db
-           // redirect to: PagePath.UpdateDetailsConfirmation
+            //if only Telephone updated then save to db
+            if (model.FirstName == model.OriginalFirstName && model.LastName == model.OriginalLastName && model.JobTitle == model.OriginalJobTitle && model.Telephone != model.OriginalTelephone)
+            {
+                _facadeService.UpdateUserDetails(userData.Id, userDetailsDto);
+                return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
+            }
+
+            //TODO: Data should be saved for approval in future
 
             return RedirectToAction(nameof(PagePath.Declaration));
         }

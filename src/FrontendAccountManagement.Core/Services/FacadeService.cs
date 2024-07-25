@@ -14,6 +14,7 @@ using System.Text.Json.Serialization;
 using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using Microsoft.Extensions.Options;
 using FrontendAccountManagement.Core.Configuration;
+using EPR.Common.Authorization.Models;
 
 namespace FrontendAccountManagement.Core.Services;
 
@@ -26,6 +27,7 @@ public class FacadeService : IFacadeService
     private readonly string _getUserAccountPath;
     private readonly string _getCompanyFromCompaniesHousePath;
     private readonly string _putNationIdByOrganisationIdPath;
+    private readonly string _putUserDetailsByUserIdPath;
     private readonly string[] _scopes;
 
     public FacadeService(
@@ -42,6 +44,7 @@ public class FacadeService : IFacadeService
         _getUserAccountPath = config.GetUserAccountPath;
         _getCompanyFromCompaniesHousePath = config.GetCompanyFromCompaniesHousePath;
         _putNationIdByOrganisationIdPath = config.PutNationIdByOrganisationIdPath;
+        _putUserDetailsByUserIdPath = config.PutUserDetailsByUserIdPath;
         _scopes = new[]
         {
             config.DownStreamScope,
@@ -288,6 +291,17 @@ public class FacadeService : IFacadeService
         await PrepareAuthenticatedClient();
 
         var response = await _httpClient.PutAsJsonAsync($"{_putNationIdByOrganisationIdPath}?organisationId={organisationId}", nationId);
+
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task UpdateUserDetails(
+        Guid? userId,
+        UserDetailsDto userDetailsDto)
+    {
+        await PrepareAuthenticatedClient();
+
+        var response = await _httpClient.PutAsJsonAsync($"{_putUserDetailsByUserIdPath}?userId={userId}", userDetailsDto);
 
         response.EnsureSuccessStatusCode();
     }
