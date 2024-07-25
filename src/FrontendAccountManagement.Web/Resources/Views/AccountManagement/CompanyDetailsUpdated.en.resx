@@ -121,7 +121,7 @@
     <value>Because of your permissions this change will need to be reviewed by the regulator. You will be notified within 28 days.</value>
   </data>
   <data name="ChangedBy" xml:space="preserve">
-    <value>Changed by</value>
+    <value>Changed by {0} at {1} on {2}.</value>
   </data>
   <data name="Header" xml:space="preserve">
     <value>Your organisation's details have been updated</value>

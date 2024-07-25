@@ -10,7 +10,7 @@
                         @Localizer["Header"]
                     </h1>
                 </div>
-                <p class="govuk-body">@Localizer["ChangedBy"]  @Model.UserName at @Model.ChangeTime on @Model.ChangeDate.</p>
+                <p class="govuk-body">@Localizer["ChangedBy", Model.UserName, Model.ChangeTime, Model.ChangeDate]</p>
                 <p class="govuk-body govuk-!-font-weight-bold">@Localizer["WhatHappensNext"]</p>
                 <p class="govuk-body">@Localizer["Body"]</p>
                 <a asp-action="ManageAccount" asp-controller="AccountManagement" class="govuk-link" data-module="govuk-link">
