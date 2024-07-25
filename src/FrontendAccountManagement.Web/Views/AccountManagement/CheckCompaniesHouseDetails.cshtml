@@ -57,9 +57,12 @@
                         <input type="hidden" asp-for="Address" />
                         <input type="hidden" asp-for="UkNation" />
                         <input type="hidden" asp-for="TradingName" />
-                        <button class="govuk-button" data-module="govuk-button">
-                            @SharedLocalizer["Continue"]
-                        </button>
+                        <div class="govuk-button-group">
+                            <button class="govuk-button" data-module="govuk-button">
+                                @SharedLocalizer["SaveAndContinue"]
+                            </button>
+                            <a class="govuk-link" asp-controller="AccountManagement" asp-action="ManageAccount">@SharedLocalizer["Cancel"]</a>
+                        </div>
                     </form>
                 </div>
             </div>
