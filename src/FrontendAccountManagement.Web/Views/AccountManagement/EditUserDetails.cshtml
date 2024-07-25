@@ -16,6 +16,8 @@
                 @await Html.PartialAsync("Partials/Govuk/_ErrorSummary", errorsViewModel)
 
                 <form asp-controller="AccountManagement" asp-action="PagePath.WhatAreYourDetails" method="post">
+                    <input type="hidden" asp-for="OriginalFirstName" />
+                    <input type="hidden" asp-for="OriginalLastName" />
                     <input type="hidden" asp-for="OriginalJobTitle" />
                     <input type="hidden" asp-for="OriginalTelephone" />
                     <fieldset class="govuk-fieldset">
