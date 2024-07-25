@@ -1,10 +1,12 @@
 ﻿using FrontendAccountManagement.Web.Constants.Enums;
+using System.Diagnostics.CodeAnalysis;
 
 namespace FrontendAccountManagement.Web.ViewModels.AccountManagement;
 
 /// <summary>
 /// View model for the action CheckCompaniesHouseDetails
 /// </summary>
+[ExcludeFromCodeCoverage]
 public record CheckYourOrganisationDetailsViewModel
 {
     /// <summary>
