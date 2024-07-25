@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using EPR.Common.Authorization.Models;
+using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 
@@ -35,6 +36,12 @@ namespace FrontendAccountManagement.Web.Profiles
                 .ForMember(d => d.Country, o => o.MapFrom(s => s.Organisation.RegisteredOffice.Country.Name))
                 .ForMember(d => d.Postcode, o => o.MapFrom(s => s.Organisation.RegisteredOffice.Postcode))
                 .ForMember(d => d.CompaniesHouseChangeDetailsUrl, o => o.MapFrom((src, dest, destMember, context) => context.Items["CompaniesHouseChangeDetailsUrl"]));
+
+            CreateMap<EditUserDetailsViewModel, UserDetailsDto>()
+                .ForMember(d => d.FirstName, o => o.MapFrom(s => s.FirstName))
+                .ForMember(d => d.LastName, o => o.MapFrom(s => s.LastName))
+                .ForMember(d => d.JobTitle, o => o.MapFrom(s => s.JobTitle))
+                .ForMember(d => d.TelePhone, o => o.MapFrom(s => s.Telephone));
         }
     }
 }

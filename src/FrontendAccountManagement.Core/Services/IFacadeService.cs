@@ -41,4 +41,6 @@ public interface IFacadeService
     /// <param name="nationId">The nation id to use</param>
     /// <returns>An async task</returns>
     Task UpdateNationIdByOrganisationId(Guid organisationId, int nationId);
+
+    Task UpdateUserDetails(Guid? userId, UserDetailsDto userDetailsDto);
 }
