@@ -1,21 +1,50 @@
-﻿namespace FrontendAccountManagement.Core.Configuration
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace FrontendAccountManagement.Core.Configuration;
+
+/// <summary>
+/// This class contains data related to the configuration for the FacadeAPI section
+/// </summary>
+[ExcludeFromCodeCoverage]
+public record FacadeApiConfiguration
 {
-    public record FacadeApiConfiguration
-    {
-        public const string SectionName = "FacadeAPI";
+    /// <summary>
+    /// The section name to read config from
+    /// </summary>
+    public const string SectionName = "FacadeAPI";
 
-        public string Address { get; set; }
+    /// <summary>
+    /// Gets or sets the base address of the facade API
+    /// </summary>
+    public string Address { get; set; }
 
-        public string DownStreamScope { get;set; }
+    /// <summary>
+    /// Gets or sets the downstream scope for the API
+    /// </summary>
+    public string DownStreamScope { get;set; }
 
-        public string ServiceRolesPath { get; set; }
-        
-        public string GetUserAccountPath { get; set; }
+    /// <summary>
+    /// Gets or sets the path for the service roles
+    /// </summary>
+    public string ServiceRolesPath { get; set; }
 
-        public string GetServiceRolesPath { get; set; }
+    /// <summary>
+    /// Gets or sets the path for getting the user accounts
+    /// </summary>
+    public string GetUserAccountPath { get; set; }
 
-        public string GetCompanyFromCompaniesHousePath { get; set; }
+    /// <summary>
+    /// Gets or sets the path for the service roles
+    /// </summary>
+    public string GetServiceRolesPath { get; set; }
 
-        public string PutNationIdByOrganisationIdPath { get; set; }
-    }
+    /// <summary>
+    /// Gets or sets the path for companies house api
+    /// </summary>
+    public string GetCompanyFromCompaniesHousePath { get; set; }
+
+    /// <summary>
+    /// Gets or sets the path for updating the nation id of an organisation
+    /// </summary>
+    public string PutNationIdByOrganisationIdPath { get; set; }
 }
