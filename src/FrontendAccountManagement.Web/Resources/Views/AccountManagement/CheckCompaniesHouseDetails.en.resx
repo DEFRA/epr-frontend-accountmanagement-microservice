@@ -123,13 +123,10 @@
   <data name="CheckYourOrganisationsDetailsTitle" xml:space="preserve">
     <value>Check your organisation's details</value>
   </data>
-  <data name="NorthernIreland" xml:space="preserve">
-    <value>XXXXXXXX</value>
-  </data>
   <data name="TradingName" xml:space="preserve">
     <value>Trading name</value>
   </data>
   <data name="UKNation" xml:space="preserve">
-    <value>Uk nation</value>
+    <value>UK Nation</value>
   </data>
 </root>
