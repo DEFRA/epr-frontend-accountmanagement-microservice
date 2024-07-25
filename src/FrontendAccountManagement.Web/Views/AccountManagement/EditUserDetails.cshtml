@@ -18,79 +18,65 @@
                 <form asp-controller="AccountManagement" asp-action="PagePath.WhatAreYourDetails" method="post">
                     <input type="hidden" asp-for="OriginalJobTitle" />
                     <input type="hidden" asp-for="OriginalTelephone" />
-                    <div class="govuk-form-group">
-                        <h1 class="govuk-heading-l govuk-!-margin-bottom-4">
-                            <label>
-                                @Localizer["EditUserDetailsTitle"]
+                    <fieldset class="govuk-fieldset">
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                            <h1 class="govuk-heading-l govuk-!-margin-bottom-4">
+                                <label>
+                                    @Localizer["EditUserDetailsTitle"]
+                                </label>
+                            </h1>
+                        </legend>
+
+                        <div class="govuk-form-group @((errorsViewModel.HasErrorKey(nameof(EditUserDetailsViewModel.FirstName))) ? "govuk-form-group--error" : string.Empty)">
+                            <p class="govuk-error-message">
+                                <span asp-validation-for="FirstName"></span>
+                            </p>
+                            <label class="govuk-label" for="FirstName">
+                                @Localizer["FirstName"]
                             </label>
-                        </h1>
-                    </div>
-                    
-                    <div class="govuk-form-group @((errorsViewModel.HasErrorKey(nameof(EditUserDetailsViewModel.FirstName))) ? "govuk-form-group--error" : string.Empty)">
-                        <fieldset class="govuk-fieldset">
-                            <div class="govuk-form-group" asp-for="Address2">
+                            @* maxlength attribute empty so to override the attribute being added by StringLength *@
+                            <input class="govuk-input" asp-for="FirstName" type="text" aria-describedby="FirstName" maxlength>
+                        </div>
+
+                        <div class="govuk-form-group @((errorsViewModel.HasErrorKey(nameof(EditUserDetailsViewModel.LastName))) ? "govuk-form-group--error" : string.Empty)">
+                            <p class="govuk-error-message">
+                                <span asp-validation-for="LastName"></span>
+                            </p>
+                            <label class="govuk-label" for="LastName">
+                                @Localizer["LastName"]
+                            </label>
+                            @* maxlength attribute empty so to override the attribute being added by StringLength *@
+                            <input class="govuk-input" asp-for="LastName" type="text" aria-describedby="LastName" maxlength>
+                        </div>
+
+                        @if (Model.PropertyExists(m => m.OriginalJobTitle))
+                        {
+                            <div class="govuk-form-group @((errorsViewModel.HasErrorKey(nameof(EditUserDetailsViewModel.JobTitle))) ? "govuk-form-group--error" : string.Empty)">
                                 <p class="govuk-error-message">
-                                    <span asp-validation-for="FirstName"></span>
+                                    <span asp-validation-for="JobTitle"></span>
                                 </p>
-                                <label class="govuk-label" for="FirstName">
-                                    @Localizer["FirstName"]
+                                <label class="govuk-label" for="JobTitle">
+                                    @Localizer["JobTitle"]
                                 </label>
                                 @* maxlength attribute empty so to override the attribute being added by StringLength *@
-                                <input class="govuk-input" asp-for="FirstName" type="text" aria-describedby="FirstName" maxlength>
+                                <input class="govuk-input" asp-for="JobTitle" type="text" aria-describedby="JobTitle" maxlength>
                             </div>
-                        </fieldset>
-                    </div>
-                    
-                    <div class="govuk-form-group @((errorsViewModel.HasErrorKey(nameof(EditUserDetailsViewModel.LastName))) ? "govuk-form-group--error" : string.Empty)">
-                        <fieldset class="govuk-fieldset">
-                            <div class="govuk-form-group" asp-for="Address2">
+                        }
+
+                        @if (Model.PropertyExists(m => m.OriginalTelephone))
+                        {
+                            <div class="govuk-form-group @((errorsViewModel.HasErrorKey(nameof(EditUserDetailsViewModel.Telephone))) ? "govuk-form-group--error" : string.Empty)">
                                 <p class="govuk-error-message">
-                                    <span asp-validation-for="LastName"></span>
+                                    <span asp-validation-for="Telephone"></span>
                                 </p>
-                                <label class="govuk-label" for="LastName">
-                                    @Localizer["LastName"]
+                                <label class="govuk-label" for="Telephone">
+                                    @Localizer["TelephoneNumber"]
                                 </label>
                                 @* maxlength attribute empty so to override the attribute being added by StringLength *@
-                                <input class="govuk-input" asp-for="LastName" type="text" aria-describedby="LastName" maxlength>
+                                <input class="govuk-input" asp-for="Telephone" type="text" aria-describedby="Telephone" maxlength>
                             </div>
-                        </fieldset>
-                    </div>
-
-                    @if (Model.PropertyExists(m => m.OriginalJobTitle))
-                    {
-                        <div class="govuk-form-group @((errorsViewModel.HasErrorKey(nameof(EditUserDetailsViewModel.JobTitle))) ? "govuk-form-group--error" : string.Empty)">
-                            <fieldset class="govuk-fieldset">
-                                <div class="govuk-form-group" asp-for="Address2">
-                                    <p class="govuk-error-message">
-                                        <span asp-validation-for="JobTitle"></span>
-                                    </p>
-                                    <label class="govuk-label" for="JobTitle">
-                                        @Localizer["JobTitle"]
-                                    </label>
-                                    @* maxlength attribute empty so to override the attribute being added by StringLength *@
-                                    <input class="govuk-input" asp-for="JobTitle" type="text" aria-describedby="JobTitle" maxlength>
-                                </div>
-                            </fieldset>
-                        </div>
-                    }
-
-                    @if (Model.PropertyExists(m => m.OriginalTelephone))
-                    {
-                        <div class="govuk-form-group @((errorsViewModel.HasErrorKey(nameof(EditUserDetailsViewModel.Telephone))) ? "govuk-form-group--error" : string.Empty)">
-                            <fieldset class="govuk-fieldset">
-                                <div class="govuk-form-group" asp-for="Address2">
-                                    <p class="govuk-error-message">
-                                        <span asp-validation-for="Telephone"></span>
-                                    </p>
-                                    <label class="govuk-label" for="Telephone">
-                                        @Localizer["TelephoneNumber"]
-                                    </label>
-                                    @* maxlength attribute empty so to override the attribute being added by StringLength *@
-                                    <input class="govuk-input" asp-for="Telephone" type="text" aria-describedby="Telephone" maxlength>
-                                </div>
-                            </fieldset>
-                        </div>
-                    }
+                        }
+                    </fieldset>
 
                     <button class="govuk-button" data-module="govuk-button">
                         @SharedLocalizer["Continue"]
