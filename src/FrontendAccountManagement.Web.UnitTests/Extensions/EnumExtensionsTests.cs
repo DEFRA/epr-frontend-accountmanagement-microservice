@@ -6,7 +6,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Extensions
     [TestClass]
     public class EnumExtensionsTests
     {
-        public enum TestEnum
+        private enum Test
         {
             [Display(Name = "First Value")]
             FirstValue,
@@ -21,7 +21,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Extensions
         public void GetDisplayName_ReturnsDisplayName_WhenDisplayAttributeIsPresent()
         {
             // Arrange
-            var enumValue = TestEnum.FirstValue;
+            var enumValue = Test.FirstValue;
 
             // Act
             var displayName = enumValue.GetDisplayName();
@@ -34,7 +34,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Extensions
         public void GetDisplayName_ReturnsEnumName_WhenDisplayAttributeIsNotPresent()
         {
             // Arrange
-            var enumValue = TestEnum.SecondValue;
+            var enumValue = Test.SecondValue;
 
             // Act
             var displayName = enumValue.GetDisplayName();
@@ -47,7 +47,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Extensions
         public void GetDisplayName_ReturnsDisplayName_ForAnotherEnumValueWithDisplayAttribute()
         {
             // Arrange
-            var enumValue = TestEnum.ThirdValue;
+            var enumValue = Test.ThirdValue;
 
             // Act
             var displayName = enumValue.GetDisplayName();
@@ -61,7 +61,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Extensions
         {
             // Arrange
             var testVal = 8;
-            var invalidEnum = (TestEnum)testVal;
+            var invalidEnum = (Test)testVal;
 
             // Act
             var displayName = invalidEnum.GetDisplayName();
