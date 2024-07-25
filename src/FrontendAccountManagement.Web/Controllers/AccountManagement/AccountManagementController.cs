@@ -436,7 +436,9 @@ public class AccountManagementController : Controller
                 model = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
             }
             catch (Exception exception) 
-            { _logger.LogInformation(exception, "Deserialising NewUserDetails Failed."); }
+            {
+                _logger.LogError(exception, "Deserialising NewUserDetails Failed.");
+            }
         }
 
         SaveSessionAndJourney(session, PagePath.WhatAreYourDetails);
@@ -495,7 +497,9 @@ public class AccountManagementController : Controller
                 editUserDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[NewUserDetailsKey] as string);
             }
             catch (Exception exception)
-            { _logger.LogInformation(exception, "Deserialising NewUserDetails Failed."); }
+            {
+                _logger.LogInformation(exception, "Deserialising NewUserDetails Failed.");
+            }
         }
 
         var model = new EditUserDetailsViewModel

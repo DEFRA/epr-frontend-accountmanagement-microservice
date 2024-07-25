@@ -1,6 +1,4 @@
-﻿using FrontendAccountManagement.Core.Models.CompaniesHouse;
-
-namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
+﻿namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
 {
     public class AddressViewModel
     {
