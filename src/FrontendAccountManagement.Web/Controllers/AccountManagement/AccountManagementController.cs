@@ -24,8 +24,8 @@ using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Web.Controllers.Attributes;
+using System.Globalization;
 using Microsoft.Extensions.Logging;
-using System;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 
@@ -606,6 +606,23 @@ public class AccountManagementController : Controller
         return View(viewModel);
     }
 
+    [HttpGet]
+    [Route(PagePath.CompanyDetailsUpdated)]
+    public async Task<IActionResult> CompanyDetailsUpdated()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        TempData.TryGetValue("OrganisationDetailsUpdatedTime", out var changeDate);
+        var model = new CompanyDetailsUpdatedViewModel
+        {
+            UserName = $"{session.UserData.FirstName} {session.UserData.LastName}",
+            ChangeTime = $"{changeDate:HH:mm}",
+            ChangeDate = $"{changeDate:dd MMMM yyyy}",
+        };
+
+        TempData.Keep("OrganisationDetailsUpdatedTime");
+        return View(nameof(CompanyDetailsUpdated), model);
+    }
+
     /// <summary>
     /// Displays a page with the updated data from the "choose your nation" page
     /// for the user to confirm they have entered the correct information
@@ -665,13 +682,6 @@ public class AccountManagementController : Controller
         TempData[OrganisationDetailsUpdatedTimeKey] = DateTime.Now;
 
         return RedirectToAction(nameof(CompanyDetailsUpdated));
-    }
-
-    [HttpGet]
-    [Route(PagePath.CompanyDetailsUpdated)]
-    public async Task<IActionResult> CompanyDetailsUpdated()
-    {
-        return null;
     }
 
     [HttpPost]
