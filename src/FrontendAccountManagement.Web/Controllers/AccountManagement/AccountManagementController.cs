@@ -3,6 +3,7 @@ using EPR.Common.Authorization.Constants;
 using EPR.Common.Authorization.Models;
 using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Enums;
+using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Services;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
+using System;
 using System.Net;
 using System.Text.Json;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
@@ -425,20 +427,19 @@ public class AccountManagementController : Controller
     public async Task<IActionResult> EditUserDetails()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-
         var model = _mapper.Map<EditUserDetailsViewModel>(User.GetUserData());
 
         if (TempData[AmendedUserDetailsKey] != null)
         {
             try
             {
-                model = System.Text.Json.JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
+                model = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
             }
             catch (Exception exception) 
             { _logger.LogInformation(exception, "Deserialising NewUserDetails Failed."); }
         }
 
-        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.WhatAreYourDetails);
+        SaveSessionAndJourney(session, PagePath.WhatAreYourDetails);
         SetBackLink(session, PagePath.WhatAreYourDetails);
 
         return View(model);
@@ -586,7 +587,7 @@ public class AccountManagementController : Controller
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ConfirmCompanyDetails);
+        SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ConfirmCompanyDetails);
         SetBackLink(session, PagePath.ConfirmCompanyDetails);
 
         var companiesHouseData = session.CompaniesHouseSession.CompaniesHouseData;
@@ -614,6 +615,8 @@ public class AccountManagementController : Controller
     [Route(PagePath.CheckCompaniesHouseDetails)]
     public async Task<IActionResult> CheckCompaniesHouseDetails()
     {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
         // must be approved or delegated user
         if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
         {
@@ -627,9 +630,7 @@ public class AccountManagementController : Controller
         // keep the data for one more request cycle, just in case the page is refreshed
         TempData.Keep(CheckYourOrganisationDetailsKey);
 
-        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CheckCompaniesHouseDetails);
-
+        await SaveSessionAndJourney(session, PagePath.UkNation, PagePath.CheckCompaniesHouseDetails);
         SetBackLink(session, PagePath.CheckCompaniesHouseDetails);
         return View(viewModel);
     }
@@ -659,6 +660,7 @@ public class AccountManagementController : Controller
             viewModel.OrganisationId,
             (int)viewModel.UkNation);
 
+        TempData.Remove(CheckYourOrganisationDetailsKey);
         // save the date/time that the update was performed for the next page
         TempData[OrganisationDetailsUpdatedTimeKey] = DateTime.Now;
 
@@ -666,6 +668,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [Route(PagePath.CompanyDetailsUpdated)]
     public async Task<IActionResult> CompanyDetailsUpdated()
     {
         return null;
@@ -682,9 +685,22 @@ public class AccountManagementController : Controller
     [Route(PagePath.UkNation)]
     public async Task<IActionResult> UkNation()
     {
-        SetCustomBackLink(PagePath.ConfirmCompanyDetails, false);
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        return View();
+        await SaveSessionAndJourney(session, PagePath.ConfirmCompanyDetails, PagePath.UkNation);
+        SetBackLink(session, PagePath.UkNation);
+
+        var viewModel = new UkNationViewModel();
+
+        // see if there has been previously stored data
+        if (TempData[CheckYourOrganisationDetailsKey] is string checkYourOrgDetails &&
+            !string.IsNullOrWhiteSpace(TempData[CheckYourOrganisationDetailsKey] as string))
+        {
+            viewModel.UkNation = JsonSerializer.Deserialize<CheckYourOrganisationDetailsViewModel>(checkYourOrgDetails).UkNation;
+            TempData.Keep(CheckYourOrganisationDetailsKey);
+        }
+
+        return View(viewModel);
     }
 
     [HttpPost]
@@ -712,7 +728,7 @@ public class AccountManagementController : Controller
             TradingName = session.CompaniesHouseSession?.CompaniesHouseData?.Organisation?.Name,
             UkNation = model.UkNation.Value
         };
-        TempData[CheckYourOrganisationDetailsKey] = System.Text.Json.JsonSerializer.Serialize(checkYourOrganisationModel);
+        TempData[CheckYourOrganisationDetailsKey] = JsonSerializer.Serialize(checkYourOrganisationModel);
 
         return RedirectToAction(nameof(CheckCompaniesHouseDetails));
     }
