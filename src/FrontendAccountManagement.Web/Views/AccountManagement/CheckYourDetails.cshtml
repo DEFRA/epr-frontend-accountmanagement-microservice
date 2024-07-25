@@ -7,15 +7,14 @@
 
 @using (Html.BeginForm(FormMethod.Post))
 {
-    @Html.HiddenFor(x => x.FirstName)
-    @Html.HiddenFor(x => x.LastName)
-    @Html.HiddenFor(x => x.JobTitle)
-    @Html.HiddenFor(x => x.Telephone)
-
-    @Html.HiddenFor(x => x.OriginalFirstName)
-    @Html.HiddenFor(x => x.OriginalLastName)
-    @Html.HiddenFor(x => x.OriginalJobTitle)
-    @Html.HiddenFor(x => x.OriginalTelephone)
+    <input type="hidden" asp-for="FirstName" />
+    <input type="hidden" asp-for="LastName" />
+    <input type="hidden" asp-for="JobTitle" />
+    <input type="hidden" asp-for="Telephone" />
+    <input type="hidden" asp-for="OriginalFirstName" />
+    <input type="hidden" asp-for="OriginalLastName" />
+    <input type="hidden" asp-for="OriginalJobTitle" />
+    <input type="hidden" asp-for="OriginalTelephone" />
 
     <div class="govuk-width-container">
         <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">

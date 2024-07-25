@@ -33,8 +33,8 @@ public class AccountManagementController : Controller
     private const string RolesNotFoundException = "Could not retrieve service roles or none found";
     private const string CheckYourOrganisationDetailsKey = "CheckYourOrganisationDetails";
     private const string OrganisationDetailsUpdatedTimeKey = "OrganisationDetailsUpdatedTime";
-    private const string AmendedUserDetails = "AmendedUserDetails";
-    private const string NewUserDetails = "NewUserDetails";
+    private const string AmendedUserDetailsKey = "AmendedUserDetails";
+    private const string NewUserDetailsKey = "NewUserDetails";
     private readonly ISessionManager<JourneySession> _sessionManager;
     private readonly IFacadeService _facadeService;
     private readonly ILogger<AccountManagementController> _logger;
@@ -428,11 +428,11 @@ public class AccountManagementController : Controller
 
         var model = _mapper.Map<EditUserDetailsViewModel>(User.GetUserData());
 
-        if (TempData[AmendedUserDetails] != null)
+        if (TempData[AmendedUserDetailsKey] != null)
         {
             try
             {
-                model = System.Text.Json.JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetails] as string);
+                model = System.Text.Json.JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
             }
             catch (Exception exception) 
             { _logger.LogInformation(exception, "Deserialising NewUserDetails Failed."); }
@@ -472,8 +472,8 @@ public class AccountManagementController : Controller
             return View(editUserDetailsViewModel);
         }
 
-        if (TempData[NewUserDetails] == null)
-            TempData.Add(NewUserDetails, JsonSerializer.Serialize(editUserDetailsViewModel));
+        if (TempData[NewUserDetailsKey] == null)
+            TempData.Add(NewUserDetailsKey, JsonSerializer.Serialize(editUserDetailsViewModel));
 
         return RedirectToAction(nameof(PagePath.CheckYourDetails));
     }
@@ -487,11 +487,11 @@ public class AccountManagementController : Controller
 
         var editUserDetailsViewModel = new EditUserDetailsViewModel();
 
-        if (TempData[NewUserDetails] != null)
+        if (TempData[NewUserDetailsKey] != null)
         {
             try
             {
-                editUserDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[NewUserDetails] as string);
+                editUserDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[NewUserDetailsKey] as string);
             }
             catch (Exception exception)
             { _logger.LogInformation(exception, "Deserialising NewUserDetails Failed."); }
@@ -512,9 +512,9 @@ public class AccountManagementController : Controller
         ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.LastOrDefault();
         SaveSessionAndJourney(session, PagePath.CheckYourDetails);
 
-        if (TempData[AmendedUserDetails] == null)
+        if (TempData[AmendedUserDetailsKey] == null)
         {
-            TempData.Add(AmendedUserDetails, JsonSerializer.Serialize(editUserDetailsViewModel));
+            TempData.Add(AmendedUserDetailsKey, JsonSerializer.Serialize(editUserDetailsViewModel));
         }
 
         return View(model);
