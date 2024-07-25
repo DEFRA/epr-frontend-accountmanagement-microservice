@@ -10,6 +10,10 @@ namespace FrontendAccountManagement.Web.Profiles
         public AccountManagementProfile()
         {
             CreateMap<UserData, EditUserDetailsViewModel>()
+                .ForMember(d => d.FirstName, o => o.MapFrom(s => s.FirstName))
+                .ForMember(d => d.OriginalFirstName, o => o.MapFrom(s => s.FirstName))
+                .ForMember(d => d.LastName, o => o.MapFrom(s => s.LastName))
+                .ForMember(d => d.OriginalLastName, o => o.MapFrom(s => s.LastName))
                 .ForMember(d => d.JobTitle, o => o.MapFrom(s => s.JobTitle))
                 .ForMember(d => d.OriginalJobTitle, o => o.MapFrom(s => s.JobTitle))
                 .ForMember(d => d.Telephone, o => o.MapFrom(s => s.Telephone))
