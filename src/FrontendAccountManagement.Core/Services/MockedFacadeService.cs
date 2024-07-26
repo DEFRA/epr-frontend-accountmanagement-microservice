@@ -130,7 +130,9 @@ public class MockedFacadeService : IFacadeService
         return Task.FromResult(stubResponse);
     }
 
-    public async Task UpdateNationIdByOrganisationId(Guid organisationId, int nationId)
+    public async Task UpdateOrganisationDetails(
+        Guid organisationId,
+        OrganisationUpdateDto organisation)
     {
         await Task.CompletedTask;
     }

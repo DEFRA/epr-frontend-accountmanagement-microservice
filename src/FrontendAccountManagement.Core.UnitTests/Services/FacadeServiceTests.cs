@@ -8,7 +8,6 @@ using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
@@ -1006,7 +1005,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
         {
             // Arrange
             var organisationId = Guid.NewGuid();
-            var ukNation = 3;
+            var organisation = new OrganisationUpdateDto();
 
             var expectedResponse = new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -1019,9 +1018,9 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 .ReturnsAsync(expectedResponse).Verifiable();
 
             // Act
-            await _facadeService.UpdateNationIdByOrganisationId(
+            await _facadeService.UpdateOrganisationDetails(
                 organisationId,
-                ukNation);
+                organisation);
 
             // Assert
             _mockHandler.Protected().Verify(
