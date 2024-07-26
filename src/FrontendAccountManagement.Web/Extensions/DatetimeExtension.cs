@@ -14,5 +14,14 @@
                 _ => "th"
             };
         }
+
+        /// <summary>Converts a date from UTC time to UK time.</summary>
+        /// <param name="utcTime">The time in UTC.</param>
+        /// <returns>The time in UK time.</returns>
+        public static DateTime ToUkTime(this DateTime utcTime)
+        {
+            TimeZoneInfo gmtTimeZone = TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time");
+            return TimeZoneInfo.ConvertTimeFromUtc(utcTime, gmtTimeZone);
+        }
     }
 }

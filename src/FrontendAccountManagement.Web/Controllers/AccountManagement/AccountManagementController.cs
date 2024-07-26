@@ -682,8 +682,9 @@ public class AccountManagementController : Controller
             (int)viewModel.UkNation);
 
         TempData.Remove(CheckYourOrganisationDetailsKey);
-        // save the date/time that the update was performed for the next page
-        TempData[OrganisationDetailsUpdatedTimeKey] = DateTime.UtcNow;
+
+        // save the date/time that the update was performed for the next page.
+        TempData[OrganisationDetailsUpdatedTimeKey] = DateTime.UtcNow.ToUkTime();
 
         return RedirectToAction(nameof(CompanyDetailsUpdated));
     }
