@@ -12,7 +12,7 @@
                 </div>
                 <p class="govuk-body">@Localizer["ChangedBy", Model.UserName, Model.ChangeTime, Model.ChangeDate]</p>
                 <p class="govuk-body govuk-!-font-weight-bold">@Localizer["WhatHappensNext"]</p>
-                <p class="govuk-body">@Localizer["Body"]</p>
+                <p class="govuk-body">@Localizer["Body"]<br/>@Localizer["Body2"]</p>
                 <a asp-action="ManageAccount" asp-controller="AccountManagement" class="govuk-link" data-module="govuk-link">
                     @Localizer["ManageAccountLink"]
                 </a>
