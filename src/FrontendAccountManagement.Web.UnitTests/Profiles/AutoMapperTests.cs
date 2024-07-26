@@ -1,37 +1,34 @@
 ﻿using AutoMapper;
-using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using FrontendAccountManagement.Web.Profiles;
-using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 
-namespace FrontendAccountManagement.Web.UnitTests.Profiles
+namespace FrontendAccountManagement.Web.UnitTests.Profiles;
+
+[TestClass]
+public class AutoMapperTests
 {
-    [TestClass]
-    public class AutoMapperTests
+    private IMapper _mapper;
+
+    [TestMethod]
+    public void CompaniesHouseProfileValidValid()
     {
-        private IMapper _mapper;
-
-        [TestMethod]
-        public void CompaniesHouseProfileValidValid()
+        var config = new MapperConfiguration(cfg =>
         {
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile<CompaniesHouseResponseProfile>();
-            });
+            cfg.AddProfile<CompaniesHouseResponseProfile>();
+        });
 
-            _mapper = config.CreateMapper();
-            _mapper.ConfigurationProvider.AssertConfigurationIsValid();
-        }
+        _mapper = config.CreateMapper();
+        _mapper.ConfigurationProvider.AssertConfigurationIsValid();
+    }
 
-        [TestMethod]
-        public void AccountManagementProfileValidValid()
+    [TestMethod]
+    public void AccountManagementProfileValidValid()
+    {
+        var config = new MapperConfiguration(cfg =>
         {
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile<AccountManagementProfile>();
-            });
+            cfg.AddProfile<AccountManagementProfile>();
+        });
 
-            _mapper = config.CreateMapper();
-            _mapper.ConfigurationProvider.AssertConfigurationIsValid();
-        }
+        _mapper = config.CreateMapper();
+        _mapper.ConfigurationProvider.AssertConfigurationIsValid();
     }
 }

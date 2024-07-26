@@ -1005,7 +1005,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
         {
             // Arrange
             var organisationId = Guid.NewGuid();
-            var ukNation = 3;
+            var organisation = new OrganisationUpdateDto();
 
             var expectedResponse = new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -1018,10 +1018,9 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 .ReturnsAsync(expectedResponse).Verifiable();
 
             // Act
-            Assert.Fail();
-            //await _facadeService.UpdateNationIdByOrganisationId(
-            //    organisationId,
-            //    ukNation);
+            await _facadeService.UpdateOrganisationDetails(
+                organisationId,
+                organisation);
 
             // Assert
             _mockHandler.Protected().Verify(

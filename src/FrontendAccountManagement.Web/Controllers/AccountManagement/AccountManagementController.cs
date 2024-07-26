@@ -681,7 +681,7 @@ public class AccountManagementController : Controller
         }
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        
+
         // map to a dto that can be used to update organisation details, including the nation id
         var organisation = _mapper.Map<OrganisationUpdateDto>(
             session.CompaniesHouseSession.CompaniesHouseData.Organisation,
