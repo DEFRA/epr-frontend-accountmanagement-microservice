@@ -44,6 +44,7 @@ public class CompaniesHouseResponseProfile : Profile
             .ForMember(d => d.SubBuildingName, opt => opt.MapFrom(s => s.RegisteredOffice.SubBuildingName))
             .ForMember(d => d.BuildingName, opt => opt.MapFrom(s => s.RegisteredOffice.BuildingName))
             .ForMember(d => d.BuildingNumber, opt => opt.MapFrom(s => s.RegisteredOffice.BuildingNumber))
+            .ForMember(d => d.Postcode, opt => opt.MapFrom(s => s.RegisteredOffice.Postcode))
             .ForMember(d => d.Street, opt => opt.MapFrom(s => s.RegisteredOffice.Street))
             .ForMember(d => d.Locality, opt => opt.MapFrom(s => s.RegisteredOffice.Locality))
             .ForMember(d => d.DependentLocality, opt => opt.MapFrom(s => s.RegisteredOffice.DependentLocality))
