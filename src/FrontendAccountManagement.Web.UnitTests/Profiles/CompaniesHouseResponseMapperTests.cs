@@ -15,7 +15,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Profiles
         {
             var config = new MapperConfiguration(cfg =>
             {
-                cfg.AddProfile<CompaniesHouseResponseMapper>();
+                cfg.AddProfile<CompaniesHouseResponseProfile>();
             });
 
             _mapper = config.CreateMapper();

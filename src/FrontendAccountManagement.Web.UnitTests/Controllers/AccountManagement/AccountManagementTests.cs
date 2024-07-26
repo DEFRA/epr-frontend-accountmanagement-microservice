@@ -407,11 +407,13 @@ public class AccountManagementTests : AccountManagementTestBase
 
         // Assert
         Assert.IsNotNull(result);
-        FacadeServiceMock.Verify(s =>
-            s.UpdateNationIdByOrganisationId(
-                organisationId,
-                (int)ukNation),
-            Times.Once);
+
+        Assert.Fail();
+        //FacadeServiceMock.Verify(s =>
+        //    s.UpdateNationIdByOrganisationId(
+        //        organisationId,
+        //        (int)ukNation),
+        //    Times.Once);
     }
 
     [TestMethod]

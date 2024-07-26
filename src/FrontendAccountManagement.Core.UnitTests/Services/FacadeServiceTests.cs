@@ -8,7 +8,6 @@ using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
@@ -1019,9 +1018,10 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 .ReturnsAsync(expectedResponse).Verifiable();
 
             // Act
-            await _facadeService.UpdateNationIdByOrganisationId(
-                organisationId,
-                ukNation);
+            Assert.Fail();
+            //await _facadeService.UpdateNationIdByOrganisationId(
+            //    organisationId,
+            //    ukNation);
 
             // Assert
             _mockHandler.Protected().Verify(

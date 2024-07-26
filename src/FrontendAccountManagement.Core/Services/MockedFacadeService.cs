@@ -80,11 +80,6 @@ public class MockedFacadeService : IFacadeService
         return Task.FromResult<UserAccountDto?>(null);
     }
 
-    //public Task<UserOrganisationsListModelDto?> GetUserAccountForDispaly()
-    //{
-    //    return Task.FromResult<UserOrganisationsListModelDto?>(null);
-    //}
-
     public Task<EnrolmentStatus?> GetEnrolmentStatus(Guid organisationId, Guid connectionId, string serviceKey, string serviceRoleKey)
     {
         throw new NotImplementedException();
@@ -135,7 +130,9 @@ public class MockedFacadeService : IFacadeService
         return Task.FromResult(stubResponse);
     }
 
-    public async Task UpdateNationIdByOrganisationId(Guid organisationId, int nationId)
+    public async Task UpdateOrganisationDetails(
+        Guid organisationId,
+        OrganisationUpdateDto organisation)
     {
         await Task.CompletedTask;
     }
