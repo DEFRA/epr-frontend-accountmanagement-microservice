@@ -128,7 +128,8 @@ public class AccountManagementController : Controller
             var roleInOrganisation = userAccount.RoleInOrganisation;
             model.ServiceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
             model.OrganisationType = userOrg.OrganisationType;
-            model.HasPermissionToChangeCompany = HasPermissionToChangeCompany(userAccount);
+            model.HasPermissionToChangeCompany = HasPermissionToChangeCompany(session.UserData);
+            model.IsBasicUser = IsBasicUser(session.UserData);
         }
         return View(nameof(ManageAccount), model);
     }
@@ -435,10 +436,12 @@ public class AccountManagementController : Controller
                 model = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
             }
             catch (Exception exception) 
-            { _logger.LogInformation(exception, "Deserialising NewUserDetails Failed."); }
+            {
+                _logger.LogError(exception, "Deserialising NewUserDetails Failed.");
+            }
         }
 
-        SaveSessionAndJourney(session, PagePath.WhatAreYourDetails);
+        SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.WhatAreYourDetails);
         SetBackLink(session, PagePath.WhatAreYourDetails);
 
         return View(model);
@@ -494,7 +497,9 @@ public class AccountManagementController : Controller
                 editUserDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[NewUserDetailsKey] as string);
             }
             catch (Exception exception)
-            { _logger.LogInformation(exception, "Deserialising NewUserDetails Failed."); }
+            {
+                _logger.LogInformation(exception, "Deserialising NewUserDetails Failed.");
+            }
         }
 
         var model = new EditUserDetailsViewModel
@@ -509,8 +514,8 @@ public class AccountManagementController : Controller
             OriginalTelephone = editUserDetailsViewModel.OriginalTelephone ?? string.Empty
         };
 
-        ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.LastOrDefault();
-        SaveSessionAndJourney(session, PagePath.CheckYourDetails);
+        SaveSessionAndJourney(session, PagePath.WhatAreYourDetails, PagePath.CheckYourDetails);
+        SetBackLink(PagePath.CheckYourDetails);
 
         if (TempData[AmendedUserDetailsKey] == null)
         {
@@ -614,8 +619,7 @@ public class AccountManagementController : Controller
         var model = new CompanyDetailsUpdatedViewModel
         {
             UserName = $"{session.UserData.FirstName} {session.UserData.LastName}",
-            ChangeTime = $"{changeDate:HH:mm}",
-            ChangeDate = $"{changeDate:dd MMMM yyyy}",
+            ChangeDate = (DateTime)changeDate,
         };
 
         TempData.Keep("OrganisationDetailsUpdatedTime");
@@ -823,39 +827,12 @@ public class AccountManagementController : Controller
     /// <param name="sourcePagePath">The page this step of the journey starts from (typically the page we've just come from.).</param>
     /// <param name="destinationPagePath">The page this step of the journey ends at (typically the current page.).</param>
     /// <returns>A <see cref="Task"/>.</returns>
-    /// <remarks>
-    /// This version of the method only allows one entry for each page - if the user navigates to a page they've already been to,
-    /// the journey history gets rolled back to the last time they visited that page.
-    /// It doesn't take into account loops in the journey - see the other overload of this method.
-    /// </remarks>
     private async Task SaveSessionAndJourney(JourneySession session, string sourcePagePath, string? destinationPagePath)
     {
         ClearRestOfJourney(session, sourcePagePath);
 
         session.AccountManagementSession.Journey.AddIfNotExists(destinationPagePath);
 
-        await SaveSession(session);
-    }
-
-    /// <summary>
-    /// Saves the session data and adds a step to the list detailing the user's journey through the site.
-    /// </summary>
-    /// <param name="session">The session data to save.</param>
-    /// <param name="sourcePagePath">The page this step of the journey ends at (typically the current page).</param>
-    /// <returns>A <see cref="Task"/>.</returns>
-    /// <remarks>
-    /// This version of the method allows duplicate journey steps, and doesn't wind back the journey history when the user returns to a page they've visited previously.
-    /// This prevents it from loosing history and breaking the back button when the user goes through loops in the journey
-    /// such as "check-your-details -> what-are-your-details -> check-your-details".
-    /// </remarks>
-    private async Task SaveSessionAndJourney(JourneySession session, string? sourcePagePath)
-    {
-        var journey = session.AccountManagementSession.Journey;
-
-        if (journey.LastOrDefault() != sourcePagePath)
-        {
-            session.AccountManagementSession.Journey.Add(sourcePagePath);
-        }
         await SaveSession(session);
     }
 
@@ -903,9 +880,8 @@ public class AccountManagementController : Controller
         {
             return IsRegulatorAdmin(userData);
         }
-
         // regulator users cannot view if producer deployment
-        return !IsRegulatorUser(userData);
+        return !IsRegulatorUser(userData) || IsBasicUser(userData);
     }
 
     private static bool IsRegulatorAdmin(UserData userData) =>
@@ -916,6 +892,9 @@ public class AccountManagementController : Controller
 
     private static bool IsRegulatorUser(UserData userData) =>
         IsRegulatorAdmin(userData) || IsRegulatorBasic(userData);
+
+    private static bool IsBasicUser(UserData userData) =>
+       userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Basic;
 
     private static bool HasPermissionToChangeCompany(UserData userData)
     {
@@ -929,4 +908,5 @@ public class AccountManagementController : Controller
         }
         return false;
     }
+
 }

@@ -34,5 +34,7 @@ namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
         public string? OrganisationType { get; set; }
 
         public bool? HasPermissionToChangeCompany { get; set; } = false;
+
+        public bool? IsBasicUser { get; set; } = false;
     }
 }

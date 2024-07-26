@@ -95,7 +95,7 @@ public class FacadeService : IFacadeService
             return EndpointResponseStatus.UserExists;
         }
 
-        throw new Exception(response.Content.ToString());
+        return EndpointResponseStatus.Fail;
     }
 
     public async Task<ConnectionPerson?> GetPersonDetailsFromConnectionAsync(Guid organisationId, Guid connectionId, string serviceKey)
