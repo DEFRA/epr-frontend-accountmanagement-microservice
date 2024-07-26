@@ -15,12 +15,12 @@ namespace FrontendAccountManagement.Web.UnitTests.ViewModels
             const string KeyOne = "keyOne";
             const string KeyTwo = "keyTwo";
 
-            var errorsOne = new List<ErrorViewModel> { new ErrorViewModel { Key = "test1", Message = "test1" } };
-            var errorsTwo = new List<ErrorViewModel> { new ErrorViewModel { Key = "test2", Message = "test2" } };
+            var errorsOne = new List<ErrorViewModel> { new ErrorViewModel { Key = "test1", Message = "test" } };
+            var errorsTwo = new List<ErrorViewModel> { new ErrorViewModel { Key = "test2", Message = "test" } };
 
             var localizerMock = new Mock<IViewLocalizer>();
 
-            localizerMock.Setup(x => x[It.IsAny<string>()]).Returns(new LocalizedHtmlString("test", "test2"));
+            localizerMock.Setup(x => x[It.IsAny<string>()]).Returns(new LocalizedHtmlString("test", "test"));
 
             // Act
 
