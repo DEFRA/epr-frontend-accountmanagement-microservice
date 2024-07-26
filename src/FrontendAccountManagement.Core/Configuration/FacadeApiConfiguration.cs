@@ -47,4 +47,10 @@ public record FacadeApiConfiguration
     /// Gets or sets the path for updating the nation id of an organisation
     /// </summary>
     public string PutUpdateOrganisationPath { get; set; }
+
+    /// <summary>
+    /// Gets or sets the path for updating the user details
+    /// </summary>
+    public string PutUserDetailsByUserIdPath { get; set; }
+    
 }
