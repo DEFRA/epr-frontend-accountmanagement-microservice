@@ -683,7 +683,7 @@ public class AccountManagementController : Controller
 
         TempData.Remove(CheckYourOrganisationDetailsKey);
         // save the date/time that the update was performed for the next page
-        TempData[OrganisationDetailsUpdatedTimeKey] = DateTime.Now;
+        TempData[OrganisationDetailsUpdatedTimeKey] = DateTime.UtcNow;
 
         return RedirectToAction(nameof(CompanyDetailsUpdated));
     }
