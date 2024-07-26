@@ -129,7 +129,8 @@ public class AccountManagementController : Controller
             var roleInOrganisation = userAccount.RoleInOrganisation;
             model.ServiceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
             model.OrganisationType = userOrg.OrganisationType;
-            model.HasPermissionToChangeCompany = HasPermissionToChangeCompany(userAccount);
+            model.HasPermissionToChangeCompany = HasPermissionToChangeCompany(session.UserData);
+            model.IsBasicUser = IsBasicUser(session.UserData);
         }
         return View(nameof(ManageAccount), model);
     }
@@ -436,7 +437,9 @@ public class AccountManagementController : Controller
                 model = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
             }
             catch (Exception exception) 
-            { _logger.LogInformation(exception, "Deserialising NewUserDetails Failed."); }
+            {
+                _logger.LogError(exception, "Deserialising NewUserDetails Failed.");
+            }
         }
 
         SaveSessionAndJourney(session, PagePath.WhatAreYourDetails);
@@ -495,7 +498,9 @@ public class AccountManagementController : Controller
                 editUserDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[NewUserDetailsKey] as string);
             }
             catch (Exception exception)
-            { _logger.LogInformation(exception, "Deserialising NewUserDetails Failed."); }
+            {
+                _logger.LogInformation(exception, "Deserialising NewUserDetails Failed.");
+            }
         }
 
         var model = new EditUserDetailsViewModel
@@ -892,9 +897,8 @@ public class AccountManagementController : Controller
         {
             return IsRegulatorAdmin(userData);
         }
-
         // regulator users cannot view if producer deployment
-        return !IsRegulatorUser(userData);
+        return !IsRegulatorUser(userData) || IsBasicUser(userData);
     }
 
     private static bool IsRegulatorAdmin(UserData userData) =>
@@ -905,6 +909,9 @@ public class AccountManagementController : Controller
 
     private static bool IsRegulatorUser(UserData userData) =>
         IsRegulatorAdmin(userData) || IsRegulatorBasic(userData);
+
+    private static bool IsBasicUser(UserData userData) =>
+       userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Basic;
 
     private static bool HasPermissionToChangeCompany(UserData userData)
     {
@@ -918,4 +925,5 @@ public class AccountManagementController : Controller
         }
         return false;
     }
+
 }
