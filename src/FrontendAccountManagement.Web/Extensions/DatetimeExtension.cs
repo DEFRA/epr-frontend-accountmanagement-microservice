@@ -20,7 +20,7 @@
         /// <returns>The time in UK time.</returns>
         public static DateTime ToUkTime(this DateTime utcTime)
         {
-            TimeZoneInfo gmtTimeZone = TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time");
+            TimeZoneInfo gmtTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/London");
             return TimeZoneInfo.ConvertTimeFromUtc(utcTime, gmtTimeZone);
         }
     }
