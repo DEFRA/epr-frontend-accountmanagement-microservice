@@ -34,6 +34,11 @@ public class OrganisationUpdateDto
     public string Street { get; init; }
 
     /// <summary>
+    /// Gets or sets the postcode for the organisation
+    /// </summary>
+    public string Postcode { get; init; }
+
+    /// <summary>
     /// Gets or sets the locality of the organisation
     /// </summary>
     public string Locality { get; init; }

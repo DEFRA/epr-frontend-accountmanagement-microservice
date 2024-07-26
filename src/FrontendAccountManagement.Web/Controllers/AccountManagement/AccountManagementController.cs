@@ -693,6 +693,13 @@ public class AccountManagementController : Controller
             organisation);
 
         TempData.Remove(CheckYourOrganisationDetailsKey);
+
+        // refresh the user data from the database
+        var userAccount = await _facadeService.GetUserAccount();
+        await ClaimsExtensions.UpdateUserDataClaimsAndSignInAsync(
+            HttpContext,
+            userAccount.User);
+
         // save the date/time that the update was performed for the next page
         TempData[OrganisationDetailsUpdatedTimeKey] = DateTime.Now;
 
