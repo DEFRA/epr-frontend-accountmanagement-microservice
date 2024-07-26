@@ -316,6 +316,25 @@ public class FacadeService : IFacadeService
         response.EnsureSuccessStatusCode();
     }
 
+    /// <summary>
+    /// Requests the facade to update the user details
+    /// for a give user ID
+    /// </summary>
+    /// <param name="userId">The id used to identify the user</param>
+    /// <param name="userDetailsDto">The details used to update</param>
+    /// <returns>An async task</returns>
+    public async Task UpdateUserDetails(
+       Guid? userId,
+       UserDetailsDto userDetailsDto)
+    {
+        await PrepareAuthenticatedClient();
+
+        var response = await _httpClient.PutAsJsonAsync($"{_putUserDetailsByUserIdPath}?userId=" +
+            $"{userId}", userDetailsDto);
+
+        response.EnsureSuccessStatusCode();
+    }
+
     private async Task PrepareAuthenticatedClient()
     {
         if (_httpClient.BaseAddress == null)
