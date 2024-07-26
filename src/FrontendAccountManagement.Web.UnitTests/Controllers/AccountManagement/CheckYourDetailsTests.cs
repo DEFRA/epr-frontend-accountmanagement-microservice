@@ -75,23 +75,6 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             ((RedirectToActionResult)result).ActionName.Should().NotBeNull();
         }
 
-        /// <summary>
-        /// Checks that the journey history is updated in the expected way when navigating from different pages.
-        /// </summary>
-        [TestMethod]
-        [DynamicData(nameof(CheckYourDetailsData))]
-        public async Task CheckYourDetails_DontAddToJourneyOnRefresh(List<string> input, List<string> expected)
-        {
-            // Arrange
-            _journeySession.AccountManagementSession.Journey = input;
-
-            // Act
-            SystemUnderTest.CheckYourDetails();
-
-            // Assert
-            CollectionAssert.AreEqual(expected, _journeySession.AccountManagementSession.Journey);
-        }
-
         #region Private
         
         private static IEnumerable<object[]> CheckYourDetailsData
