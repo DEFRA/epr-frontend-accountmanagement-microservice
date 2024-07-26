@@ -124,7 +124,7 @@
     <value>You must notify the regulator of this change by submitting organisation data.</value>
   </data>
   <data name="ChangedBy" xml:space="preserve">
-    <value>Changed by {0} at {1} on {2}.</value>
+    <value>Changed by {0} at {1}{2} on {3}&lt;sup&gt;{4}&lt;/sup&gt; {5} {6}.</value>
   </data>
   <data name="Header" xml:space="preserve">
     <value>Your organisation's details have been updated</value>

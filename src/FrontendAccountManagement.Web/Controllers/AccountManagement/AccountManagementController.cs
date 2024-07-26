@@ -620,8 +620,7 @@ public class AccountManagementController : Controller
         var model = new CompanyDetailsUpdatedViewModel
         {
             UserName = $"{session.UserData.FirstName} {session.UserData.LastName}",
-            ChangeTime = $"{changeDate:HH:mm}",
-            ChangeDate = $"{changeDate:dd MMMM yyyy}",
+            ChangeDate = (DateTime)changeDate,
         };
 
         TempData.Keep("OrganisationDetailsUpdatedTime");
