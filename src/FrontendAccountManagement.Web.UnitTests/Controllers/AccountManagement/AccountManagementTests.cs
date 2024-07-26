@@ -393,13 +393,27 @@ public class AccountManagementTests : AccountManagementTestBase
     public async Task PostCheckCompaniesHouseDetails_ValidParameters_RequestsToSaveData(string serviceRole)
     {
         // Arrange
-        SetupUserData(serviceRole);
+        var userData = SetupUserData(serviceRole);
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .Returns(Task.FromResult(
+                new JourneySession 
+                { 
+                    UserData = userData,
+                    CompaniesHouseSession = new CompaniesHouseSession
+                    {
+                        CompaniesHouseData = new CompaniesHouseResponse
+                        {
+                            Organisation = new OrganisationDto
+                            { }
+                        }
+                    }
+                }));
+
         var organisationId = Guid.NewGuid();
-        var ukNation = UkNation.England;
         var viewModel = new CheckYourOrganisationDetailsViewModel
         {
             OrganisationId = organisationId,
-            UkNation = ukNation
+            UkNation = UkNation.NorthernIreland
         };
 
         // Act
@@ -407,10 +421,11 @@ public class AccountManagementTests : AccountManagementTestBase
 
         // Assert
         Assert.IsNotNull(result);
+
         FacadeServiceMock.Verify(s =>
-            s.UpdateNationIdByOrganisationId(
+            s.UpdateOrganisationDetails(
                 organisationId,
-                (int)ukNation),
+                It.IsAny<OrganisationUpdateDto>()),
             Times.Once);
     }
 

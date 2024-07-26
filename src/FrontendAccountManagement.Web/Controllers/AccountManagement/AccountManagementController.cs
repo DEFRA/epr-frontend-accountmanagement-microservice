@@ -4,6 +4,7 @@ using EPR.Common.Authorization.Models;
 using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Enums;
+using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Services;
@@ -12,9 +13,11 @@ using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.Errors;
 using FrontendAccountManagement.Web.Extensions;
+using FrontendAccountManagement.Web.Profiles;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using System;
@@ -22,10 +25,6 @@ using System.Net;
 using System.Text.Json;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
-using FrontendAccountManagement.Core.Enums;
-using FrontendAccountManagement.Web.Controllers.Attributes;
-using System.Globalization;
-using Microsoft.Extensions.Logging;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 
@@ -651,8 +650,12 @@ public class AccountManagementController : Controller
         // keep the data for one more request cycle, just in case the page is refreshed
         TempData.Keep(CheckYourOrganisationDetailsKey);
 
-        await SaveSessionAndJourney(session, PagePath.UkNation, PagePath.CheckCompaniesHouseDetails);
+        await SaveSessionAndJourney(
+            session,
+            PagePath.UkNation,
+            PagePath.CheckCompaniesHouseDetails);
         SetBackLink(session, PagePath.CheckCompaniesHouseDetails);
+
         return View(viewModel);
     }
 
@@ -677,9 +680,17 @@ public class AccountManagementController : Controller
             return View(viewModel);
         }
 
-        _facadeService.UpdateNationIdByOrganisationId(
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        // map to a dto that can be used to update organisation details, including the nation id
+        var organisation = _mapper.Map<OrganisationUpdateDto>(
+            session.CompaniesHouseSession.CompaniesHouseData.Organisation,
+            options =>
+                options.Items[CompaniesHouseResponseProfile.NationIdKey] = (int)viewModel.UkNation);
+
+        await _facadeService.UpdateOrganisationDetails(
             viewModel.OrganisationId,
-            (int)viewModel.UkNation);
+            organisation);
 
         TempData.Remove(CheckYourOrganisationDetailsKey);
         // save the date/time that the update was performed for the next page

@@ -25,7 +25,7 @@ public class FacadeService : IFacadeService
     private readonly string _serviceRolesPath;
     private readonly string _getUserAccountPath;
     private readonly string _getCompanyFromCompaniesHousePath;
-    private readonly string _putNationIdByOrganisationIdPath;
+    private readonly string _putUpdateOrganisationPath;
     private readonly string[] _scopes;
 
     public FacadeService(
@@ -41,7 +41,7 @@ public class FacadeService : IFacadeService
         _serviceRolesPath = config.GetServiceRolesPath;
         _getUserAccountPath = config.GetUserAccountPath;
         _getCompanyFromCompaniesHousePath = config.GetCompanyFromCompaniesHousePath;
-        _putNationIdByOrganisationIdPath = config.PutNationIdByOrganisationIdPath;
+        _putUpdateOrganisationPath = config.PutUpdateOrganisationPath;
         _scopes = new[]
         {
             config.DownStreamScope,
@@ -281,14 +281,15 @@ public class FacadeService : IFacadeService
     /// <param name="organisationId">The organisation id to update</param>
     /// <param name="nationId">The nation id to use</param>
     /// <returns>An async task</returns>
-    public async Task UpdateNationIdByOrganisationId(
+    public async Task UpdateOrganisationDetails(
         Guid organisationId,
-        int nationId)
+        OrganisationUpdateDto organisation)
     {
         await PrepareAuthenticatedClient();
 
-        var response = await _httpClient.PutAsJsonAsync($"{_putNationIdByOrganisationIdPath}?organisationId={organisationId}", nationId);
+        var response = await _httpClient.PutAsJsonAsync($"{_putUpdateOrganisationPath}/{organisationId}", organisation);
 
+        string result = await response.Content.ReadAsStringAsync();
         response.EnsureSuccessStatusCode();
     }
 
