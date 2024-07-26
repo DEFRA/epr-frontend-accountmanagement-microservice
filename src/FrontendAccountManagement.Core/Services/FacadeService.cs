@@ -26,6 +26,7 @@ public class FacadeService : IFacadeService
     private readonly string _getUserAccountPath;
     private readonly string _getCompanyFromCompaniesHousePath;
     private readonly string _putNationIdByOrganisationIdPath;
+    private readonly string _putUserDetailsByUserIdPath;
     private readonly string[] _scopes;
 
     public FacadeService(
@@ -42,6 +43,7 @@ public class FacadeService : IFacadeService
         _getUserAccountPath = config.GetUserAccountPath;
         _getCompanyFromCompaniesHousePath = config.GetCompanyFromCompaniesHousePath;
         _putNationIdByOrganisationIdPath = config.PutNationIdByOrganisationIdPath;
+        _putUserDetailsByUserIdPath = config.PutUserDetailsByUserIdPath;
         _scopes = new[]
         {
             config.DownStreamScope,
@@ -288,6 +290,25 @@ public class FacadeService : IFacadeService
         await PrepareAuthenticatedClient();
 
         var response = await _httpClient.PutAsJsonAsync($"{_putNationIdByOrganisationIdPath}?organisationId={organisationId}", nationId);
+
+        response.EnsureSuccessStatusCode();
+    }
+
+    /// <summary>
+    /// Requests the facade to update the user details
+    /// for a give user ID
+    /// </summary>
+    /// <param name="userId">The id used to identify the user</param>
+    /// <param name="userDetailsDto">The details used to update</param>
+    /// <returns>An async task</returns>
+    public async Task UpdateUserDetails(
+       Guid? userId,
+       UserDetailsDto userDetailsDto)
+    {
+        await PrepareAuthenticatedClient();
+
+        var response = await _httpClient.PutAsJsonAsync($"{_putUserDetailsByUserIdPath}?userId=" +
+            $"{userId}", userDetailsDto);
 
         response.EnsureSuccessStatusCode();
     }
