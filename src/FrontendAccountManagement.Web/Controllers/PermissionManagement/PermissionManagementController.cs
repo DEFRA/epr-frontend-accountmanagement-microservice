@@ -24,7 +24,7 @@ using Microsoft.Identity.Web;
 namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
 {
     [FeatureGate(FeatureFlags.ManageUserPermissions)]
-    [Authorize(Policy = PolicyConstants.AccountManagementPolicy)]
+    [Authorize(Policy = PolicyConstants.AccountPermissionManagementPolicy)]
     public class PermissionManagementController : Controller
     {
         private readonly ISessionManager<JourneySession> _sessionManager;
