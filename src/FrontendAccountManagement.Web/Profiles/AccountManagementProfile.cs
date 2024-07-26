@@ -35,6 +35,7 @@ namespace FrontendAccountManagement.Web.Profiles
                 .ForMember(d => d.County, o => o.MapFrom(s => s.Organisation.RegisteredOffice.County))
                 .ForMember(d => d.Country, o => o.MapFrom(s => s.Organisation.RegisteredOffice.Country.Name))
                 .ForMember(d => d.Postcode, o => o.MapFrom(s => s.Organisation.RegisteredOffice.Postcode))
+                .ForMember(d => d.Id, o => o.Ignore())
                 .ForMember(d => d.CompaniesHouseChangeDetailsUrl, o => o.MapFrom((src, dest, destMember, context) => context.Items["CompaniesHouseChangeDetailsUrl"]));
 
             CreateMap<EditUserDetailsViewModel, UserDetailsDto>()
