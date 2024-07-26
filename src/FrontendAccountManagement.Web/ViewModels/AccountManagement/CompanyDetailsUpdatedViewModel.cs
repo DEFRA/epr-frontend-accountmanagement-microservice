@@ -4,8 +4,6 @@
     {
         public string UserName { get; set; }
 
-        public string ChangeTime { get; set; }
-
-        public string ChangeDate { get; set; }
+        public DateTime ChangeDate { get; set; }
     }
 }

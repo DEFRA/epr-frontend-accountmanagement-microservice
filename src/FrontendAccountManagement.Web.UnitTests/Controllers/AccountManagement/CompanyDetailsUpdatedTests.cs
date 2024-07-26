@@ -34,8 +34,8 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             Assert.AreEqual(nameof(AccountManagementController.CompanyDetailsUpdated), viewResult.ViewName);
             Assert.AreEqual($"{firstName} {lastName}", model.UserName);
-            Assert.AreEqual(parsedDate.ToString("HH:mm"), model.ChangeTime);
-            Assert.AreEqual(parsedDate.ToString("dd MMMM yyyy"), model.ChangeDate);
+            Assert.AreEqual(parsedDate.ToString("HH:mm"), model.ChangeDate.ToString("HH:mm"));
+            Assert.AreEqual(parsedDate.ToString("dd MMMM yyyy"), model.ChangeDate.ToString("dd MMMM yyyy"));
         }
     }
 }
