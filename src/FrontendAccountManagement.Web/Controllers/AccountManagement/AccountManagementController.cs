@@ -129,7 +129,7 @@ public class AccountManagementController : Controller
             model.ServiceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
             model.OrganisationType = userOrg.OrganisationType;
             model.HasPermissionToChangeCompany = HasPermissionToChangeCompany(session.UserData);
-            model.IsBasicUser = IsBasicUser(session.UserData);
+            model.IsBasicUser = IsBasicUserEmployee(session.UserData);
         }
         return View(nameof(ManageAccount), model);
     }
@@ -535,7 +535,7 @@ public class AccountManagementController : Controller
         var roleInOrganisation = userData.RoleInOrganisation ?? string.Empty;
 
         // User has a service role of "basic" And an organisation role of "Admin"
-        if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower() && roleInOrganisation == RoleInOrganisation.Admin)
+        if (IsBasicUserEmployee(userData) || roleInOrganisation == RoleInOrganisation.Admin)
         {
             //TODO: save data to db
 
@@ -888,7 +888,7 @@ public class AccountManagementController : Controller
             return IsRegulatorAdmin(userData);
         }
         // regulator users cannot view if producer deployment
-        return !IsRegulatorUser(userData) || IsBasicUser(userData);
+        return !IsRegulatorUser(userData) || IsBasicUserEmployee(userData);
     }
 
     private static bool IsRegulatorAdmin(UserData userData) =>
@@ -900,15 +900,13 @@ public class AccountManagementController : Controller
     private static bool IsRegulatorUser(UserData userData) =>
         IsRegulatorAdmin(userData) || IsRegulatorBasic(userData);
 
-    private static bool IsBasicUser(UserData userData) =>
-       userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Basic;
+    private static bool IsBasicUserEmployee(UserData userData) =>
+       (userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Basic && userData.RoleInOrganisation == PersonRole.Employee.ToString());
 
     private static bool HasPermissionToChangeCompany(UserData userData)
     {
-        var serviceRoleId = userData.ServiceRoleId;
-        var serviceRoleEnum = (ServiceRole)serviceRoleId;
         var roleInOrganisation = userData.RoleInOrganisation;
-        if ((serviceRoleEnum == ServiceRole.Approved || serviceRoleEnum == ServiceRole.Delegated)
+        if ((userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Approved || userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Delegated)
             && !string.IsNullOrEmpty(roleInOrganisation) && roleInOrganisation == PersonRole.Admin.ToString())
         {
             return true;
