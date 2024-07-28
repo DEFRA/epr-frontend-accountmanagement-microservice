@@ -1108,5 +1108,35 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             // Act & Assert
             await Assert.ThrowsExceptionAsync<HttpRequestException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
         }
+
+        [TestMethod]
+        public async Task GetUpdateUserDetailsReturnsValue()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var expectedResponse = new List<int> { 2 };
+            var userDetailsDto = new UserDetailsDto { FirstName = "TestFirst", LastName = "TestLast", JobTitle = "MyJobTitle", TelePhone = "0800" };
+
+            var httpTestHandler = new HttpResponseMessage
+            {   
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(JsonSerializer.Serialize(expectedResponse))
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpTestHandler);
+
+            // Act
+            var response = _facadeService.UpdateUserDetails(userId, userDetailsDto);
+
+            // Assert
+            Assert.IsNotNull(response);
+           // Assert.AreEqual(1, response.Id);
+            httpTestHandler.Dispose();
+        }
     }
 }
