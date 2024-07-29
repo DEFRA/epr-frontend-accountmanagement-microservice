@@ -18,7 +18,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Extensions
         public void CanCallToUkTime(string input, string expected)
         {
             // Arrange
-            var utcTime = DateTime.Parse(input, CultureInfo.InvariantCulture).AsUtc();
+            var utcTime = DateTime.Parse(input, CultureInfo.InvariantCulture).ToUniversalTime();
 
             // Act
             var result = utcTime.ToUkTime();
