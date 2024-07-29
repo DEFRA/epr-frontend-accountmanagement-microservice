@@ -1,4 +1,5 @@
-﻿using FrontendAccountManagement.Core.Services;
+﻿using EPR.Common.Authorization.Extensions;
+using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Web.Extensions;
 using Microsoft.AspNetCore.Mvc.Controllers;
 
@@ -22,7 +23,7 @@ public class UserDataCheckerMiddleware : IMiddleware
         var anonControllers = new List<string> { "Privacy", "Cookies", "Culture" };
         var controllerName = GetControllerName(context);
         
-        var existingUserData = context.User.TryGetUserData(_logger);
+        var existingUserData = context.User.GetUserData();
 
         if (!anonControllers.Any(c => c == controllerName) && context.User.Identity is { IsAuthenticated: true } && existingUserData is null)
         {

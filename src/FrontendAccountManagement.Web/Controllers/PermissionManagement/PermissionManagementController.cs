@@ -207,7 +207,6 @@ namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
         [JourneyAccess(PagePath.RelationshipWithOrganisation, JourneyName.ManagePermissions)]
         public async Task<IActionResult> RelationshipWithOrganisation(Guid id)
         {
-            const string claimsUri = System.Security.Claims.ClaimTypes.UserData;
             var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
             var currentSessionItem = session?.PermissionManagementSession.Items.Find(i => i.Id == id);
             if (currentSessionItem == null)
@@ -215,7 +214,7 @@ namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
                 return RedirectHome();
             }
             
-            var userDataClaim = User.Claims.FirstOrDefault(c => c.Type == claimsUri);
+            var userDataClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.UserData);
             if (userDataClaim == null)
             {
                 return RedirectHome();
