@@ -1,10 +1,9 @@
-﻿using EPR.Common.Authorization.Sessions;
+﻿using EPR.Common.Authorization.Extensions;
+using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.Attributes;
-using FrontendAccountManagement.Web.Extensions;
-using FrontendAccountManagement.Web.Sessions;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Options;
 
@@ -14,7 +13,6 @@ public class JourneyAccessCheckerMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ExternalUrlsOptions _urlOptions;
-    private readonly ILogger<JourneyAccessCheckerMiddleware> _logger;
 
     public JourneyAccessCheckerMiddleware(
         RequestDelegate next,
@@ -23,14 +21,13 @@ public class JourneyAccessCheckerMiddleware
     {
         _next = next;
         _urlOptions = urlOptions.Value;
-        _logger = logger;
     }
 
     public async Task Invoke(
         HttpContext httpContext,
         ISessionManager<JourneySession> sessionManager)
     {
-        if (httpContext.User.Identity is { IsAuthenticated: true } && httpContext.User.TryGetUserData(_logger) is null)
+        if (httpContext.User.Identity is { IsAuthenticated: true } && httpContext.User.GetUserData() is null)
         {
             httpContext.Response.Redirect(_urlOptions.FrontEndCreationBaseUrl);
             return;
@@ -43,7 +40,8 @@ public class JourneyAccessCheckerMiddleware
         {
             string? pageToRedirect = null;
 
-            if (attribute.JourneyType == JourneyName.ManagePermissionsStart || attribute.JourneyType == JourneyName.ManagePermissions)
+            if (attribute.JourneyType == JourneyName.ManagePermissionsStart ||
+                attribute.JourneyType == JourneyName.ManagePermissions)
             {
                 var id = ParseRouteId(httpContext);
 

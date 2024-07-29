@@ -9,33 +9,21 @@ namespace FrontendAccountManagement.Web.Extensions;
 
 public static class ClaimsExtensions
 {
-    public static UserData GetUserData(this ClaimsPrincipal claimsPrincipal)
-    {
-        var userDataClaim = claimsPrincipal.Claims.First(c => c.Type == ClaimTypes.UserData);
-
-        return JsonSerializer.Deserialize<UserData>(userDataClaim.Value);
-    }
-    
-    public static UserData? TryGetUserData(this ClaimsPrincipal claimsPrincipal, ILogger logger)
-    {
-        try
-        {
-            return claimsPrincipal.GetUserData();
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "An error occurred while retrieving user data");
-            return null;
-        }
-    }
-    
     public static async Task UpdateUserDataClaimsAndSignInAsync(HttpContext httpContext, UserData userData)
     {
         var claimsIdentity = httpContext.User.Identity as ClaimsIdentity;
         var claim = claimsIdentity?.FindFirst(ClaimTypes.UserData);
-        if (claim != null)
+        
+        // there's a bug in the epr-common code where the same
+        // claim gets added more than once. This ensures it's
+        // tidied up correctly
+        while (claim != null)
         {
-            claimsIdentity?.RemoveClaim(claim);
+            if (claim != null)
+            {
+                claimsIdentity?.RemoveClaim(claim);
+                claim = claimsIdentity?.FindFirst(ClaimTypes.UserData);
+            }
         }
 
         var claims = new List<Claim> { new(ClaimTypes.UserData, JsonSerializer.Serialize(userData)) };

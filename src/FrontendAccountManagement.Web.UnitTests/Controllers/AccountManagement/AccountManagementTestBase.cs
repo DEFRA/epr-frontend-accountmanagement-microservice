@@ -23,6 +23,7 @@ public abstract class AccountManagementTestBase
 
     protected Mock<HttpContext> HttpContextMock;
     protected Mock<ClaimsPrincipal> UserMock;
+    protected Mock<ClaimsIdentity> ClaimsIdentityMock;
     public Mock<ISessionManager<JourneySession>> SessionManagerMock;
     protected Mock<IFacadeService> FacadeServiceMock;
     protected Mock<IOptions<ExternalUrlsOptions>> UrlsOptionMock;
@@ -38,6 +39,7 @@ public abstract class AccountManagementTestBase
     {
         HttpContextMock = new Mock<HttpContext>();
         UserMock = new Mock<ClaimsPrincipal>();
+        ClaimsIdentityMock = new Mock<ClaimsIdentity>();
         SessionManagerMock = new Mock<ISessionManager<JourneySession>>();
         FacadeServiceMock = new Mock<IFacadeService>();
         UrlsOptionMock = new Mock<IOptions<ExternalUrlsOptions>>();
@@ -78,8 +80,10 @@ public abstract class AccountManagementTestBase
         {
             claims.Add(new(ClaimTypes.UserData, Newtonsoft.Json.JsonConvert.SerializeObject(userData)));
         }
-        
-        UserMock.Setup(x => x.Claims).Returns(claims);
+
+        UserMock.Setup(u => u.Identity).Returns(ClaimsIdentityMock.Object);
+        ClaimsIdentityMock.Setup(ci => ci.Claims).Returns(claims);
+
         HttpContextMock.Setup(x => x.User).Returns(UserMock.Object);
     }
 
