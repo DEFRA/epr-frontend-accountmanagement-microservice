@@ -546,7 +546,11 @@ public class AccountManagementController : Controller
         else // Approved or Delegated users - User.IsDelegatedPerson || User.IsApprovedPerson
         {
             // if only Telephone updated then save to db
-            if (model.FirstName == model.OriginalFirstName && model.LastName == model.OriginalLastName && model.JobTitle == model.OriginalJobTitle && model.Telephone != model.OriginalTelephone)
+            if (
+                model.FirstName == model.OriginalFirstName &&
+                model.LastName == model.OriginalLastName &&
+                model.JobTitle == model.OriginalJobTitle &&
+                model.Telephone != model.OriginalTelephone)
             {
                 _facadeService.UpdateUserDetails(userData.Id, userDetailsDto);
                 return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
