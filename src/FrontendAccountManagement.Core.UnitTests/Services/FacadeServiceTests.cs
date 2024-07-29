@@ -1135,7 +1135,6 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
 
             // Assert
             Assert.IsNotNull(response);
-           // Assert.AreEqual(1, response.Id);
             httpTestHandler.Dispose();
         }
     }
