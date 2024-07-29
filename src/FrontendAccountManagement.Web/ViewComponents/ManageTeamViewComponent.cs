@@ -1,7 +1,7 @@
+using EPR.Common.Authorization.Extensions;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Web.ManageTeam.Rules;
-using FrontendAccountManagement.Web.Extensions;
 using FrontendAccountManagement.Web.ViewModels.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
