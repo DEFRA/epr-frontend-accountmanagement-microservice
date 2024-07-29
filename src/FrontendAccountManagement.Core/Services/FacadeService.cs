@@ -313,8 +313,6 @@ public class FacadeService : IFacadeService
 
         var response = await _httpClient.PutAsJsonAsync($"{_putUserDetailsByUserIdPath}/{userId}", userDetailsDto);
 
-        string result = await response.Content.ReadAsStringAsync();
-
         response.EnsureSuccessStatusCode();
     }
 
