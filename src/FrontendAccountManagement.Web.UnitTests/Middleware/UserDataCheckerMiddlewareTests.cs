@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Moq;
 using Organisation = EPR.Common.Authorization.Models.Organisation;
+using FrontendAccountManagement.Web.Utilities.Interfaces;
 
 namespace FrontendAccountManagement.Web.UnitTests.Middleware;
 
@@ -21,6 +22,7 @@ public class UserDataCheckerMiddlewareTests
     private Mock<HttpContext> _httpContextMock;
     private Mock<RequestDelegate> _requestDelegateMock;
     private Mock<IFacadeService> _facadeServiceMock;
+    private Mock<IClaimsExtensionsWrapper> _claimsExtensionsWrapperMock;
     private Mock<ILogger<UserDataCheckerMiddleware>> _loggerMock;
     private UserDataCheckerMiddleware _systemUnderTest;
 
@@ -30,6 +32,7 @@ public class UserDataCheckerMiddlewareTests
         _claimsPrincipalMock = new Mock<ClaimsPrincipal>();
         _requestDelegateMock = new Mock<RequestDelegate>();
         _httpContextMock = new Mock<HttpContext>();
+        _claimsExtensionsWrapperMock = new Mock<IClaimsExtensionsWrapper>();
         _loggerMock = new Mock<ILogger<UserDataCheckerMiddleware>>();
         _facadeServiceMock = new Mock<IFacadeService>();
         _claimsPrincipalMock = new Mock<ClaimsPrincipal>();
@@ -40,7 +43,10 @@ public class UserDataCheckerMiddlewareTests
 
         SetupControllerName("SomeControllerName");
         
-        _systemUnderTest = new UserDataCheckerMiddleware(_facadeServiceMock.Object, _loggerMock.Object);
+        _systemUnderTest = new UserDataCheckerMiddleware(
+            _facadeServiceMock.Object,
+            _claimsExtensionsWrapperMock.Object,
+            _loggerMock.Object);
     }
     
     private void SetupControllerName(string controllerName)
@@ -82,20 +88,20 @@ public class UserDataCheckerMiddlewareTests
         _requestDelegateMock.Verify(x => x(_httpContextMock.Object), Times.Once);
     }
 
-    //[TestMethod]
-    //public async Task Middleware_DoesNotCallGetUserAccount_WhenUserDataAlreadyExistsInUserClaims()
-    //{
-    //    // Arrange
-    //    _claimsIdentityMock.Setup(x => x.IsAuthenticated).Returns(true);
-    //    _claimsIdentityMock.Setup(x => x.Claims).Returns(new List<Claim> { new(ClaimTypes.UserData, "{}") });
+    [TestMethod]
+    public async Task Middleware_DoesNotCallGetUserAccount_WhenUserDataAlreadyExistsInUserClaims()
+    {
+        // Arrange
+        _claimsIdentityMock.Setup(x => x.IsAuthenticated).Returns(true);
+        _claimsIdentityMock.Setup(x => x.Claims).Returns(new List<Claim> { new(ClaimTypes.UserData, "{}") });
 
-    //    // Act
-    //    await _systemUnderTest.InvokeAsync(_httpContextMock.Object, _requestDelegateMock.Object);
+        // Act
+        await _systemUnderTest.InvokeAsync(_httpContextMock.Object, _requestDelegateMock.Object);
 
-    //    // Assert
-    //    _facadeServiceMock.Verify(x => x.GetUserAccount(), Times.Never);
-    //    _requestDelegateMock.Verify(x => x(_httpContextMock.Object), Times.Once);
-    //}
+        // Assert
+        _facadeServiceMock.Verify(x => x.GetUserAccount(), Times.Never);
+        _requestDelegateMock.Verify(x => x(_httpContextMock.Object), Times.Once);
+    }
 
     [TestMethod]
     public async Task Middleware_CallsGetUserAccountAndSignsIn_WhenUserDataDoesNotExistInUserClaims()

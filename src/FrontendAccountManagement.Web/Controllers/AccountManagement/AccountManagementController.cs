@@ -15,6 +15,8 @@ using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.Errors;
 using FrontendAccountManagement.Web.Extensions;
 using FrontendAccountManagement.Web.Profiles;
+using FrontendAccountManagement.Web.Utilities;
+using FrontendAccountManagement.Web.Utilities.Interfaces;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +25,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using System;
 using System.Net;
+using System.Security.Claims;
 using System.Text.Json;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
@@ -42,6 +45,7 @@ public class AccountManagementController : Controller
     private readonly ILogger<AccountManagementController> _logger;
     private readonly ExternalUrlsOptions _urlOptions;
     private readonly DeploymentRoleOptions _deploymentRoleOptions;
+    private readonly IClaimsExtensionsWrapper _claimsExtensionsWrapper;
     private readonly IMapper _mapper;
 
     public AccountManagementController(
@@ -50,6 +54,7 @@ public class AccountManagementController : Controller
         IOptions<ExternalUrlsOptions> urlOptions,
         IOptions<DeploymentRoleOptions> deploymentRoleOptions,
         ILogger<AccountManagementController> logger,
+        IClaimsExtensionsWrapper claimsExtensionsWrapper,
         IMapper mapper)
     {
         _sessionManager = sessionManager;
@@ -57,7 +62,19 @@ public class AccountManagementController : Controller
         _logger = logger;
         _urlOptions = urlOptions.Value;
         _deploymentRoleOptions = deploymentRoleOptions.Value;
+        _claimsExtensionsWrapper = claimsExtensionsWrapper;
         _mapper = mapper;
+    }
+
+    public static UserData GetUserData(ClaimsPrincipal claimsPrincipal) =>
+        GetData<UserData>(claimsPrincipal, ClaimTypes.UserData);
+
+    public static T GetData<T>(ClaimsPrincipal claimsPrincipal, string name)
+    {
+        var claimsIdentity = claimsPrincipal.Identity as ClaimsIdentity;
+        var claim = claimsIdentity?.Claims.FirstOrDefault(c => c.Type == name);
+
+        return claim != null ? JsonSerializer.Deserialize<T>(claim.Value) : default;
     }
 
     [HttpGet]
@@ -713,7 +730,7 @@ public class AccountManagementController : Controller
         await SaveSession(session);
 
         // need to do this so that the cookie updates with the latest data
-        await ClaimsExtensions.UpdateUserDataClaimsAndSignInAsync(HttpContext, userAccount.User);
+        await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
         
         // save the date/time that the update was performed for the next page
         TempData[OrganisationDetailsUpdatedTimeKey] = DateTime.Now;

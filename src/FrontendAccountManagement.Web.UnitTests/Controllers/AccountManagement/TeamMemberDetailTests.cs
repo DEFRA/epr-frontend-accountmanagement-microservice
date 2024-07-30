@@ -74,80 +74,80 @@ public class TeamMemberDetailTests : AccountManagementTestBase
         Assert.AreEqual(Email, model.Email);
         Assert.AreEqual(SelectedUserRole, model.SelectedUserRole);
     }
-    
-    //[TestMethod]
-    //public async Task GivenOnTeamMemberDetailsPage_WhenTeamMemberDetailsHttpPostCalled_ThenRedirectToManageAccount_AndUpdateSession()
-    //{
-    //    // Act
-    //    var result = await SystemUnderTest.TeamMemberDetailsSubmission() as RedirectToActionResult;
 
-    //    // Assert
-    //    result.ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
-    //    SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
-    //}
-    
-    //[TestMethod]
-    //public async Task GivenOnTeamMemberDetailsPage_WhenTeamMemberDetailsHttpPostCalled_AndSendInviteFailed_ThenRedirectToManageAccount_AndUpdateSession()
-    //{
-    //    // Act
-    //    var request = new InviteUserRequest
-    //    {
-    //        InvitingUser = new()
-    //        {
-    //            FirstName = "Fname",
-    //            LastName = "Lname"
-    //        },
-    //        InvitedUser = new ()
-    //        {
-                
-    //            Email = "test@abc.com"
-    //        }
-    //    };
-    //    FacadeServiceMock.Setup(x => x.SendUserInvite(request))
-    //        .Throws(new Exception());
+    [TestMethod]
+    public async Task GivenOnTeamMemberDetailsPage_WhenTeamMemberDetailsHttpPostCalled_ThenRedirectToManageAccount_AndUpdateSession()
+    {
+        // Act
+        var result = await SystemUnderTest.TeamMemberDetailsSubmission() as RedirectToActionResult;
 
-    //    var result = await SystemUnderTest.TeamMemberDetailsSubmission() as RedirectToActionResult;
+        // Assert
+        result.ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
+        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
+    }
 
-    //    // Assert
-    //    result.ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
-    //    SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
-    //}
+    [TestMethod]
+    public async Task GivenOnTeamMemberDetailsPage_WhenTeamMemberDetailsHttpPostCalled_AndSendInviteFailed_ThenRedirectToManageAccount_AndUpdateSession()
+    {
+        // Act
+        var request = new InviteUserRequest
+        {
+            InvitingUser = new()
+            {
+                FirstName = "Fname",
+                LastName = "Lname"
+            },
+            InvitedUser = new()
+            {
 
-    //[TestMethod]
-    //public async Task GivenOnTeamMemberDetailsPage_WhenOrganisationIsNull_ThenRedirectToManageAccount()
-    //{
-    //    // Arrange 
-    //    _userData = new UserData
-    //    {
-    //        FirstName = "FName",
-    //        LastName = "LName",
-    //        Organisations = new List<Organisation>()
-    //    };
+                Email = "test@abc.com"
+            }
+        };
+        FacadeServiceMock.Setup(x => x.SendUserInvite(request))
+            .Throws(new Exception());
 
-    //    SetupBase(_userData);
+        var result = await SystemUnderTest.TeamMemberDetailsSubmission() as RedirectToActionResult;
 
-    //    var request = new InviteUserRequest
-    //    {
-    //        InvitingUser = new()
-    //        {
-    //            FirstName = "Fname",
-    //            LastName = "Lname"
-    //        },
-    //        InvitedUser = new()
-    //        {
-    //            Email = "test@abc.com"
-    //        }
-    //    };
+        // Assert
+        result.ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
+        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
+    }
 
-    //    FacadeServiceMock.Setup(x => x.SendUserInvite(request))
-    //        .Throws(new Exception());
+    [TestMethod]
+    public async Task GivenOnTeamMemberDetailsPage_WhenOrganisationIsNull_ThenRedirectToManageAccount()
+    {
+        // Arrange 
+        _userData = new UserData
+        {
+            FirstName = "FName",
+            LastName = "LName",
+            Organisations = new List<Organisation>()
+        };
 
-    //    // Act
-    //    var result = await SystemUnderTest.TeamMemberDetailsSubmission();
+        SetupBase(_userData);
 
-    //    // Assert
-    //    Assert.IsNotNull(result);
-    //    result.Should().BeOfType<RedirectToActionResult>();
-    //    ((RedirectToActionResult)result).ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
-    //}
+        var request = new InviteUserRequest
+        {
+            InvitingUser = new()
+            {
+                FirstName = "Fname",
+                LastName = "Lname"
+            },
+            InvitedUser = new()
+            {
+                Email = "test@abc.com"
+            }
+        };
+
+        FacadeServiceMock.Setup(x => x.SendUserInvite(request))
+            .Throws(new Exception());
+
+        // Act
+        var result = await SystemUnderTest.TeamMemberDetailsSubmission();
+
+        // Assert
+        Assert.IsNotNull(result);
+        result.Should().BeOfType<RedirectToActionResult>();
+        ((RedirectToActionResult)result).ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
+    }
 }

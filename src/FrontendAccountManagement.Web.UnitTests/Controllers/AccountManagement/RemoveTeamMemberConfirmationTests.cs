@@ -119,58 +119,58 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
         Assert.AreEqual(FirstName, JourneySessionMock.AccountManagementSession.RemoveUserJourney.FirstName);
         Assert.AreEqual(LastName, JourneySessionMock.AccountManagementSession.RemoveUserJourney.LastName);
         Assert.AreEqual(_personId, JourneySessionMock.AccountManagementSession.RemoveUserJourney.PersonId);
-    }  
-    
-    //[TestMethod]
-    //public async Task GivenOnRemoveTeamMemberConfirmationPage_WhenRemoveTeamMemberConfirmationPageHttpPostCalled_AndSuccessfulResponse_ThenUserRemoved()
-    //{
-    //    // Arrange
-    //    FacadeServiceMock.Setup(x => x.RemoveUserForOrganisation(_personExternalId, _organisationId, _serviceRoleId))
-    //        .ReturnsAsync(EndpointResponseStatus.Success);
-    //    var model = new RemoveTeamMemberConfirmationViewModel
-    //    {
-    //        PersonId = _personId,
-    //        FirstName = FirstName,
-    //        LastName = LastName
-    //    };
-        
-    //    // Act
-    //    var result = await SystemUnderTest.RemoveTeamMemberConfirmation(model) as RedirectToActionResult;
+    }
 
-    //    // Assert
-    //    result.Should().BeOfType<RedirectToActionResult>();
-    //    result.ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
-    //    SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
-    //}
+    [TestMethod]
+    public async Task GivenOnRemoveTeamMemberConfirmationPage_WhenRemoveTeamMemberConfirmationPageHttpPostCalled_AndSuccessfulResponse_ThenUserRemoved()
+    {
+        // Arrange
+        FacadeServiceMock.Setup(x => x.RemoveUserForOrganisation(_personExternalId, _organisationId, _serviceRoleId))
+            .ReturnsAsync(EndpointResponseStatus.Success);
+        var model = new RemoveTeamMemberConfirmationViewModel
+        {
+            PersonId = _personId,
+            FirstName = FirstName,
+            LastName = LastName
+        };
 
-    //[TestMethod]
-    //public async Task GivenOnRemoveTeamMemberConfirmationPage_WhenRemoveTeamMemberConfirmationPageHttpPostCalled_AndOrganisationInvalid_ThenUserNotRemovedAndRedirected()
-    //{
-    //    // Arrange
-    //    _userData = new UserData
-    //    {
-    //        ServiceRoleId = 3,
-    //        Organisations = new List<Organisation>()            
-    //    };
+        // Act
+        var result = await SystemUnderTest.RemoveTeamMemberConfirmation(model) as RedirectToActionResult;
 
-    //    SetupBase(_userData);
+        // Assert
+        result.Should().BeOfType<RedirectToActionResult>();
+        result.ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
+        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
+    }
 
-    //    FacadeServiceMock.Setup(x => x.RemoveUserForOrganisation(_personExternalId, _organisationId, _serviceRoleId))
-    //        .ReturnsAsync(EndpointResponseStatus.Success);
+    [TestMethod]
+    public async Task GivenOnRemoveTeamMemberConfirmationPage_WhenRemoveTeamMemberConfirmationPageHttpPostCalled_AndOrganisationInvalid_ThenUserNotRemovedAndRedirected()
+    {
+        // Arrange
+        _userData = new UserData
+        {
+            ServiceRoleId = 3,
+            Organisations = new List<Organisation>()
+        };
 
-    //    var model = new RemoveTeamMemberConfirmationViewModel
-    //    {
-    //        PersonId = _personId,
-    //        FirstName = FirstName,
-    //        LastName = LastName
-    //    };
+        SetupBase(_userData);
 
-    //    // Act
-    //    var result = await SystemUnderTest.RemoveTeamMemberConfirmation(model);
+        FacadeServiceMock.Setup(x => x.RemoveUserForOrganisation(_personExternalId, _organisationId, _serviceRoleId))
+            .ReturnsAsync(EndpointResponseStatus.Success);
 
-    //    // Assert
-    //    Assert.IsNotNull(result);
-    //    result.Should().BeOfType<RedirectToActionResult>();
-    //    ((RedirectToActionResult)result).ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
-    //}
+        var model = new RemoveTeamMemberConfirmationViewModel
+        {
+            PersonId = _personId,
+            FirstName = FirstName,
+            LastName = LastName
+        };
+
+        // Act
+        var result = await SystemUnderTest.RemoveTeamMemberConfirmation(model);
+
+        // Assert
+        Assert.IsNotNull(result);
+        result.Should().BeOfType<RedirectToActionResult>();
+        ((RedirectToActionResult)result).ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
+    }
 }
