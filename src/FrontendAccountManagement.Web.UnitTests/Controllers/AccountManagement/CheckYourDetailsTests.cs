@@ -43,40 +43,40 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                    );
         }
 
-        //[TestMethod]
-        //public async Task CheckYourDetails_ShouldReturnViewWithExpectedModel()  
-        //{
-        //    // Act
-        //    var result = await SystemUnderTest.CheckYourDetails();
+        [TestMethod]
+        public async Task CheckYourDetails_ShouldReturnViewWithExpectedModel()
+        {
+            // Act
+            var result = await SystemUnderTest.CheckYourDetails();
 
-        //    // Assert
-        //    var viewResult = result as ViewResult;
-        //    viewResult.Should().NotBeNull();
-        //    var model = viewResult.Model as EditUserDetailsViewModel;
-        //    model.Should().NotBeNull();
-        //    model.FirstName.Should().Be("TestFirst");
-        //    model.LastName.Should().Be("TestLast");
-        //}
+            // Assert
+            var viewResult = result as ViewResult;
+            viewResult.Should().NotBeNull();
+            var model = viewResult.Model as EditUserDetailsViewModel;
+            model.Should().NotBeNull();
+            model.FirstName.Should().Be("TestFirst");
+            model.LastName.Should().Be("TestLast");
+        }
 
-        //[TestMethod]
-        //public async Task CheckYourDetailsPost_ShouldReturnActionName() 
-        //{
-        //    // Act        
-        //    var editUserDetailsViewModel = new EditUserDetailsViewModel
-        //    {
-        //        FirstName = "TestFirst",
-        //        LastName = "TestLast",
-        //    };
+        [TestMethod]
+        public async Task CheckYourDetailsPost_ShouldReturnActionName()
+        {
+            // Act        
+            var editUserDetailsViewModel = new EditUserDetailsViewModel
+            {
+                FirstName = "TestFirst",
+                LastName = "TestLast",
+            };
 
-        //    var result = await SystemUnderTest.CheckYourDetails(editUserDetailsViewModel);
+            var result = await SystemUnderTest.CheckYourDetails(editUserDetailsViewModel);
 
-        //    // Assert
-        //    result.Should().NotBeNull();
-        //    ((RedirectToActionResult)result).ActionName.Should().NotBeNull();
-        //}
+            // Assert
+            result.Should().NotBeNull();
+            ((RedirectToActionResult)result).ActionName.Should().NotBeNull();
+        }
 
         #region Private
-        
+
         private static IEnumerable<object[]> CheckYourDetailsData
         {
             get

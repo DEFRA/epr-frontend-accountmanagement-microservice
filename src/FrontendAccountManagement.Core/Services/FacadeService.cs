@@ -1,5 +1,4 @@
 using System.Net;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;

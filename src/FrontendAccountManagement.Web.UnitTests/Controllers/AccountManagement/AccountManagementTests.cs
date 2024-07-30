@@ -223,29 +223,31 @@ public class AccountManagementTests : AccountManagementTestBase
         result.ViewName.Should().Be(null);
     }
 
-    //[TestMethod]
-    //public async Task GivenOnManageAccountPage_WhenManageAccountHttpGetCalled_ThenManageAccountViewModelReturnedWithAdditionalFieldsToDisplay()
-    //{
-    //    // Act
-    //    var userData = SetupUserData(string.Empty);
-        
-    //    SetupBase(userData: userData);
-    //    var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
-    //    var model = result.Model as ManageAccountViewModel;
+    [TestMethod]
+    public async Task GivenOnManageAccountPage_WhenManageAccountHttpGetCalled_ThenManageAccountViewModelReturnedWithAdditionalFieldsToDisplay()
+    {
+        // Arrange
+        var userData = SetupUserData(string.Empty);
 
-    //    // Assert
-    //    result.Should().BeOfType<ViewResult>();
-    //    result.ViewName.Should().Be(ViewName);
-    //    SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
+        SetupBase(userData: userData);
 
-    //    Assert.AreEqual(string.Format("{0} {1}", FirstName, LastName), model.UserName);
-    //    Assert.AreEqual(JobTitle, model.JobTitle);
-    //    Assert.AreEqual(Telephone, model.Telephone);
-    //    Assert.AreEqual(OrganisationName, model.CompanyName);
-    //    Assert.AreEqual($"{SubBuildingName}, {BuildingNumber}, {BuildingName}, {Street}, {Town}, {County}, {Postcode}", model.OrganisationAddress);
-    //    Assert.AreEqual(OrganisationType, model.OrganisationType);
-    //    Assert.AreEqual(ServiceRoleKey, model.ServiceRoleKey);
-    //}
+        // Act
+        var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
+        var model = result.Model as ManageAccountViewModel;
+
+        // Assert
+        result.Should().BeOfType<ViewResult>();
+        result.ViewName.Should().Be(ViewName);
+        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
+
+        Assert.AreEqual(string.Format("{0} {1}", FirstName, LastName), model.UserName);
+        Assert.AreEqual(JobTitle, model.JobTitle);
+        Assert.AreEqual(Telephone, model.Telephone);
+        Assert.AreEqual(OrganisationName, model.CompanyName);
+        Assert.AreEqual($"{SubBuildingName}, {BuildingNumber}, {BuildingName}, {Street}, {Town}, {County}, {Postcode}", model.OrganisationAddress);
+        Assert.AreEqual(OrganisationType, model.OrganisationType);
+        Assert.AreEqual(ServiceRoleKey, model.ServiceRoleKey);
+    }
 
     [TestMethod]
     public async Task GivenOnEditUserDetailsPage_WhenRequested_TheShowUserDetails()
@@ -387,53 +389,58 @@ public class AccountManagementTests : AccountManagementTestBase
         Assert.IsNotNull(result);
     }
 
-    //[TestMethod]
-    //[DataRow("Approved Person")]
-    //[DataRow("Delegated Person")]
-    //public async Task PostCheckCompaniesHouseDetails_ValidParameters_RequestsToSaveData(string serviceRole)
-    //{
-    //    // Arrange
-    //    var userData = SetupUserData(serviceRole);
-    //    SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-    //        .Returns(Task.FromResult(
-    //            new JourneySession 
-    //            { 
-    //                UserData = userData,
-    //                CompaniesHouseSession = new CompaniesHouseSession
-    //                {
-    //                    CompaniesHouseData = new CompaniesHouseResponse
-    //                    {
-    //                        Organisation = new OrganisationDto
-    //                        { }
-    //                    }
-    //                }
-    //            }));
+    [TestMethod]
+    [DataRow("Approved Person")]
+    [DataRow("Delegated Person")]
+    public async Task PostCheckCompaniesHouseDetails_ValidParameters_RequestsToSaveData(string serviceRole)
+    {
+        // Arrange
+        var userData = SetupUserData(serviceRole);
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .Returns(Task.FromResult(
+                new JourneySession
+                {
+                    UserData = userData,
+                    CompaniesHouseSession = new CompaniesHouseSession
+                    {
+                        CompaniesHouseData = new CompaniesHouseResponse
+                        {
+                            Organisation = new OrganisationDto
+                            { }
+                        }
+                    }
+                }));
 
-    //    var organisationId = Guid.NewGuid();
-    //    var viewModel = new CheckYourOrganisationDetailsViewModel
-    //    {
-    //        OrganisationId = organisationId,
-    //        UkNation = UkNation.NorthernIreland
-    //    };
+        var organisationId = Guid.NewGuid();
+        var viewModel = new CheckYourOrganisationDetailsViewModel
+        {
+            OrganisationId = organisationId,
+            UkNation = UkNation.NorthernIreland
+        };
 
-    //    FacadeServiceMock.Setup(s => s.GetUserAccount()).ReturnsAsync(
-    //        new UserAccountDto
-    //        {
-    //            User = new UserData()
-    //        });
+        FacadeServiceMock.Setup(s => s.GetUserAccount()).ReturnsAsync(
+            new UserAccountDto
+            {
+                User = new UserData()
+            });
 
-    //    // Act
-    //    var result = await SystemUnderTest.CheckCompaniesHouseDetails(viewModel) as RedirectToActionResult;
 
-    //    // Assert
-    //    Assert.IsNotNull(result);
+        // Act
+        var result = await SystemUnderTest.CheckCompaniesHouseDetails(viewModel) as RedirectToActionResult;
 
-    //    FacadeServiceMock.Verify(s =>
-    //        s.UpdateOrganisationDetails(
-    //            organisationId,
-    //            It.IsAny<OrganisationUpdateDto>()),
-    //        Times.Once);
-    //}
+        // Assert
+        Assert.IsNotNull(result);
+
+        ClaimsExtensionsWrapperMock.Verify(s =>
+            s.UpdateUserDataClaimsAndSignInAsync(
+                It.IsAny<UserData>()),
+            Times.Once);
+        FacadeServiceMock.Verify(s =>
+            s.UpdateOrganisationDetails(
+                organisationId,
+                It.IsAny<OrganisationUpdateDto>()),
+            Times.Once);
+    }
 
     [TestMethod]
     [DataRow("Approved Person")]
