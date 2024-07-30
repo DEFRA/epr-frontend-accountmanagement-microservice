@@ -1,4 +1,3 @@
-using EPR.Common.Authorization.Models;
 using FrontendAccountManagement.Core.Configuration;
 using FrontendAccountManagement.Core.Constants;
 using FrontendAccountManagement.Core.Enums;
@@ -6,10 +5,9 @@ using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using FrontendAccountManagement.Core.Sessions;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using System.Net;
 using Microsoft.Identity.Web;
+using System.Net;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
