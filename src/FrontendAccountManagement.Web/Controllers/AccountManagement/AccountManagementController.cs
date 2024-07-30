@@ -716,7 +716,7 @@ public class AccountManagementController : Controller
         await ClaimsExtensions.UpdateUserDataClaimsAndSignInAsync(HttpContext, userAccount.User);
         
         // save the date/time that the update was performed for the next page
-        TempData[OrganisationDetailsUpdatedTimeKey] = DateTime.UtcNow.ToUkTime();
+        TempData[OrganisationDetailsUpdatedTimeKey] = DateTime.Now;
 
         return RedirectToAction(nameof(CompanyDetailsUpdated));
     }
