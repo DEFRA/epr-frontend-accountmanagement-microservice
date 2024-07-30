@@ -66,17 +66,6 @@ public class AccountManagementController : Controller
         _mapper = mapper;
     }
 
-    public static UserData GetUserData(ClaimsPrincipal claimsPrincipal) =>
-        GetData<UserData>(claimsPrincipal, ClaimTypes.UserData);
-
-    public static T GetData<T>(ClaimsPrincipal claimsPrincipal, string name)
-    {
-        var claimsIdentity = claimsPrincipal.Identity as ClaimsIdentity;
-        var claim = claimsIdentity?.Claims.FirstOrDefault(c => c.Type == name);
-
-        return claim != null ? JsonSerializer.Deserialize<T>(claim.Value) : default;
-    }
-
     [HttpGet]
     [Route("")]
     [Route(PagePath.ManageAccount)]
