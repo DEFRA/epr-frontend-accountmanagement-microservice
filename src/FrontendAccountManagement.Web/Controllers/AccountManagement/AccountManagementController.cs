@@ -541,10 +541,10 @@ public class AccountManagementController : Controller
         var serviceRole = userData.ServiceRole ?? string.Empty;
         var roleInOrganisation = userData.RoleInOrganisation ?? string.Empty;
 
-        var userDetailsDto = _mapper.Map<UserDetailsDto>(model);
+        var userDetailsDto = _mapper.Map<UserDetailsDto>(model);       
 
         // User has a service role of "basic" And an organisation role of "Admin"
-        if (IsBasicUserEmployee(userData) || roleInOrganisation == RoleInOrganisation.Admin)
+        if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower() && roleInOrganisation == RoleInOrganisation.Admin)
         {
             _facadeService.UpdateUserDetails(userData.Id, userDetailsDto);
 
@@ -720,7 +720,7 @@ public class AccountManagementController : Controller
 
         // need to do this so that the cookie updates with the latest data
         await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
-        
+
         // save the date/time that the update was performed for the next page
         TempData[OrganisationDetailsUpdatedTimeKey] = DateTime.Now;
 
