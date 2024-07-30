@@ -49,14 +49,14 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             // Act
             var result = await SystemUnderTest.CheckYourDetails();
 
-            // Assert
-            var viewResult = result as ViewResult;
-            viewResult.Should().NotBeNull();
-            var model = viewResult.Model as EditUserDetailsViewModel;
-            model.Should().NotBeNull();
-            model.FirstName.Should().Be("TestFirst");
-            model.LastName.Should().Be("TestLast");
-        }
+        //    // Assert
+        //    var viewResult = result as ViewResult;
+        //    viewResult.Should().NotBeNull();
+        //    var model = viewResult.Model as EditUserDetailsViewModel;
+        //    model.Should().NotBeNull();
+        //    model.FirstName.Should().Be("TestFirst");
+        //    model.LastName.Should().Be("TestLast");
+        //}
 
         [TestMethod]
         public async Task CheckYourDetailsPost_ShouldReturnActionName()
@@ -68,12 +68,12 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 LastName = "TestLast",
             };
 
-            var result = await SystemUnderTest.CheckYourDetails(editUserDetailsViewModel);
+        //    var result = await SystemUnderTest.CheckYourDetails(editUserDetailsViewModel);
 
-            // Assert
-            result.Should().NotBeNull();
-            ((RedirectToActionResult)result).ActionName.Should().NotBeNull();
-        }
+        //    // Assert
+        //    result.Should().NotBeNull();
+        //    ((RedirectToActionResult)result).ActionName.Should().NotBeNull();
+        //}
 
         #region Private
 

@@ -147,7 +147,7 @@ public class AccountManagementController : Controller
             model.ServiceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
             model.OrganisationType = userOrg.OrganisationType;
             model.HasPermissionToChangeCompany = HasPermissionToChangeCompany(session.UserData);
-            model.IsBasicUser = IsBasicUser(session.UserData);
+            model.IsBasicUser = IsBasicUserEmployee(session.UserData);
         }
         return View(nameof(ManageAccount), model);
     }
@@ -453,7 +453,7 @@ public class AccountManagementController : Controller
             {
                 model = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
             }
-            catch (Exception exception) 
+            catch (Exception exception)
             {
                 _logger.LogError(exception, "Deserialising NewUserDetails Failed.");
             }
@@ -552,17 +552,29 @@ public class AccountManagementController : Controller
         var serviceRole = userData.ServiceRole ?? string.Empty;
         var roleInOrganisation = userData.RoleInOrganisation ?? string.Empty;
 
+        var userDetailsDto = _mapper.Map<UserDetailsDto>(model);
+
         // User has a service role of "basic" And an organisation role of "Admin"
-        if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower() && roleInOrganisation == RoleInOrganisation.Admin)
+        if (IsBasicUserEmployee(userData) || roleInOrganisation == RoleInOrganisation.Admin)
         {
-            //TODO: save data to db
+            _facadeService.UpdateUserDetails(userData.Id, userDetailsDto);
 
             return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
         }
-        else //Approved or Delegated users
+        else // Approved or Delegated users - User.IsDelegatedPerson || User.IsApprovedPerson
         {
-            //TODO: if only Telephone updated then save to db
-           // redirect to: PagePath.UpdateDetailsConfirmation
+            // if only Telephone updated then save to db
+            if (
+                model.FirstName == model.OriginalFirstName &&
+                model.LastName == model.OriginalLastName &&
+                model.JobTitle == model.OriginalJobTitle &&
+                model.Telephone != model.OriginalTelephone)
+            {
+                _facadeService.UpdateUserDetails(userData.Id, userDetailsDto);
+                return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
+            }
+
+            // TODO: Data should be saved for approval in future
 
             return RedirectToAction(nameof(PagePath.Declaration));
         }
@@ -721,7 +733,7 @@ public class AccountManagementController : Controller
         await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
         
         // save the date/time that the update was performed for the next page
-        TempData[OrganisationDetailsUpdatedTimeKey] = DateTime.UtcNow.ToUkTime();
+        TempData[OrganisationDetailsUpdatedTimeKey] = DateTime.Now;
 
         return RedirectToAction(nameof(CompanyDetailsUpdated));
     }
@@ -908,7 +920,7 @@ public class AccountManagementController : Controller
             return IsRegulatorAdmin(userData);
         }
         // regulator users cannot view if producer deployment
-        return !IsRegulatorUser(userData) || IsBasicUser(userData);
+        return !IsRegulatorUser(userData) || IsBasicUserEmployee(userData);
     }
 
     private static bool IsRegulatorAdmin(UserData userData) =>
@@ -920,15 +932,13 @@ public class AccountManagementController : Controller
     private static bool IsRegulatorUser(UserData userData) =>
         IsRegulatorAdmin(userData) || IsRegulatorBasic(userData);
 
-    private static bool IsBasicUser(UserData userData) =>
-       userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Basic;
+    private static bool IsBasicUserEmployee(UserData userData) =>
+       (userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Basic && userData.RoleInOrganisation == PersonRole.Employee.ToString());
 
     private static bool HasPermissionToChangeCompany(UserData userData)
     {
-        var serviceRoleId = userData.ServiceRoleId;
-        var serviceRoleEnum = (ServiceRole)serviceRoleId;
         var roleInOrganisation = userData.RoleInOrganisation;
-        if ((serviceRoleEnum == ServiceRole.Approved || serviceRoleEnum == ServiceRole.Delegated)
+        if ((userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Approved || userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Delegated)
             && !string.IsNullOrEmpty(roleInOrganisation) && roleInOrganisation == PersonRole.Admin.ToString())
         {
             return true;
