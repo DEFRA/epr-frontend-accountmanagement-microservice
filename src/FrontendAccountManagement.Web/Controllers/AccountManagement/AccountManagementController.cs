@@ -544,7 +544,7 @@ public class AccountManagementController : Controller
         var userDetailsDto = _mapper.Map<UserDetailsDto>(model);       
 
         // User has a service role of "basic" And an organisation role of "Admin"
-        if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower() && roleInOrganisation == RoleInOrganisation.Admin)
+        if (IsBasicUserEmployee(userData) || roleInOrganisation == RoleInOrganisation.Admin)
         {
             _facadeService.UpdateUserDetails(userData.Id, userDetailsDto);
 
