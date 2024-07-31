@@ -11,21 +11,21 @@ namespace FrontendAccountManagement.Core.Models
         /// <summary>
         /// User Firstname
         /// </summary>
-        public string FirstName { get; init; }
+        public string FirstName { get; set; }
 
         /// <summary>
         /// User Lastname
         /// </summary>
-        public string LastName { get; init; }
+        public string LastName { get; set; }
 
         /// <summary>
         /// User Jobtitle in an organisation
         /// </summary>
-        public string JobTitle { get; init; }
+        public string JobTitle { get; set; }
 
         /// <summary>
         /// User Telephone
         /// </summary>
-        public string TelePhone { get; init; }
+        public string TelePhone { get; set; }
     }
 }
