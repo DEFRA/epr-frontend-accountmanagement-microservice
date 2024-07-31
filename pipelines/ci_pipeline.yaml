@@ -35,6 +35,8 @@ variables:
     value: frontend-accountmanagement-microservice
   - name: runNugetTasks
     value: true
+  - name: dotnetVersion
+    value: dotnetVersion8
 
 resources:
   repositories:
@@ -42,7 +44,7 @@ resources:
       name: defra/epr-webapps-code-deploy-templates
       type: github
       endpoint: defra
-      ref: upgrade-net-8
+      ref: main
 
 stages:
 - template: epr-build-pipeline.yaml@CommonTemplates
@@ -60,5 +62,6 @@ stages:
     runNugetTasks: ${{ variables.runNugetTasks }}
     serviceName: $(serviceName)
     sonarqubeInstance: ${{ parameters.sonarqubeInstance }}
+    dotnetVersion: ${{ variables.dotnetVersion }}
 
 - template: templates/stage-deploy-template.yaml
