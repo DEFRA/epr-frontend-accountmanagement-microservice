@@ -148,7 +148,7 @@ namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
 
             currentSessionItem.PermissionType = model.PermissionType;
 
-            (string nextPagePath, string actionName, PersonRole? personRole) = GetCahngeAccountPermissionDataToDecideNextAction(
+            (string nextPagePath, string actionName, PersonRole? personRole) = GetChangeAccountPermissionDataToDecideNextAction(
                 model,
                 currentPermissionTypeResult.PermissionType,
                 id);
@@ -805,7 +805,7 @@ namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
             }
         }
     
-        private (string, string, PersonRole?) GetCahngeAccountPermissionDataToDecideNextAction(
+        private (string, string, PersonRole?) GetChangeAccountPermissionDataToDecideNextAction(
             ChangeAccountPermissionViewModel model,
             PermissionType? currentPermissionTypeResult,
             Guid id)
