@@ -3,6 +3,8 @@
 
 @{
     ViewData["Title"] = Localizer["CheckYourDetails"];
+
+    bool isUpdatable = @ViewBag.IsUpdatable;
 }
 
 @using (Html.BeginForm(FormMethod.Post))
@@ -84,7 +86,7 @@
                         <div class="govuk-!-margin-right-3">
                             <dt class="govuk-summary-list__value">
                                 <button class="govuk-button" data-module="govuk-button" type="submit">
-                                    @Localizer["SaveAndContinue"]
+                                    @(isUpdatable ? @Localizer["SaveAndContinue"] : @Localizer["Continue"])
                                 </button>
                                 &nbsp;  <a href="~/@PagePath.WhatAreYourDetails" class="govuk-link govuk-link--no-visited-state">
                                     @SharedLocalizer["Change"]

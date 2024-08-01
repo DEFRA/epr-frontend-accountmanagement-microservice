@@ -135,4 +135,7 @@
   <data name="SaveAndContinue" xml:space="preserve">
     <value>Save and continue</value>
   </data>
+  <data name="Continue" xml:space="preserve">
+    <value>Continue</value>
+  </data>
 </root>

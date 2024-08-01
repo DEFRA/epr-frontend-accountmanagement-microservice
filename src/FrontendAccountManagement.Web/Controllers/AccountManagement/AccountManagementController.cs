@@ -494,6 +494,9 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
+        bool isUpdatable = false;
+        var serviceRole = userData.ServiceRole ?? string.Empty;
+        var roleInOrganisation = userData.RoleInOrganisation ?? string.Empty;
 
         var editUserDetailsViewModel = new EditUserDetailsViewModel();
 
@@ -521,6 +524,8 @@ public class AccountManagementController : Controller
             OriginalTelephone = editUserDetailsViewModel.OriginalTelephone ?? string.Empty
         };
 
+        isUpdatable = SetUpdatableValue(isUpdatable, serviceRole, roleInOrganisation, model);
+
         SaveSessionAndJourney(session, PagePath.WhatAreYourDetails, PagePath.CheckYourDetails);
         SetBackLink(PagePath.CheckYourDetails);
 
@@ -529,6 +534,7 @@ public class AccountManagementController : Controller
             TempData.Add(AmendedUserDetailsKey, JsonSerializer.Serialize(editUserDetailsViewModel));
         }
 
+        ViewBag.IsUpdatable = isUpdatable;
         return View(model);
     }
 
@@ -544,7 +550,7 @@ public class AccountManagementController : Controller
         var userDetailsDto = _mapper.Map<UserDetailsDto>(model);
 
         // User has a service role of "Basic" And  organisation role of "Admin" or "Employee"
-        if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower() 
+        if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower()
             && (roleInOrganisation == RoleInOrganisation.Admin || roleInOrganisation == RoleInOrganisation.Employee))
         {
             _facadeService.UpdateUserDetails(userData.Id, userDetailsDto);
@@ -934,6 +940,27 @@ public class AccountManagementController : Controller
             return true;
         }
         return false;
+    }
+
+    private static bool SetUpdatableValue(bool isUpdatable, string serviceRole, string roleInOrganisation, EditUserDetailsViewModel model)
+    {
+        if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower()
+           && (roleInOrganisation == RoleInOrganisation.Admin || roleInOrganisation == RoleInOrganisation.Employee))
+        {
+            isUpdatable = true;
+        }
+        else
+        {
+            if (
+                model.FirstName == model.OriginalFirstName &&
+                model.LastName == model.OriginalLastName &&
+                model.JobTitle == model.OriginalJobTitle &&
+                model.Telephone != model.OriginalTelephone)
+            {
+                isUpdatable = true;
+            }
+        }
+        return isUpdatable;
     }
 
 }
