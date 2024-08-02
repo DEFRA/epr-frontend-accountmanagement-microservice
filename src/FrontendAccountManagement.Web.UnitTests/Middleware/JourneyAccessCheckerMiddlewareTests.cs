@@ -1,8 +1,8 @@
-﻿using System.Security.Claims;
-using EPR.Common.Authorization.Models;
+﻿using EPR.Common.Authorization.Models;
 using FrontendAccountManagement.Web.Configs;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using System.Security.Claims;
 
 namespace FrontendAccountManagement.Web.UnitTests.Middleware;
 
@@ -13,6 +13,7 @@ using FrontendAccountManagement.Web.Middleware;
 using FrontendAccountManagement.Web.Sessions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -26,7 +27,7 @@ public class JourneyAccessCheckerMiddlewareTests
     private Mock<IEndpointFeature> _endpointFeatureMock;
     private Mock<ISessionManager<JourneySession>> _sessionManagerMock;
     private readonly Mock<ClaimsPrincipal> UserMock = new();
-    private readonly List<Claim> _claims = new(); 
+    private readonly List<Claim> _claims = new();
 
     private JourneyAccessCheckerMiddleware _middleware;
 
@@ -49,10 +50,10 @@ public class JourneyAccessCheckerMiddlewareTests
         var userData = new UserData
         {
             Id = Guid.NewGuid(),
-            Organisations = new List<Organisation> { new() { Id = Guid.NewGuid()} },
+            Organisations = new List<Organisation> { new() { Id = Guid.NewGuid() } },
             RoleInOrganisation = "Admin",
         };
-        
+
         _claims.Add(new(ClaimTypes.UserData, Newtonsoft.Json.JsonConvert.SerializeObject(userData)));
 
         UserMock.Setup(x => x.Claims).Returns(_claims);
@@ -87,6 +88,154 @@ public class JourneyAccessCheckerMiddlewareTests
 
         // Assert
         _httpResponseMock.Verify(x => x.Redirect(expectedURL), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GivenAccessRequiredPageToManagePermissions_WhenIdProvidedAndJourneyTypeIsManagePermissionStart_ThenDoNotRedirect()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var session = new JourneySession();
+
+        SetupEndpointMock(new JourneyAccessAttribute(PagePath.ChangeAccountPermissions, JourneyName.ManagePermissionsStart));
+
+        _sessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+
+        var routingFeatureMock = new Mock<IRoutingFeature>();
+        routingFeatureMock.Setup(x => x.RouteData).Returns(new RouteData(new RouteValueDictionary { { "id", id } }));
+
+        _httpContextMock.Setup(x => x.Features.Get<IRoutingFeature>()).Returns(routingFeatureMock.Object);
+
+        // Act
+        await _middleware.Invoke(_httpContextMock.Object, _sessionManagerMock.Object);
+
+        // Assert
+        _httpResponseMock.Verify(x => x.Redirect(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task GivenAccessRequiredPageToManagePermissions_WhenIdNotProvided_ThenRedirect()
+    {
+        // Arrange
+        var session = new JourneySession();
+        var expectedURL = $"/manage-account/{PagePath.ManageAccount}";
+
+        SetupEndpointMock(new JourneyAccessAttribute(PagePath.ChangeAccountPermissions, JourneyName.ManagePermissionsStart));
+
+        _sessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+
+        var routingFeatureMock = new Mock<IRoutingFeature>();
+        routingFeatureMock.Setup(x => x.RouteData).Returns(new RouteData(new RouteValueDictionary { { "id", null } }));
+
+        _httpContextMock.Setup(x => x.Features.Get<IRoutingFeature>()).Returns(routingFeatureMock.Object);
+
+        // Act
+        await _middleware.Invoke(_httpContextMock.Object, _sessionManagerMock.Object);
+
+        // Assert
+        _httpResponseMock.Verify(x => x.Redirect(expectedURL), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GivenAccessRequiredPageToManagePermissions_WhenJourneyTypeIsManagePermissionAndPermissionManagementSessionIsEmpty_ThenRedirect()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var session = new JourneySession();
+        var expectedURL = $"/manage-account/{PagePath.ManageAccount}";
+
+        SetupEndpointMock(new JourneyAccessAttribute(PagePath.ChangeAccountPermissions, JourneyName.ManagePermissions));
+
+        _sessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+
+        var routingFeatureMock = new Mock<IRoutingFeature>();
+        routingFeatureMock.Setup(x => x.RouteData).Returns(new RouteData(new RouteValueDictionary { { "id", id } }));
+
+        _httpContextMock.Setup(x => x.Features.Get<IRoutingFeature>()).Returns(routingFeatureMock.Object);
+
+        // Act
+        await _middleware.Invoke(_httpContextMock.Object, _sessionManagerMock.Object);
+
+        // Assert
+        _httpResponseMock.Verify(x => x.Redirect(expectedURL), Times.Once);
+    }
+
+
+    [TestMethod]
+    public async Task GivenAccessRequiredPageToManagePermissions_WhenJourneyTypeIsManagePermissionAndPermissionManagementSessionHasNoRequiredValue_ThenRedirect()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var expectedURL = $"/manage-account/{PagePath.ChangeAccountPermissions}/{id}";
+        var session = new JourneySession
+        {
+            PermissionManagementSession = new PermissionManagementSession
+            {
+                Items = new List<PermissionManagementSessionItem>
+                {
+                    new PermissionManagementSessionItem
+                    {
+                        Id = id,
+                        Journey = new List<string> { $"{PagePath.ChangeAccountPermissions}/{id}" }
+                    }
+                }
+            }
+        };
+        
+        SetupEndpointMock(new JourneyAccessAttribute(PagePath.RelationshipWithOrganisation, JourneyName.ManagePermissions));
+
+        _sessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+
+        var routingFeatureMock = new Mock<IRoutingFeature>();
+        routingFeatureMock.Setup(x => x.RouteData).Returns(new RouteData(new RouteValueDictionary { { "id", id } }));
+
+        _httpContextMock.Setup(x => x.Features.Get<IRoutingFeature>()).Returns(routingFeatureMock.Object);
+
+        // Act
+        await _middleware.Invoke(_httpContextMock.Object, _sessionManagerMock.Object);
+
+        // Assert
+        _httpResponseMock.Verify(x => x.Redirect(expectedURL), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GivenAccessRequiredPageToManagePermissions_WhenJourneyTypeIsManagePermissionAndPermissionManagementSessionHasRequiredValue_ThenRedirect()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var session = new JourneySession
+        {
+            PermissionManagementSession = new PermissionManagementSession
+            {
+                Items = new List<PermissionManagementSessionItem>
+                {
+                    new PermissionManagementSessionItem
+                    {
+                        Id = id,
+                        Journey = new List<string>
+                        {
+                            $"{PagePath.ChangeAccountPermissions}/{id}",
+                            $"{PagePath.RelationshipWithOrganisation}/{id}",
+                        }
+                    }
+                }
+            }
+        };
+
+        SetupEndpointMock(new JourneyAccessAttribute(PagePath.RelationshipWithOrganisation, JourneyName.ManagePermissions));
+
+        _sessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+
+        var routingFeatureMock = new Mock<IRoutingFeature>();
+        routingFeatureMock.Setup(x => x.RouteData).Returns(new RouteData(new RouteValueDictionary { { "id", id } }));
+
+        _httpContextMock.Setup(x => x.Features.Get<IRoutingFeature>()).Returns(routingFeatureMock.Object);
+
+        // Act
+        await _middleware.Invoke(_httpContextMock.Object, _sessionManagerMock.Object);
+
+        // Assert
+        _httpResponseMock.Verify(x => x.Redirect(It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -136,7 +285,7 @@ public class JourneyAccessCheckerMiddlewareTests
         // Assert
         _httpResponseMock.Verify(x => x.Redirect(It.IsAny<string>()), Times.Never);
     }
-    
+
     [TestMethod]
     public async Task GivenNoUserFound_WhenInvokeCalled_ThenRedirectsToCreateAccount()
     {

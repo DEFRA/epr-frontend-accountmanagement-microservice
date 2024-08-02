@@ -6,18 +6,16 @@ namespace FrontendAccountManagement.Web.Navigation;
 
 public class PrimaryNavigationPages
 {
-    private readonly ExternalUrlsOptions _options;
     private readonly bool _isEnrolledAdmin;
     private readonly NavigationModel _home;
     private readonly NavigationModel _manageAccount;
 
     public PrimaryNavigationPages(ExternalUrlsOptions options, bool isEnrolledAdmin, string pathBase)
     {
-        _options = options;
         _isEnrolledAdmin = isEnrolledAdmin;
         _home = new()
         {
-            LinkValue = _options.LandingPageUrl,
+            LinkValue = options.LandingPageUrl,
             LocalizerKey = "PrimaryNavigation.Home"
         };
         _manageAccount = new()

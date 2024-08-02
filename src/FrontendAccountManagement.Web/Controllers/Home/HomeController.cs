@@ -9,12 +9,10 @@ namespace FrontendAccountManagement.Web.Controllers.Home;
 [AllowAnonymous]
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
     private readonly EprCookieOptions _cookieOptions;
 
-    public HomeController(ILogger<HomeController> logger, IOptions<EprCookieOptions> cookieOptions)
+    public HomeController(IOptions<EprCookieOptions> cookieOptions)
     {
-        _logger = logger;
         _cookieOptions = cookieOptions.Value;
     }
 

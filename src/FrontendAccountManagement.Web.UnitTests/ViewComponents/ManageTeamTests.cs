@@ -10,15 +10,14 @@ namespace FrontendAccountManagement.Web.UnitTests.ViewComponents;
 [TestClass]
 public class ManageTeamTests : ViewComponentsTestBase
 {
-    private readonly Guid _organisationId = Guid.NewGuid(); 
-    private readonly Microsoft.Extensions.Logging.Abstractions.NullLogger<ManageTeamViewComponent> _logger = new ();
+    private readonly Guid _organisationId = Guid.NewGuid();
     private ManageTeamViewComponent _component;
     private UserData _userData;
 
     [TestInitialize]
     public void Setup()
     {
-        _component = new ManageTeamViewComponent(FacadeService.Object, _logger, ViewComponentHttpContextAccessor.Object);
+        _component = new ManageTeamViewComponent(FacadeService.Object, ViewComponentHttpContextAccessor.Object);
     }
 
     [TestMethod]
