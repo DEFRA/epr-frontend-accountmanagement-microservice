@@ -542,8 +542,8 @@ public class AccountManagementController : Controller
     [Route(PagePath.CheckYourDetails)]
     public async Task<IActionResult> CheckYourDetails(EditUserDetailsViewModel model)
     {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
-
         var serviceRole = userData.ServiceRole ?? string.Empty;
         var roleInOrganisation = userData.RoleInOrganisation ?? string.Empty;
 
@@ -553,7 +553,19 @@ public class AccountManagementController : Controller
         if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower()
             && (roleInOrganisation == RoleInOrganisation.Admin || roleInOrganisation == RoleInOrganisation.Employee))
         {
-            _facadeService.UpdateUserDetails(userData.Id, userDetailsDto);
+            await _facadeService.UpdateUserDetails(userData.Id, userDetailsDto);
+
+            if (TempData[AmendedUserDetailsKey] != null)
+                TempData.Remove(AmendedUserDetailsKey);
+
+            // refresh the user data from the database
+            var userAccount = await _facadeService.GetUserAccount();
+            session.UserData = userAccount.User;
+            await SaveSession(session);
+
+            // update cookie  with the latest data
+            await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
+
 
             return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
         }
@@ -566,7 +578,19 @@ public class AccountManagementController : Controller
                 model.JobTitle == model.OriginalJobTitle &&
                 model.Telephone != model.OriginalTelephone)
             {
-                _facadeService.UpdateUserDetails(userData.Id, userDetailsDto);
+                await _facadeService.UpdateUserDetails(userData.Id, userDetailsDto);
+
+                if (TempData[AmendedUserDetailsKey] != null)
+                    TempData.Remove(AmendedUserDetailsKey);
+
+                // refresh the user data from the database
+                var userAccount = await _facadeService.GetUserAccount();
+                session.UserData = userAccount.User;
+                await SaveSession(session);
+
+                // update cookie  with the latest data
+                await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
+
                 return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
             }
 
