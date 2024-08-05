@@ -311,6 +311,7 @@ public class FacadeService : IFacadeService
         await PrepareAuthenticatedClient();
 
         userDetailsDto.TelePhone = userDetailsDto.TelePhone ?? string.Empty; // make sure No null value passed
+        userDetailsDto.JobTitle = userDetailsDto.JobTitle ?? string.Empty; // make sure No null value passed
         var response = await _httpClient.PutAsJsonAsync($"{_putUserDetailsByUserIdPath}/{userId}", userDetailsDto);
 
         response.EnsureSuccessStatusCode();

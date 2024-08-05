@@ -494,6 +494,9 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
+        bool isUpdatable = false;
+        var serviceRole = userData.ServiceRole ?? string.Empty;
+        var roleInOrganisation = userData.RoleInOrganisation ?? string.Empty;
 
         var editUserDetailsViewModel = new EditUserDetailsViewModel();
 
@@ -521,6 +524,8 @@ public class AccountManagementController : Controller
             OriginalTelephone = editUserDetailsViewModel.OriginalTelephone ?? string.Empty
         };
 
+        isUpdatable = SetUpdatableValue(isUpdatable, serviceRole, roleInOrganisation, model);
+
         SaveSessionAndJourney(session, PagePath.WhatAreYourDetails, PagePath.CheckYourDetails);
         SetBackLink(PagePath.CheckYourDetails);
 
@@ -529,6 +534,7 @@ public class AccountManagementController : Controller
             TempData.Add(AmendedUserDetailsKey, JsonSerializer.Serialize(editUserDetailsViewModel));
         }
 
+        ViewBag.IsUpdatable = isUpdatable;
         return View(model);
     }
 
@@ -536,17 +542,30 @@ public class AccountManagementController : Controller
     [Route(PagePath.CheckYourDetails)]
     public async Task<IActionResult> CheckYourDetails(EditUserDetailsViewModel model)
     {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
-
-        var serviceRole = userData.ServiceRole ?? string.Empty;
+        var serviceRole = session.UserData.ServiceRole ?? string.Empty;
         var roleInOrganisation = userData.RoleInOrganisation ?? string.Empty;
 
-        var userDetailsDto = _mapper.Map<UserDetailsDto>(model);       
+        var userDetailsDto = _mapper.Map<UserDetailsDto>(model);
 
-        // User has a service role of "basic" And an organisation role of "Admin"
-        if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower() && roleInOrganisation == RoleInOrganisation.Admin)
+        // User has a service role of "Basic" And  organisation role of "Admin" or "Employee"
+        if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower()
+            && (roleInOrganisation == RoleInOrganisation.Admin || roleInOrganisation == RoleInOrganisation.Employee))
         {
-            _facadeService.UpdateUserDetails(userData.Id, userDetailsDto);
+            await _facadeService.UpdateUserDetails(userData.Id, userDetailsDto);
+
+            if (TempData[AmendedUserDetailsKey] != null)
+                TempData.Remove(AmendedUserDetailsKey);
+
+            // refresh the user data from the database
+            var userAccount = await _facadeService.GetUserAccount();
+            session.UserData = userAccount.User;
+            await SaveSession(session);
+
+            // update cookie  with the latest data
+            await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
+
 
             return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
         }
@@ -559,7 +578,19 @@ public class AccountManagementController : Controller
                 model.JobTitle == model.OriginalJobTitle &&
                 model.Telephone != model.OriginalTelephone)
             {
-                _facadeService.UpdateUserDetails(userData.Id, userDetailsDto);
+                await _facadeService.UpdateUserDetails(userData.Id, userDetailsDto);
+
+                if (TempData[AmendedUserDetailsKey] != null)
+                    TempData.Remove(AmendedUserDetailsKey);
+
+                // refresh the user data from the database
+                var userAccount = await _facadeService.GetUserAccount();
+                session.UserData = userAccount.User;
+                await SaveSession(session);
+
+                // update cookie  with the latest data
+                await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
+
                 return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
             }
 
@@ -933,6 +964,27 @@ public class AccountManagementController : Controller
             return true;
         }
         return false;
+    }
+
+    private static bool SetUpdatableValue(bool isUpdatable, string serviceRole, string roleInOrganisation, EditUserDetailsViewModel model)
+    {
+        if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower()
+           && (roleInOrganisation == RoleInOrganisation.Admin || roleInOrganisation == RoleInOrganisation.Employee))
+        {
+            isUpdatable = true;
+        }
+        else
+        {
+            if (
+                model.FirstName == model.OriginalFirstName &&
+                model.LastName == model.OriginalLastName &&
+                model.JobTitle == model.OriginalJobTitle &&
+                model.Telephone != model.OriginalTelephone)
+            {
+                isUpdatable = true;
+            }
+        }
+        return isUpdatable;
     }
 
 }
