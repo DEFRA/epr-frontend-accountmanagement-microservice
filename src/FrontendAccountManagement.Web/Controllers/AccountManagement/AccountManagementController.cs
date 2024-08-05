@@ -544,7 +544,7 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
-        var serviceRole = userData.ServiceRole ?? string.Empty;
+        var serviceRole = session.UserData.ServiceRole ?? string.Empty;
         var roleInOrganisation = userData.RoleInOrganisation ?? string.Empty;
 
         var userDetailsDto = _mapper.Map<UserDetailsDto>(model);

@@ -1,11 +1,10 @@
-﻿using EPR.Common.Authorization.Models;
+﻿using AutoFixture;
+using EPR.Common.Authorization.Constants;
 using EPR.Common.Authorization.Models;
+using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Sessions;
-using FrontendAccountManagement.Core.Sessions;
-using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Threading.Tasks;
@@ -20,16 +19,16 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
     {
         private UserData _userData;
         private JourneySession _journeySession;
+        private Fixture _fixture = new Fixture();
+        private EditUserDetailsViewModel _viewModel;
+        private UserDetailsDto _userDetailsDto;
 
         [TestInitialize]
         public void Setup()
         {
-            _userData = new UserData
-            {
-                FirstName = "TestFirst",
-                LastName = "TestLast",
-            };
-
+            _userData = new UserData { FirstName = "FirstName", LastName = "LastName", RoleInOrganisation = RoleInOrganisation.Admin, ServiceRole = ServiceRoles.BasicUser };
+            _viewModel = _fixture.Create<EditUserDetailsViewModel>();
+            _userDetailsDto = _fixture.Create<UserDetailsDto>();
             SetupBase(_userData);
 
             _journeySession = new JourneySession
@@ -54,12 +53,32 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             viewResult.Should().NotBeNull();
             var model = viewResult.Model as EditUserDetailsViewModel;
             model.Should().NotBeNull();
-            model.FirstName.Should().Be("TestFirst");
-            model.LastName.Should().Be("TestLast");
+            model.FirstName.Should().Be("FirstName");
+            model.LastName.Should().Be("LastName");
         }
 
         [TestMethod]
         public async Task CheckYourDetailsPost_ShouldReturnActionName()
+        {
+            // Act
+            var editUserDetailsViewModel = new EditUserDetailsViewModel
+            {
+                FirstName = "TestFirst",
+                LastName = "TestLast",
+            };
+
+            FacadeServiceMock.Setup(x => x.UpdateUserDetails(Guid.NewGuid(), _userDetailsDto));
+            FacadeServiceMock.Setup(x => x.GetUserAccount()).ReturnsAsync(new UserAccountDto());
+
+            var result = await SystemUnderTest.CheckYourDetails(editUserDetailsViewModel);
+
+            // Assert
+            result.Should().NotBeNull();
+            ((RedirectToActionResult)result).ActionName.Should().NotBeNull();
+        }
+
+        [TestMethod]
+        public async Task CheckYourDetailsPost_Call_UpdateUserDetails_When_Condition_Met()
         {
             // Act        
             var editUserDetailsViewModel = new EditUserDetailsViewModel
@@ -68,11 +87,45 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 LastName = "TestLast",
             };
 
+            FacadeServiceMock.Setup(x => x.UpdateUserDetails(Guid.NewGuid(), _userDetailsDto));
+            FacadeServiceMock.Setup(x => x.GetUserAccount()).ReturnsAsync(new UserAccountDto());
+
             var result = await SystemUnderTest.CheckYourDetails(editUserDetailsViewModel);
 
             // Assert
             result.Should().NotBeNull();
-            ((RedirectToActionResult)result).ActionName.Should().NotBeNull();
+            ((RedirectToActionResult)result).ActionName.Should().Be("UpdateDetailsConfirmation");
+        }
+
+        [TestMethod]
+        public async Task CheckYourDetailsPost_Call_UpdateUserDetails_Update_Telephone_Only_When_Condition_Met()
+        {
+            // Act        
+            var editUserDetailsViewModel = new EditUserDetailsViewModel
+            {
+                FirstName = "TestFirst",
+                LastName = "TestLast",
+                JobTitle = "TestJob",
+                Telephone = "07545812345",
+                OriginalFirstName = "TestFirst",
+                OriginalLastName = "TestLast",
+                OriginalJobTitle = "TestJob",
+                OriginalTelephone = "07545812346"
+            };
+
+            _userData.ServiceRole = ServiceRoles.DelegatedPerson;
+
+            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+           .Returns(Task.FromResult(new JourneySession { UserData = _userData ?? new UserData { ServiceRoleId = 1 } }));
+
+            FacadeServiceMock.Setup(x => x.UpdateUserDetails(Guid.NewGuid(), _userDetailsDto));
+            FacadeServiceMock.Setup(x => x.GetUserAccount()).ReturnsAsync(new UserAccountDto());
+
+            var result = await SystemUnderTest.CheckYourDetails(editUserDetailsViewModel);
+
+            // Assert
+            result.Should().NotBeNull();
+            ((RedirectToActionResult)result).ActionName.Should().Be("UpdateDetailsConfirmation");
         }
 
         #region Private
@@ -98,9 +151,9 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                     },
 
                     // Check the journey isn't changed when the user refreshes the page.
-                    new[] 
+                    new[]
                     {
-                        new List<string> { "manage", "check-your-details" }, 
+                        new List<string> { "manage", "check-your-details" },
                         new List<string> { "manage", "check-your-details" },
                     }
                 };
