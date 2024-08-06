@@ -135,8 +135,8 @@ public class AccountManagementController : Controller
             var roleInOrganisation = userAccount.RoleInOrganisation;
             model.ServiceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
             model.OrganisationType = userOrg.OrganisationType;
-            model.HasPermissionToChangeCompany = HasPermissionToChangeCompany(session.UserData);
-            model.IsBasicUser = IsBasicUserEmployee(session.UserData);
+            model.HasPermissionToChangeCompany = HasPermissionToChangeCompany(userAccount);
+            model.IsBasicUser = IsBasicUserEmployee(userAccount);
         }
         return View(nameof(ManageAccount), model);
     }
