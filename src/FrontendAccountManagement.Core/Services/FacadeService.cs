@@ -11,6 +11,7 @@ using FrontendAccountManagement.Core.Extensions;
 using System.Text.Json;
 using System.Text;
 using System.Text.Json.Serialization;
+using FrontendAccountManagement.Core.Models.CompaniesHouse;
 
 namespace FrontendAccountManagement.Core.Services;
 
@@ -21,6 +22,7 @@ public class FacadeService : IFacadeService
     private readonly string _baseAddress;
     private readonly string _serviceRolesPath;
     private readonly string _getUserAccountPath;
+    private readonly string _getCompanyFromCompaniesHousePath;
     private readonly string[] _scopes;
 
     public FacadeService(HttpClient httpClient, ITokenAcquisition tokenAcquisition, IConfiguration configuration)
@@ -30,6 +32,7 @@ public class FacadeService : IFacadeService
         _baseAddress = configuration["FacadeAPI:Address"];
         _serviceRolesPath = configuration["FacadeAPI:GetServiceRolesPath"];
         _getUserAccountPath = configuration["FacadeAPI:GetUserAccountPath"];
+        _getCompanyFromCompaniesHousePath = configuration["FacadeAPI:GetCompanyFromCompaniesHousePath"];
         _scopes = new[]
         {
             configuration["FacadeAPI:DownStreamScope"],
@@ -52,6 +55,24 @@ public class FacadeService : IFacadeService
         var userAccountDto = await response.Content.ReadFromJsonAsync<UserAccountDto>();
 
         return userAccountDto;
+    }
+
+    public async Task<UserOrganisationsListModelDto?> GetUserAccountForDispaly()
+    {
+        await PrepareAuthenticatedClient();
+
+        var response = await _httpClient.GetAsync(_getUserAccountPath);
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
+        response.EnsureSuccessStatusCode();
+
+        var userOrganisationsListModelDto = await response.Content.ReadFromJsonAsync<UserOrganisationsListModelDto>();
+
+        return userOrganisationsListModelDto;
     }
 
     public async Task<IEnumerable<Models.ServiceRole>?> GetAllServiceRolesAsync()
@@ -83,7 +104,7 @@ public class FacadeService : IFacadeService
             return EndpointResponseStatus.UserExists;
         }
 
-        throw (new Exception(response.Content.ToString()));
+        throw new Exception(response.Content.ToString());
     }
 
     public async Task<ConnectionPerson?> GetPersonDetailsFromConnectionAsync(Guid organisationId, Guid connectionId, string serviceKey)
@@ -203,7 +224,7 @@ public class FacadeService : IFacadeService
         request.Headers.Add("X-EPR-Organisation", organisationId.ToString());
 
         var response = await _httpClient.SendAsync(request);
-         
+
         response.EnsureSuccessStatusCode();
     }
 
@@ -240,7 +261,26 @@ public class FacadeService : IFacadeService
 
         var response = await _httpClient.GetAsync($"organisations/organisation-nation?organisationId={organisationId}");
 
-        return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<List<int>>() : new List<int>{0};
+        return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<List<int>>() : new List<int> { 0 };
+    }
+
+    public async Task<CompaniesHouseResponse> GetCompaniesHouseResponseAsync(string companyHouseNumber)
+    {
+        await PrepareAuthenticatedClient();
+
+        var response = await _httpClient.GetAsync($"{_getCompanyFromCompaniesHousePath}?id={companyHouseNumber}");
+
+        if (response.StatusCode == HttpStatusCode.NoContent)
+        {
+            return null;
+        }
+
+        response.EnsureSuccessStatusCode();
+
+        var companiesHouseData = await response.Content.ReadFromJsonAsync<CompaniesHouseResponse>();
+
+        return companiesHouseData;
+
     }
 
     private async Task PrepareAuthenticatedClient()

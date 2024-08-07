@@ -3,6 +3,7 @@ using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Extensions;
 using FrontendAccountManagement.Web.HealthChecks;
 using FrontendAccountManagement.Web.Middleware;
+using FrontendAccountManagement.Web.Profiles;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
@@ -19,6 +20,7 @@ builder.Services
     .ConfigureMsalDistributedTokenOptions(builder.Configuration);
 
 builder.Services
+    .AddAutoMapper(typeof(Program))
     .AddAntiforgery(options => options.Cookie.Name = builder.Configuration.GetValue<string>("CookieOptions:AntiForgeryCookieName"))
     .AddControllersWithViews(options => {
         options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
@@ -34,10 +36,12 @@ builder.Services
     })
     .AddDataAnnotationsLocalization();
 
-builder.Services.Configure<DeploymentRoleOptions>(options =>
-{
-    options.DeploymentRole = builder.Configuration.GetValue<string>(DeploymentRoleOptions.ConfigSection);
-});
+builder.Services
+    .Configure<DeploymentRoleOptions>(options =>
+    {
+        options.DeploymentRole = builder.Configuration.GetValue<string>(DeploymentRoleOptions.ConfigSection);
+    })
+    .ConfigureAutoMapper();
 
 builder.Services.AddRazorPages();
 

@@ -1,0 +1,94 @@
+﻿@using FrontendAccountManagement.Web.Constants
+@model FrontendAccountManagement.Web.ViewModels.AccountManagement.EditUserDetailsViewModel
+
+@{
+    ViewData["Title"] = Localizer["CheckYourDetails"];
+}
+
+@using (Html.BeginForm(FormMethod.Post))
+{
+    <div class="govuk-width-container">
+        <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+            <h1 class="govuk-fieldset__heading govuk-label--l">
+                @Localizer["CheckYourDetails"]
+            </h1>
+
+            <br />
+
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+                        <div class="govuk-summary-list__row">
+                            <div class="govuk-!-margin-right-3">
+                                <dt class="govuk-summary-list">
+                                    @Localizer["FirstName"]:
+                                </dt>
+                            </div>
+
+                            <dd class="govuk-summary-list__value">
+                                @Localizer[Model.FirstName].Value
+                            </dd>
+                        </div>
+
+                        <div class="govuk-summary-list__row">
+                            <div class="govuk-!-margin-right-3">
+                                <dt class="govuk-summary-list">
+                                    @Localizer["LastName"]:
+                                </dt>
+                            </div>
+
+                            <dd class="govuk-summary-list__value">
+                                @Localizer[Model.LastName].Value
+                            </dd>                           
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.JobTitle))
+                        { 
+                        <div class="govuk-summary-list__row">
+                            <div class="govuk-!-margin-right-3">
+                                <dt class="govuk-summary-list">
+                                    @Localizer["JobTitle"]:
+                                </dt>
+                            </div>
+
+                            <dd class="govuk-summary-list__value">
+                                @Localizer[Model.JobTitle].Value
+                            </dd>                          
+                        </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(Model.Telephone))
+                        {
+                        <div class="govuk-summary-list__row">
+                            <div class="govuk-!-margin-right-3">
+                                <dt class="govuk-summary-list">
+                                        @Localizer["TelephoneNumber"]:
+                                </dt>
+                            </div>
+
+                            <dd class="govuk-summary-list__value">
+                                @Localizer[Model.Telephone].Value
+                            </dd>
+                        </div>
+                        }
+
+                            <div class="govuk-!-margin-right-3">
+                                <dt class="govuk-summary-list__value">
+                                    <button class="govuk-button" data-module="govuk-button" type="submit">
+                                        @Localizer["SaveAndContinue"]
+                                    </button>
+                                    &nbsp;  <a href="~/@PagePath.WhatAreYourDetails" class="govuk-link govuk-link--no-visited-state">
+                                        @SharedLocalizer["Change"]
+
+                                    </a>
+                                </dt>
+                            </div>
+                    </dl>
+
+                    <br />
+                    <br />
+                </div>
+            </div>
+        </main>
+    </div>
+}
