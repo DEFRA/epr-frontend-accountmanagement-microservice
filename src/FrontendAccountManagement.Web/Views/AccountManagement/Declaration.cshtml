@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = Localizer["Declaration.Title"];
+}
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-l govuk-!-margin-bottom-4">
+                    @Localizer["Declaration.Title"]
+                </h1>    
+                <p class="govuk-body">@Localizer["Declaration.Paragraph1"]</p>
+                <p class="govuk-body">@Localizer["Declaration.Paragraph2"]</p>
+                <form method="post">
+                    <button class="govuk-button">
+                        @Localizer["Declaration.ButtonText"]
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>

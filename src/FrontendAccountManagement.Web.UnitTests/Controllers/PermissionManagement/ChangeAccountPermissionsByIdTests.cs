@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Http.Headers;
 using static System.Net.WebRequestMethods;
 using FrontendAccountManagement.Web.ViewModels.PermissionManagement;
 using FrontendAccountManagement.Web.Constants;
+using EPR.Common.Authorization.Sessions;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.PermissionManagement;
 

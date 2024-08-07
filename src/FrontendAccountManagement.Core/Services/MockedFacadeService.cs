@@ -1,6 +1,7 @@
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.MockedData;
 using FrontendAccountManagement.Core.Models;
+using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using FrontendAccountManagement.Core.Sessions;
 
 namespace FrontendAccountManagement.Core.Services;
@@ -79,11 +80,16 @@ public class MockedFacadeService : IFacadeService
         return Task.FromResult<UserAccountDto?>(null);
     }
 
+    public Task<UserOrganisationsListModelDto?> GetUserAccountForDispaly()
+    {
+        return Task.FromResult<UserOrganisationsListModelDto?>(null);
+    }
+
     public Task<EnrolmentStatus?> GetEnrolmentStatus(Guid organisationId, Guid connectionId, string serviceKey, string serviceRoleKey)
     {
         throw new NotImplementedException();
     }
-        
+
     public Task NominateToDelegatedPerson(Guid connectionId, Guid organisationId, string serviceKey, DelegatedPersonNominationRequest nominationRequest)
     {
         return Task.CompletedTask;
@@ -91,6 +97,41 @@ public class MockedFacadeService : IFacadeService
 
     public Task<List<int>> GetNationIds(Guid organisationId)
     {
-        return Task.FromResult(new List<int>{1,2});
+        return Task.FromResult(new List<int> { 1, 2 });
+    }
+
+    public Task<CompaniesHouseResponse> GetCompaniesHouseResponseAsync(string companyHouseNumber)
+    {
+        var stubResponse = new CompaniesHouseResponse
+        {
+            AccountCreatedOn = DateTimeOffset.UtcNow.AddDays(-15),
+            Organisation = new OrganisationDto
+            {
+                Name = "Stub company name",
+                RegistrationNumber = "AB122345",
+                RegisteredOffice = new AddressDto
+                {
+                    Street = "Test street",
+                    BuildingName = "Test Building name",
+                    BuildingNumber = "11",
+                    Country = new CountryDto
+                    {
+                        Iso = "123",
+                        Name = "United Kingdom"
+                    },
+                    Town = "London",
+                    SubBuildingName = "test stub building name",
+                    Postcode = "wh1c 2wd"
+                },
+                OrganisationData = new OrganisationDataDto
+                {
+                    DateOfCreation = DateTime.UtcNow.AddMonths(-1),
+                    Status = "mock company",
+                    Type = "limited"
+                }
+            }
+        };
+
+        return Task.FromResult(stubResponse);
     }
 }

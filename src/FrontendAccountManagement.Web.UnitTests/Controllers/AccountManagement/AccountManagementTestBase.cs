@@ -1,9 +1,11 @@
-﻿using EPR.Common.Authorization.Models;
+﻿using AutoMapper;
+using EPR.Common.Authorization.Models;
+using FrontendAccountManagement.Core.Models;
+using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Controllers.AccountManagement;
-using FrontendAccountManagement.Web.Sessions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -27,11 +29,12 @@ public abstract class AccountManagementTestBase
     protected Mock<IOptions<DeploymentRoleOptions>> DeploymentRoleOptionsMock;
     protected Mock<ILogger<AccountManagementController>> LoggerMock;
     protected Mock<ITempDataDictionary> TempDataDictionaryMock;
+    protected Mock<IMapper> AutoMapperMock;
     protected AccountManagementController SystemUnderTest;
 
     protected JourneySession JourneySessionMock { get; set; }
 
-    protected void SetupBase(UserData userData = null, string deploymentRole = "", int userServiceRoleId = 0)
+    protected void SetupBase(UserData userData = null, string deploymentRole = "", int userServiceRoleId = 0, UserOrganisationsListModelDto userDataToDispaly = null)
     {
         HttpContextMock = new Mock<HttpContext>();
         UserMock = new Mock<ClaimsPrincipal>();
@@ -40,11 +43,15 @@ public abstract class AccountManagementTestBase
         UrlsOptionMock = new Mock<IOptions<ExternalUrlsOptions>>();
         DeploymentRoleOptionsMock = new Mock<IOptions<DeploymentRoleOptions>>();
         TempDataDictionaryMock = new Mock<ITempDataDictionary>();
+        AutoMapperMock = new Mock<IMapper>();
 
-        SetUpUserData(userData);
+        SetUpUserData(userData, userDataToDispaly);
 
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
             .Returns(Task.FromResult(new JourneySession { UserData = { ServiceRoleId = userServiceRoleId } }));
+
+        FacadeServiceMock.Setup(sm => sm.GetUserAccountForDispaly())
+            .Returns(Task.FromResult(userDataToDispaly));
 
         DeploymentRoleOptionsMock.Setup(options => options.Value)
             .Returns(new DeploymentRoleOptions { DeploymentRole = deploymentRole });
@@ -55,13 +62,19 @@ public abstract class AccountManagementTestBase
         LoggerMock = new Mock<ILogger<AccountManagementController>>();
         TempDataDictionaryMock = new Mock<ITempDataDictionary>();
 
-        SystemUnderTest = new AccountManagementController(SessionManagerMock.Object, FacadeServiceMock.Object, UrlsOptionMock.Object,  DeploymentRoleOptionsMock.Object, LoggerMock.Object);
+        SystemUnderTest = new AccountManagementController(
+            SessionManagerMock.Object,
+            FacadeServiceMock.Object,
+            UrlsOptionMock.Object,
+            DeploymentRoleOptionsMock.Object,
+            LoggerMock.Object,
+            AutoMapperMock.Object);
 
         SystemUnderTest.ControllerContext.HttpContext = HttpContextMock.Object;
         SystemUnderTest.TempData = TempDataDictionaryMock.Object;
     }
     
-    private void SetUpUserData(UserData userData)
+    private void SetUpUserData(UserData userData, UserOrganisationsListModelDto userDataToDispaly)
     {
         var claims = new List<Claim>();
         if (userData != null)
@@ -71,6 +84,15 @@ public abstract class AccountManagementTestBase
         
         UserMock.Setup(x => x.Claims).Returns(claims);
         HttpContextMock.Setup(x => x.User).Returns(UserMock.Object);
+        if (userDataToDispaly == null)
+        {
+            userDataToDispaly = new UserOrganisationsListModelDto();
+            userDataToDispaly.User = new UserDetailsModel() { FirstName = "Test First Name", LastName = "Test Last Name", Telephone = "07545822431"  };
+            userDataToDispaly.User.Organisations = new List<OrganisationDetailModel>
+            {
+                new OrganisationDetailModel() { JobTitle = "Test Job Title", Id = Guid.NewGuid(), Name = "Test Organization Name", OrganisationType = "Companies House Company", OrganisationAddress = "Test Organisation Address" }
+            };
+        }
     }
 
     protected static void AssertBackLink(ViewResult viewResult, string expectedBackLink)

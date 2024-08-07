@@ -2,6 +2,8 @@
 @using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
 @using FrontendAccountManagement.Web.ViewModels.AccountManagement
 @using FrontendAccountManagement.Core.Models
+@using FrontendAccountManagement.Core.Enums;
+@using FrontendAccountManagement.Web.Constants
 @addTagHelper *, Microsoft.FeatureManagement.AspNetCore
 
 @model ManageAccountViewModel
@@ -20,45 +22,162 @@
                     @await Html.PartialAsync("Partials/Govuk/_ErrorSummary", errorsViewModel)
                 }
 
-                @if(Model != null && Model.PersonUpdated != null)
+                @if (Model != null && Model.PersonUpdated != null)
                 {
-                    @await Html.PartialAsync("Partials/_SuccessBanner",  Localizer["PermissionsUpdated", Model.PersonUpdated])
+                    @await Html.PartialAsync("Partials/_SuccessBanner", Localizer["PermissionsUpdated", Model.PersonUpdated])
                 }
 
-                @if(Model != null && Model.InviteStatus == EndpointResponseStatus.Success)
+                @if (Model != null && Model.InviteStatus == EndpointResponseStatus.Success)
                 {
-                    @await Html.PartialAsync("Partials/_SuccessBanner",  Localizer["YouSentInvitation", Model.InvitedUserEmail])
+                    @await Html.PartialAsync("Partials/_SuccessBanner", Localizer["YouSentInvitation", Model.InvitedUserEmail])
                 }
-                
-                @if(Model != null && Model.InviteStatus == EndpointResponseStatus.UserExists)
+
+                @if (Model != null && Model.InviteStatus == EndpointResponseStatus.UserExists)
                 {
                     @await Html.PartialAsync("Partials/_ErrorBanner", Localizer["UserAlreadyInvited", Model.InvitedUserEmail])
                 }
-                
-                @if(Model != null && Model.UserRemovedStatus == EndpointResponseStatus.Success)
+
+                @if (Model != null && Model.UserRemovedStatus == EndpointResponseStatus.Success)
                 {
                     @await Html.PartialAsync("Partials/_SuccessBanner", Localizer["UserRemoved", Model.RemovedUsersName])
                 }
-                
+
                 <h1 class="govuk-heading-l govuk-!-margin-bottom-8">
                     @Localizer["ManageAccountDetails"]
                 </h1>
-        
+                @if (!string.IsNullOrEmpty(Model.OrganisationType) && Model.OrganisationType != OrganisationType.NotSet)
+                {
+                    <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+                        <h2 class="govuk-heading-m govuk-!-margin-bottom-4">
+                            @Localizer["YourOrganisation"]
+                        </h2>
+                        @if (Model.HasPermissionToChangeCompany.HasValue && Model.HasPermissionToChangeCompany.Value)
+                        {
+                        <dd class="govuk-summary-list__actions">
+                            @if (Model.OrganisationType == OrganisationType.CompaniesHouseCompany)
+                            {
+                                <a href="~/@PagePath.CompanyDetailsCheck" class="govuk-link govuk-link--no-visited-state">
+                                    @SharedLocalizer["Change"]
+                                    <span class="govuk-visually-hidden"></span>
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="~/@PagePath.UpdateTradingName" class="govuk-link govuk-link--no-visited-state">
+                                    @SharedLocalizer["Change"]
+                                    <span class="govuk-visually-hidden"></span>
+                                </a>
+                            }
+                        </dd>
+                        }
+
+                    </dl>
+
+                    <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+                        <div class="govuk-summary-list__row">
+                            <div class="govuk-!-margin-right-3">
+                                <dt class="govuk-summary-list__value">
+                                    @Localizer["CompanyName"]
+                                </dt>
+                            </div>
+                            <dd class="govuk-summary-list__value">
+                                @Model.CompanyName
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <div class="govuk-!-margin-right-3">
+                                <dt class="govuk-summary-list__value">
+                                    @Localizer["OrganisationAddress"]
+                                </dt>
+                            </div>
+                            <dd class="govuk-summary-list__value">
+                                @Model.OrganisationAddress
+                            </dd>
+                        </div>
+                    </dl>
+                    <br />
+                }
+                <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+                    <h2 class="govuk-heading-m govuk-!-margin-bottom-4">
+                        @Localizer["YourDetails"]
+                    </h2>
+                    <dd class="govuk-summary-list__actions">
+                        <a href="~/@PagePath.WhatAreYourDetails" class="govuk-link govuk-link--no-visited-state">
+                            @SharedLocalizer["Change"]
+                            <span class="govuk-visually-hidden"></span>
+                        </a>
+                    </dd>
+                </dl>
+                <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+                    <div class="govuk-summary-list__row">
+                        <div class="govuk-!-margin-right-3">
+                            <dt class="govuk-summary-list__value">@Localizer["YourName"]</dt>
+                        </div>
+                        <dd class="govuk-summary-list__value">@Model.UserName</dd>
+                    </div>
+                    @if (Model != null && !string.IsNullOrEmpty(Model.JobTitle))
+                    {
+                        <div class="govuk-summary-list__row">
+                            <div class="govuk-!-margin-right-3">
+                                <dt class="govuk-summary-list__value">
+                                    @Localizer["JobTitle"]
+                                </dt>
+                            </div>
+                            <dd class="govuk-summary-list__value">
+                                @Model.JobTitle
+                            </dd>
+                        </div>
+                    }
+                    @if (Model != null && !string.IsNullOrEmpty(Model.Telephone))
+                    {
+                        <div class="govuk-summary-list__row">
+                            <div class="govuk-!-margin-right-3">
+                                <dt class="govuk-summary-list__value">
+                                    @Localizer["TelephoneNumber"]
+                                </dt>
+                            </div>
+                            <dd class="govuk-summary-list__value">
+                                @Model.Telephone
+                            </dd>
+
+                        </div>
+                    }
+
+                    <div class="govuk-summary-list__row">
+                        <div class="govuk-!-margin-right-3">
+                            <dt class="govuk-summary-list__value">
+                                @Localizer["Permissions"]
+                            </dt>
+                        </div>
+                        <dd class="govuk-summary-list__value">
+                            @if (Model.EnrolmentStatus == EnrolmentStatus.Pending.ToString() || Model.EnrolmentStatus == EnrolmentStatus.Nominated.ToString())
+                            {
+                                @SharedLocalizer["Basic.Admin"]
+                            }
+                            else
+                            {
+                                @SharedLocalizer[Model.ServiceRoleKey]
+                            }
+                        </dd>
+                    </div>
+                </dl>
+                <br />
+
                 <h2 class="govuk-heading-m govuk-!-margin-bottom-4">
                     @Localizer["ManageYourTeam"]
                 </h2>
-        
+
                 <div class="govuk-!-margin-bottom-4">
                     @Html.ActionLink(Localizer["AddTeamMember"].Value,
-                        "TeamMemberEmail",
-                        "AccountManagement",
-                        null,
-                        new {@class = "govuk-link govuk-link--no-visited-state govuk-body-m"})   
+                             "TeamMemberEmail",
+                             "AccountManagement",
+                             null,
+                             new { @class = "govuk-link govuk-link--no-visited-state govuk-body-m" })
                 </div>
-                
                 <feature name="RemoveUsers">
                     @await Component.InvokeAsync("ManageTeam")
                 </feature>
+
             </div>
         </div>
     </main>
