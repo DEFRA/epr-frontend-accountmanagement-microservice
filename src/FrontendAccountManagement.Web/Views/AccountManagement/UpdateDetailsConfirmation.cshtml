@@ -1,0 +1,25 @@
+﻿@using FrontendAccountManagement.Web.Extensions
+@using FrontendAccountManagement.Web.ViewModels.AccountManagement
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+
+@model UpdateDetailsConfirmationViewModel
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+                <div class="govuk-panel govuk-panel--confirmation">
+                    <h1 class="govuk-panel__body govuk-!-font-weight-bold govuk-!-margin-bottom-0 govuk-!-margin-top-0">
+                        @Localizer["ConfirmationMessage"]
+                    </h1>
+                </div>
+                <p class="govuk-body">
+                    @Model.GetFormattedChangeMessage("Changed")
+                </p>
+                <a asp-action="ManageAccount" asp-controller="AccountManagement" class="govuk-link" data-module="govuk-link">
+                    @Localizer["ManageAccountLinkDescription"]
+                </a>
+            </div>
+        </div>
+    </main>
+</div>

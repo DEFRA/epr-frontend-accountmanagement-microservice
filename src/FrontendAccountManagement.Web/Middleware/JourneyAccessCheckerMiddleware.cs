@@ -1,4 +1,5 @@
-﻿using FrontendAccountManagement.Core.Sessions;
+﻿using EPR.Common.Authorization.Sessions;
+using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.Attributes;

@@ -117,28 +117,22 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ManageAccountDetails" xml:space="preserve">
-    <value>Manage account details</value>
+  <data name="Declaration.ButtonText" xml:space="preserve">
+    <value>[Welsh] Cadarnhau’r manylion a chreu cyfrif</value>
   </data>
-  <data name="ManageYourTeam" xml:space="preserve">
-    <value>Manage your team</value>
+  <data name="Declaration.Paragraph1" xml:space="preserve">
+    <value>[Welsh] Trwy gadarnhau’ch manylion, rydych chi’n cytuno bod yr wybodaeth rydych chi wedi’i rhoi yn gyflawn ac yn gywir.</value>
   </data>
-  <data name="AddTeamMember" xml:space="preserve">
-    <value>Add team member</value>
+  <data name="Declaration.Paragraph2" xml:space="preserve">
+    <value>[Welsh] Rydych chi hefyd yn cytuno yr hoffech i’r rheoleiddiwr gymeradwyo cyfrif ar gyfer eich sefydliad.</value>
   </data>
-  <data name="YouSentInvitation" xml:space="preserve">
-    <value>You sent an invitation to {0}</value>
+  <data name="Declaration.Title" xml:space="preserve">
+    <value>[Welsh] Datganiad</value>
   </data>
-  <data name="UserAlreadyInvited" xml:space="preserve">
-    <value>Someone on your team has already sent an invitation to {0}</value>
+  <data name="Declaration.ScreenReaderHelpText" xml:space="preserve">
+    <value>[Welsh] ]Rhybudd</value>
   </data>
-  <data name="UserRemoved" xml:space="preserve">
-    <value>You removed {0} from your team</value>
-  </data>
-  <data name="PermissionsUpdated" xml:space="preserve">
-    <value>{0}’s permissions updated</value>
-  </data>
-  <data name="CheckYourDetails" xml:space="preserve">
-    <value>Check your details</value>
+  <data name="Declaration.Warning" xml:space="preserve">
+    <value>[Welsh] Gallwch gael eich dirwyo neu eich erlyn os byddwch yn rhoi’r wybodaeth anghywir.</value>
   </data>
 </root>

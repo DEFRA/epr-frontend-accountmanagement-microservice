@@ -1,9 +1,10 @@
-﻿using EPR.Common.Authorization.Models;
+﻿using AutoMapper;
+using EPR.Common.Authorization.Models;
+using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Controllers.AccountManagement;
-using FrontendAccountManagement.Web.Sessions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -27,6 +28,7 @@ public abstract class AccountManagementTestBase
     protected Mock<IOptions<DeploymentRoleOptions>> DeploymentRoleOptionsMock;
     protected Mock<ILogger<AccountManagementController>> LoggerMock;
     protected Mock<ITempDataDictionary> TempDataDictionaryMock;
+    protected Mock<IMapper> AutoMapperMock;
     protected AccountManagementController SystemUnderTest;
 
     protected JourneySession JourneySessionMock { get; set; }
@@ -40,6 +42,7 @@ public abstract class AccountManagementTestBase
         UrlsOptionMock = new Mock<IOptions<ExternalUrlsOptions>>();
         DeploymentRoleOptionsMock = new Mock<IOptions<DeploymentRoleOptions>>();
         TempDataDictionaryMock = new Mock<ITempDataDictionary>();
+        AutoMapperMock = new Mock<IMapper>();
 
         SetUpUserData(userData);
 
@@ -55,7 +58,13 @@ public abstract class AccountManagementTestBase
         LoggerMock = new Mock<ILogger<AccountManagementController>>();
         TempDataDictionaryMock = new Mock<ITempDataDictionary>();
 
-        SystemUnderTest = new AccountManagementController(SessionManagerMock.Object, FacadeServiceMock.Object, UrlsOptionMock.Object,  DeploymentRoleOptionsMock.Object, LoggerMock.Object);
+        SystemUnderTest = new AccountManagementController(
+            SessionManagerMock.Object,
+            FacadeServiceMock.Object,
+            UrlsOptionMock.Object,
+            DeploymentRoleOptionsMock.Object,
+            LoggerMock.Object,
+            AutoMapperMock.Object);
 
         SystemUnderTest.ControllerContext.HttpContext = HttpContextMock.Object;
         SystemUnderTest.TempData = TempDataDictionaryMock.Object;

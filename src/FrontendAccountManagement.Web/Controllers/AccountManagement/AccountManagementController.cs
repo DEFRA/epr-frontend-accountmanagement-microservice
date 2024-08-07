@@ -8,7 +8,6 @@ using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.Errors;
-using FrontendAccountManagement.Web.Sessions;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +15,9 @@ using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using FrontendAccountManagement.Web.Extensions;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
+using EPR.Common.Authorization.Sessions;
+using AutoMapper;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 
@@ -28,21 +30,24 @@ public class AccountManagementController : Controller
     private readonly ILogger<AccountManagementController> _logger;
     private readonly ExternalUrlsOptions _urlOptions;
     private readonly DeploymentRoleOptions _deploymentRoleOptions;
+    private readonly IMapper _mapper;
 
     public AccountManagementController(
         ISessionManager<JourneySession> sessionManager,
         IFacadeService facadeService,
         IOptions<ExternalUrlsOptions> urlOptions,
         IOptions<DeploymentRoleOptions> deploymentRoleOptions,
-        ILogger<AccountManagementController> logger)
+        ILogger<AccountManagementController> logger,
+        IMapper mapper)
     {
         _sessionManager = sessionManager;
         _facadeService = facadeService;
         _logger = logger;
         _urlOptions = urlOptions.Value;
         _deploymentRoleOptions = deploymentRoleOptions.Value;
+        _mapper = mapper;
     }
-    
+
     [HttpGet]
     [Route("")]
     [Route(PagePath.ManageAccount)]
@@ -58,7 +63,7 @@ public class AccountManagementController : Controller
                 statusCode = (int)HttpStatusCode.Forbidden
             });
         }
-        
+
         session.AccountManagementSession.AddUserJourney = null;
         if (session.AccountManagementSession.RemoveUserStatus != null)
         {
@@ -68,7 +73,7 @@ public class AccountManagementController : Controller
             session.AccountManagementSession.RemoveUserStatus = null;
             session.AccountManagementSession.RemoveUserJourney = null;
         }
-        
+
         if (session.AccountManagementSession.AddUserStatus != null)
         {
             model.InviteStatus = session.AccountManagementSession.AddUserStatus;
@@ -82,10 +87,10 @@ public class AccountManagementController : Controller
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccount);
 
         SetCustomBackLink(_urlOptions.LandingPageUrl);
-        
+
         return View(nameof(ManageAccount), model);
     }
-    
+
     [HttpGet]
     [Route(PagePath.TeamMemberEmail)]
     public async Task<IActionResult> TeamMemberEmail()
@@ -104,7 +109,7 @@ public class AccountManagementController : Controller
 
         return View(nameof(TeamMemberEmail), model);
     }
-    
+
     [HttpPost]
     [Route(PagePath.TeamMemberEmail)]
     public async Task<IActionResult> TeamMemberEmail(TeamMemberEmailViewModel model)
@@ -122,16 +127,16 @@ public class AccountManagementController : Controller
 
         return await SaveSessionAndRedirect(session, nameof(TeamMemberPermissions), PagePath.TeamMemberEmail, PagePath.TeamMemberPermissions);
     }
-    
+
     [HttpGet]
     [Route(PagePath.TeamMemberPermissions)]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     public async Task<IActionResult> TeamMemberPermissions()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        
+
         SetBackLink(session, PagePath.TeamMemberPermissions);
-        
+
         var serviceRoles = await _facadeService.GetAllServiceRolesAsync();
         if (serviceRoles == null || !serviceRoles.Any())
         {
@@ -158,10 +163,10 @@ public class AccountManagementController : Controller
                 .OrderByDescending(x => x.Key).ToList();
             model.SavedUserRole = session.AccountManagementSession.AddUserJourney.UserRole;
         }
-        
+
         return View(nameof(TeamMemberPermissions), model);
     }
-    
+
     [HttpPost]
     [Route(PagePath.TeamMemberPermissions)]
     public async Task<IActionResult> TeamMemberPermissions(TeamMemberPermissionsViewModel model)
@@ -176,7 +181,7 @@ public class AccountManagementController : Controller
             model.ServiceRoles = serviceRoles
                 .Where(x => x.ServiceRoleId == 3)
                 .OrderByDescending(x => x.Key).ToList();
-            
+
             return View(nameof(TeamMemberPermissions), model);
         }
 
@@ -185,14 +190,14 @@ public class AccountManagementController : Controller
 
         return await SaveSessionAndRedirect(session, nameof(TeamMemberDetails), PagePath.TeamMemberPermissions, PagePath.TeamMemberDetails);
     }
-    
+
     [HttpGet]
     [AllowAnonymous]
     [Route(PagePath.TeamMemberDetails)]
     public async Task<IActionResult> TeamMemberDetails()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        
+
         SetBackLink(session, PagePath.TeamMemberDetails);
         var model = new TeamMemberDetailsViewModel
         {
@@ -232,12 +237,12 @@ public class AccountManagementController : Controller
                 RoleKey = session.AccountManagementSession.RoleKey
             }
         };
-        
+
         session.AccountManagementSession.AddUserStatus = await _facadeService.SendUserInvite(request);
-        
+
         return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.TeamMemberDetails, PagePath.ManageAccount);
     }
-    
+
     [HttpPost]
     [Route(PagePath.PreRemoveTeamMember)]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
@@ -249,7 +254,7 @@ public class AccountManagementController : Controller
         await SaveSession(session);
         return RedirectToAction("RemoveTeamMemberConfirmation","AccountManagement");
     }
-    
+
     [HttpGet]
     [Route(PagePath.RemoveTeamMember)]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
@@ -271,7 +276,7 @@ public class AccountManagementController : Controller
 
         return View(nameof(RemoveTeamMemberConfirmation), model);
     }
-    
+
     [HttpPost]
     [Route(PagePath.RemoveTeamMember)]
     public async Task<IActionResult> RemoveTeamMemberConfirmation(RemoveTeamMemberConfirmationViewModel model)
@@ -284,9 +289,9 @@ public class AccountManagementController : Controller
             SetBackLink(session, PagePath.TeamMemberPermissions);
             return View(model);
         }
-        
+
         var personExternalId = model.PersonId.ToString();
-        var organisation = userData.Organisations.FirstOrDefault();        
+        var organisation = userData.Organisations.FirstOrDefault();
         if (organisation?.Id == null)
         {
             return RedirectToAction(nameof(ManageAccount));
@@ -297,6 +302,154 @@ public class AccountManagementController : Controller
         session.AccountManagementSession.RemoveUserStatus = result;
 
         return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.RemoveTeamMember, PagePath.ManageAccount);
+    }
+
+    /// <summary>
+    /// Displays the "Declaration" page.
+    /// </summary>
+    /// <remarks>
+    /// The page is only displayed when arriving from the "Check your details" page.
+    /// If navigated to directly, the user is forwarded to an error page.
+    /// </remarks>
+    /// <param name="navigationToken">
+    /// A value used to verify that the user came from the "Check your details" page.
+    /// Its specific value doesn't matter, but it's compared to a copy stored in the session data as an extra layer of validation.
+    /// </param>
+    [HttpGet]
+    [Route(PagePath.Declaration)]
+    public async Task<IActionResult> Declaration()
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest();
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        SaveSessionAndJourney(session, PagePath.CheckYourDetails, PagePath.Declaration);
+        SetBackLink(session, PagePath.Declaration);
+        return View(nameof(Declaration));
+    }
+
+    [HttpPost]
+    [Route(PagePath.Declaration, Name = "Declaration")]
+    public async Task<IActionResult> DeclarationPost()
+    {
+        return RedirectToAction(nameof(DetailsChangeRequested));
+    }
+
+    [HttpGet]
+    [Route(PagePath.WhatAreYourDetails)]
+    public async Task<IActionResult> EditUserDetails()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.WhatAreYourDetails);
+        var model = _mapper.Map<EditUserDetailsViewModel>(User.GetUserData());
+
+        SetBackLink(session, PagePath.WhatAreYourDetails);
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [Route(PagePath.WhatAreYourDetails)]
+    public async Task<IActionResult> EditUserDetails(EditUserDetailsViewModel editUserDetailsViewModel)
+    {
+        // is there a modelstate error for job title, but job title never existed
+        if (ModelState.ContainsKey(nameof(EditUserDetailsViewModel.JobTitle)) &&
+            ModelState.FirstOrDefault(ms => ms.Key == nameof(EditUserDetailsViewModel.JobTitle)).Value.Errors.Any() &&
+            !editUserDetailsViewModel.PropertyExists(m => m.OriginalJobTitle))
+        {
+            // if so, remove the error
+            ModelState.Remove(nameof(EditUserDetailsViewModel.JobTitle));
+        }
+
+        // is there a modelstate error for telephone, but telephone never existed
+        if (ModelState.ContainsKey(nameof(EditUserDetailsViewModel.Telephone)) &&
+            ModelState.FirstOrDefault(ms => ms.Key == nameof(EditUserDetailsViewModel.Telephone)).Value.Errors.Any() &&
+            !editUserDetailsViewModel.PropertyExists(m => m.OriginalTelephone))
+        {
+            // if so, remove the error
+            ModelState.Remove(nameof(EditUserDetailsViewModel.Telephone));
+        }
+
+        if (!ModelState.IsValid)
+        {
+            await SetBackLink(PagePath.WhatAreYourDetails);
+            return View(editUserDetailsViewModel);
+        }
+
+        // need to temporarily save the details for the next page, without saving to the database
+        // however this bit throws an exception at the moment for some reason
+        //TempData.Add("NewUserDetails", editUserDetailsViewModel);
+        
+        return RedirectToAction("CheckYourDetails", editUserDetailsViewModel);
+    }
+    [HttpGet]
+    [Route(PagePath.CheckYourDetails)]
+    public async Task<IActionResult> CheckYourDetails( )
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var userData = User.GetUserData();
+
+        SetBackLink(session, PagePath.CheckYourDetails);
+        var model = new EditUserDetailsViewModel
+        {
+            FirstName = userData.FirstName,
+            LastName = userData.LastName,
+            JobTitle = userData.JobTitle,
+            Telephone = userData.Telephone
+        };
+
+        SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.CheckYourDetails);
+        SetBackLink(session, PagePath.CheckYourDetails);
+        return View(nameof(PagePath.CheckYourDetails), model);
+    }
+
+    [HttpPost]
+    [Route(PagePath.CheckYourDetails)]
+    public async Task<IActionResult> CheckYourDetails(EditUserDetailsViewModel model)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var userData = User.GetUserData();
+
+        if (!ModelState.IsValid)
+        {
+            SetBackLink(session, PagePath.CheckYourDetails);
+            return View(model);
+        }
+
+        return RedirectToAction("declaration");
+    }
+
+    [HttpGet]
+    [Route(PagePath.UpdateDetailsConfirmation)]
+    public async Task<IActionResult> UpdateDetailsConfirmation()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        var model = new UpdateDetailsConfirmationViewModel
+        {
+            Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
+            UpdatedDatetime = DateTime.Now
+        };
+
+        return View(nameof(UpdateDetailsConfirmation), model);
+    }
+
+    [HttpGet]
+    [Route(PagePath.DetailsChangeRequestedNotification)]
+    public async Task<IActionResult> DetailsChangeRequested()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        var model = new DetailsChangeRequestedViewModel
+        {
+            Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
+            UpdatedDatetime = DateTime.Now
+        };
+
+        return View(nameof(DetailsChangeRequested), model);
     }
 
     private static void SetRemoveUserJourneyValues(JourneySession session, string firstName, string lastName, Guid personId)
@@ -318,7 +471,7 @@ public class AccountManagementController : Controller
             session.AccountManagementSession.RemoveUserJourney.PersonId = personId;
         }
     }
-    
+
     private async Task<RedirectToActionResult> SaveSessionAndRedirect(
         JourneySession session,
         string actionName,
@@ -338,7 +491,7 @@ public class AccountManagementController : Controller
 
         await SaveSession(session);
     }
-    
+
     private async Task SaveSession(JourneySession session)
     {
         await _sessionManager.SaveSessionAsync(HttpContext.Session, session);
@@ -350,6 +503,12 @@ public class AccountManagementController : Controller
 
         // this also cover if current page not found (index = -1) then it clears all pages
         session.AccountManagementSession.Journey = session.AccountManagementSession.Journey.Take(index + 1).ToList();
+    }
+
+    private async Task SetBackLink(string currentPagePath)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
     }
 
     private void SetBackLink(JourneySession session, string currentPagePath)

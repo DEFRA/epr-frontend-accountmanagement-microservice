@@ -117,28 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ManageAccountDetails" xml:space="preserve">
-    <value>Manage account details</value>
+  <data name="ConfirmationMessage" xml:space="preserve">
+    <value>Your details have been updated</value>
   </data>
-  <data name="ManageYourTeam" xml:space="preserve">
-    <value>Manage your team</value>
-  </data>
-  <data name="AddTeamMember" xml:space="preserve">
-    <value>Add team member</value>
-  </data>
-  <data name="YouSentInvitation" xml:space="preserve">
-    <value>You sent an invitation to {0}</value>
-  </data>
-  <data name="UserAlreadyInvited" xml:space="preserve">
-    <value>Someone on your team has already sent an invitation to {0}</value>
-  </data>
-  <data name="UserRemoved" xml:space="preserve">
-    <value>You removed {0} from your team</value>
-  </data>
-  <data name="PermissionsUpdated" xml:space="preserve">
-    <value>{0}’s permissions updated</value>
-  </data>
-  <data name="CheckYourDetails" xml:space="preserve">
-    <value>Check your details</value>
+  <data name="ManageAccountLinkDescription" xml:space="preserve">
+    <value>Go to manage account</value>
   </data>
 </root>
