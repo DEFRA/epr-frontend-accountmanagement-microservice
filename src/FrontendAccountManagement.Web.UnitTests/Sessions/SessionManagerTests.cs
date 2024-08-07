@@ -2,6 +2,7 @@
 
 using System.Text;
 using System.Text.Json;
+using EPR.Common.Authorization.Sessions;
 using FluentAssertions;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Sessions;
@@ -29,7 +30,7 @@ public class SessionManagerTests
         _sessionBytes = Encoding.UTF8.GetBytes(_serializedTestSession);
 
         _sessionMock = new Mock<ISession>();
-        _sessionManager = new JourneySessionManager();
+        _sessionManager = new SessionManager<JourneySession>();
     }
 
     [TestMethod]
