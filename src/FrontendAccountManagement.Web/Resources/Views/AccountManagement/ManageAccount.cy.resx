@@ -163,4 +163,7 @@ Rheoli manylion y cyfrif</value>
   <data name="YourOrganisation" xml:space="preserve">
     <value>[Welsh] Your organisation</value>
   </data>
+  <data name="Pending" xml:space="preserve">
+    <value>[Welsh] Pending</value>
+  </data>
 </root>

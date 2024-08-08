@@ -102,10 +102,19 @@
                         @Localizer["YourDetails"]
                     </h2>
                     <dd class="govuk-summary-list__actions">
-                        <a href="~/@PagePath.WhatAreYourDetails" class="govuk-link govuk-link--no-visited-state">
-                            @SharedLocalizer["Change"]
-                            <span class="govuk-visually-hidden"></span>
-                        </a>
+                        @if (Model != null && Model.IsChangeRequestPending == true)
+                        {
+                        <dt class="govuk-summary-list__value">
+                                @Localizer["Pending"]
+                        </dt>
+                        }
+                        else
+                        {
+                            <a href="~/@PagePath.WhatAreYourDetails" class="govuk-link govuk-link--no-visited-state">
+                                @SharedLocalizer["Change"]
+                                <span class="govuk-visually-hidden"></span>
+                            </a>
+                        }
                     </dd>
                 </dl>
                 <dl class="govuk-summary-list govuk-!-margin-bottom-0">
