@@ -28,29 +28,29 @@ public class ManageTeamTests : ViewComponentsTestBase
         // Arrange
         _userData = new UserData
         {
-            Organisations = new List<Organisation> {new() {Id = _organisationId}},
+            Organisations = new List<Organisation> { new() { Id = _organisationId } },
             RoleInOrganisation = "Admin",
             ServiceRoleId = serviceRoleId
-        };        
+        };
         SetViewComponentContext(PagePath.ManageAccount, _component, _userData);
         FacadeService.Setup(x => x.GetUsersForOrganisationAsync(_organisationId.ToString(), _userData.ServiceRoleId))
             .ReturnsAsync(MockedManageUserModels.GetMockedManageUserModels());
 
         // Act
         var model = _component.InvokeAsync().Result.ViewData.Model as ManageTeamModel;
-        
+
         // Assert
         Assert.IsTrue(model.Users.Any());
         Assert.AreEqual(false,
             model.Users.Find(x => x.Email == "peter@inviteduser.test").IsRemoveable);
-        Assert.AreEqual(true, 
+        Assert.AreEqual(true,
             model.Users.Find(x => x.Email == "chris@delegatedadmin.test").IsRemoveable);
-        Assert.AreEqual(true, 
+        Assert.AreEqual(true,
             model.Users.Find(x => x.Email == "donna@basicadmin.test").IsRemoveable);
-        Assert.AreEqual(true, 
+        Assert.AreEqual(true,
             model.Users.Find(x => x.Email == "albert@basicemployee.test").IsRemoveable);
     }
-    
+
     [TestMethod]
     [DataRow(2)]
     [DataRow(3)]
@@ -59,26 +59,26 @@ public class ManageTeamTests : ViewComponentsTestBase
         // Arrange
         _userData = new UserData
         {
-            Organisations = new List<Organisation> {new() {Id = _organisationId}},
+            Organisations = new List<Organisation> { new() { Id = _organisationId } },
             RoleInOrganisation = "Admin",
             ServiceRoleId = serviceRoleId
-        };        
+        };
         SetViewComponentContext(PagePath.ManageAccount, _component, _userData);
         FacadeService.Setup(x => x.GetUsersForOrganisationAsync(_organisationId.ToString(), _userData.ServiceRoleId))
             .ReturnsAsync(MockedManageUserModels.GetMockedManageUserModels());
 
         // Act
         var model = _component.InvokeAsync().Result.ViewData.Model as ManageTeamModel;
-        
+
         // Assert
         Assert.IsTrue(model.Users.Any());
         Assert.AreEqual(false,
             model.Users.Find(x => x.Email == "peter@inviteduser.test").IsRemoveable);
-        Assert.AreEqual(false, 
+        Assert.AreEqual(false,
             model.Users.Find(x => x.Email == "chris@delegatedadmin.test").IsRemoveable);
-        Assert.AreEqual(true, 
+        Assert.AreEqual(true,
             model.Users.Find(x => x.Email == "donna@basicadmin.test").IsRemoveable);
-        Assert.AreEqual(true, 
+        Assert.AreEqual(true,
             model.Users.Find(x => x.Email == "albert@basicemployee.test").IsRemoveable);
     }
 }

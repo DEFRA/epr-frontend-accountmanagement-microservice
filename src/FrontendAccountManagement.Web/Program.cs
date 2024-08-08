@@ -4,6 +4,8 @@ using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Extensions;
 using FrontendAccountManagement.Web.HealthChecks;
 using FrontendAccountManagement.Web.Middleware;
+using FrontendAccountManagement.Web.Utilities;
+using FrontendAccountManagement.Web.Utilities.Interfaces;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
@@ -45,6 +47,8 @@ builder.Services
 
 builder.Services.AddRazorPages();
 builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddTransient<IClaimsExtensionsWrapper, ClaimsExtensionsWrapper>();
 
 builder.Services
     .Configure<ForwardedHeadersOptions>(options =>

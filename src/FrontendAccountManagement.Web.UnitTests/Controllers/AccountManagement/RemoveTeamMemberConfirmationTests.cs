@@ -119,8 +119,8 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
         Assert.AreEqual(FirstName, JourneySessionMock.AccountManagementSession.RemoveUserJourney.FirstName);
         Assert.AreEqual(LastName, JourneySessionMock.AccountManagementSession.RemoveUserJourney.LastName);
         Assert.AreEqual(_personId, JourneySessionMock.AccountManagementSession.RemoveUserJourney.PersonId);
-    }  
-    
+    }
+
     [TestMethod]
     public async Task GivenOnRemoveTeamMemberConfirmationPage_WhenRemoveTeamMemberConfirmationPageHttpPostCalled_AndSuccessfulResponse_ThenUserRemoved()
     {
@@ -133,7 +133,7 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
             FirstName = FirstName,
             LastName = LastName
         };
-        
+
         // Act
         var result = await SystemUnderTest.RemoveTeamMemberConfirmation(model) as RedirectToActionResult;
 
@@ -150,7 +150,7 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
         _userData = new UserData
         {
             ServiceRoleId = 3,
-            Organisations = new List<Organisation>()            
+            Organisations = new List<Organisation>()
         };
 
         SetupBase(_userData);

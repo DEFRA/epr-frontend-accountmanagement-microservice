@@ -3,6 +3,8 @@
 
 @{
     ViewData["Title"] = Localizer["CheckYourDetails"];
+
+    bool isUpdatable = @ViewBag.IsUpdatable;
 }
 
 @using (Html.BeginForm(FormMethod.Post))
@@ -29,8 +31,8 @@
                     <dl class="govuk-summary-list govuk-!-margin-bottom-0">
                         <div class="govuk-summary-list__row">
                             <div class="govuk-!-margin-right-3">
-                                <dt class="govuk-summary-list">
-                                    @Localizer["FirstName"]:
+                                <dt class="govuk-summary-list__key">
+                                    @Localizer["FirstName"]
                                 </dt>
                             </div>
 
@@ -41,8 +43,8 @@
 
                         <div class="govuk-summary-list__row">
                             <div class="govuk-!-margin-right-3">
-                                <dt class="govuk-summary-list">
-                                    @Localizer["LastName"]:
+                                <dt class="govuk-summary-list__key">
+                                    @Localizer["LastName"]
                                 </dt>
                             </div>
 
@@ -55,8 +57,8 @@
                         {
                             <div class="govuk-summary-list__row">
                                 <div class="govuk-!-margin-right-3">
-                                    <dt class="govuk-summary-list">
-                                        @Localizer["JobTitle"]:
+                                    <dt class="govuk-summary-list__key">
+                                        @Localizer["JobTitle"]
                                     </dt>
                                 </div>
 
@@ -70,8 +72,8 @@
                         {
                             <div class="govuk-summary-list__row">
                                 <div class="govuk-!-margin-right-3">
-                                    <dt class="govuk-summary-list">
-                                        @Localizer["TelephoneNumber"]:
+                                    <dt class="govuk-summary-list__key">
+                                        @Localizer["TelephoneNumber"]
                                     </dt>
                                 </div>
 
@@ -84,7 +86,7 @@
                         <div class="govuk-!-margin-right-3">
                             <dt class="govuk-summary-list__value">
                                 <button class="govuk-button" data-module="govuk-button" type="submit">
-                                    @Localizer["SaveAndContinue"]
+                                    @(isUpdatable ? @Localizer["SaveAndContinue"] : @Localizer["Continue"])
                                 </button>
                                 &nbsp;  <a href="~/@PagePath.WhatAreYourDetails" class="govuk-link govuk-link--no-visited-state">
                                     @SharedLocalizer["Change"]

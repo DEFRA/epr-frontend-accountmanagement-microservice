@@ -74,7 +74,7 @@ public class TeamMemberDetailTests : AccountManagementTestBase
         Assert.AreEqual(Email, model.Email);
         Assert.AreEqual(SelectedUserRole, model.SelectedUserRole);
     }
-    
+
     [TestMethod]
     public async Task GivenOnTeamMemberDetailsPage_WhenTeamMemberDetailsHttpPostCalled_ThenRedirectToManageAccount_AndUpdateSession()
     {
@@ -85,7 +85,7 @@ public class TeamMemberDetailTests : AccountManagementTestBase
         result.ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
         SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
     }
-    
+
     [TestMethod]
     public async Task GivenOnTeamMemberDetailsPage_WhenTeamMemberDetailsHttpPostCalled_AndSendInviteFailed_ThenRedirectToManageAccount_AndUpdateSession()
     {
@@ -97,9 +97,9 @@ public class TeamMemberDetailTests : AccountManagementTestBase
                 FirstName = "Fname",
                 LastName = "Lname"
             },
-            InvitedUser = new ()
+            InvitedUser = new()
             {
-                
+
                 Email = "test@abc.com"
             }
         };

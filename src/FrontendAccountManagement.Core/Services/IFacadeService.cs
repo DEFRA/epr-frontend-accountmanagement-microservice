@@ -26,8 +26,8 @@ public interface IFacadeService
     Task<EndpointResponseStatus> RemoveUserForOrganisation(string personExternalId, string organisationId, int serviceRoleId);
 
     Task<UserAccountDto?> GetUserAccount();
-	
-	Task<List<int>> GetNationIds(Guid organisationId);
+
+    Task<List<int>> GetNationIds(Guid organisationId);
 
     Task<CompaniesHouseResponse> GetCompaniesHouseResponseAsync(string companyHouseNumber);
 
@@ -39,4 +39,13 @@ public interface IFacadeService
     Task UpdateOrganisationDetails(
         Guid organisationId,
         OrganisationUpdateDto organisation);
+
+    /// <summary>
+    /// Request the facade to update the user details for a give user ID
+    /// </summary>
+    /// <param name="userId">The ID of the user</param>
+    /// <param name="userDetailsDto">The details to update</param>
+    /// <returns>An async task</returns>
+    Task UpdateUserDetails(Guid? userId, UserDetailsDto userDetailsDto);
+    
 }

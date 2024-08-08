@@ -1,19 +1,19 @@
-using System.Net;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Web;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using FrontendAccountManagement.Core.Models;
-using FrontendAccountManagement.Core.Sessions;
+using FrontendAccountManagement.Core.Configuration;
 using FrontendAccountManagement.Core.Constants;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Extensions;
-using System.Text.Json;
-using System.Text;
-using System.Text.Json.Serialization;
+using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Models.CompaniesHouse;
+using FrontendAccountManagement.Core.Sessions;
 using Microsoft.Extensions.Options;
-using FrontendAccountManagement.Core.Configuration;
+using Microsoft.Identity.Web;
+using System.Net;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace FrontendAccountManagement.Core.Services;
 
@@ -25,6 +25,8 @@ public class FacadeService : IFacadeService
     private readonly string _serviceRolesPath;
     private readonly string _getUserAccountPath;
     private readonly string _getCompanyFromCompaniesHousePath;
+
+    private readonly string _putUserDetailsByUserIdPath;
     private readonly string _putUpdateOrganisationPath;
     private readonly string[] _scopes;
 
@@ -41,6 +43,8 @@ public class FacadeService : IFacadeService
         _serviceRolesPath = config.GetServiceRolesPath;
         _getUserAccountPath = config.GetUserAccountPath;
         _getCompanyFromCompaniesHousePath = config.GetCompanyFromCompaniesHousePath;
+
+        _putUserDetailsByUserIdPath = config.PutUserDetailsByUserIdPath;
         _putUpdateOrganisationPath = config.PutUpdateOrganisationPath;
         _scopes = new[]
         {
@@ -290,6 +294,26 @@ public class FacadeService : IFacadeService
         var response = await _httpClient.PutAsJsonAsync($"{_putUpdateOrganisationPath}/{organisationId}", organisation);
 
         string result = await response.Content.ReadAsStringAsync();
+        response.EnsureSuccessStatusCode();
+    }
+
+    /// <summary>
+    /// Requests the facade to update the user details
+    /// for a give user ID
+    /// </summary>
+    /// <param name="userId">The id used to identify the user</param>
+    /// <param name="userDetailsDto">The details used to update</param>
+    /// <returns>An async task</returns>
+    public async Task UpdateUserDetails(
+       Guid? userId,
+       UserDetailsDto userDetailsDto)
+    {
+        await PrepareAuthenticatedClient();
+
+        userDetailsDto.TelePhone = userDetailsDto.TelePhone ?? string.Empty; // make sure No null value passed
+        userDetailsDto.JobTitle = userDetailsDto.JobTitle ?? string.Empty; // make sure No null value passed
+        var response = await _httpClient.PutAsJsonAsync($"{_putUserDetailsByUserIdPath}/{userId}", userDetailsDto);
+
         response.EnsureSuccessStatusCode();
     }
 

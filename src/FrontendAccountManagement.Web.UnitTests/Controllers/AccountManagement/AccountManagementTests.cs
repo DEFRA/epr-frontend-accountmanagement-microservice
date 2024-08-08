@@ -226,10 +226,12 @@ public class AccountManagementTests : AccountManagementTestBase
     [TestMethod]
     public async Task GivenOnManageAccountPage_WhenManageAccountHttpGetCalled_ThenManageAccountViewModelReturnedWithAdditionalFieldsToDisplay()
     {
-        // Act
+        // Arrange
         var userData = SetupUserData(string.Empty);
-        
+
         SetupBase(userData: userData);
+
+        // Act
         var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
         var model = result.Model as ManageAccountViewModel;
 
@@ -387,53 +389,58 @@ public class AccountManagementTests : AccountManagementTestBase
         Assert.IsNotNull(result);
     }
 
-    //[TestMethod]
-    //[DataRow("Approved Person")]
-    //[DataRow("Delegated Person")]
-    //public async Task PostCheckCompaniesHouseDetails_ValidParameters_RequestsToSaveData(string serviceRole)
-    //{
-    //    // Arrange
-    //    var userData = SetupUserData(serviceRole);
-    //    SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-    //        .Returns(Task.FromResult(
-    //            new JourneySession 
-    //            { 
-    //                UserData = userData,
-    //                CompaniesHouseSession = new CompaniesHouseSession
-    //                {
-    //                    CompaniesHouseData = new CompaniesHouseResponse
-    //                    {
-    //                        Organisation = new OrganisationDto
-    //                        { }
-    //                    }
-    //                }
-    //            }));
+    [TestMethod]
+    [DataRow("Approved Person")]
+    [DataRow("Delegated Person")]
+    public async Task PostCheckCompaniesHouseDetails_ValidParameters_RequestsToSaveData(string serviceRole)
+    {
+        // Arrange
+        var userData = SetupUserData(serviceRole);
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .Returns(Task.FromResult(
+                new JourneySession
+                {
+                    UserData = userData,
+                    CompaniesHouseSession = new CompaniesHouseSession
+                    {
+                        CompaniesHouseData = new CompaniesHouseResponse
+                        {
+                            Organisation = new OrganisationDto
+                            { }
+                        }
+                    }
+                }));
 
-    //    var organisationId = Guid.NewGuid();
-    //    var viewModel = new CheckYourOrganisationDetailsViewModel
-    //    {
-    //        OrganisationId = organisationId,
-    //        UkNation = UkNation.NorthernIreland
-    //    };
+        var organisationId = Guid.NewGuid();
+        var viewModel = new CheckYourOrganisationDetailsViewModel
+        {
+            OrganisationId = organisationId,
+            UkNation = UkNation.NorthernIreland
+        };
 
-    //    FacadeServiceMock.Setup(s => s.GetUserAccount()).ReturnsAsync(
-    //        new UserAccountDto
-    //        {
-    //            User = new UserData()
-    //        });
+        FacadeServiceMock.Setup(s => s.GetUserAccount()).ReturnsAsync(
+            new UserAccountDto
+            {
+                User = new UserData()
+            });
 
-    //    // Act
-    //    var result = await SystemUnderTest.CheckCompaniesHouseDetails(viewModel) as RedirectToActionResult;
 
-    //    // Assert
-    //    Assert.IsNotNull(result);
+        // Act
+        var result = await SystemUnderTest.CheckCompaniesHouseDetails(viewModel) as RedirectToActionResult;
 
-    //    FacadeServiceMock.Verify(s =>
-    //        s.UpdateOrganisationDetails(
-    //            organisationId,
-    //            It.IsAny<OrganisationUpdateDto>()),
-    //        Times.Once);
-    //}
+        // Assert
+        Assert.IsNotNull(result);
+
+        ClaimsExtensionsWrapperMock.Verify(s =>
+            s.UpdateUserDataClaimsAndSignInAsync(
+                It.IsAny<UserData>()),
+            Times.Once);
+        FacadeServiceMock.Verify(s =>
+            s.UpdateOrganisationDetails(
+                organisationId,
+                It.IsAny<OrganisationUpdateDto>()),
+            Times.Once);
+    }
 
     [TestMethod]
     [DataRow("Approved Person")]

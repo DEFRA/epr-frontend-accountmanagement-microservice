@@ -5,6 +5,8 @@ using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Controllers.AccountManagement;
+using FrontendAccountManagement.Web.Utilities;
+using FrontendAccountManagement.Web.Utilities.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -26,6 +28,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         private Mock<IOptions<ExternalUrlsOptions>> UrlOptions { get; set; }
         private Mock<IOptions<DeploymentRoleOptions>> DeploymentRoleOptions { get; set; }
         private Mock<ILogger<AccountManagementController>> Logger { get; set; }
+        private Mock<IClaimsExtensionsWrapper> ClaimsExtensionWrapperMock { get; set; }
         private Mock<IMapper> Mapper { get; set; }
         private HeaderDictionary RequestHeaders { get; set; }
 
@@ -44,6 +47,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             this.UrlOptions = new Mock<IOptions<ExternalUrlsOptions>>();
             this.DeploymentRoleOptions = new Mock<IOptions<DeploymentRoleOptions>>();
             this.Logger = new Mock<ILogger<AccountManagementController>>();
+            this.ClaimsExtensionWrapperMock = new Mock<IClaimsExtensionsWrapper>();
             this.Mapper = new Mock<IMapper>();
             this.TestClass = new AccountManagementController(
                 this.SessionManager.Object,
@@ -51,6 +55,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 this.UrlOptions.Object,
                 this.DeploymentRoleOptions.Object,
                 this.Logger.Object,
+                this.ClaimsExtensionWrapperMock.Object,
                 this.Mapper.Object);
 
             // Mock the HTTP context so that we can use it to set the headers.
