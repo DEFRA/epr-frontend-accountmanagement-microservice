@@ -7,7 +7,6 @@ using FrontendAccountManagement.Web.Sessions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using System.Security.Claims;
@@ -25,7 +24,6 @@ public abstract class AccountManagementTestBase
     protected Mock<IFacadeService> FacadeServiceMock;
     protected Mock<IOptions<ExternalUrlsOptions>> UrlsOptionMock;
     protected Mock<IOptions<DeploymentRoleOptions>> DeploymentRoleOptionsMock;
-    protected Mock<ILogger<AccountManagementController>> LoggerMock;
     protected Mock<ITempDataDictionary> TempDataDictionaryMock;
     protected AccountManagementController SystemUnderTest;
 
@@ -52,10 +50,9 @@ public abstract class AccountManagementTestBase
         UrlsOptionMock.Setup(options => options.Value)
             .Returns(new ExternalUrlsOptions { LandingPageUrl = "/back/to/home" });
 
-        LoggerMock = new Mock<ILogger<AccountManagementController>>();
         TempDataDictionaryMock = new Mock<ITempDataDictionary>();
 
-        SystemUnderTest = new AccountManagementController(SessionManagerMock.Object, FacadeServiceMock.Object, UrlsOptionMock.Object,  DeploymentRoleOptionsMock.Object, LoggerMock.Object);
+        SystemUnderTest = new AccountManagementController(SessionManagerMock.Object, FacadeServiceMock.Object, UrlsOptionMock.Object,  DeploymentRoleOptionsMock.Object);
 
         SystemUnderTest.ControllerContext.HttpContext = HttpContextMock.Object;
         SystemUnderTest.TempData = TempDataDictionaryMock.Object;
