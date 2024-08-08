@@ -1,6 +1,18 @@
-﻿@{
+﻿@using FrontendAccountManagement.Web.Constants
+@model FrontendAccountManagement.Web.ViewModels.AccountManagement.EditUserDetailsViewModel
+@{
     ViewData["Title"] = Localizer["Declaration.Title"];
 }
+@using (Html.BeginForm(FormMethod.Post))
+{
+    <input type="hidden" asp-for="FirstName" />
+    <input type="hidden" asp-for="LastName" />
+    <input type="hidden" asp-for="JobTitle" />
+    <input type="hidden" asp-for="Telephone" />
+    <input type="hidden" asp-for="OriginalFirstName" />
+    <input type="hidden" asp-for="OriginalLastName" />
+    <input type="hidden" asp-for="OriginalJobTitle" />
+    <input type="hidden" asp-for="OriginalTelephone" />
 
 <div class="govuk-width-container">
     <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
@@ -20,3 +32,4 @@
         </div>
     </main>
 </div>
+}
