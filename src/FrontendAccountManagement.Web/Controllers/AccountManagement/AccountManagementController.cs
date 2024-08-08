@@ -420,11 +420,11 @@ public class AccountManagementController : Controller
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var editUserDetailsViewModel = new EditUserDetailsViewModel();
 
-        if (TempData[NewUserDetailsKey] != null)
+        if (TempData[AmendedUserDetailsKey] != null)
         {
             try
             {
-                editUserDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[NewUserDetailsKey] as string);
+                editUserDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
             }
             catch (Exception exception)
             {
@@ -689,6 +689,10 @@ public class AccountManagementController : Controller
         }
         else if (IsApprovedOrDelegatedUser(userData))
         {
+            if (TempData[AmendedUserDetailsKey] == null)
+            {
+                TempData.Add(AmendedUserDetailsKey, JsonSerializer.Serialize(model));
+            }
             return RedirectToAction(nameof(PagePath.Declaration));
         }
 
