@@ -17,6 +17,11 @@ RUN sed -i "s|</configuration>|<packageSourceCredentials><epr-packaging-common><
 # Restore as distinct layers
 RUN dotnet restore "FrontendAccountManagement.Web/FrontendAccountManagement.Web.csproj" --configfile "NuGet.Config"
 
+# Install tzdata
+USER root
+RUN apk add --no-cache tzdata
+USER dotnet
+
 # Install NPM
 USER root
 RUN apk update && apk add --no-cache npm
