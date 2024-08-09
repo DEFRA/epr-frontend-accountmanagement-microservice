@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 
 namespace FrontendAccountManagement.Web.Controllers.Account
@@ -15,6 +14,14 @@ namespace FrontendAccountManagement.Web.Controllers.Account
     [Route("[controller]/[action]")]
     public class AccountController : Controller
     {
+        /// <summary>
+        /// Constructor of <see cref="AccountController"/> from <see cref="MicrosoftIdentityOptions"/>
+        /// This constructor is used by dependency injection.
+        /// </summary>
+        public AccountController()
+        {
+        }
+
         /// <summary>
         /// Handles user sign in.
         /// </summary>
