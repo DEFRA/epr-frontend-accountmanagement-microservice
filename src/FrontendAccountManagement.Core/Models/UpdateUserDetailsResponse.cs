@@ -3,7 +3,7 @@
 namespace FrontendAccountManagement.Core.Models
 {
     /// <summary>
-    /// User details that can be updated
+    /// User details updated response
     /// </summary>
     [ExcludeFromCodeCoverage]
     public class UpdateUserDetailsResponse
