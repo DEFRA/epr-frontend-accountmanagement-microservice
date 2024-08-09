@@ -1115,7 +1115,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             // Arrange
             var userId = Guid.NewGuid();
             var expectedResponse = new List<int> { 2 };
-            var userDetailsDto = new UserDetailsDto { FirstName = "TestFirst", LastName = "TestLast", JobTitle = "MyJobTitle", TelePhone = "0800" };
+            var userDetailsDto = new UserDetailsUpdateModel { FirstName = "TestFirst", LastName = "TestLast", JobTitle = "MyJobTitle", Telephone = "0800" };
 
             var httpTestHandler = new HttpResponseMessage
             {   

@@ -14,7 +14,6 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-
 namespace FrontendAccountManagement.Core.Services;
 
 public class FacadeService : IFacadeService
@@ -306,15 +305,31 @@ public class FacadeService : IFacadeService
     /// <returns>An async task</returns>
     public async Task UpdateUserDetails(
        Guid? userId,
-       UserDetailsDto userDetailsDto)
+       UserDetailsUpdateModel userDetailsDto)
     {
         await PrepareAuthenticatedClient();
 
-        userDetailsDto.TelePhone = userDetailsDto.TelePhone ?? string.Empty; // make sure No null value passed
+        userDetailsDto.Telephone = userDetailsDto.Telephone ?? string.Empty; // make sure No null value passed
         userDetailsDto.JobTitle = userDetailsDto.JobTitle ?? string.Empty; // make sure No null value passed
         var response = await _httpClient.PutAsJsonAsync($"{_putUserDetailsByUserIdPath}/{userId}", userDetailsDto);
 
         response.EnsureSuccessStatusCode();
+    }
+
+    public async Task<UpdateUserDetailsResponse> UpdatePersonalDetailsAsync(Guid userId, Guid organisationId, string serviceKey, UserDetailsUpdateModel userDetailsUpdateModelRequest)
+    {
+        await PrepareAuthenticatedClient();
+        var uri = new Uri($"{_baseAddress}{_putUserDetailsByUserIdPath}?serviceKey={serviceKey}");
+        var request = new HttpRequestMessage(HttpMethod.Put, uri)
+        {
+            Content = new StringContent(JsonSerializer.Serialize(userDetailsUpdateModelRequest), Encoding.UTF8, "application/json"),
+        };
+        request.Headers.Add("X-EPR-Organisation", organisationId.ToString());
+        var response = await _httpClient.SendAsync(request);
+
+        response.EnsureSuccessStatusCode();
+        var responseData = await response.Content.ReadFromJsonAsync<UpdateUserDetailsResponse>();
+        return responseData;
     }
 
     private async Task PrepareAuthenticatedClient()

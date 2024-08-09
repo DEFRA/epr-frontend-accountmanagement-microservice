@@ -137,8 +137,20 @@ public class MockedFacadeService : IFacadeService
         await Task.CompletedTask;
     }
 
-    public async Task UpdateUserDetails(Guid? userId, UserDetailsDto userDetailsDto)
+    public async Task UpdateUserDetails(Guid? userId, UserDetailsUpdateModel userDetailsDto)
     {
         await Task.CompletedTask;
+    }
+
+    public async Task<UpdateUserDetailsResponse> UpdatePersonalDetailsAsync(Guid userId, Guid organisationId, string serviceKey, UserDetailsUpdateModel userDetailsUpdateModelRequest)
+    {
+
+        var stubResponse = new UpdateUserDetailsResponse
+        {
+             HasApprovedOrDelegatedUserDetailsSentForApproval = false,
+              HasBasicUserDetailsUpdated = true,
+               HasTelephoneOnlyUpdated = false
+        };
+        return await Task.FromResult(stubResponse);
     }
 }

@@ -165,4 +165,7 @@
   <data name="CheckYourDetails" xml:space="preserve">
     <value>Check your details</value>
   </data>
+  <data name="Pending" xml:space="preserve">
+    <value>Pending</value>
+  </data>
 </root>

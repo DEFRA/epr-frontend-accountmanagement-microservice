@@ -6,7 +6,7 @@ namespace FrontendAccountManagement.Core.Models
     /// User details that can be updated
     /// </summary>
     [ExcludeFromCodeCoverage]
-    public record UserDetailsDto
+    public record UserDetailsUpdateModel
     {
         /// <summary>
         /// User Firstname
@@ -26,6 +26,6 @@ namespace FrontendAccountManagement.Core.Models
         /// <summary>
         /// User Telephone
         /// </summary>
-        public string TelePhone { get; set; }
+        public string Telephone { get; set; }
     }
 }

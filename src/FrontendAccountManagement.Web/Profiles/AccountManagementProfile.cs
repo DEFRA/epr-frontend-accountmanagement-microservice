@@ -19,10 +19,10 @@ public class AccountManagementProfile : Profile
             .ForMember(d => d.Telephone, o => o.MapFrom(s => s.Telephone))
             .ForMember(d => d.OriginalTelephone, o => o.MapFrom(s => s.Telephone));
 
-        CreateMap<EditUserDetailsViewModel, UserDetailsDto>()
+        CreateMap<EditUserDetailsViewModel, UserDetailsUpdateModel>()
            .ForMember(d => d.FirstName, o => o.MapFrom(s => s.FirstName))
            .ForMember(d => d.LastName, o => o.MapFrom(s => s.LastName))
            .ForMember(d => d.JobTitle, o => o.MapFrom(s => s.JobTitle))
-           .ForMember(d => d.TelePhone, o => o.MapFrom(s => s.Telephone));
+           .ForMember(d => d.Telephone, o => o.MapFrom(s => s.Telephone));
     }
 }

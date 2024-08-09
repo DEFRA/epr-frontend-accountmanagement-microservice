@@ -40,6 +40,7 @@ public class AccountManagementController : Controller
     private const string OrganisationDetailsUpdatedTimeKey = "OrganisationDetailsUpdatedTime";
     private const string AmendedUserDetailsKey = "AmendedUserDetails";
     private const string NewUserDetailsKey = "NewUserDetails";
+    private const string ServiceKey = "Packaging";
     private readonly ISessionManager<JourneySession> _sessionManager;
     private readonly IFacadeService _facadeService;
     private readonly ILogger<AccountManagementController> _logger;
@@ -136,7 +137,8 @@ public class AccountManagementController : Controller
             model.ServiceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
             model.OrganisationType = userOrg.OrganisationType;
             model.HasPermissionToChangeCompany = HasPermissionToChangeCompany(userAccount);
-            model.IsBasicUser = IsBasicUserEmployee(userAccount);
+            model.IsBasicUser = IsBasicUser(userAccount);
+            model.IsChangeRequestPending = userAccount.IsChangeRequestPending;
         }
         return View(nameof(ManageAccount), model);
     }
@@ -416,17 +418,57 @@ public class AccountManagementController : Controller
         }
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var editUserDetailsViewModel = new EditUserDetailsViewModel();
+
+        if (TempData[AmendedUserDetailsKey] != null)
+        {
+            try
+            {
+                editUserDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogInformation(exception, "Deserialising NewUserDetails Failed.");
+            }
+        }
+
         SaveSessionAndJourney(session, PagePath.CheckYourDetails, PagePath.Declaration);
         SetBackLink(session, PagePath.Declaration);
-        return View(nameof(Declaration));
+
+        return View(nameof(Declaration), editUserDetailsViewModel);
     }
 
 
     [HttpPost]
     [Route(PagePath.Declaration, Name = "Declaration")]
-    public async Task<IActionResult> DeclarationPost()
+    public async Task<IActionResult> DeclarationPost(EditUserDetailsViewModel model)
     {
-        return RedirectToAction(nameof(DetailsChangeRequested));
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var userData = User.GetUserData();
+       
+
+        var userDetailsDto = _mapper.Map<UserDetailsUpdateModel>(model);
+        var userOrg = userData.Organisations?.FirstOrDefault();
+
+        // check if change is only phone number
+       if (IsApprovedOrDelegatedUser(userData))
+        {
+            var reponse = await _facadeService.UpdatePersonalDetailsAsync(userData.Id.Value, userOrg.Id.Value, ServiceKey, userDetailsDto);
+            if (reponse.HasApprovedOrDelegatedUserDetailsSentForApproval)
+            {
+                if (TempData[AmendedUserDetailsKey] != null) TempData.Remove(AmendedUserDetailsKey);
+                // refresh the user data from the database
+                var userAccount = await _facadeService.GetUserAccount();
+                session.UserData = userAccount.User;
+                await SaveSession(session);
+                // update cookie  with the latest data
+                await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
+                return RedirectToAction(nameof(DetailsChangeRequested));
+            }
+        }
+        SaveSessionAndJourney(session, PagePath.CheckYourDetails, PagePath.Declaration);
+        SetBackLink(session, PagePath.Declaration);
+        return View(model);
     }
 
     [HttpGet]
@@ -544,60 +586,57 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
-        var serviceRole = session.UserData.ServiceRole ?? string.Empty;
+        var serviceRole = userData.ServiceRole ?? string.Empty;
         var roleInOrganisation = userData.RoleInOrganisation ?? string.Empty;
+        bool isUpdatable = false;
+        var userDetailsDto = _mapper.Map<UserDetailsUpdateModel>(model);
+        var userOrg = userData.Organisations?.FirstOrDefault();
 
-        var userDetailsDto = _mapper.Map<UserDetailsDto>(model);
-
-        // User has a service role of "Basic" And  organisation role of "Admin" or "Employee"
-        if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower()
-            && (roleInOrganisation == RoleInOrganisation.Admin || roleInOrganisation == RoleInOrganisation.Employee))
+        // check if change is only phone number
+        if (model.FirstName == model.OriginalFirstName && model.LastName == model.OriginalLastName && model.JobTitle == model.OriginalJobTitle && model.Telephone != model.OriginalTelephone)
         {
-            await _facadeService.UpdateUserDetails(userData.Id, userDetailsDto);
-
-            if (TempData[AmendedUserDetailsKey] != null)
-                TempData.Remove(AmendedUserDetailsKey);
-
-            // refresh the user data from the database
-            var userAccount = await _facadeService.GetUserAccount();
-            session.UserData = userAccount.User;
-            await SaveSession(session);
-
-            // update cookie  with the latest data
-            await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
-
-
-            return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
-        }
-        else // Approved or Delegated users - User.IsDelegatedPerson || User.IsApprovedPerson
-        {
-            // if only Telephone updated then save to db
-            if (
-                model.FirstName == model.OriginalFirstName &&
-                model.LastName == model.OriginalLastName &&
-                model.JobTitle == model.OriginalJobTitle &&
-                model.Telephone != model.OriginalTelephone)
+            var reponse = await _facadeService.UpdatePersonalDetailsAsync(userData.Id.Value, userOrg.Id.Value, ServiceKey, userDetailsDto);
+            if (reponse.HasTelephoneOnlyUpdated)
             {
-                await _facadeService.UpdateUserDetails(userData.Id, userDetailsDto);
-
-                if (TempData[AmendedUserDetailsKey] != null)
-                    TempData.Remove(AmendedUserDetailsKey);
-
+                if (TempData[AmendedUserDetailsKey] != null) TempData.Remove(AmendedUserDetailsKey);
                 // refresh the user data from the database
                 var userAccount = await _facadeService.GetUserAccount();
                 session.UserData = userAccount.User;
                 await SaveSession(session);
-
                 // update cookie  with the latest data
                 await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
-
                 return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
             }
-
-            // TODO: Data should be saved for approval in future
-
+        }
+        else if (IsBasicUser(userData))
+        {
+            var reponse = await _facadeService.UpdatePersonalDetailsAsync(userData.Id.Value, userOrg.Id.Value, ServiceKey, userDetailsDto);
+            if (reponse.HasBasicUserDetailsUpdated)
+            {
+                if (TempData[AmendedUserDetailsKey] != null) TempData.Remove(AmendedUserDetailsKey);
+                // refresh the user data from the database
+                var userAccount = await _facadeService.GetUserAccount();
+                session.UserData = userAccount.User;
+                await SaveSession(session);
+                // update cookie  with the latest data
+                await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
+                return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
+            }
+        }
+        else if (IsApprovedOrDelegatedUser(userData))
+        {
+            if (TempData[AmendedUserDetailsKey] == null)
+            {
+                TempData.Add(AmendedUserDetailsKey, JsonSerializer.Serialize(model));
+            }
             return RedirectToAction(nameof(PagePath.Declaration));
         }
+
+        SaveSessionAndJourney(session, PagePath.WhatAreYourDetails, PagePath.CheckYourDetails);
+        SetBackLink(PagePath.CheckYourDetails);
+        isUpdatable = SetUpdatableValue(isUpdatable, serviceRole, roleInOrganisation, model);
+        ViewBag.IsUpdatable = isUpdatable;
+        return View(model);
     }
 
     [HttpGet]
@@ -940,7 +979,7 @@ public class AccountManagementController : Controller
             return IsRegulatorAdmin(userData);
         }
         // regulator users cannot view if producer deployment
-        return !IsRegulatorUser(userData) || IsBasicUserEmployee(userData);
+        return !IsRegulatorUser(userData) || IsBasicUser(userData);
     }
 
     private static bool IsRegulatorAdmin(UserData userData) =>
@@ -952,14 +991,25 @@ public class AccountManagementController : Controller
     private static bool IsRegulatorUser(UserData userData) =>
         IsRegulatorAdmin(userData) || IsRegulatorBasic(userData);
 
-    private static bool IsBasicUserEmployee(UserData userData) =>
-       (userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Basic && userData.RoleInOrganisation == PersonRole.Employee.ToString());
+    private static bool IsBasicUser(UserData userData) =>
+       (userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Basic && (userData.RoleInOrganisation == PersonRole.Employee.ToString() || userData.RoleInOrganisation == PersonRole.Admin.ToString()) );
 
     private static bool HasPermissionToChangeCompany(UserData userData)
     {
         var roleInOrganisation = userData.RoleInOrganisation;
         if ((userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Approved || userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Delegated)
             && !string.IsNullOrEmpty(roleInOrganisation) && roleInOrganisation == PersonRole.Admin.ToString())
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private static bool IsApprovedOrDelegatedUser(UserData userData)
+    {
+        var roleInOrganisation = userData.RoleInOrganisation;
+        if ((userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Approved || userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Delegated)
+            && (!string.IsNullOrEmpty(roleInOrganisation) && (roleInOrganisation == PersonRole.Admin.ToString() || roleInOrganisation == PersonRole.Employee.ToString())))
         {
             return true;
         }

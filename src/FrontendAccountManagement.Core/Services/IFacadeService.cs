@@ -46,6 +46,9 @@ public interface IFacadeService
     /// <param name="userId">The ID of the user</param>
     /// <param name="userDetailsDto">The details to update</param>
     /// <returns>An async task</returns>
-    Task UpdateUserDetails(Guid? userId, UserDetailsDto userDetailsDto);
-    
+    Task UpdateUserDetails(Guid? userId, UserDetailsUpdateModel userDetailsDto);
+
+    Task<UpdateUserDetailsResponse> UpdatePersonalDetailsAsync(Guid userId, Guid organisationId, string serviceKey, UserDetailsUpdateModel userDetailsUpdateModelRequest);
+
+
 }
