@@ -39,16 +39,19 @@ public interface IFacadeService
     Task UpdateOrganisationDetails(
         Guid organisationId,
         OrganisationUpdateDto organisation);
-
     /// <summary>
-    /// Request the facade to update the user details for a give user ID
+    /// 
     /// </summary>
-    /// <param name="userId">The ID of the user</param>
-    /// <param name="userDetailsDto">The details to update</param>
-    /// <returns>An async task</returns>
-    Task UpdateUserDetails(Guid? userId, UserDetailsUpdateModel userDetailsDto);
-
-    Task<UpdateUserDetailsResponse> UpdatePersonalDetailsAsync(Guid userId, Guid organisationId, string serviceKey, UserDetailsUpdateModel userDetailsUpdateModelRequest);
+    /// <param name="userId"></param>
+    /// <param name="organisationId"></param>
+    /// <param name="serviceKey"></param>
+    /// <param name="userDetailsUpdateModelRequest"></param>
+    /// <returns></returns>
+    Task<UpdateUserDetailsResponse> UpdateUserDetailsAsync(
+        Guid userId, 
+        Guid organisationId, 
+        string serviceKey, 
+        UpdateUserDetailsRequest userDetailsUpdateModelRequest);
 
 
 }

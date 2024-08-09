@@ -297,26 +297,18 @@ public class FacadeService : IFacadeService
     }
 
     /// <summary>
-    /// Requests the facade to update the user details
-    /// for a give user ID
+    /// Update User Details
     /// </summary>
-    /// <param name="userId">The id used to identify the user</param>
-    /// <param name="userDetailsDto">The details used to update</param>
-    /// <returns>An async task</returns>
-    public async Task UpdateUserDetails(
-       Guid? userId,
-       UserDetailsUpdateModel userDetailsDto)
-    {
-        await PrepareAuthenticatedClient();
-
-        userDetailsDto.Telephone = userDetailsDto.Telephone ?? string.Empty; // make sure No null value passed
-        userDetailsDto.JobTitle = userDetailsDto.JobTitle ?? string.Empty; // make sure No null value passed
-        var response = await _httpClient.PutAsJsonAsync($"{_putUserDetailsByUserIdPath}/{userId}", userDetailsDto);
-
-        response.EnsureSuccessStatusCode();
-    }
-
-    public async Task<UpdateUserDetailsResponse> UpdatePersonalDetailsAsync(Guid userId, Guid organisationId, string serviceKey, UserDetailsUpdateModel userDetailsUpdateModelRequest)
+    /// <param name="userId"></param>
+    /// <param name="organisationId"></param>
+    /// <param name="serviceKey"></param>
+    /// <param name="userDetailsUpdateModelRequest"></param>
+    /// <returns></returns>
+    public async Task<UpdateUserDetailsResponse> UpdateUserDetailsAsync(
+        Guid userId,
+        Guid organisationId,
+        string serviceKey,
+        UpdateUserDetailsRequest userDetailsUpdateModelRequest)
     {
         await PrepareAuthenticatedClient();
         var uri = new Uri($"{_baseAddress}{_putUserDetailsByUserIdPath}?serviceKey={serviceKey}");

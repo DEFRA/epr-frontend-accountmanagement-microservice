@@ -137,12 +137,12 @@ public class MockedFacadeService : IFacadeService
         await Task.CompletedTask;
     }
 
-    public async Task UpdateUserDetails(Guid? userId, UserDetailsUpdateModel userDetailsDto)
+    public async Task UpdateUserDetails(Guid? userId, UpdateUserDetailsRequest userDetailsDto)
     {
         await Task.CompletedTask;
     }
 
-    public async Task<UpdateUserDetailsResponse> UpdatePersonalDetailsAsync(Guid userId, Guid organisationId, string serviceKey, UserDetailsUpdateModel userDetailsUpdateModelRequest)
+    public async Task<UpdateUserDetailsResponse> UpdateUserDetailsAsync(Guid userId, Guid organisationId, string serviceKey, UpdateUserDetailsRequest userDetailsUpdateModelRequest)
     {
 
         var stubResponse = new UpdateUserDetailsResponse

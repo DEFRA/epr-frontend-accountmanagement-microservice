@@ -6,7 +6,7 @@ namespace FrontendAccountManagement.Core.Models
     /// User details that can be updated
     /// </summary>
     [ExcludeFromCodeCoverage]
-    public record UserDetailsUpdateModel
+    public class UpdateUserDetailsRequest
     {
         /// <summary>
         /// User Firstname
@@ -21,11 +21,11 @@ namespace FrontendAccountManagement.Core.Models
         /// <summary>
         /// User Jobtitle in an organisation
         /// </summary>
-        public string JobTitle { get; set; }
+        public string? JobTitle { get; set; }
 
         /// <summary>
         /// User Telephone
         /// </summary>
-        public string Telephone { get; set; }
+        public string? Telephone { get; set; }
     }
 }
