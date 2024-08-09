@@ -138,7 +138,7 @@ public class AccountManagementController : Controller
             model.OrganisationType = userOrg.OrganisationType;
             model.HasPermissionToChangeCompany = HasPermissionToChangeCompany(userAccount);
             model.IsBasicUser = IsBasicUser(userAccount);
-            model.IsChangeRequestPending = false;
+            model.IsChangeRequestPending = userAccount.IsChangeRequestPending;
         }
         return View(nameof(ManageAccount), model);
     }
