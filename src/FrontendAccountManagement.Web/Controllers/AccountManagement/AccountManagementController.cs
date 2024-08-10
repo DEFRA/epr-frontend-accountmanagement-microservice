@@ -419,6 +419,15 @@ public class AccountManagementController : Controller
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var editUserDetailsViewModel = new EditUserDetailsViewModel();
 
+        var userData = User.GetUserData();
+        if (userData.IsChangeRequestPending)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.NotFound
+            });
+        }
+
         if (TempData[AmendedUserDetailsKey] != null)
         {
             try
@@ -475,7 +484,15 @@ public class AccountManagementController : Controller
     public async Task<IActionResult> EditUserDetails()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        var model = _mapper.Map<EditUserDetailsViewModel>(User.GetUserData());
+        var userData = User.GetUserData();
+        var model = _mapper.Map<EditUserDetailsViewModel>(userData);
+        if (userData.IsChangeRequestPending)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.NotFound
+            });
+        }
 
         if (TempData[AmendedUserDetailsKey] != null)
         {
@@ -533,8 +550,18 @@ public class AccountManagementController : Controller
     [Route(PagePath.CheckYourDetails)]
     public async Task<IActionResult> CheckYourDetails()
     {
+        
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
+
+        if (userData.IsChangeRequestPending)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.NotFound
+            });
+        }
+
         bool isUpdatable = false;
         var serviceRole = userData.ServiceRole ?? string.Empty;
         var roleInOrganisation = userData.RoleInOrganisation ?? string.Empty;
@@ -644,6 +671,15 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
+        var userData = User.GetUserData();
+        if (userData.IsChangeRequestPending)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.NotFound
+            });
+        }
+
         var model = new UpdateDetailsConfirmationViewModel
         {
             Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
@@ -658,6 +694,15 @@ public class AccountManagementController : Controller
     public async Task<IActionResult> DetailsChangeRequested()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        var userData = User.GetUserData();
+        if (userData.IsChangeRequestPending)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.NotFound
+            });
+        }
 
         var model = new DetailsChangeRequestedViewModel
         {
