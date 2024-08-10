@@ -694,16 +694,6 @@ public class AccountManagementController : Controller
     public async Task<IActionResult> DetailsChangeRequested()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-
-        var userData = User.GetUserData();
-        if (userData.IsChangeRequestPending)
-        {
-            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
-            {
-                statusCode = (int)HttpStatusCode.NotFound
-            });
-        }
-
         var model = new DetailsChangeRequestedViewModel
         {
             Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
