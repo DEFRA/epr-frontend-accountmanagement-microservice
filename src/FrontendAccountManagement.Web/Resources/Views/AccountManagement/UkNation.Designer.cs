@@ -106,6 +106,15 @@ namespace FrontendAccountManagement.Web.Resources.Views.AccountManagement {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your UK nation.
+        /// </summary>
+        public static string UkNation_Title {
+            get {
+                return ResourceManager.GetString("UkNation.Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to We need to know which UK nation you’re based in..
         /// </summary>
         public static string UkNation_WeNeedToKnow {

@@ -132,6 +132,9 @@
   <data name="UkNation.PrincipalPlaceOfBusinessIfNotRegistered" xml:space="preserve">
     <value>eich prif le busnes (os nad ydych chi wedi cofrestru)</value>
   </data>
+  <data name="UkNation.Title" xml:space="preserve">
+    <value>Eich gwlad yn y Deyrnas Unedig</value>
+  </data>
   <data name="UkNation.WeNeedToKnow" xml:space="preserve">
     <value>Mae angen inni wybod ym mha wlad yn y Deyrnas Unedig rydych chi.</value>
   </data>
