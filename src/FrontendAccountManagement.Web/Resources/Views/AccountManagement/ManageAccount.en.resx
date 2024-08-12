@@ -121,7 +121,7 @@
     <value>Manage account details</value>
   </data>
   <data name="ManageYourTeam" xml:space="preserve">
-    <value>Manage your team</value>
+    <value>Your team</value>
   </data>
   <data name="AddTeamMember" xml:space="preserve">
     <value>Add team member</value>
@@ -151,7 +151,7 @@
     <value>Telephone number:</value>
   </data>
   <data name="CompanyName" xml:space="preserve">
-    <value>Trading name:</value>
+    <value>Name:</value>
   </data>
   <data name="YourDetails" xml:space="preserve">
     <value>Your details</value>
