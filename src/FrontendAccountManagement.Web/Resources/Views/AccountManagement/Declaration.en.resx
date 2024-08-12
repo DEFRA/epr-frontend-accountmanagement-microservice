@@ -118,21 +118,12 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Declaration.ButtonText" xml:space="preserve">
-    <value>Confirm and send</value>
+    <value>Confirm and submit</value>
   </data>
   <data name="Declaration.Paragraph1" xml:space="preserve">
-    <value>By confirming your details, you agree that the information you’ve given is complete and correct.</value>
-  </data>
-  <data name="Declaration.Paragraph2" xml:space="preserve">
-    <value>You also agree that you would like the regulator to approve the changes you have made.</value>
+    <value>By confirming your details, you agree that the information you’ve provided is complete and correct.</value>
   </data>
   <data name="Declaration.Title" xml:space="preserve">
     <value>Declaration</value>
-  </data>
-  <data name="Declaration.ScreenReaderHelpText" xml:space="preserve">
-    <value>Warning</value>
-  </data>
-  <data name="Declaration.Warning" xml:space="preserve">
-    <value>You can be fined or prosecuted if you give the wrong information.</value>
   </data>
 </root>
