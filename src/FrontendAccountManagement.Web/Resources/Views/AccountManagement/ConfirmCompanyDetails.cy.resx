@@ -117,40 +117,28 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="UkNation.ErrorMessage" xml:space="preserve">
-    <value>Select where in the UK your organisation is based</value>
+  <data name="CompaniesHouseAddress" xml:space="preserve">
+    <value>[Welsh]Address:</value>
   </data>
-  <data name="UkNation.ForNonUkOrganisations" xml:space="preserve">
-    <value>For non-UK organisations this should be one of the following:</value>
+  <data name="CompanyHouseNumber" xml:space="preserve">
+    <value>[Welsh]Companies House number:</value>
   </data>
-  <data name="UkNation.ForUkOrganisations" xml:space="preserve">
-    <value>For UK organisations this should be:</value>
+  <data name="ConfirmationTitle" xml:space="preserve">
+    <value>[Welsh]Confirm your organisation’s details from Companies House</value>
   </data>
-  <data name="UkNation.PrincipalPlaceOfBusiness" xml:space="preserve">
-    <value>Your principal place of business</value>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Cadarnhau manylion eich sefydliad gan Dŷ'r Cwmnïau</value>
   </data>
-  <data name="UkNation.PrincipalPlaceOfBusinessIfNotRegistered" xml:space="preserve">
-    <value>Your principal place of business (if you’re not registered)</value>
+  <data name="WrongDetails" xml:space="preserve">
+    <value>[Welsh]These details are wrong</value>
   </data>
-  <data name="UkNation.Title" xml:space="preserve">
-    <value>Your UK nation</value>
+  <data name="WrongDetailsDescription" xml:space="preserve">
+    <value>[Welsh]Check Companies House to see if your organisation’s details are correct. If they aren’t, you can</value>
   </data>
-  <data name="UkNation.WeNeedToKnow" xml:space="preserve">
-    <value>We need to know which UK nation you’re based in.</value>
+  <data name="WrongDetailsDescription2" xml:space="preserve">
+    <value>[Welsh]change them on Companies House (opens in new tab)</value>
   </data>
-  <data name="UkNation.WhereInTheIsYourUKBusinessBased" xml:space="preserve">
-    <value>Where in the UK is your business based?</value>
-  </data>
-  <data name="UkNation.WhereYourHeadOfficeIs" xml:space="preserve">
-    <value>Where your head office is</value>
-  </data>
-  <data name="UkNation.WhereYourOrganisationIsRegistered" xml:space="preserve">
-    <value>Where your organisation is registered</value>
-  </data>
-  <data name="UkNation.WhereYourUKBranchIs" xml:space="preserve">
-    <value>Where your UK branch or UK postal address is</value>
-  </data>
-  <data name="UkNation.YourUKNation" xml:space="preserve">
-    <value>Your UK nation</value>
+  <data name="WrongDetailsHelp" xml:space="preserve">
+    <value>[Welsh]If these details are wrong, you should:</value>
   </data>
 </root>

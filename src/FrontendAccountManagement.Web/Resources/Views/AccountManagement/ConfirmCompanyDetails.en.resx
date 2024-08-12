@@ -126,6 +126,9 @@
   <data name="ConfirmationTitle" xml:space="preserve">
     <value>Confirm your organisation’s details from Companies House</value>
   </data>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Confirm your organisation’s details from Companies House</value>
+  </data>
   <data name="WrongDetails" xml:space="preserve">
     <value>These details are wrong</value>
   </data>

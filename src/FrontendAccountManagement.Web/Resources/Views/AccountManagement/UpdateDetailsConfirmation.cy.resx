@@ -117,40 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="UkNation.ErrorMessage" xml:space="preserve">
-    <value>Select where in the UK your organisation is based</value>
+  <data name="ConfirmationMessage" xml:space="preserve">
+    <value>[Welsh]Your details have been updated</value>
   </data>
-  <data name="UkNation.ForNonUkOrganisations" xml:space="preserve">
-    <value>For non-UK organisations this should be one of the following:</value>
+  <data name="ManageAccountLinkDescription" xml:space="preserve">
+    <value>[Welsh]Go to manage account</value>
   </data>
-  <data name="UkNation.ForUkOrganisations" xml:space="preserve">
-    <value>For UK organisations this should be:</value>
-  </data>
-  <data name="UkNation.PrincipalPlaceOfBusiness" xml:space="preserve">
-    <value>Your principal place of business</value>
-  </data>
-  <data name="UkNation.PrincipalPlaceOfBusinessIfNotRegistered" xml:space="preserve">
-    <value>Your principal place of business (if you’re not registered)</value>
-  </data>
-  <data name="UkNation.Title" xml:space="preserve">
-    <value>Your UK nation</value>
-  </data>
-  <data name="UkNation.WeNeedToKnow" xml:space="preserve">
-    <value>We need to know which UK nation you’re based in.</value>
-  </data>
-  <data name="UkNation.WhereInTheIsYourUKBusinessBased" xml:space="preserve">
-    <value>Where in the UK is your business based?</value>
-  </data>
-  <data name="UkNation.WhereYourHeadOfficeIs" xml:space="preserve">
-    <value>Where your head office is</value>
-  </data>
-  <data name="UkNation.WhereYourOrganisationIsRegistered" xml:space="preserve">
-    <value>Where your organisation is registered</value>
-  </data>
-  <data name="UkNation.WhereYourUKBranchIs" xml:space="preserve">
-    <value>Where your UK branch or UK postal address is</value>
-  </data>
-  <data name="UkNation.YourUKNation" xml:space="preserve">
-    <value>Your UK nation</value>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Mae'ch manylion chi wedi'u diweddaru</value>
   </data>
 </root>
