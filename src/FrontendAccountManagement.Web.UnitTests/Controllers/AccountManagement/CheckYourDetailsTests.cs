@@ -22,14 +22,14 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         private JourneySession _journeySession;
         private Fixture _fixture = new Fixture();
         private EditUserDetailsViewModel _viewModel;
-        private UserDetailsUpdateModel _userDetailsDto;
+        private UpdateUserDetailsRequest _userDetailsDto;
 
         [TestInitialize]
         public void Setup()
         {
             _userData = new UserData { FirstName = "FirstName", LastName = "LastName", RoleInOrganisation = RoleInOrganisation.Admin, ServiceRole = ServiceRoles.BasicUser };
             _viewModel = _fixture.Create<EditUserDetailsViewModel>();
-            _userDetailsDto = _fixture.Create<UserDetailsUpdateModel>();
+            _userDetailsDto = _fixture.Create<UpdateUserDetailsRequest>();
             SetupBase(_userData);
 
             _journeySession = new JourneySession
@@ -68,7 +68,13 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 LastName = "TestLast",
             };
 
-            FacadeServiceMock.Setup(x => x.UpdateUserDetails(Guid.NewGuid(), _userDetailsDto));
+            FacadeServiceMock.Setup(x => x.UpdateUserDetailsAsync(Guid.NewGuid(), Guid.NewGuid(), "Packaging", new UpdateUserDetailsRequest()
+            {
+                FirstName = editUserDetailsViewModel.FirstName,
+                LastName = editUserDetailsViewModel.LastName,
+                JobTitle = editUserDetailsViewModel.JobTitle,
+                Telephone = editUserDetailsViewModel.Telephone
+            }));
             FacadeServiceMock.Setup(x => x.GetUserAccount()).ReturnsAsync(new UserAccountDto());
 
             var result = await SystemUnderTest.CheckYourDetails(editUserDetailsViewModel);
@@ -88,7 +94,13 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 LastName = "TestLast",
             };
 
-            FacadeServiceMock.Setup(x => x.UpdateUserDetails(Guid.NewGuid(), _userDetailsDto));
+            FacadeServiceMock.Setup(x => x.UpdateUserDetailsAsync(Guid.NewGuid(), Guid.NewGuid(),"Packaging", new UpdateUserDetailsRequest()
+            {
+                FirstName = editUserDetailsViewModel.FirstName,
+                LastName = editUserDetailsViewModel.LastName,
+                JobTitle = editUserDetailsViewModel.JobTitle,
+                Telephone = editUserDetailsViewModel.Telephone
+            }));
             FacadeServiceMock.Setup(x => x.GetUserAccount()).ReturnsAsync(new UserAccountDto());
 
             var result = await SystemUnderTest.CheckYourDetails(editUserDetailsViewModel);
@@ -119,9 +131,8 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
            .Returns(Task.FromResult(new JourneySession { UserData = _userData ?? new UserData { ServiceRoleId = 1 } }));
 
-            FacadeServiceMock.Setup(x => x.UpdateUserDetails(Guid.NewGuid(), _userDetailsDto));
             FacadeServiceMock.Setup(x => x.GetUserAccount()).ReturnsAsync(new UserAccountDto());
-            FacadeServiceMock.Setup(x => x.UpdatePersonalDetailsAsync(Guid.NewGuid(), Guid.NewGuid(), "Packaging", new UserDetailsUpdateModel()
+            FacadeServiceMock.Setup(x => x.UpdateUserDetailsAsync(Guid.NewGuid(), Guid.NewGuid(), "Packaging", new UpdateUserDetailsRequest()
             {
                  FirstName = editUserDetailsViewModel.FirstName,
                  LastName = editUserDetailsViewModel.LastName,

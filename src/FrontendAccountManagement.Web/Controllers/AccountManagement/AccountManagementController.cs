@@ -15,7 +15,6 @@ using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.Errors;
 using FrontendAccountManagement.Web.Extensions;
 using FrontendAccountManagement.Web.Profiles;
-using FrontendAccountManagement.Web.Utilities;
 using FrontendAccountManagement.Web.Utilities.Interfaces;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Authorization;
@@ -420,6 +419,15 @@ public class AccountManagementController : Controller
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var editUserDetailsViewModel = new EditUserDetailsViewModel();
 
+        var userData = User.GetUserData();
+        if (userData.IsChangeRequestPending)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.NotFound
+            });
+        }
+
         if (TempData[AmendedUserDetailsKey] != null)
         {
             try
@@ -447,13 +455,13 @@ public class AccountManagementController : Controller
         var userData = User.GetUserData();
        
 
-        var userDetailsDto = _mapper.Map<UserDetailsUpdateModel>(model);
+        var userDetailsDto = _mapper.Map<UpdateUserDetailsRequest>(model);
         var userOrg = userData.Organisations?.FirstOrDefault();
 
         // check if change is only phone number
        if (IsApprovedOrDelegatedUser(userData))
         {
-            var reponse = await _facadeService.UpdatePersonalDetailsAsync(userData.Id.Value, userOrg.Id.Value, ServiceKey, userDetailsDto);
+            var reponse = await _facadeService.UpdateUserDetailsAsync(userData.Id.Value, userOrg.Id.Value, ServiceKey, userDetailsDto);
             if (reponse.HasApprovedOrDelegatedUserDetailsSentForApproval)
             {
                 if (TempData[AmendedUserDetailsKey] != null) TempData.Remove(AmendedUserDetailsKey);
@@ -476,7 +484,15 @@ public class AccountManagementController : Controller
     public async Task<IActionResult> EditUserDetails()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        var model = _mapper.Map<EditUserDetailsViewModel>(User.GetUserData());
+        var userData = User.GetUserData();
+        var model = _mapper.Map<EditUserDetailsViewModel>(userData);
+        if (userData.IsChangeRequestPending)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.NotFound
+            });
+        }
 
         if (TempData[AmendedUserDetailsKey] != null)
         {
@@ -534,8 +550,18 @@ public class AccountManagementController : Controller
     [Route(PagePath.CheckYourDetails)]
     public async Task<IActionResult> CheckYourDetails()
     {
+        
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
+
+        if (userData.IsChangeRequestPending)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.NotFound
+            });
+        }
+
         bool isUpdatable = false;
         var serviceRole = userData.ServiceRole ?? string.Empty;
         var roleInOrganisation = userData.RoleInOrganisation ?? string.Empty;
@@ -589,13 +615,13 @@ public class AccountManagementController : Controller
         var serviceRole = userData.ServiceRole ?? string.Empty;
         var roleInOrganisation = userData.RoleInOrganisation ?? string.Empty;
         bool isUpdatable = false;
-        var userDetailsDto = _mapper.Map<UserDetailsUpdateModel>(model);
+        var userDetailsDto = _mapper.Map<UpdateUserDetailsRequest>(model);
         var userOrg = userData.Organisations?.FirstOrDefault();
 
         // check if change is only phone number
         if (model.FirstName == model.OriginalFirstName && model.LastName == model.OriginalLastName && model.JobTitle == model.OriginalJobTitle && model.Telephone != model.OriginalTelephone)
         {
-            var reponse = await _facadeService.UpdatePersonalDetailsAsync(userData.Id.Value, userOrg.Id.Value, ServiceKey, userDetailsDto);
+            var reponse = await _facadeService.UpdateUserDetailsAsync(userData.Id.Value, userOrg.Id.Value, ServiceKey, userDetailsDto);
             if (reponse.HasTelephoneOnlyUpdated)
             {
                 if (TempData[AmendedUserDetailsKey] != null) TempData.Remove(AmendedUserDetailsKey);
@@ -610,7 +636,7 @@ public class AccountManagementController : Controller
         }
         else if (IsBasicUser(userData))
         {
-            var reponse = await _facadeService.UpdatePersonalDetailsAsync(userData.Id.Value, userOrg.Id.Value, ServiceKey, userDetailsDto);
+            var reponse = await _facadeService.UpdateUserDetailsAsync(userData.Id.Value, userOrg.Id.Value, ServiceKey, userDetailsDto);
             if (reponse.HasBasicUserDetailsUpdated)
             {
                 if (TempData[AmendedUserDetailsKey] != null) TempData.Remove(AmendedUserDetailsKey);
@@ -645,6 +671,15 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
+        var userData = User.GetUserData();
+        if (userData.IsChangeRequestPending)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.NotFound
+            });
+        }
+
         var model = new UpdateDetailsConfirmationViewModel
         {
             Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
@@ -659,7 +694,6 @@ public class AccountManagementController : Controller
     public async Task<IActionResult> DetailsChangeRequested()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-
         var model = new DetailsChangeRequestedViewModel
         {
             Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
@@ -777,9 +811,7 @@ public class AccountManagementController : Controller
             options =>
                 options.Items[CompaniesHouseResponseProfile.NationIdKey] = (int)viewModel.UkNation);
 
-        await _facadeService.UpdateOrganisationDetails(
-            viewModel.OrganisationId,
-            organisation);
+        await _facadeService.UpdateOrganisationDetails(viewModel.OrganisationId,organisation);
 
         TempData.Remove(CheckYourOrganisationDetailsKey);
 
