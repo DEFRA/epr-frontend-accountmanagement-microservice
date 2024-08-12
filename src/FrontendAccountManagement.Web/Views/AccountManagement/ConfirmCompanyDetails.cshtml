@@ -1,5 +1,9 @@
 ﻿@model FrontendAccountManagement.Web.ViewModels.AccountManagement.ConfirmCompanyDetailsViewModel
 
+@{
+    ViewData["Title"] = Localizer["PageTitle"];
+}
+
 @using (Html.BeginForm("ConfirmCompanyDetails", "AccountManagement", FormMethod.Post))
 {
     <div class="govuk-width-container">

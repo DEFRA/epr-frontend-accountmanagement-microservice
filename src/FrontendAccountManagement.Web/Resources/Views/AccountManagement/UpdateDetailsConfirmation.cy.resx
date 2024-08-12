@@ -117,19 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ConfirmationMessage" xml:space="preserve">
+    <value>[Welsh]Your details have been updated</value>
+  </data>
   <data name="ManageAccountLinkDescription" xml:space="preserve">
-    <value>Go to manage account</value>
+    <value>[Welsh]Go to manage account</value>
   </data>
   <data name="PageTitle" xml:space="preserve">
-    <value>Your change of details request has been sent to the regulator</value>
-  </data>
-  <data name="RequestedMessage" xml:space="preserve">
-    <value>Your change of details request has been sent to the regulator</value>
-  </data>
-  <data name="WhatHappensNextHeader" xml:space="preserve">
-    <value>What happens next</value>
-  </data>
-  <data name="WhatHappensNextInformation" xml:space="preserve">
-    <value>Because of your permissions this change will need to be reviewed by the regulator. You will be notified within 28 days.</value>
+    <value>Mae'ch manylion chi wedi'u diweddaru</value>
   </data>
 </root>

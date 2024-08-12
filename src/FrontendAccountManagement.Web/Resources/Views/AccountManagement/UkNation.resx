@@ -132,6 +132,9 @@
   <data name="UkNation.PrincipalPlaceOfBusinessIfNotRegistered" xml:space="preserve">
     <value>Your principal place of business (if you’re not registered)</value>
   </data>
+  <data name="UkNation.Title" xml:space="preserve">
+    <value>Your UK nation</value>
+  </data>
   <data name="UkNation.WeNeedToKnow" xml:space="preserve">
     <value>We need to know which UK nation you’re based in.</value>
   </data>
