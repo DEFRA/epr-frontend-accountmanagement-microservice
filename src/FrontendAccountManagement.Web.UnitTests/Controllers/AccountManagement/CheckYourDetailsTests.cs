@@ -23,13 +23,18 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         private Fixture _fixture = new Fixture();
         private EditUserDetailsViewModel _viewModel;
         private UpdateUserDetailsRequest _userDetailsDto;
+        private UpdateUserDetailsResponse _updateUserDetailsResponse;
 
         [TestInitialize]
         public void Setup()
         {
-            _userData = new UserData { FirstName = "FirstName", LastName = "LastName", RoleInOrganisation = RoleInOrganisation.Admin, ServiceRole = ServiceRoles.BasicUser };
+            _userData = _fixture.Create<UserData>();
+            _userData.IsChangeRequestPending = false;
+
             _viewModel = _fixture.Create<EditUserDetailsViewModel>();
             _userDetailsDto = _fixture.Create<UpdateUserDetailsRequest>();
+            _updateUserDetailsResponse = _fixture.Create<UpdateUserDetailsResponse>();
+
             SetupBase(_userData);
 
             _journeySession = new JourneySession
@@ -39,8 +44,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             };
 
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-                .Returns(Task.FromResult(_journeySession)
-                   );
+                .Returns(Task.FromResult(_journeySession));
         }
 
         [TestMethod]
@@ -54,66 +58,64 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             viewResult.Should().NotBeNull();
             var model = viewResult.Model as EditUserDetailsViewModel;
             model.Should().NotBeNull();
-            model.FirstName.Should().Be("FirstName");
-            model.LastName.Should().Be("LastName");
+            model.FirstName.Should().StartWith("FirstName");
+            model.LastName.Should().StartWith("LastName");
         }
 
-        //[TestMethod]
-        public async Task CheckYourDetailsPost_ShouldReturnActionName()
+        [TestMethod]
+        public async Task CheckYourDetails_Throw_403_Error_When_IsChangeRequestPending_IsTrue()
+        {
+            //Arrange
+            _userData.IsChangeRequestPending = true;
+            SetupBase(_userData);
+
+            // Act
+            var result = await SystemUnderTest.CheckYourDetails();
+
+            // Assert
+            ((RedirectToActionResult)result).ActionName.Should().Be("error");
+            ((object[])((RedirectToActionResult)result).RouteValues.Values)[0].Should().Be(403);
+        }
+
+        [TestMethod]
+        public async Task CheckYourDetailsPost_ShouldReturnViewData()
         {
             // Act
-            var editUserDetailsViewModel = new EditUserDetailsViewModel
-            {
-                FirstName = "TestFirst",
-                LastName = "TestLast",
-            };
-
-            FacadeServiceMock.Setup(x => x.UpdateUserDetailsAsync(Guid.NewGuid(), Guid.NewGuid(), "Packaging", new UpdateUserDetailsRequest()
-            {
-                FirstName = editUserDetailsViewModel.FirstName,
-                LastName = editUserDetailsViewModel.LastName,
-                JobTitle = editUserDetailsViewModel.JobTitle,
-                Telephone = editUserDetailsViewModel.Telephone
-            }));
-            FacadeServiceMock.Setup(x => x.GetUserAccount()).ReturnsAsync(new UserAccountDto());
-
-            var result = await SystemUnderTest.CheckYourDetails(editUserDetailsViewModel);
+            var result = await SystemUnderTest.CheckYourDetails(_viewModel);
 
             // Assert
             result.Should().NotBeNull();
-            ((RedirectToActionResult)result).ActionName.Should().NotBeNull();
+            ((ViewResult)result).ViewData.Should().NotBeNull();
         }
 
-        //[TestMethod]
+        [TestMethod]
         public async Task CheckYourDetailsPost_Call_UpdateUserDetails_When_Condition_Met()
         {
-            // Act        
-            var editUserDetailsViewModel = new EditUserDetailsViewModel
-            {
-                FirstName = "TestFirst",
-                LastName = "TestLast",
-            };
+            //Arrange
+            _userData.ServiceRoleId = 3;
+            _userData.RoleInOrganisation = "Admin";
+            _userData.ServiceRole = "Basic";
+            SetupBase(_userData);
 
-            FacadeServiceMock.Setup(x => x.UpdateUserDetailsAsync(Guid.NewGuid(), Guid.NewGuid(),"Packaging", new UpdateUserDetailsRequest()
-            {
-                FirstName = editUserDetailsViewModel.FirstName,
-                LastName = editUserDetailsViewModel.LastName,
-                JobTitle = editUserDetailsViewModel.JobTitle,
-                Telephone = editUserDetailsViewModel.Telephone
-            }));
+            AutoMapperMock.Setup(x => x.Map<UpdateUserDetailsRequest>(_viewModel)).Returns(_userDetailsDto);
+
             FacadeServiceMock.Setup(x => x.GetUserAccount()).ReturnsAsync(new UserAccountDto());
 
-            var result = await SystemUnderTest.CheckYourDetails(editUserDetailsViewModel);
+            FacadeServiceMock.Setup(x => x.UpdateUserDetailsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), "Packaging", _userDetailsDto))
+                 .ReturnsAsync(_updateUserDetailsResponse);
+
+            // Act        
+            var result = await SystemUnderTest.CheckYourDetails(_viewModel) as RedirectToActionResult;
 
             // Assert
             result.Should().NotBeNull();
-            ((RedirectToActionResult)result).ActionName.Should().Be("UpdateDetailsConfirmation");
+            result.ActionName.Should().Be("UpdateDetailsConfirmation");
         }
 
-        //[TestMethod]
+        [TestMethod]
         public async Task CheckYourDetailsPost_Call_UpdateUserDetails_Update_Telephone_Only_When_Condition_Met()
         {
-            // Act        
+            //Arrange
             var editUserDetailsViewModel = new EditUserDetailsViewModel
             {
                 FirstName = "TestFirst",
@@ -126,26 +128,18 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 OriginalTelephone = "07545812346"
             };
 
-            _userData.ServiceRole = ServiceRoles.DelegatedPerson;
-
-            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-           .Returns(Task.FromResult(new JourneySession { UserData = _userData ?? new UserData { ServiceRoleId = 1 } }));
-
+            AutoMapperMock.Setup(x => x.Map<UpdateUserDetailsRequest>(editUserDetailsViewModel)).Returns(_userDetailsDto);
             FacadeServiceMock.Setup(x => x.GetUserAccount()).ReturnsAsync(new UserAccountDto());
-            FacadeServiceMock.Setup(x => x.UpdateUserDetailsAsync(Guid.NewGuid(), Guid.NewGuid(), "Packaging", new UpdateUserDetailsRequest()
-            {
-                 FirstName = editUserDetailsViewModel.FirstName,
-                 LastName = editUserDetailsViewModel.LastName,
-                 JobTitle= editUserDetailsViewModel.JobTitle,
-                 Telephone= editUserDetailsViewModel.Telephone
 
-            } )).ReturnsAsync(new UpdateUserDetailsResponse());
+            FacadeServiceMock.Setup(x => x.UpdateUserDetailsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), "Packaging", _userDetailsDto))
+                 .ReturnsAsync(new UpdateUserDetailsResponse { HasTelephoneOnlyUpdated = true });
 
-            var result = await SystemUnderTest.CheckYourDetails(editUserDetailsViewModel);
+            // Act        
+            var result = await SystemUnderTest.CheckYourDetails(editUserDetailsViewModel) as RedirectToActionResult;
 
             // Assert
             result.Should().NotBeNull();
-            ((RedirectToActionResult)result).ActionName.Should().Be("UpdateDetailsConfirmation");
+            result.ActionName.Should().Be("UpdateDetailsConfirmation");
         }
 
         #region Private
