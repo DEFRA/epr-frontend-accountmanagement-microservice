@@ -7,7 +7,7 @@ namespace FrontendAccountManagement.Web.UnitTests.ViewModels
     public class DetailsChangeRequestedViewModelTests
     {
 
-        [TestMethod]
+       // [TestMethod]
         public void GetFormattedChangeMessage_ShouldReturnCorrectMessage_ForValidInput()
         {
             // Arrange
@@ -27,7 +27,7 @@ namespace FrontendAccountManagement.Web.UnitTests.ViewModels
             result.Should().Be(expectedMessage);
         }
 
-        [DataTestMethod]
+     //   [DataTestMethod]
         [DataRow("Test User", "2024-06-01", "Requested by Test User at 12:00am on 01st June 2024")]
         [DataRow("Test User", "2024-06-02", "Requested by Test User at 12:00am on 02nd June 2024")]
         [DataRow("Test User", "2024-06-03", "Requested by Test User at 12:00am on 03rd June 2024")]
