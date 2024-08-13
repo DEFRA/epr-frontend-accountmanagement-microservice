@@ -1,7 +1,6 @@
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Controllers.Home;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 

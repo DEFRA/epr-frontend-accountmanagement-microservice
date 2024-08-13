@@ -1,4 +1,5 @@
-﻿using FrontendAccountManagement.Web.Constants;
+﻿using FrontendAccountManagement.Web.Extensions;
+using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Cookies;
 using FrontendAccountManagement.Web.Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +15,7 @@ public class CookiesController : Controller
     public CookiesController(
         ICookieService cookieService)
     {
-        _cookieService = cookieService;        
+        _cookieService = cookieService;
     }
 
     [HttpPost]

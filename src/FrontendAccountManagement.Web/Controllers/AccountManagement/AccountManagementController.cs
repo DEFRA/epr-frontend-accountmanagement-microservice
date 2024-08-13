@@ -24,7 +24,7 @@ public class AccountManagementController : Controller
 {
     private const string RolesNotFoundException = "Could not retrieve service roles or none found";
     private readonly ISessionManager<JourneySession> _sessionManager;
-    private readonly IFacadeService _facadeService;    
+    private readonly IFacadeService _facadeService;
     private readonly ExternalUrlsOptions _urlOptions;
     private readonly DeploymentRoleOptions _deploymentRoleOptions;
 
@@ -35,7 +35,7 @@ public class AccountManagementController : Controller
         IOptions<DeploymentRoleOptions> deploymentRoleOptions)
     {
         _sessionManager = sessionManager;
-        _facadeService = facadeService;        
+        _facadeService = facadeService;
         _urlOptions = urlOptions.Value;
         _deploymentRoleOptions = deploymentRoleOptions.Value;
     }
