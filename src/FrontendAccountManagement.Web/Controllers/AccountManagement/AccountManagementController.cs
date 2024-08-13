@@ -683,7 +683,7 @@ public class AccountManagementController : Controller
         var model = new UpdateDetailsConfirmationViewModel
         {
             Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
-            UpdatedDatetime = DateTime.Now
+            UpdatedDatetime = DateTime.UtcNow
         };
 
         return View(model);
@@ -697,7 +697,7 @@ public class AccountManagementController : Controller
         var model = new DetailsChangeRequestedViewModel
         {
             Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
-            UpdatedDatetime = DateTime.Now
+            UpdatedDatetime = DateTime.UtcNow
         };
 
         return View(nameof(DetailsChangeRequested), model);
@@ -824,7 +824,7 @@ public class AccountManagementController : Controller
         await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
 
         // save the date/time that the update was performed for the next page
-        TempData[OrganisationDetailsUpdatedTimeKey] = DateTime.Now;
+        TempData[OrganisationDetailsUpdatedTimeKey] = DateTime.UtcNow;
 
         return RedirectToAction(nameof(CompanyDetailsUpdated));
     }

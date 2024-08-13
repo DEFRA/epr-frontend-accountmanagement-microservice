@@ -4,6 +4,8 @@
 
 @{
     ViewData["Title"] = Localizer["Title"];
+    var changedDateAt = Model.ChangeDate;
+    var changedDate = changedDateAt.UtcToGmt();
 }
 
 <div class="govuk-width-container">
@@ -15,15 +17,15 @@
                         @Localizer["Header"]
                     </h1>
                 </div>
-                <p class="govuk-body">@Localizer[
-                    "ChangedBy",
-                    Model.UserName,
-                    Model.ChangeDate.ToString("hh:mm"),
-                    Model.ChangeDate.ToString("tt").ToLower(),
-                    Model.ChangeDate.Day,
-                    Model.ChangeDate.GetDateOrdinal(),
-                    Model.ChangeDate.ToString("MMMM"),
-                    Model.ChangeDate.Year]
+                <p class="govuk-body">
+                    @Localizer["ChangedBy",
+                             Model.UserName,
+                             changedDate.ToString("hh:mm"),
+                             changedDate.ToString("tt").ToLower(),
+                             changedDate.Day,
+                             changedDate.GetDateOrdinal(),
+                             changedDate.ToString("MMMM"),
+                             changedDate.Year]
                  </p>
                 <p class="govuk-body govuk-!-font-weight-bold">@Localizer["WhatHappensNext"]</p>
                 <p class="govuk-body">@Localizer["Body"]</p>
