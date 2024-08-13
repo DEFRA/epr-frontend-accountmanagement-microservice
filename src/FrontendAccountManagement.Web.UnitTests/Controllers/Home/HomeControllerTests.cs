@@ -12,7 +12,6 @@ public class HomeControllerTests
 {
     private Mock<HttpContext> _httpContextMock;
     private Mock<HttpResponse> _httpResponseMock;
-    private Mock<ILogger<HomeController>> _loggerMock;
     private Mock<IOptions<EprCookieOptions>> _cookieConfig;
     private Mock<IResponseCookies> _responseCookiesMock;
     private Mock<ISession> _sessionMock;
@@ -25,7 +24,6 @@ public class HomeControllerTests
         _httpResponseMock = new Mock<HttpResponse>();
         _responseCookiesMock = new Mock<IResponseCookies>();
         _cookieConfig = new Mock<IOptions<EprCookieOptions>>();
-        _loggerMock = new Mock<ILogger<HomeController>>();
         _sessionMock = new Mock<ISession>();
 
         _cookieConfig.Setup(m => m.Value).Returns(new EprCookieOptions { SessionCookieName = "SessionCookieName"});
