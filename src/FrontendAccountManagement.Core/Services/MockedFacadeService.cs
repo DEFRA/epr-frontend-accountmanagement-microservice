@@ -147,9 +147,9 @@ public class MockedFacadeService : IFacadeService
 
         var stubResponse = new UpdateUserDetailsResponse
         {
-             HasApprovedOrDelegatedUserDetailsSentForApproval = false,
-              HasBasicUserDetailsUpdated = true,
-               HasTelephoneOnlyUpdated = false
+            HasApprovedOrDelegatedUserDetailsSentForApproval = false,
+            HasBasicUserDetailsUpdated = true,
+            HasTelephoneOnlyUpdated = false
         };
         return await Task.FromResult(stubResponse);
     }

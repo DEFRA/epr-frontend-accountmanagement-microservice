@@ -425,7 +425,7 @@ public class AccountManagementController : Controller
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
             {
-                statusCode = (int)HttpStatusCode.NotFound
+                statusCode = (int)HttpStatusCode.Forbidden
             });
         }
 
@@ -491,7 +491,7 @@ public class AccountManagementController : Controller
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
             {
-                statusCode = (int)HttpStatusCode.NotFound
+                statusCode = (int)HttpStatusCode.Forbidden
             });
         }
 
@@ -559,7 +559,7 @@ public class AccountManagementController : Controller
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
             {
-                statusCode = (int)HttpStatusCode.NotFound
+                statusCode = (int)HttpStatusCode.Forbidden
             });
         }
 
@@ -677,7 +677,7 @@ public class AccountManagementController : Controller
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
             {
-                statusCode = (int)HttpStatusCode.NotFound
+                statusCode = (int)HttpStatusCode.Forbidden
             });
         }
 
