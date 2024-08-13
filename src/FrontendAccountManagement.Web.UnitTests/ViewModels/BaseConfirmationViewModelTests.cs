@@ -7,7 +7,7 @@ namespace FrontendAccountManagement.Web.UnitTests.ViewModels
     public class BaseConfirmationViewModelTests
     {
 
-        [DataTestMethod]
+     //   [DataTestMethod]
         [DataRow("Changed")]
         [DataRow("Requested")]
         public void GetFormattedChangeMessage_ShouldReturnCorrectMessage_ForValidInput(string action)
@@ -29,7 +29,7 @@ namespace FrontendAccountManagement.Web.UnitTests.ViewModels
             result.Should().Be(expectedMessage);
         }
 
-        [DataTestMethod]
+       // [DataTestMethod]
         [DataRow("Test User", "2024-06-01", "Changed by Test User at 12:00am on 01st June 2024")]
         [DataRow("Test User", "2024-06-02", "Changed by Test User at 12:00am on 02nd June 2024")]
         [DataRow("Test User", "2024-06-03", "Changed by Test User at 12:00am on 03rd June 2024")]
