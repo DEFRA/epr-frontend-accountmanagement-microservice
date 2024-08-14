@@ -87,7 +87,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task ConfirmCompanyDetails_ShouldRedirectPageNotFound_WhenUserIsBasicEmployee()
+        public async Task ConfirmCompanyDetails_ShouldDisplayPageNotFound_WhenUserIsBasicEmployee()
         {
             // Arrange
             var userData = new UserData
@@ -106,7 +106,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task ConfirmCompanyDetails_ShouldRedirectPageNotFound_WhenUserIsBasicAdmin()
+        public async Task ConfirmCompanyDetails_ShouldDisplayPageNotFound_WhenUserIsBasicAdmin()
         {
             // Arrange
             var userData = new UserData
