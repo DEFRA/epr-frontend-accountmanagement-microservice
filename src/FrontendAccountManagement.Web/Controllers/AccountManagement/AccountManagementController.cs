@@ -161,7 +161,9 @@ public class AccountManagementController : Controller
     [Route(PagePath.CompanyDetailsHaveNotChanged)]
     public async Task<IActionResult> CompanyDetailsHaveNotChanged()
     {
-        var redirectResult = CheckUserRoleAndRedirect();
+        var userData = User.GetUserData();
+
+        var redirectResult = CheckUserRoleAndRedirect(userData);
 
         if (redirectResult != null)
         {
@@ -196,7 +198,9 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var redirectResult = CheckUserRoleAndRedirect();
+        var userData = User.GetUserData();
+
+        var redirectResult = CheckUserRoleAndRedirect(userData);
 
         if (redirectResult != null)
         {
@@ -242,7 +246,9 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var redirectResult = CheckUserRoleAndRedirect();
+        var userData = User.GetUserData();
+
+        var redirectResult = CheckUserRoleAndRedirect(userData);
 
         if (redirectResult != null)
         {
@@ -312,7 +318,9 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var redirectResult = CheckUserRoleAndRedirect();
+        var userData = User.GetUserData();
+
+        var redirectResult = CheckUserRoleAndRedirect(userData);
 
         if (redirectResult != null)
         {
@@ -383,7 +391,9 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var redirectResult = CheckUserRoleAndRedirect();
+        var userData = User.GetUserData();
+
+        var redirectResult = CheckUserRoleAndRedirect(userData);
 
         if (redirectResult != null)
         {
@@ -448,7 +458,9 @@ public class AccountManagementController : Controller
     [Route(PagePath.Declaration)]
     public async Task<IActionResult> Declaration()
     {
-        var redirectResult = CheckUserRoleAndRedirect();
+        var userData = User.GetUserData();
+
+        var redirectResult = CheckUserRoleAndRedirect(userData);
 
         if (redirectResult != null)
         {
@@ -463,7 +475,6 @@ public class AccountManagementController : Controller
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var editUserDetailsViewModel = new EditUserDetailsViewModel();
 
-        var userData = User.GetUserData();
         if (userData.IsChangeRequestPending)
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
@@ -767,7 +778,9 @@ public class AccountManagementController : Controller
     [Route(PagePath.ConfirmCompanyDetails)]
     public async Task<IActionResult> ConfirmCompanyDetails()
     {
-        var redirectResult = CheckUserRoleAndRedirect();
+        var userData = User.GetUserData();
+
+        var redirectResult = CheckUserRoleAndRedirect(userData);
 
         if (redirectResult != null)
         {
@@ -827,7 +840,9 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var redirectResult = CheckUserRoleAndRedirect();
+        var userData = User.GetUserData();
+
+        var redirectResult = CheckUserRoleAndRedirect(userData);
 
         if (redirectResult != null)
         {
@@ -916,7 +931,9 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var redirectResult = CheckUserRoleAndRedirect();
+        var userData = User.GetUserData();
+
+        var redirectResult = CheckUserRoleAndRedirect(userData);
 
         if (redirectResult != null)
         {
@@ -1152,10 +1169,8 @@ public class AccountManagementController : Controller
         return isUpdatable;
     }
 
-    protected IActionResult CheckUserRoleAndRedirect()
+    protected IActionResult CheckUserRoleAndRedirect(UserData userData)
     {
-        var userData = User.GetUserData();
-
         var roleInOrganisation = userData.RoleInOrganisation;
 
         var serviceRoleId = userData.ServiceRoleId;
