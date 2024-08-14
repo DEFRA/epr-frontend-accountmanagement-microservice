@@ -1156,8 +1156,14 @@ public class AccountManagementController : Controller
     {
         var userData = User.GetUserData();
 
-        if (userData.RoleInOrganisation != PersonRole.Admin.ToString() ||
-            userData.ServiceRoleId == (int)ServiceRole.Basic)
+        var roleInOrganisation = userData.RoleInOrganisation;
+
+        var serviceRoleId = userData.ServiceRoleId;
+
+        if ((!string.IsNullOrEmpty(roleInOrganisation) &&
+            roleInOrganisation != PersonRole.Admin.ToString()) ||
+            (serviceRoleId > 0 &&
+            serviceRoleId == (int)ServiceRole.Basic))
         {
             return NotFound();
         }
