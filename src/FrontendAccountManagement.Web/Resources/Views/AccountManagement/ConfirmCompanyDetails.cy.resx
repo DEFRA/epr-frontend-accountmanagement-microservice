@@ -118,27 +118,27 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CompaniesHouseAddress" xml:space="preserve">
-    <value>[Welsh]Address:</value>
+    <value>Cyfeiriad:</value>
   </data>
   <data name="CompanyHouseNumber" xml:space="preserve">
-    <value>[Welsh]Companies House number:</value>
+    <value>Rhif Tŷ'r Cwmnïau</value>
   </data>
   <data name="ConfirmationTitle" xml:space="preserve">
-    <value>[Welsh]Confirm your organisation’s details from Companies House</value>
+    <value>Cadarnhau manylion eich sefydliad gan Dŷ'r Cwmnïau</value>
   </data>
   <data name="PageTitle" xml:space="preserve">
     <value>Cadarnhau manylion eich sefydliad gan Dŷ'r Cwmnïau</value>
   </data>
   <data name="WrongDetails" xml:space="preserve">
-    <value>[Welsh]These details are wrong</value>
+    <value>Mae'r manylion yma yn anghywir</value>
   </data>
   <data name="WrongDetailsDescription" xml:space="preserve">
-    <value>[Welsh]Check Companies House to see if your organisation’s details are correct. If they aren’t, you can</value>
+    <value>gwirio gwefan Tŷ'r Cwmnïau i weld a ydy manylion eich sefydliad yn gywir – os nad ydyn nhw, gallwch eu </value>
   </data>
   <data name="WrongDetailsDescription2" xml:space="preserve">
-    <value>[Welsh]change them on Companies House (opens in new tab)</value>
+    <value>newid nhw ar wefan Tŷ'r Cwmnïau  (yn agor mewn tab newydd)</value>
   </data>
   <data name="WrongDetailsHelp" xml:space="preserve">
-    <value>[Welsh]If these details are wrong, you should:</value>
+    <value>Os yw'r manylion yma yn anghywir, fe ddylech chi:</value>
   </data>
 </root>

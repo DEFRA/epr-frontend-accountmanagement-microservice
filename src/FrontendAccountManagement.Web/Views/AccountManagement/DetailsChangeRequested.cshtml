@@ -17,8 +17,15 @@
                         @Localizer["RequestedMessage"]
                     </h1>
                 </div>
-                <p class="govuk-body">
-                    @Model.GetFormattedChangeMessage("Requested")
+                <p class="govuk-body">@Localizer[
+                    "ChangedBy",
+                    Model.Username,
+                    Model.UpdatedDatetime.ToString("hh:mm"),
+                    Model.UpdatedDatetime.ToString("tt").ToLower(),
+                    Model.UpdatedDatetime.Day,
+                    string.Empty, // The date ordinal - not yet implemented for Welsh.
+                    Model.UpdatedDatetime.ToString("MMMM"),
+                    Model.UpdatedDatetime.Year]
                 </p>
                 <h2 class="govuk-heading-m">@Localizer["WhatHappensNextHeader"]</h2>
                 <p class="govuk-body">
