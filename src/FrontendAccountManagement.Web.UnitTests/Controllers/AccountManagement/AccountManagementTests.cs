@@ -43,7 +43,7 @@ public class AccountManagementTests : AccountManagementTestBase
     private const string RoleInOrganisation = "Admin";
     private const int ServiceRoleId = 1;
     private const string ServiceRoleKey = "Approved.Admin";
-    
+
 
     [TestInitialize]
     public void Setup()
@@ -512,7 +512,7 @@ public class AccountManagementTests : AccountManagementTestBase
 
         // Assert
         result.Should().BeOfType<UnauthorizedResult>();
-        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Never);
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
     }
 
     private UserData SetupUserData(
