@@ -161,9 +161,9 @@ public class AccountManagementController : Controller
     [Route(PagePath.CompanyDetailsHaveNotChanged)]
     public async Task<IActionResult> CompanyDetailsHaveNotChanged()
     {
-        var userData = User.GetUserData();
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var redirectResult = CheckUserRoleAndRedirect(userData);
+        var redirectResult = CheckUserRoleAndRedirect(session.UserData);
 
         if (redirectResult != null)
         {
@@ -175,7 +175,6 @@ public class AccountManagementController : Controller
             return Unauthorized();
         }
 
-        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var companiesHouseData = session.CompaniesHouseSession.CompaniesHouseData;
 
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CompanyDetailsHaveNotChanged);
@@ -198,9 +197,7 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var userData = User.GetUserData();
-
-        var redirectResult = CheckUserRoleAndRedirect(userData);
+        var redirectResult = CheckUserRoleAndRedirect(session.UserData);
 
         if (redirectResult != null)
         {
@@ -246,9 +243,7 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var userData = User.GetUserData();
-
-        var redirectResult = CheckUserRoleAndRedirect(userData);
+        var redirectResult = CheckUserRoleAndRedirect(session.UserData);
 
         if (redirectResult != null)
         {
@@ -318,9 +313,7 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var userData = User.GetUserData();
-
-        var redirectResult = CheckUserRoleAndRedirect(userData);
+        var redirectResult = CheckUserRoleAndRedirect(session.UserData);
 
         if (redirectResult != null)
         {
@@ -391,9 +384,7 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var userData = User.GetUserData();
-
-        var redirectResult = CheckUserRoleAndRedirect(userData);
+        var redirectResult = CheckUserRoleAndRedirect(session.UserData);
 
         if (redirectResult != null)
         {
@@ -458,9 +449,9 @@ public class AccountManagementController : Controller
     [Route(PagePath.Declaration)]
     public async Task<IActionResult> Declaration()
     {
-        var userData = User.GetUserData();
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var redirectResult = CheckUserRoleAndRedirect(userData);
+        var redirectResult = CheckUserRoleAndRedirect(session.UserData);
 
         if (redirectResult != null)
         {
@@ -472,7 +463,8 @@ public class AccountManagementController : Controller
             return BadRequest();
         }
 
-        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var userData = User.GetUserData();
+
         var editUserDetailsViewModel = new EditUserDetailsViewModel();
 
         if (userData.IsChangeRequestPending)
@@ -778,9 +770,9 @@ public class AccountManagementController : Controller
     [Route(PagePath.ConfirmCompanyDetails)]
     public async Task<IActionResult> ConfirmCompanyDetails()
     {
-        var userData = User.GetUserData();
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var redirectResult = CheckUserRoleAndRedirect(userData);
+        var redirectResult = CheckUserRoleAndRedirect(session.UserData);
 
         if (redirectResult != null)
         {
@@ -791,8 +783,6 @@ public class AccountManagementController : Controller
         {
             return Unauthorized();
         }
-
-        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
         SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ConfirmCompanyDetails);
         SetBackLink(session, PagePath.ConfirmCompanyDetails);
@@ -840,9 +830,7 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var userData = User.GetUserData();
-
-        var redirectResult = CheckUserRoleAndRedirect(userData);
+        var redirectResult = CheckUserRoleAndRedirect(session.UserData);
 
         if (redirectResult != null)
         {
@@ -931,9 +919,7 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var userData = User.GetUserData();
-
-        var redirectResult = CheckUserRoleAndRedirect(userData);
+        var redirectResult = CheckUserRoleAndRedirect(session.UserData);
 
         if (redirectResult != null)
         {
