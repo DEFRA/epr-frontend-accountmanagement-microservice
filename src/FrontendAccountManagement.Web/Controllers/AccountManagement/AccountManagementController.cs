@@ -24,7 +24,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using System;
 using System.Net;
-using System.Security.Claims;
 using System.Text.Json;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
@@ -162,6 +161,13 @@ public class AccountManagementController : Controller
     [Route(PagePath.CompanyDetailsHaveNotChanged)]
     public async Task<IActionResult> CompanyDetailsHaveNotChanged()
     {
+        var redirectResult = CheckUserRoleAndRedirect();
+
+        if (redirectResult != null)
+        {
+            return redirectResult;
+        }
+
         if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
         {
             return Unauthorized();
@@ -189,6 +195,14 @@ public class AccountManagementController : Controller
     public async Task<IActionResult> TeamMemberEmail()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        var redirectResult = CheckUserRoleAndRedirect();
+
+        if (redirectResult != null)
+        {
+            return redirectResult;
+        }
+
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ManageAccount);
         session.AccountManagementSession.AddUserJourney ??= new AddUserJourneyModel();
 
@@ -227,6 +241,13 @@ public class AccountManagementController : Controller
     public async Task<IActionResult> TeamMemberPermissions()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        var redirectResult = CheckUserRoleAndRedirect();
+
+        if (redirectResult != null)
+        {
+            return redirectResult;
+        }
 
         SetBackLink(session, PagePath.TeamMemberPermissions);
 
@@ -291,6 +312,13 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
+        var redirectResult = CheckUserRoleAndRedirect();
+
+        if (redirectResult != null)
+        {
+            return redirectResult;
+        }
+
         SetBackLink(session, PagePath.TeamMemberDetails);
         var model = new TeamMemberDetailsViewModel
         {
@@ -354,6 +382,14 @@ public class AccountManagementController : Controller
     public async Task<IActionResult> RemoveTeamMemberConfirmation()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        var redirectResult = CheckUserRoleAndRedirect();
+
+        if (redirectResult != null)
+        {
+            return redirectResult;
+        }
+
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ManageAccount);
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.RemoveTeamMember);
 
@@ -412,6 +448,13 @@ public class AccountManagementController : Controller
     [Route(PagePath.Declaration)]
     public async Task<IActionResult> Declaration()
     {
+        var redirectResult = CheckUserRoleAndRedirect();
+
+        if (redirectResult != null)
+        {
+            return redirectResult;
+        }
+
         if (!ModelState.IsValid)
         {
             return BadRequest();
@@ -454,13 +497,13 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
-       
+
 
         var userDetailsDto = _mapper.Map<UpdateUserDetailsRequest>(model);
         var userOrg = userData.Organisations?.FirstOrDefault();
 
         // check if change is only phone number
-       if (IsApprovedOrDelegatedUser(userData))
+        if (IsApprovedOrDelegatedUser(userData))
         {
             var reponse = await _facadeService.UpdateUserDetailsAsync(userData.Id.Value, userOrg.Id.Value, ServiceKey, userDetailsDto);
             if (reponse.HasApprovedOrDelegatedUserDetailsSentForApproval)
@@ -551,7 +594,7 @@ public class AccountManagementController : Controller
     [Route(PagePath.CheckYourDetails)]
     public async Task<IActionResult> CheckYourDetails()
     {
-        
+
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
 
@@ -620,9 +663,18 @@ public class AccountManagementController : Controller
         var userOrg = userData.Organisations?.FirstOrDefault();
 
         // check if change is only phone number
-        if (model.FirstName == model.OriginalFirstName && model.LastName == model.OriginalLastName && model.JobTitle == model.OriginalJobTitle && model.Telephone != model.OriginalTelephone)
+        if (
+            model.FirstName == model.OriginalFirstName &&
+            model.LastName == model.OriginalLastName &&
+            model.JobTitle == model.OriginalJobTitle &&
+            model.Telephone != model.OriginalTelephone)
         {
-            var reponse = await _facadeService.UpdateUserDetailsAsync(userData.Id.Value, userOrg.Id.Value, ServiceKey, userDetailsDto);
+            var reponse = await _facadeService.UpdateUserDetailsAsync(
+                userData.Id.Value,
+                userOrg.Id.Value,
+                ServiceKey,
+                userDetailsDto);
+
             if (reponse.HasTelephoneOnlyUpdated)
             {
                 if (TempData[AmendedUserDetailsKey] != null) TempData.Remove(AmendedUserDetailsKey);
@@ -637,7 +689,12 @@ public class AccountManagementController : Controller
         }
         else if (IsBasicUser(userData))
         {
-            var reponse = await _facadeService.UpdateUserDetailsAsync(userData.Id.Value, userOrg.Id.Value, ServiceKey, userDetailsDto);
+            var reponse = await _facadeService.UpdateUserDetailsAsync(
+                userData.Id.Value,
+                userOrg.Id.Value,
+                ServiceKey,
+                userDetailsDto);
+
             if (reponse.HasBasicUserDetailsUpdated)
             {
                 if (TempData[AmendedUserDetailsKey] != null) TempData.Remove(AmendedUserDetailsKey);
@@ -673,6 +730,7 @@ public class AccountManagementController : Controller
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
         var userData = User.GetUserData();
+
         if (userData.IsChangeRequestPending)
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
@@ -695,6 +753,7 @@ public class AccountManagementController : Controller
     public async Task<IActionResult> DetailsChangeRequested()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
         var model = new DetailsChangeRequestedViewModel
         {
             Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
@@ -708,6 +767,13 @@ public class AccountManagementController : Controller
     [Route(PagePath.ConfirmCompanyDetails)]
     public async Task<IActionResult> ConfirmCompanyDetails()
     {
+        var redirectResult = CheckUserRoleAndRedirect();
+
+        if (redirectResult != null)
+        {
+            return redirectResult;
+        }
+
         if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
         {
             return Unauthorized();
@@ -761,6 +827,13 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
+        var redirectResult = CheckUserRoleAndRedirect();
+
+        if (redirectResult != null)
+        {
+            return redirectResult;
+        }
+
         // must be approved or delegated user
         if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
         {
@@ -812,7 +885,7 @@ public class AccountManagementController : Controller
             options =>
                 options.Items[CompaniesHouseResponseProfile.NationIdKey] = (int)viewModel.UkNation);
 
-        await _facadeService.UpdateOrganisationDetails(viewModel.OrganisationId,organisation);
+        await _facadeService.UpdateOrganisationDetails(viewModel.OrganisationId, organisation);
 
         TempData.Remove(CheckYourOrganisationDetailsKey);
 
@@ -842,6 +915,13 @@ public class AccountManagementController : Controller
     public async Task<IActionResult> UkNation()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        var redirectResult = CheckUserRoleAndRedirect();
+
+        if (redirectResult != null)
+        {
+            return redirectResult;
+        }
 
         await SaveSessionAndJourney(session, PagePath.ConfirmCompanyDetails, PagePath.UkNation);
         SetBackLink(session, PagePath.UkNation);
@@ -1025,7 +1105,9 @@ public class AccountManagementController : Controller
         IsRegulatorAdmin(userData) || IsRegulatorBasic(userData);
 
     private static bool IsBasicUser(UserData userData) =>
-       (userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Basic && (userData.RoleInOrganisation == PersonRole.Employee.ToString() || userData.RoleInOrganisation == PersonRole.Admin.ToString()) );
+       userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Basic &&
+        (userData.RoleInOrganisation == PersonRole.Employee.ToString() ||
+        userData.RoleInOrganisation == PersonRole.Admin.ToString());
 
     private static bool HasPermissionToChangeCompany(UserData userData)
     {
@@ -1042,7 +1124,7 @@ public class AccountManagementController : Controller
     {
         var roleInOrganisation = userData.RoleInOrganisation;
         if ((userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Approved || userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Delegated)
-            && (!string.IsNullOrEmpty(roleInOrganisation) && (roleInOrganisation == PersonRole.Admin.ToString() || roleInOrganisation == PersonRole.Employee.ToString())))
+            && !string.IsNullOrEmpty(roleInOrganisation) && (roleInOrganisation == PersonRole.Admin.ToString() || roleInOrganisation == PersonRole.Employee.ToString()))
         {
             return true;
         }
@@ -1068,6 +1150,19 @@ public class AccountManagementController : Controller
             }
         }
         return isUpdatable;
+    }
+
+    protected IActionResult CheckUserRoleAndRedirect()
+    {
+        var userData = User.GetUserData();
+
+        if (userData.RoleInOrganisation != PersonRole.Admin.ToString() ||
+            userData.ServiceRoleId == (int)ServiceRole.Basic)
+        {
+            return NotFound();
+        }
+
+        return null;
     }
 
 }
