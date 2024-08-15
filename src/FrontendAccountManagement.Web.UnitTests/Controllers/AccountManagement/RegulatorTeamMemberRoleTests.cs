@@ -1,4 +1,6 @@
-﻿using FrontendAccountManagement.Core.Models;
+﻿using EPR.Common.Authorization.Models;
+using FrontendAccountManagement.Core.Enums;
+using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
@@ -16,14 +18,14 @@ public class RegulatorTeamMemberRoleTests : AccountManagementTestBase
     private const string DeploymentRole = "Regulator";
     private const string RolesNotFoundException = "Could not retrieve service roles or none found";
 
-    private readonly ServiceRole RegulatorTestRole = new()
+    private readonly Core.Models.ServiceRole RegulatorTestRole = new()
     {
         ServiceRoleId = 4,
         PersonRoleId = 1,
         Key = "test.role",
         DescriptionKey = "test.descriptionKey"
     };
-    
+
     [TestInitialize]
     public void Setup()
     {
@@ -49,17 +51,26 @@ public class RegulatorTeamMemberRoleTests : AccountManagementTestBase
         SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>()))
             .ReturnsAsync(JourneySessionMock);
     }
-    
+
     [TestMethod]
     public async Task GivenOnTeamMemberRolePage_WhenTeamMemberPermissionsHttpGetCalled_ThenTeamMemberPermissionsViewModelReturned_AndBackLinkSet()
     {
         // Arrange
         FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
-            .Returns(Task.FromResult<IEnumerable<ServiceRole>>(new List<ServiceRole>
+            .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(new List<Core.Models.ServiceRole>
             {
                 RegulatorTestRole
             }));
-        
+
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        SetupBase(mockUserData);
+
         // Act
         var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
         var model = result.Model as TeamMemberPermissionsViewModel;
@@ -76,13 +87,13 @@ public class RegulatorTeamMemberRoleTests : AccountManagementTestBase
     {
         // Arrange
         FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
-            .Returns(Task.FromResult<IEnumerable<ServiceRole>>(null));
+            .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(null));
 
         // Act
         var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
-        
+
         // Assert
-        result.ViewName.Should().Be(ViewName);        
+        result.ViewName.Should().Be(ViewName);
     }
 
     [TestMethod]
@@ -91,7 +102,7 @@ public class RegulatorTeamMemberRoleTests : AccountManagementTestBase
     {
         // Arrange
         FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
-            .Returns(Task.FromResult<IEnumerable<ServiceRole>>(new List<ServiceRole>()));
+            .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(new List<Core.Models.ServiceRole>()));
 
         // Act
         var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;

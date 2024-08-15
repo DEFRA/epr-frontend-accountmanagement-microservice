@@ -78,11 +78,20 @@ public class TeamMemberRoleTests : AccountManagementTestBase
     [ExpectedException(typeof(InvalidOperationException), RolesNotFoundException)]
     public async Task GivenOnTeamMemberRolePage_WhenTeamMemberPermissionsHttpGetCalled_AndNoRolesReturnedFromFacade_ThenThrowException()
     {
-        // Act
+        // Arrange
         FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
             .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(new List<Core.Models.ServiceRole>()));
 
-        // Arrange
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        SetupBase(mockUserData);
+
+        // Act
         var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
 
         // Assert
@@ -91,14 +100,23 @@ public class TeamMemberRoleTests : AccountManagementTestBase
     }
 
     [TestMethod]
-    [ExpectedException(typeof(Exception), RolesNotFoundException)]
+    [ExpectedException(typeof(InvalidOperationException), RolesNotFoundException)]
     public async Task GivenOnTeamMemberRolePage_WhenTeamMemberPermissionsHttpGetCalled_AndExceptionReturnedFromFacade_ThenThrowException()
     {
-        // Act
+        // Arrange
         FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
             .Throws(new Exception());
 
-        // Arrange
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        SetupBase(mockUserData);
+
+        // Act
         var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
 
         // Assert

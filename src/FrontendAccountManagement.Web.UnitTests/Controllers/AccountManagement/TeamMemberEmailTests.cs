@@ -48,6 +48,16 @@ public class TeamMemberEmailTests : AccountManagementTestBase
     [TestMethod]
     public async Task GivenOnTeamMemberEmailPage_WhenTeamMemberEmailPageHttpGetCalled_ThenTeamMemberEmailPageReturned_AndBackLinkSet()
     {
+        // Arrange
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        SetupBase(mockUserData);
+
         // Act
         var result = await SystemUnderTest.TeamMemberEmail() as ViewResult;
 
@@ -63,6 +73,15 @@ public class TeamMemberEmailTests : AccountManagementTestBase
         AccountManagementSession addUserAccount = new() { AddUserStatus = 0, AddUserJourney = null };
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
            .Returns(Task.FromResult(new JourneySession { AccountManagementSession = addUserAccount }));
+
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        SetupBase(mockUserData);
 
         // Act
         var result = await SystemUnderTest.TeamMemberEmail() as ViewResult;
