@@ -169,6 +169,15 @@ namespace FrontendAccountManagement.Web.Resources.Views.AccountManagement {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Enter a valid telephone number.
+        /// </summary>
+        internal static string TelephoneNumberInvalid {
+            get {
+                return ResourceManager.GetString("TelephoneNumberInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enter your telephone number.
         /// </summary>
         internal static string TelephoneNumberMissing {

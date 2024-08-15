@@ -146,10 +146,10 @@ Rheoli manylion y cyfrif</value>
     <value>Cyfeiriad:</value>
   </data>
   <data name="Permissions" xml:space="preserve">
-    <value>Caniatadau</value>
+    <value>Caniatadau:</value>
   </data>
   <data name="TelephoneNumber" xml:space="preserve">
-    <value>Rhif ffôn</value>
+    <value>Rhif ffôn:</value>
   </data>
   <data name="CompanyName" xml:space="preserve">
     <value>Enw:</value>

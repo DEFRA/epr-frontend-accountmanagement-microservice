@@ -153,6 +153,9 @@
   <data name="TelephoneNumber" xml:space="preserve">
     <value>Rhif ffôn</value>
   </data>
+  <data name="TelephoneNumberInvalid" xml:space="preserve">
+    <value>Rhowch rif ffôn dilys</value>
+  </data>
   <data name="TelephoneNumberMissing" xml:space="preserve">
     <value>Rhowch eich rhif ffôn</value>
   </data>
