@@ -89,6 +89,15 @@ public class RegulatorTeamMemberRoleTests : AccountManagementTestBase
         FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
             .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(null));
 
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        SetupBase(mockUserData);
+
         // Act
         var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
 
@@ -103,6 +112,15 @@ public class RegulatorTeamMemberRoleTests : AccountManagementTestBase
         // Arrange
         FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
             .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(new List<Core.Models.ServiceRole>()));
+
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        SetupBase(mockUserData);
 
         // Act
         var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
