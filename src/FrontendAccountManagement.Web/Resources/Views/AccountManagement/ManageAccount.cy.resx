@@ -140,30 +140,30 @@ Rheoli manylion y cyfrif</value>
     <value>Caniatâd {0} wedi’i ddiweddaru</value>
   </data>
   <data name="JobTitle" xml:space="preserve">
-    <value>[Welsh] Job title:</value>
+    <value>Teitl y swydd:</value>
   </data>
   <data name="OrganisationAddress" xml:space="preserve">
-    <value>[Welsh] Address:</value>
+    <value>Cyfeiriad:</value>
   </data>
   <data name="Permissions" xml:space="preserve">
-    <value>[Welsh] Permissions:</value>
+    <value>Caniatadau</value>
   </data>
   <data name="TelephoneNumber" xml:space="preserve">
-    <value>[Welsh] Telephone number:</value>
+    <value>Rhif ffôn</value>
   </data>
   <data name="CompanyName" xml:space="preserve">
-    <value>[Welsh] Trading name:</value>
+    <value>Enw:</value>
   </data>
   <data name="YourDetails" xml:space="preserve">
-    <value>[Welsh] Your details</value>
+    <value>Eich manylion chi</value>
   </data>
   <data name="YourName" xml:space="preserve">
-    <value>[Welsh] Name:</value>
+    <value>Enw:</value>
   </data>
   <data name="YourOrganisation" xml:space="preserve">
-    <value>[Welsh] Your organisation</value>
+    <value>Eich sefydliad chi</value>
   </data>
   <data name="Pending" xml:space="preserve">
-    <value>[Welsh] Pending</value>
+    <value>YN YR ARFAETH</value>
   </data>
 </root>
