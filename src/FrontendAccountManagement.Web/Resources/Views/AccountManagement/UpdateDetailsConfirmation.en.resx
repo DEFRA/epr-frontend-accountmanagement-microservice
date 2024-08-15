@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ChangedBy" xml:space="preserve">
+    <value>Changed by {0} at {1}{2} on {3}&lt;sup&gt;{4}&lt;/sup&gt; {5} {6}.</value>
+  </data>
   <data name="ConfirmationMessage" xml:space="preserve">
     <value>Your details have been updated</value>
   </data>
