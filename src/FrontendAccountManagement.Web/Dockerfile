@@ -21,7 +21,7 @@ RUN dotnet restore "FrontendAccountManagement.Web/FrontendAccountManagement.Web.
 # Install NPM
 USER root
 RUN apk update && apk add --no-cache npm
-USER dotnet
+
 ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/internal-ca.crt
 
 # Build and publish a release
@@ -37,8 +37,7 @@ COPY --from=build-env /home/dotnet/FrontendAccountManagement.Web/out .
 
 # Add internationalisation support
 USER root
-RUN apk add icu-libs icu-data-full libintl
-USER dotnet
+RUN apk --no-cache add icu-libs icu-data-full libintl
 
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=0
 
