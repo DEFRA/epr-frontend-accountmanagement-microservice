@@ -35,6 +35,8 @@ variables:
     value: frontend-accountmanagement-microservice
   - name: runNugetTasks
     value: true
+  - name: dotnetVersion
+    value: dotnetVersion8
 
 resources:
   repositories:
@@ -64,5 +66,6 @@ stages:
     runNugetTasks: ${{ variables.runNugetTasks }}
     serviceName: $(serviceName)
     sonarqubeInstance: ${{ parameters.sonarqubeInstance }}
+    dotnetVersion: ${{ variables.dotnetVersion }}
 
 - template: templates/stage-deploy-template.yaml
