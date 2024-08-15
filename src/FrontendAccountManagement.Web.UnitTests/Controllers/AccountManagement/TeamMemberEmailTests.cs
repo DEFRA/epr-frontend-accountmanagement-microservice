@@ -1,3 +1,5 @@
+using EPR.Common.Authorization.Models;
+using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Constants;
@@ -155,6 +157,47 @@ public class TeamMemberEmailTests : AccountManagementTestBase
         var model = result.Model as TeamMemberEmailViewModel;
 
         // Assert
-        Assert.AreEqual(ValidEmailFormat ,model.SavedEmail);
+        Assert.AreEqual(ValidEmailFormat, model.SavedEmail);
+    }
+
+    [TestMethod]
+    public async Task GivenOnTeamMemberEmailPage_WhenUserIsBasicEmployee_ThenDisplayPageNotFound()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            RoleInOrganisation = PersonRole.Employee.ToString(),
+        };
+
+        SetupBase(userData);
+
+        // Act
+        var result = await SystemUnderTest.TeamMemberEmail();
+
+        // Assert
+        result.Should().BeOfType<NotFoundResult>();
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GivenOnTeamMemberEmailPage_WhenUserIsBasicAdmin_ThenDisplayPageNotFound()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        SetupBase(userData);
+
+        // Act
+        var result = await SystemUnderTest.TeamMemberEmail();
+
+        // Assert
+        result.Should().BeOfType<NotFoundResult>();
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
     }
 }
