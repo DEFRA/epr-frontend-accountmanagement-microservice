@@ -11,13 +11,11 @@ namespace FrontendAccountManagement.Web.ViewComponents;
 public class ManageTeamViewComponent : ViewComponent
 {
     private readonly IFacadeService _facadeService;
-    private readonly ILogger<ManageTeamViewComponent> _logger;
     private readonly IHttpContextAccessor _contextAccessor;
 
-    public ManageTeamViewComponent(IFacadeService facadeService, ILogger<ManageTeamViewComponent> logger, IHttpContextAccessor contextAccessor)
+    public ManageTeamViewComponent(IFacadeService facadeService, IHttpContextAccessor contextAccessor)
     {
         _facadeService = facadeService;
-        _logger = logger;
         _contextAccessor = contextAccessor;
     }
     
