@@ -32,6 +32,7 @@ WORKDIR /home/dotnet/FrontendAccountManagement.Web
 RUN dotnet publish -c Release -o out
 
 # Build runtime image
+USER dotnet
 FROM defradigital/dotnetcore:dotnet6.0
 COPY --from=build-env /home/dotnet/FrontendAccountManagement.Web/out .
 
