@@ -512,7 +512,7 @@ public class AccountManagementTests : AccountManagementTestBase
 
         // Assert
         result.Should().BeOfType<UnauthorizedResult>();
-        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Never);
     }
 
     [TestMethod]
@@ -532,7 +532,7 @@ public class AccountManagementTests : AccountManagementTestBase
 
         // Assert
         result.Should().BeOfType<NotFoundResult>();
-        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Never);
     }
 
     [TestMethod]
@@ -553,7 +553,7 @@ public class AccountManagementTests : AccountManagementTestBase
 
         // Assert
         result.Should().BeOfType<NotFoundResult>();
-        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Never);
     }
 
     [TestMethod]
