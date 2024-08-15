@@ -153,6 +153,9 @@
   <data name="TelephoneNumber" xml:space="preserve">
     <value>Telephone number</value>
   </data>
+  <data name="TelephoneNumberInvalid" xml:space="preserve">
+    <value>Enter a valid telephone number</value>
+  </data>
   <data name="TelephoneNumberMissing" xml:space="preserve">
     <value>Enter your telephone number</value>
   </data>

@@ -17,8 +17,15 @@
                         @Localizer["ConfirmationMessage"]
                     </h1>
                 </div>
-                <p class="govuk-body">
-                    @Model.GetFormattedChangeMessage("Changed")
+                <p class="govuk-body">@Localizer[
+                             "ChangedBy",
+                             Model.Username,
+                             Model.UpdatedDatetime.ToString("h:mm"),
+                             Model.UpdatedDatetime.ToString("tt").ToLower(),
+                             Model.UpdatedDatetime.Day,
+                             Model.UpdatedDatetime.GetDateOrdinal(),
+                             Model.UpdatedDatetime.ToString("MMMM"),
+                             Model.UpdatedDatetime.Year]
                 </p>
                 <a asp-action="ManageAccount" asp-controller="AccountManagement" class="govuk-link" data-module="govuk-link">
                     @Localizer["ManageAccountLinkDescription"]
