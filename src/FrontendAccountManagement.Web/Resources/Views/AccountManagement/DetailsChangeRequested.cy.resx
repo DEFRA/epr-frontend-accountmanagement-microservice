@@ -117,19 +117,22 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ChangedBy" xml:space="preserve">
+    <value>Wedi'u newid gan {0} am {1}{2} ar {3} {5} {6}.</value>
+  </data>
   <data name="ManageAccountLinkDescription" xml:space="preserve">
-    <value>[Welsh]Go to manage account</value>
+    <value>Ewch i 'Rheoli'r cyfrif'</value>
   </data>
   <data name="PageTitle" xml:space="preserve">
     <value>Mae eich cais am newid manylion wedi'i anfon at y rheoleiddiwr</value>
   </data>
   <data name="RequestedMessage" xml:space="preserve">
-    <value>[Welsh]Your change of details request has been sent to the regulator</value>
+    <value>Mae eich cais am newid manylion wedi'i anfon at y rheoleiddiwr</value>
   </data>
   <data name="WhatHappensNextHeader" xml:space="preserve">
-    <value>[Welsh]What happens next</value>
+    <value>Beth sy'n digwydd nesaf</value>
   </data>
   <data name="WhatHappensNextInformation" xml:space="preserve">
-    <value>[Welsh]Because of your permissions this change will need to be reviewed by the regulator. You will be notified within 28 days.</value>
+    <value>Oherwydd eich caniatadau, bydd angen i'r newid yma gael ei adolygu gan y rheoleiddiwr. Gall hyn gymryd hyd at 28 diwrnod.</value>
   </data>
 </root>
