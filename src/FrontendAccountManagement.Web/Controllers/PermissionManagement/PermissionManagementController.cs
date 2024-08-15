@@ -137,7 +137,7 @@ namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
             if (!ModelState.IsValid)
             {
                 model.Id = id;
-                model.PermissionType = currentSessionItem?.PermissionType ?? currentPermissionTypeResult.PermissionType.Value;
+                model.PermissionType = currentSessionItem.PermissionType ?? currentPermissionTypeResult.PermissionType.Value;
                 model.ShowDelegatedContent = User.IsApprovedPerson() && _serviceSettings.ServiceKey == ServiceKey.Packaging;
                 model.ServiceKey = _serviceSettings.ServiceKey;
 
@@ -341,7 +341,7 @@ namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
             var model = new NameOfConsultancyViewModel
             {
                 Id = id,
-                Name = currentSessionItem?.NameOfConsultancy ?? string.Empty
+                Name = currentSessionItem.NameOfConsultancy ?? string.Empty
             };
 
             SetBackLink(currentSessionItem, $"{PagePath.NameOfConsultancy}/{id}");
@@ -396,7 +396,7 @@ namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
             var model = new NameOfOrganisationViewModel
             {
                 Id = id,
-                Name = currentSessionItem?.NameOfOrganisation ?? string.Empty
+                Name = currentSessionItem.NameOfOrganisation ?? string.Empty
             };
 
             SetBackLink(currentSessionItem, $"{PagePath.NameOfOrganisation}/{id}");
@@ -451,7 +451,7 @@ namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
             var model = new NameOfComplianceSchemeViewModel
             {
                 Id = id,
-                Name = currentSessionItem?.NameOfComplianceScheme ?? string.Empty
+                Name = currentSessionItem.NameOfComplianceScheme ?? string.Empty
             };
 
             SetBackLink(currentSessionItem, $"{PagePath.NameOfComplianceScheme}/{id}");
@@ -606,7 +606,7 @@ namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
             }
 
             var userData = JsonSerializer.Deserialize<UserData>(userDataClaim.Value);
-            var organisationId = userData?.Organisations.First().Id;
+            var organisationId = userData?.Organisations[0].Id;
 
             if (organisationId == null)
             {
@@ -774,7 +774,7 @@ namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
 
         private async Task<RedirectToActionResult> RemoveSessionItemAndRedirectHomeAsync(JourneySession session, Guid id)
         {
-            var currentSessionItem = session.PermissionManagementSession.Items.FirstOrDefault(i => i.Id == id);
+            var currentSessionItem = session.PermissionManagementSession.Items.Find(i => i.Id == id);
             
             if(currentSessionItem != null)
             {
@@ -789,7 +789,7 @@ namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
         {
             if (journeySession.PermissionManagementSession != null)
             {
-                var permissionManagementSessionItem = journeySession.PermissionManagementSession.Items.FirstOrDefault(p => p.Id == sessionItemId);
+                var permissionManagementSessionItem = journeySession.PermissionManagementSession.Items.Find(p => p.Id == sessionItemId);
                 var refererRelativePath = Request.GetTypedHeaders().Referer?.PathAndQuery;
 
                 if (permissionManagementSessionItem != null && refererRelativePath != null)

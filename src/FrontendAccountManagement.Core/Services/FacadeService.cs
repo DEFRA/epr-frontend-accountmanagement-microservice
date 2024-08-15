@@ -160,7 +160,7 @@ public class FacadeService : IFacadeService
 
         var connectionWithEnrolments = await response.Content.ReadFromJsonWithEnumsAsync<ConnectionWithEnrolments>();
 
-        return connectionWithEnrolments?.Enrolments.FirstOrDefault(e => e.ServiceRoleKey.Equals(serviceRoleKey)).EnrolmentStatus;
+        return connectionWithEnrolments?.Enrolments.FirstOrDefault(e => e.ServiceRoleKey.Equals(serviceRoleKey))?.EnrolmentStatus;
     }
 
     public async Task UpdatePersonRoleAdminOrEmployee(Guid connectionId, PersonRole personRole, Guid organisationId, string serviceKey)

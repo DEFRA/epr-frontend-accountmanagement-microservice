@@ -1,4 +1,5 @@
 ﻿FROM defradigital/dotnetcore-development:dotnet6.0 AS build-env
+USER root
 
 # Expose the app on a defined port, configurable via a build argument
 ARG PORT=3000
@@ -6,9 +7,9 @@ ENV ASPNETCORE_URLS=http://*:${PORT}
 EXPOSE ${PORT}
 
 # Copy everything
-COPY --chown=dotnet FrontendAccountManagement.Web/*.csproj ./FrontendAccountManagement.Web/
-COPY --chown=dotnet FrontendAccountManagement.Core/*.csproj ./FrontendAccountManagement.Core/
-COPY --chown=dotnet NuGet.Config ./
+COPY FrontendAccountManagement.Web/*.csproj ./FrontendAccountManagement.Web/
+COPY FrontendAccountManagement.Core/*.csproj ./FrontendAccountManagement.Core/
+COPY NuGet.Config ./
 
 # Use Build Argument to insert PAT into Nuget file
 ARG PAT=localhost
@@ -24,15 +25,15 @@ USER dotnet
 ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/internal-ca.crt
 
 # Build and publish a release
-COPY --chown=dotnet FrontendAccountManagement.Web/. ./FrontendAccountManagement.Web/.
-COPY --chown=dotnet FrontendAccountManagement.Core/. ./FrontendAccountManagement.Core/.
+COPY FrontendAccountManagement.Web/. ./FrontendAccountManagement.Web/.
+COPY FrontendAccountManagement.Core/. ./FrontendAccountManagement.Core/.
 WORKDIR /home/dotnet/FrontendAccountManagement.Web
 
 RUN dotnet publish -c Release -o out
 
 # Build runtime image
 FROM defradigital/dotnetcore:dotnet6.0
-COPY --from=build-env --chown=dotnet /home/dotnet/FrontendAccountManagement.Web/out .
+COPY --from=build-env /home/dotnet/FrontendAccountManagement.Web/out .
 
 # Add internationalisation support
 USER root

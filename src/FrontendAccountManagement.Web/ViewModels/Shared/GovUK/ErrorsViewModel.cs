@@ -41,7 +41,7 @@ public class ErrorsViewModel
 
     public List<(string Key, List<ErrorViewModel> Errors)> Errors { get; }
 
-    public List<ErrorViewModel>? this[string key] => Errors.FirstOrDefault(e => e.Key == key).Errors;
+    public List<ErrorViewModel>? this[string key] => Errors.Find(e => e.Key == key).Errors;
 
-    public bool HasErrorKey(string key) => Errors.Any(e => e.Item1 == key);
+    public bool HasErrorKey(string key) => Errors.Exists(e => e.Item1 == key);
 }
