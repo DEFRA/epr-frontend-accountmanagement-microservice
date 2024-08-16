@@ -15,15 +15,6 @@
             };
         }
 
-        /// <summary>Converts a date from UTC time to UK time.</summary>
-        /// <param name="utcTime">The time in UTC.</param>
-        /// <returns>The time in UK time.</returns>
-        public static DateTime ToUkTime(this DateTime utcTime)
-        {
-            TimeZoneInfo gmtTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/London");
-            return TimeZoneInfo.ConvertTimeFromUtc(utcTime, gmtTimeZone);
-        }
-
         public static string ToReadableDate(this DateTime dateTime) => dateTime.UtcToGmt().ToString("d MMMM yyyy");
 
         public static string ToReadableDateTime(this DateTime dateTime) => dateTime.UtcToGmt().ToString("d MMMM yyyy, hh:mm") + dateTime.UtcToGmt().ToString("tt").ToLower();
