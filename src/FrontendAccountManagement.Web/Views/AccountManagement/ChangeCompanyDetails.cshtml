@@ -1,0 +1,43 @@
+﻿@{
+    ViewData["Title"] = Localizer["Title"];
+}
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-panel__body govuk-!-font-weight-bold govuk-!-margin-bottom-5 govuk-!-margin-top-0">
+                    @Localizer["Header"]
+                </h1>
+
+                <p class="govuk-body">
+                    @Localizer["EmailLine", "EPRCustomerService@defra.gov.uk"]
+                </p>
+
+                <p class="govuk-body">@Localizer["EmailContainLine"]</p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>@Localizer["EmailContainList1"]</li>
+                    <li>@Localizer["EmailContainList2"]</li>
+                    <li>@Localizer["EmailContainList3"]</li>
+                    <li>@Localizer["EmailContainList4"]</li>
+                </ul>
+
+                <p class="govuk-body">
+                    @Localizer["regulatorNotification"]
+                </p>
+
+                <p class="govuk-body">
+                    @Localizer["28DaysContent"]
+                </p>
+
+                <p class="govuk-body">
+                    @Localizer["alreadySubmittedContent"]
+                </p>
+
+                <a asp-action="ManageAccount" asp-controller="AccountManagement" class="govuk-link" data-module="govuk-link">
+                    @Localizer["ManageAccountLink"]
+                </a>
+            </div>
+        </div>
+    </main>
+</div>

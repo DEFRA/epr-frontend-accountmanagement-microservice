@@ -17,6 +17,7 @@ using Organisation = EPR.Common.Authorization.Models.Organisation;
 using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using AutoMapper;
 using FrontendAccountManagement.Web.Constants.Enums;
+using FrontendAccountManagement.Web.Controllers.AccountManagement;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 
@@ -649,5 +650,18 @@ public class AccountManagementTests : AccountManagementTestBase
         HttpContextMock.Setup(c => c.User).Returns(claimsPrincipal);
 
         return userData;
+    }
+
+    [TestMethod]
+    public async Task ChangeCompanyDetails_ReturnsViewResult()
+    {
+        // Arrange
+        SetupBase();
+
+        // Act
+        var result = await SystemUnderTest.ChangeCompanyDetails();
+
+        // Assert
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
     }
 }

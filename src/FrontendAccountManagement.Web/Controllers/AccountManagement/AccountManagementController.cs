@@ -972,6 +972,14 @@ public class AccountManagementController : Controller
         return RedirectToAction(nameof(CheckCompaniesHouseDetails));
     }
 
+    [HttpGet]
+    [Route(PagePath.ChangeCompanyDetails)]
+    public async Task<IActionResult> ChangeCompanyDetails()
+    {
+        SetCustomBackLink(PagePath.ManageAccount, false);
+        return View();
+    }
+
     private async Task<bool> CompareDataAsync(JourneySession session)
     {
         var userData = User.GetUserData();
