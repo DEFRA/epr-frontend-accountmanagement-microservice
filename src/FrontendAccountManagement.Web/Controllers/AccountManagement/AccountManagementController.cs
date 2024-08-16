@@ -751,11 +751,12 @@ public class AccountManagementController : Controller
             });
         }
 
+        var changedDateAt = DateTime.UtcNow;
         var model = new UpdateDetailsConfirmationViewModel
         {
             Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
-            UpdatedDatetime = DateTime.UtcNow
-        };
+            UpdatedDatetime = changedDateAt.UtcToGmt()
+    };
 
         return View(model);
     }
@@ -765,11 +766,11 @@ public class AccountManagementController : Controller
     public async Task<IActionResult> DetailsChangeRequested()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-
+        var changedDateAt = DateTime.UtcNow;
         var model = new DetailsChangeRequestedViewModel
         {
             Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
-            UpdatedDatetime = DateTime.UtcNow
+            UpdatedDatetime = changedDateAt.UtcToGmt()
         };
 
         return View(nameof(DetailsChangeRequested), model);
@@ -914,7 +915,8 @@ public class AccountManagementController : Controller
         await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
 
         // save the date/time that the update was performed for the next page
-        TempData[OrganisationDetailsUpdatedTimeKey] = DateTime.UtcNow;
+        var changedDateAt = DateTime.UtcNow;
+        TempData[OrganisationDetailsUpdatedTimeKey] = changedDateAt.UtcToGmt();
 
         return RedirectToAction(nameof(CompanyDetailsUpdated));
     }
