@@ -214,7 +214,7 @@ namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
 
             model.IsComplianceScheme = session.IsComplianceScheme;
 
-            var currentSessionItem = session?.PermissionManagementSession.Items.Find(i => i.Id == id);
+            var currentSessionItem = session.PermissionManagementSession.Items.Find(i => i.Id == id);
             if(currentSessionItem == null)
             {
                 return RedirectHome();
@@ -670,7 +670,7 @@ namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
             };
 
             var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
-            var currentSessionItem = session?.PermissionManagementSession.Items.Find(i => i.Id == id);
+            var currentSessionItem = session.PermissionManagementSession.Items.Find(i => i.Id == id);
             var pagePath = $"{PagePath.ConfirmChangePermission}/{id}";
 
             SetBackLink(currentSessionItem, pagePath);

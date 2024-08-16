@@ -39,7 +39,7 @@ public class ManageTeamTests : ViewComponentsTestBase
         var model = _component.InvokeAsync().Result.ViewData.Model as ManageTeamModel;
         
         // Assert
-        Assert.IsTrue(model.Users.Any());
+        Assert.IsTrue(model.Users.Count > 0);
         Assert.AreEqual(false,
             model.Users.Find(x => x.Email == "peter@inviteduser.test").IsRemoveable);
         Assert.AreEqual(true, 
@@ -70,7 +70,7 @@ public class ManageTeamTests : ViewComponentsTestBase
         var model = _component.InvokeAsync().Result.ViewData.Model as ManageTeamModel;
         
         // Assert
-        Assert.IsTrue(model.Users.Any());
+        Assert.IsTrue(model.Users.Count > 0);
         Assert.AreEqual(false,
             model.Users.Find(x => x.Email == "peter@inviteduser.test").IsRemoveable);
         Assert.AreEqual(false, 
