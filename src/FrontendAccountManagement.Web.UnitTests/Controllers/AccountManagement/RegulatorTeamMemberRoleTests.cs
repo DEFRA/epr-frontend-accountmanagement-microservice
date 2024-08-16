@@ -63,13 +63,6 @@ public class RegulatorTeamMemberRoleTests : AccountManagementTestBase
             RoleInOrganisation = PersonRole.Admin.ToString(),
         };
 
-        JourneySessionMock.AccountManagementSession.Journey.Add(PagePath.TeamMemberEmail);
-
-        JourneySessionMock.AccountManagementSession.AddUserJourney = new AddUserJourneyModel
-        {
-            UserRole = "RegulatorAdmin"
-        };
-
         var sessionJourney = new JourneySession
         {
             AccountManagementSession = new AccountManagementSession
