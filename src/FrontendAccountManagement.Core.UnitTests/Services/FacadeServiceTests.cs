@@ -188,6 +188,39 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
         }
 
         [TestMethod]
+        public async Task CalledSendUserInvite_WithErrorResponse_ShouldThrowException()
+        {
+            // Arrange
+            var invitedUser = new InvitedUser();
+
+            var invitingUser = new InvitingUser();
+
+            var inviteRequest = new InviteUserRequest
+            {
+                InvitedUser = invitedUser,
+                InvitingUser = invitingUser
+            };
+
+            var httpTestHandler = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.InternalServerError,
+                Content = new StringContent("InternalServerError"),
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpTestHandler);
+
+            // Act
+            Assert.ThrowsExceptionAsync<Exception>(async () => await _facadeService.SendUserInvite(inviteRequest));
+
+            httpTestHandler.Dispose();
+        }
+
+        [TestMethod]
         public async Task CalledSendUserInvite_WithAnInValidRequest_ShouldReturnAUserAlreadyExistsResult()
         {
             // Arrange
