@@ -139,7 +139,7 @@
     <value>The details you would like to update (such as your organisation name and address)</value>
   </data>
   <data name="EmailLine" xml:space="preserve">
-    <value>To change your organisation details, email &lt;a href="mailto:{0}" class="govuk-link"&gt;{0}&lt;/a&gt;</value>
+    <value>To change your organisation details, email &lt;a href="mailto:{0}?subject={1}" class="govuk-link"&gt;{0}&lt;/a&gt;</value>
   </data>
   <data name="Header" xml:space="preserve">
     <value>Change your organisation’s details</value>
