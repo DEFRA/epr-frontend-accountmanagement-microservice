@@ -5,11 +5,6 @@ ARG PORT=3000
 ENV ASPNETCORE_URLS=http://*:${PORT}
 EXPOSE ${PORT}
 
-# Install tzdata
-USER root
-RUN apk add --no-cache tzdata
-USER dotnet
-
 # Copy everything
 COPY --chown=dotnet FrontendAccountManagement.Web/*.csproj ./FrontendAccountManagement.Web/
 COPY --chown=dotnet FrontendAccountManagement.Core/*.csproj ./FrontendAccountManagement.Core/
@@ -38,6 +33,11 @@ RUN dotnet publish -c Release -o out
 # Build runtime image
 FROM defradigital/dotnetcore:dotnet6.0
 COPY --from=build-env --chown=dotnet /home/dotnet/FrontendAccountManagement.Web/out .
+
+# Install tzdata
+USER root
+RUN apk add --no-cache tzdata
+USER dotnet
 
 # Add internationalisation support
 USER root
