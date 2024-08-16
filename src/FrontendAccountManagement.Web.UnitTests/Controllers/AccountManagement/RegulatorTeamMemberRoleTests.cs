@@ -83,7 +83,7 @@ public class RegulatorTeamMemberRoleTests : AccountManagementTestBase
             UserData = mockUserData
         };
 
-        SetupBase(mockUserData, journeySession: sessionJourney);
+        SetupBase(mockUserData, DeploymentRole, journeySession: sessionJourney);
 
         FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
             .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(new List<Core.Models.ServiceRole>
