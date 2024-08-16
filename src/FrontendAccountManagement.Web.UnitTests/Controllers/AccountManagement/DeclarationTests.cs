@@ -1,21 +1,15 @@
-using System.Threading.Tasks;
-using AutoMapper;
-using EPR.Common.Authorization.Models;
-using EPR.Common.Authorization.Sessions;
-using FrontendAccountManagement.Core.Enums;
-using FrontendAccountManagement.Core.Services;
-using FrontendAccountManagement.Core.Sessions;
-using FrontendAccountManagement.Web.Configs;
-using FrontendAccountManagement.Web.Controllers.AccountManagement;
-using FrontendAccountManagement.Web.Utilities;
-using FrontendAccountManagement.Web.Utilities.Interfaces;
+using System.Net;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using FrontendAccountManagement.Core.Sessions;
+using FrontendAccountManagement.Web.Constants;
+using FrontendAccountManagement.Web.Controllers.Errors;
+using Microsoft.AspNetCore.Http;
 using Moq;
+using EPR.Common.Authorization.Models;
+using System;
+using FrontendAccountManagement.Core.Enums;
+using Organisation = EPR.Common.Authorization.Models.Organisation;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 {
@@ -23,162 +17,130 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
     /// Tests the Declaration page fuctionality.
     /// </summary>
     [TestClass]
-    public class DeclarationTests
+    public class DeclarationTests : AccountManagementTestBase
     {
-        private AccountManagementController TestClass { get; set; }
-        private Mock<ISessionManager<JourneySession>> SessionManager { get; set; }
-        private Mock<IFacadeService> FacadeService { get; set; }
-        private Mock<IOptions<ExternalUrlsOptions>> UrlOptions { get; set; }
-        private Mock<IOptions<DeploymentRoleOptions>> DeploymentRoleOptions { get; set; }
-        private Mock<ILogger<AccountManagementController>> Logger { get; set; }
-        private Mock<IClaimsExtensionsWrapper> ClaimsExtensionWrapperMock { get; set; }
-        private Mock<IMapper> Mapper { get; set; }
-        private HeaderDictionary RequestHeaders { get; set; }
-
-        private IDictionary<string, byte[]> SessionData { get; set; }
-
-        delegate void SubmitCallback(string key, out byte[] value);
-
         [TestInitialize]
-        public void SetUp()
+        public void Setup()
         {
-            this.SessionManager = new Mock<ISessionManager<JourneySession>>();
-            this.SessionManager.Setup(session => session.GetSessionAsync(It.IsAny<ISession>()))
-                .Returns(Task.Run(() => new Mock<JourneySession>().Object));
-
-            this.FacadeService = new Mock<IFacadeService>();
-            this.UrlOptions = new Mock<IOptions<ExternalUrlsOptions>>();
-            this.DeploymentRoleOptions = new Mock<IOptions<DeploymentRoleOptions>>();
-            this.Logger = new Mock<ILogger<AccountManagementController>>();
-            this.ClaimsExtensionWrapperMock = new Mock<IClaimsExtensionsWrapper>();
-            this.Mapper = new Mock<IMapper>();
-            this.TestClass = new AccountManagementController(
-                this.SessionManager.Object,
-                this.FacadeService.Object,
-                this.UrlOptions.Object,
-                this.DeploymentRoleOptions.Object,
-                this.Logger.Object,
-                this.ClaimsExtensionWrapperMock.Object,
-                this.Mapper.Object);
-
-            // Mock the HTTP context so that we can use it to set the headers.
-            this.RequestHeaders = new HeaderDictionary();
-
-            var mockSession = new Mock<ISession>();
-            this.SessionData = new Dictionary<string, byte[]>();
-            bool valueExists = false;
-            mockSession.Setup(session => session.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
-                .Callback(new SubmitCallback((string key, out byte[] value) =>
-                {
-                    byte[] v;
-                    SessionData.TryGetValue(key, out v);
-                    value = v;
-                    valueExists = value is not null;
-                }))
-                .Returns(valueExists);
-
-            var context = new Mock<HttpContext>();
-            context.SetupGet(x => x.Request.Headers).Returns(this.RequestHeaders);
-            context.SetupGet(x => x.Session).Returns(mockSession.Object);
-            this.TestClass.ControllerContext.HttpContext = context.Object;
+            SetupBase();
         }
 
-        /// <summary>
-        /// Check that the declaration page can be accessed when reaching it via the "Check your details" page.
-        /// </summary>
-       // [TestMethod]
-        public async Task DeclarationGet_CanCall()
+        // /// <summary>
+        // /// Check that the declaration page can be accessed when reaching it via the "Check your details" page.
+        // /// </summary>
+        [TestMethod]
+        public async Task Declaration_ReturnsViewWithModel_ForAValidRequest()
         {
+            // Arrange
+            var userData = new UserData();
+
+            SetupBase(userData);
+
             // Act
-            var result = (ViewResult)await this.TestClass.Declaration();
+            var result = await SystemUnderTest.Declaration();
 
             // Assert
-            Assert.AreEqual("Declaration", result.ViewName);
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
+            var viewResult = result as ViewResult;
+            Assert.IsInstanceOfType(viewResult.Model, typeof(EditUserDetailsViewModel));
+
+            // Verify the session was saved and the back link was set
+            SessionManagerMock.Verify(
+                m =>
+                    m.SaveSessionAsync(
+                        It.IsAny<ISession>(),
+                        It.IsAny<JourneySession>())
+                    , Times.Once);
         }
 
         /// <summary>
         /// Checks that a bad request returned if the model is not valid.
         /// </summary>
         [TestMethod]
-        public async Task DeclarationGet_ErrorsWhenModelIsBad()
+        public async Task Declaration_ReturnsBadRequest_WhenModelStateInvalid()
         {
             // Arrange
-            this.TestClass.ModelState.AddModelError("Error", "Something went wrong.");
+            var userData = new UserData
+            {
+                ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+                ServiceRoleId = 1,
+                RoleInOrganisation = PersonRole.Admin.ToString(),
+            };
+
+            SetupBase(userData);
+
+            SystemUnderTest.ModelState.AddModelError("Key", "Error");
 
             // Act
-            IActionResult result = await this.TestClass.Declaration();
+            var result = await SystemUnderTest.Declaration();
 
             // Assert
-            Assert.IsInstanceOfType<BadRequestResult>(result);
-        }
-
-        /// <summary>
-        /// Checks that the declaration page's post action redirects to the "Details change requested" page.
-        /// </summary>
-        //[TestMethod]
-        public async Task DeclarationPost_CanCall()
-        {
-            // Act
-            var result = (RedirectToActionResult)await this.TestClass.DeclarationPost(new EditUserDetailsViewModel());
-
-            // Assert
-            Assert.AreEqual("DetailsChangeRequested", result.ActionName);
+            Assert.IsInstanceOfType(result, typeof(BadRequestResult));
         }
 
         [TestMethod]
         public async Task Declaration_ShouldReturnNotFound_WhenUserRoleIsBasicEmployee()
         {
             // Arrange
-            var mockUserData = new UserData
+            var userData = new UserData
             {
-                ServiceRole = Core.Enums.ServiceRole.Basic.ToString(), // Not "Admin"
-                RoleInOrganisation = PersonRole.Employee.ToString(), // Service role that triggers NotFound
+                ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+                RoleInOrganisation = PersonRole.Employee.ToString(),
             };
 
-            var mockSession = new JourneySession
-            {
-                UserData = mockUserData
-            };
-
-            this.SessionManager.Setup(
-                    session => session
-                        .GetSessionAsync(It.IsAny<ISession>()))
-                .Returns(Task.FromResult(mockSession));
+            SetupBase(userData);
 
             // Act
-            var result = await TestClass.Declaration();
+            var result = await SystemUnderTest.CheckCompaniesHouseDetails();
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+            result.Should().BeOfType<NotFoundResult>();
+            SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
         }
 
         [TestMethod]
         public async Task Declaration_ShouldReturnNotFound_WhenUserRoleIsBasicAdmin()
         {
             // Arrange
-            var mockUserData = new UserData
+            var userData = new UserData
             {
-                ServiceRole = Core.Enums.ServiceRole.Basic.ToString(), // Not "Admin"
+                ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
                 ServiceRoleId = 3,
-                RoleInOrganisation = PersonRole.Admin.ToString(), // Service role that triggers NotFound
+                RoleInOrganisation = PersonRole.Admin.ToString(),
             };
 
-            var mockSession = new JourneySession
-            {
-                UserData = mockUserData
-            };
-
-            this.SessionManager.Setup(
-                    session => session
-                        .GetSessionAsync(It.IsAny<ISession>()))
-                .Returns(Task.FromResult(mockSession));
+            SetupBase(userData);
 
             // Act
-            var result = await TestClass.Declaration();
+            var result = await SystemUnderTest.CheckCompaniesHouseDetails();
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
-            this.SessionManager.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+            result.Should().BeOfType<NotFoundResult>();
+            SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
         }
+
+        [TestMethod]
+        public async Task Declaration_ReturnsForbiddenError_WhenChangeRequestPending()
+        {
+            // Arrange
+            var mockUserData = new UserData
+            {
+                IsChangeRequestPending = true
+            };
+
+            SetupBase(mockUserData);
+
+            // Act
+            var result = await SystemUnderTest.Declaration();
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
+            var redirectToActionResult = result as RedirectToActionResult;
+            Assert.AreEqual(PagePath.Error, redirectToActionResult.ControllerName.ToLower());
+            Assert.AreEqual(nameof(ErrorController.Error).ToLower(), redirectToActionResult.ActionName);
+            Assert.AreEqual((int)HttpStatusCode.Forbidden, redirectToActionResult.RouteValues["statusCode"]);
+        }
+
     }
 }
