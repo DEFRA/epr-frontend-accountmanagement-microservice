@@ -118,39 +118,39 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="28DaysContent" xml:space="preserve">
-    <value>[WELSH]You must do this within 28 days of your organisation changing their details.</value>
+    <value>Rhaid ichi wneud hyn o fewn 28 diwrnod ar ôl i'ch sefydliad newid eu manylion.</value>
   </data>
   <data name="alreadySubmittedContent" xml:space="preserve">
-    <value>[WELSH]If you have already submitted a file with updated information, you do not need to do it again.</value>
+    <value>Os ydych chi eisoes wedi cyflwyno ffeil sy'n cynnwys gwybodaeth ddiwygiedig, does dim angen ichi wneud hynny eto.</value>
   </data>
   <data name="EmailContainLine" xml:space="preserve">
-    <value>[WELSH]In your email, you must include:</value>
+    <value>Yn eich neges, mae'n rhaid ichi gynnwys:</value>
   </data>
   <data name="EmailContainList1" xml:space="preserve">
-    <value>[WELSH]Your organisation ID</value>
+    <value>ID eich sefydliad</value>
   </data>
   <data name="EmailContainList2" xml:space="preserve">
-    <value>[WELSH]Your name</value>
+    <value>eich enw chi</value>
   </data>
   <data name="EmailContainList3" xml:space="preserve">
-    <value>[WELSH]Your email address</value>
+    <value>eich cyfeiriad ebost</value>
   </data>
   <data name="EmailContainList4" xml:space="preserve">
-    <value>[WELSH]The details you would like to update (such as your organisation name and address)</value>
+    <value>y manylion yr hoffech eu diweddaru (megis enw a chyfeiriad eich sefydliad)</value>
   </data>
   <data name="EmailLine" xml:space="preserve">
-    <value>[WELSH]To change your organisation details, email &lt;a href="mailto:{0}" class="govuk-link"&gt;{0}&lt;/a&gt;</value>
+    <value>I newid manylion eich sefydliad, anfonwch neges ebost at &lt;a href="mailto:{0}" class="govuk-link"&gt;{0}&lt;/a&gt;</value>
   </data>
   <data name="Header" xml:space="preserve">
-    <value>[WELSH]Change your organisation’s details</value>
+    <value>Newid manylion eich sefydliad</value>
   </data>
   <data name="ManageAccountLink" xml:space="preserve">
-    <value>[WELSH]Go to manage account</value>
+    <value>Ewch i 'Rheoli'r cyfrif'</value>
   </data>
   <data name="regulatorNotification" xml:space="preserve">
-    <value>[WELSH]You must tell the regulator about the update to your organisation details. &lt;br/&gt; To do this, submit a new organisation details file.</value>
+    <value>Rhaid ichi ddweud wrth y rheoleiddiwr am y newid ym manylion eich sefydliad.  &lt;br/&gt; I wneud hyn, cyflwynwch ffeil manylion sefydliad newydd.</value>
   </data>
   <data name="Title" xml:space="preserve">
-    <value>[WELSH]Change company details</value>
+    <value>Newid manylion eich sefydliad</value>
   </data>
 </root>
