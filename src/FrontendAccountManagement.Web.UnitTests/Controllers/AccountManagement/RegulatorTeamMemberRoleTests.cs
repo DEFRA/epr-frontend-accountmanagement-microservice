@@ -149,4 +149,45 @@ public class RegulatorTeamMemberRoleTests : AccountManagementTestBase
         // Assert
         result.ViewName.Should().Be(ViewName);
     }
+
+    [TestMethod]
+    public async Task GivenOnTeamMemberRolePage_WhenUserIsBasicEmployee_ThenDisplayPageNotFound()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            RoleInOrganisation = PersonRole.Employee.ToString(),
+        };
+
+        SetupBase(userData);
+
+        // Act
+        var result = await SystemUnderTest.TeamMemberPermissions();
+
+        // Assert
+        result.Should().BeOfType<NotFoundResult>();
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GivenOnTeamMemberRolePage_WhenUserIsBasicAdmin_ThenDisplayPageNotFound()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        SetupBase(userData);
+
+        // Act
+        var result = await SystemUnderTest.TeamMemberPermissions();
+
+        // Assert
+        result.Should().BeOfType<NotFoundResult>();
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+    }
 }
