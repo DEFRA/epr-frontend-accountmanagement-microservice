@@ -56,12 +56,6 @@ public class RegulatorTeamMemberRoleTests : AccountManagementTestBase
     public async Task GivenOnTeamMemberRolePage_WhenTeamMemberPermissionsHttpGetCalled_ThenTeamMemberPermissionsViewModelReturned_AndBackLinkSet()
     {
         // Arrange
-        FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
-            .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(new List<Core.Models.ServiceRole>
-            {
-                RegulatorTestRole
-            }));
-
         var mockUserData = new UserData
         {
             ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
@@ -69,7 +63,34 @@ public class RegulatorTeamMemberRoleTests : AccountManagementTestBase
             RoleInOrganisation = PersonRole.Admin.ToString(),
         };
 
-        SetupBase(mockUserData);
+        JourneySessionMock.AccountManagementSession.Journey.Add(PagePath.TeamMemberEmail);
+
+        JourneySessionMock.AccountManagementSession.AddUserJourney = new AddUserJourneyModel
+        {
+            UserRole = "RegulatorAdmin"
+        };
+
+        var sessionJourney = new JourneySession
+        {
+            AccountManagementSession = new AccountManagementSession
+            {
+                AddUserJourney = new AddUserJourneyModel
+                {
+                    UserRole = "RegulatorAdmin"
+                },
+                Journey = new List<string> { PagePath.TeamMemberEmail, PagePath.TeamMemberPermissions }
+            },
+            UserData = mockUserData
+        };
+
+        SetupBase(mockUserData, journeySession: sessionJourney);
+
+        FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
+            .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(new List<Core.Models.ServiceRole>
+            {
+                RegulatorTestRole,
+
+            }));
 
         // Act
         var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
