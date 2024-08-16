@@ -499,9 +499,6 @@ public class AccountManagementController : Controller
         SaveSessionAndJourney(session, PagePath.CheckYourDetails, PagePath.Declaration);
         SetBackLink(session, PagePath.Declaration);
 
-        TempData.Keep(AmendedUserDetailsKey);
-        TempData.Keep(NewUserDetailsKey);
-
         return View(nameof(Declaration), editUserDetailsViewModel);
     }
 
@@ -662,10 +659,6 @@ public class AccountManagementController : Controller
         }
 
         ViewBag.IsUpdatable = isUpdatable;
-
-        TempData.Keep(AmendedUserDetailsKey);
-        TempData.Keep(NewUserDetailsKey);
-
         return View(model);
     }
 
