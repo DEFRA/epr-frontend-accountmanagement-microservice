@@ -40,7 +40,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             var model = viewResult.Model as UpdateDetailsConfirmationViewModel;
             model.Should().NotBeNull();
             model.Username.Should().Be("Dwight Schrute");
-            model.UpdatedDatetime.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
+            model.UpdatedDatetime.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
         }
 
     }

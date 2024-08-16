@@ -6,8 +6,11 @@ namespace FrontendAccountManagement.Web.Extensions
     {
         public static string GetFormattedChangeMessage(this BaseConfirmationViewModel model, string action)
         {
-            var timePart = model.UpdatedDatetime.ToString("hh:mmtt").ToLower();
-            var datePart = $"{model.UpdatedDatetime:dd}{model.UpdatedDatetime.GetDateOrdinal()} {model.UpdatedDatetime:MMMM yyyy}";
+            var locatDateTime = model.UpdatedDatetime.UtcToGmt();
+
+            var timePart = locatDateTime.ToString("hh:mmtt").ToLower();
+
+            var datePart = $"{locatDateTime:dd}{locatDateTime.GetDateOrdinal()} {locatDateTime:MMMM yyyy}";
 
             return $"{action} by {model.Username} at {timePart} on {datePart}";
         }

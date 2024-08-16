@@ -21,7 +21,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Extensions
             var utcTime = DateTime.Parse(input, CultureInfo.InvariantCulture).AsUtc();
 
             // Act
-            var result = utcTime.ToUkTime();
+            var result = utcTime.UtcToGmt();
 
             // Assert
             Assert.AreEqual(expected, result.ToString("HH:mm"));
