@@ -169,7 +169,23 @@ public class TeamMemberEmailTests : AccountManagementTestBase
     public async Task GivenOnTeamMemberEmailPage_WhenTeamMemberEmailPageHttpGetCalled_ValidEmailFormat_AndEmailValuePreviouslySet_ThenEmailValueIsPopulated(string email)
     {
         // Arrange
-        JourneySessionMock.AccountManagementSession.AddUserJourney.Email = email;
+        var session = new JourneySession
+        {
+            AccountManagementSession = new AccountManagementSession
+            {
+                AddUserJourney = new AddUserJourneyModel
+                {
+                    Email = email
+                }
+            }
+        };
+
+        var mockUserData = new UserData();
+
+        SetupBase(mockUserData);
+
+        SessionManagerMock.Setup(m =>
+            m.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
 
         // Act
         var result = await SystemUnderTest.TeamMemberEmail() as ViewResult;
@@ -177,6 +193,7 @@ public class TeamMemberEmailTests : AccountManagementTestBase
 
         // Assert
         Assert.AreEqual(ValidEmailFormat, model.SavedEmail);
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
     }
 
     [TestMethod]
