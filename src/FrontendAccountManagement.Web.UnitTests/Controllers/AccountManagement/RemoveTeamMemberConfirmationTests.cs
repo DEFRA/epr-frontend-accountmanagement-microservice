@@ -70,13 +70,43 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
     [TestMethod]
     public async Task GivenOnRemoveTeamMemberConfirmationPage_WhenRemoveTeamMemberConfirmationPageHttpGetCalled_ThenRemoveTeamMemberConfirmationViewModelReturned_AndBackLinkSet()
     {
+        // Arrange
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        JourneySessionMock.AccountManagementSession.AddUserJourney = new AddUserJourneyModel
+        {
+            UserRole = "RegulatorAdmin"
+        };
+
+        var sessionJourney = new JourneySession
+        {
+            AccountManagementSession = new AccountManagementSession
+            {
+                RemoveUserJourney = new RemoveUserJourneyModel
+                {
+                    FirstName = FirstName,
+                    LastName = LastName,
+                    PersonId = _personId
+                },
+                Journey = new List<string> { PagePath.ManageAccount, PagePath.TeamMemberDetails, PagePath.RemoveTeamMember }
+            },
+            UserData = mockUserData
+        };
+
+        SetupBase(mockUserData, journeySession: sessionJourney);
+
         // Act
         var result = await SystemUnderTest.RemoveTeamMemberConfirmation() as ViewResult;
         var model = result.Model as RemoveTeamMemberConfirmationViewModel;
 
         // Assert
         result.ViewName.Should().Be(ViewName);
-        AssertBackLink(result, PagePath.ManageAccount);
+        AssertBackLink(result, PagePath.TeamMemberDetails);
 
         Assert.AreEqual(FirstName, model.FirstName);
         Assert.AreEqual(LastName, model.LastName);
