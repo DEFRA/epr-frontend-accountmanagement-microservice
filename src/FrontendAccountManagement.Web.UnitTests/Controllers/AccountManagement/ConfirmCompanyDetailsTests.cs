@@ -12,6 +12,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using FrontendAccountManagement.Core.Sessions;
 using Microsoft.AspNetCore.Http;
+using FrontendAccountManagement.Core.Enums;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 {
@@ -27,7 +28,11 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         [TestInitialize]
         public void Setup()
         {
-            _userData = _fixture.Create<UserData>();
+            _userData = _fixture.Build<UserData>()
+                .With(x => x.RoleInOrganisation, PersonRole.Admin.ToString())
+                .With(x => x.ServiceRoleId, (int)ServiceRole.Approved)
+                .Create();
+
             _companiesHouseResponse = _fixture.Create<CompaniesHouseResponse>();
             _viewModel = _fixture.Create<ConfirmCompanyDetailsViewModel>();
 
@@ -79,6 +84,45 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             Assert.IsNotNull(viewResult);
             Assert.IsNull(viewResult.ViewName);
             Assert.AreEqual(_viewModel, viewResult.Model);
+        }
+
+        [TestMethod]
+        public async Task ConfirmCompanyDetails_ShouldDisplayPageNotFound_WhenUserIsBasicEmployee()
+        {
+            // Arrange
+            var userData = new UserData
+            {
+                ServiceRole = ServiceRole.Basic.ToString(),
+                RoleInOrganisation = PersonRole.Employee.ToString(),
+            };
+
+            SetupBase(userData);
+
+            // Act
+            var result = await SystemUnderTest.ConfirmCompanyDetails();
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public async Task ConfirmCompanyDetails_ShouldDisplayPageNotFound_WhenUserIsBasicAdmin()
+        {
+            // Arrange
+            var userData = new UserData
+            {
+                ServiceRole = ServiceRole.Basic.ToString(),
+                ServiceRoleId = 3,
+                RoleInOrganisation = PersonRole.Admin.ToString(),
+            };
+
+            SetupBase(userData);
+
+            // Act
+            var result = await SystemUnderTest.ConfirmCompanyDetails();
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
         }
 
         private void SetupUserData(string serviceRole)

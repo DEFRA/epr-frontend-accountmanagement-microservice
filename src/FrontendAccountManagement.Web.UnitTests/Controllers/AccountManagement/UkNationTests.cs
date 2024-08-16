@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using EPR.Common.Authorization.Models;
+using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Constants.Enums;
@@ -77,12 +78,53 @@ public class UkNationTests : AccountManagementTestBase
 
         AutoMapperMock.Setup(m => m.Map<AddressViewModel>(It.IsAny<AddressDto>()))
             .Returns(_fixture.Create<AddressViewModel>());
-      
+
         // Act
         var result = await SystemUnderTest.UkNation(model);
 
         // Assert
         var redirectToActionResult = result as RedirectToActionResult;
         Assert.AreEqual(nameof(SystemUnderTest.CheckCompaniesHouseDetails), redirectToActionResult.ActionName);
+    }
+
+    [TestMethod]
+    public async Task UkNation_ShouldDisplayPageNotFound_WhenUserIsBasicEmployee()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            RoleInOrganisation = PersonRole.Employee.ToString(),
+        };
+
+        SetupBase(userData);
+
+        // Act
+        var result = await SystemUnderTest.UkNation();
+
+        // Assert
+        result.Should().BeOfType<NotFoundResult>();
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task UkNation_ShouldDisplayPageNotFound_WhenUserIsBasicAdmin()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        SetupBase(userData);
+
+        // Act
+        var result = await SystemUnderTest.UkNation();
+
+        // Assert
+        result.Should().BeOfType<NotFoundResult>();
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
     }
 }

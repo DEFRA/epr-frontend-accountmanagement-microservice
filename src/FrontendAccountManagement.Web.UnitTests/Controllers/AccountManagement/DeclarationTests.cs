@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
 using AutoMapper;
+using EPR.Common.Authorization.Models;
 using EPR.Common.Authorization.Sessions;
+using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
@@ -61,7 +63,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             // Mock the HTTP context so that we can use it to set the headers.
             this.RequestHeaders = new HeaderDictionary();
-            
+
             var mockSession = new Mock<ISession>();
             this.SessionData = new Dictionary<string, byte[]>();
             bool valueExists = false;
@@ -109,7 +111,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             // Assert
             Assert.IsInstanceOfType<BadRequestResult>(result);
         }
-        
+
         /// <summary>
         /// Checks that the declaration page's post action redirects to the "Details change requested" page.
         /// </summary>
@@ -117,10 +119,66 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         public async Task DeclarationPost_CanCall()
         {
             // Act
-            var result = (RedirectToActionResult)await this.TestClass.DeclarationPost(new EditUserDetailsViewModel ());
+            var result = (RedirectToActionResult)await this.TestClass.DeclarationPost(new EditUserDetailsViewModel());
 
             // Assert
             Assert.AreEqual("DetailsChangeRequested", result.ActionName);
+        }
+
+        [TestMethod]
+        public async Task Declaration_ShouldReturnNotFound_WhenUserRoleIsBasicEmployee()
+        {
+            // Arrange
+            var mockUserData = new UserData
+            {
+                ServiceRole = Core.Enums.ServiceRole.Basic.ToString(), // Not "Admin"
+                RoleInOrganisation = PersonRole.Employee.ToString(), // Service role that triggers NotFound
+            };
+
+            var mockSession = new JourneySession
+            {
+                UserData = mockUserData
+            };
+
+            this.SessionManager.Setup(
+                    session => session
+                        .GetSessionAsync(It.IsAny<ISession>()))
+                .Returns(Task.FromResult(mockSession));
+
+            // Act
+            var result = await TestClass.Declaration();
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public async Task Declaration_ShouldReturnNotFound_WhenUserRoleIsBasicAdmin()
+        {
+            // Arrange
+            var mockUserData = new UserData
+            {
+                ServiceRole = Core.Enums.ServiceRole.Basic.ToString(), // Not "Admin"
+                ServiceRoleId = 3,
+                RoleInOrganisation = PersonRole.Admin.ToString(), // Service role that triggers NotFound
+            };
+
+            var mockSession = new JourneySession
+            {
+                UserData = mockUserData
+            };
+
+            this.SessionManager.Setup(
+                    session => session
+                        .GetSessionAsync(It.IsAny<ISession>()))
+                .Returns(Task.FromResult(mockSession));
+
+            // Act
+            var result = await TestClass.Declaration();
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+            this.SessionManager.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
         }
     }
 }

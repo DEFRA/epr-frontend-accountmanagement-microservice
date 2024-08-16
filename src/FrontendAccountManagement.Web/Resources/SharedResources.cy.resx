@@ -184,9 +184,9 @@
     <value>GOV.UK</value>
   </data>
   <data name="Cancel" xml:space="preserve">
-    <value>[Welsh]Cancel</value>
+    <value>Canslo</value>
   </data>
   <data name="SaveAndContinue" xml:space="preserve">
-    <value>[Welsh]Save and continue</value>
+    <value>Cadw a pharhau</value>
   </data>
 </root>

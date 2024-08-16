@@ -6,6 +6,8 @@ using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Web.Constants;
 using Moq;
+using EPR.Common.Authorization.Models;
+using FrontendAccountManagement.Core.Enums;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 
@@ -18,7 +20,7 @@ public class TeamMemberRoleTests : AccountManagementTestBase
     private const string RolesNotFoundException = "Could not retrieve service roles or none found";
     private const string PreviouslyEnteredEmail = "fakeemail@test.com";
 
-    private readonly ServiceRole TestRole = new()
+    private readonly Core.Models.ServiceRole TestRole = new()
     {
         ServiceRoleId = 3,
         PersonRoleId = 1,
@@ -51,17 +53,17 @@ public class TeamMemberRoleTests : AccountManagementTestBase
         SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>()))
             .ReturnsAsync(JourneySessionMock);
     }
-    
+
     [TestMethod]
     public async Task GivenOnTeamMemberRolePage_WhenTeamMemberPermissionsHttpGetCalled_ThenTeamMemberPermissionsViewModelReturned_AndBackLinkSet()
     {
         // Arrange
         FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
-            .Returns(Task.FromResult<IEnumerable<ServiceRole>>(new List<ServiceRole>
+            .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(new List<Core.Models.ServiceRole>
                 {
                     TestRole
                 }));
-        
+
         // Act
         var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
         var model = result.Model as TeamMemberPermissionsViewModel;
@@ -71,23 +73,23 @@ public class TeamMemberRoleTests : AccountManagementTestBase
         AssertBackLink(result, PagePath.TeamMemberEmail);
         Assert.IsTrue(model.ServiceRoles.Contains(TestRole));
     }
-    
+
     [TestMethod]
     [ExpectedException(typeof(InvalidOperationException), RolesNotFoundException)]
     public async Task GivenOnTeamMemberRolePage_WhenTeamMemberPermissionsHttpGetCalled_AndNoRolesReturnedFromFacade_ThenThrowException()
     {
         // Act
         FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
-            .Returns(Task.FromResult<IEnumerable<ServiceRole>>(new List<ServiceRole>()));
-        
+            .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(new List<Core.Models.ServiceRole>()));
+
         // Arrange
         var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
-        
+
         // Assert
         result.ViewName.Should().Be(ViewName);
         result.Model.Should().BeOfType<TeamMemberPermissionsViewModel>();
     }
-    
+
     [TestMethod]
     [ExpectedException(typeof(Exception), RolesNotFoundException)]
     public async Task GivenOnTeamMemberRolePage_WhenTeamMemberPermissionsHttpGetCalled_AndExceptionReturnedFromFacade_ThenThrowException()
@@ -95,10 +97,10 @@ public class TeamMemberRoleTests : AccountManagementTestBase
         // Act
         FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
             .Throws(new Exception());
-        
+
         // Arrange
         var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
-        
+
         // Assert
         result.ViewName.Should().Be(ViewName);
         result.Model.Should().BeOfType<TeamMemberPermissionsViewModel>();
@@ -147,15 +149,56 @@ public class TeamMemberRoleTests : AccountManagementTestBase
     {
         // Arrange
         FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
-            .Returns(Task.FromResult<IEnumerable<ServiceRole>>(new List<ServiceRole> { TestRole }));
-        
+            .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(new List<Core.Models.ServiceRole> { TestRole }));
+
         JourneySessionMock.AccountManagementSession.AddUserJourney.UserRole = role;
-        
+
         // Act
         var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
         var model = result.Model as TeamMemberPermissionsViewModel;
-        
+
         // Assert
-        Assert.AreEqual(role ,model.SavedUserRole);
+        Assert.AreEqual(role, model.SavedUserRole);
+    }
+
+    [TestMethod]
+    public async Task GivenOnTeamMemberRolePage_DisplayPageNotFound_WhenUserIsBasicEmployee()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            RoleInOrganisation = PersonRole.Employee.ToString(),
+        };
+
+        SetupBase(userData);
+
+        // Act
+        var result = await SystemUnderTest.TeamMemberPermissions();
+
+        // Assert
+        result.Should().BeOfType<NotFoundResult>();
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GivenOnTeamMemberRolePage_DisplayPageNotFound_WhenUserIsBasicAdmin()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        SetupBase(userData);
+
+        // Act
+        var result = await SystemUnderTest.TeamMemberPermissions();
+
+        // Assert
+        result.Should().BeOfType<NotFoundResult>();
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
     }
 }

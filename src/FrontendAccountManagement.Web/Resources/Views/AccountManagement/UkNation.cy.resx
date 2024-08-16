@@ -121,16 +121,16 @@
     <value>Dewiswch ble yn y Deyrnas Unedig mae’ch sefydliad wedi’i leoli</value>
   </data>
   <data name="UkNation.ForNonUkOrganisations" xml:space="preserve">
-    <value>Yn achos sefydliadau o’r tu allan i’r Deyrnas Unedig, eich gwlad chi yw un o’r canlynol:</value>
+    <value>Yn achos sefydliadau o'r tu allan i'r Deyrnas Unedig, dylai hyn fod yn un o'r canlynol:</value>
   </data>
   <data name="UkNation.ForUkOrganisations" xml:space="preserve">
-    <value>Yn achos sefydliadau’r Deyrnas Unedig, eich gwlad chi yw:</value>
+    <value>Yn achos sefydliadau'r Deyrnas Unedig, dylai hyn fod yn un o'r canlynol:</value>
   </data>
   <data name="UkNation.PrincipalPlaceOfBusiness" xml:space="preserve">
-    <value>eich prif le busnes</value>
+    <value>Eich prif le busnes</value>
   </data>
   <data name="UkNation.PrincipalPlaceOfBusinessIfNotRegistered" xml:space="preserve">
-    <value>eich prif le busnes (os nad ydych chi wedi cofrestru)</value>
+    <value>Eich prif le busnes (os nad ydych chi wedi cofrestru)</value>
   </data>
   <data name="UkNation.Title" xml:space="preserve">
     <value>Eich gwlad yn y Deyrnas Unedig</value>
@@ -142,13 +142,13 @@
     <value>Ble yn y Deyrnas Unedig mae eich sefydliad wedi’i leoli?</value>
   </data>
   <data name="UkNation.WhereYourHeadOfficeIs" xml:space="preserve">
-    <value>ble mae’ch pencadlys</value>
+    <value>Ble mae eich prif swyddfa</value>
   </data>
   <data name="UkNation.WhereYourOrganisationIsRegistered" xml:space="preserve">
-    <value>ble mae’ch sefydliad wedi’i gofrestru</value>
+    <value>Ble mae’ch sefydliad wedi’i gofrestru</value>
   </data>
   <data name="UkNation.WhereYourUKBranchIs" xml:space="preserve">
-    <value>ble mae’ch cangen yn y Deyrnas Unedig neu eich cyfeiriad post yn y Deyrnas Unedig</value>
+    <value>Ble mae eich cangen yn y Deyrnas Unedig neu eich cyfeiriad post yn y Deyrnas Unedig</value>
   </data>
   <data name="UkNation.YourUKNation" xml:space="preserve">
     <value>Eich gwlad yn y Deyrnas Unedig</value>

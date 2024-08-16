@@ -118,15 +118,15 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Address" xml:space="preserve">
-    <value>[Welsh]Address</value>
+    <value>Cyfeiriad</value>
   </data>
   <data name="CheckYourOrganisationsDetailsTitle" xml:space="preserve">
-    <value>[Welsh]Check your organisation's details</value>
+    <value>Gwiriwch fanylion eich sefydliad</value>
   </data>
   <data name="TradingName" xml:space="preserve">
-    <value>[Welsh]Trading name</value>
+    <value>Enw</value>
   </data>
   <data name="UKNation" xml:space="preserve">
-    <value>[Welsh]UK Nation</value>
+    <value>Gwlad yn y Deyrnas Unedig</value>
   </data>
 </root>
