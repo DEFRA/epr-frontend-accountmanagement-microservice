@@ -28,18 +28,18 @@ namespace FrontendAccountManagement.Web.UnitTests.ViewModels
             var result = viewModel.GetFormattedChangeMessage(action);
 
             // Assert
-            var expectedMessage = $"{action} by Dwight Schrute at 01:06pm on 25th June 2024";
+            var expectedMessage = $"{action} by Dwight Schrute at 12:06pm on 25th June 2024";
             result.Should().Be(expectedMessage);
         }
 
         [DataTestMethod]
-        [DataRow("Test User", "2024-06-01 00:00:00 UTC", "Changed by Test User at 01:00am on 01st June 2024")]
-        [DataRow("Test User", "2024-06-02 00:00:00 UTC", "Changed by Test User at 01:00am on 02nd June 2024")]
-        [DataRow("Test User", "2024-06-03 00:00:00 UTC", "Changed by Test User at 01:00am on 03rd June 2024")]
-        [DataRow("Test User", "2024-06-04 00:00:00 UTC", "Changed by Test User at 01:00am on 04th June 2024")]
-        [DataRow("Test User", "2024-06-21 00:00:00 UTC", "Changed by Test User at 01:00am on 21st June 2024")]
-        [DataRow("Test User", "2024-06-22 00:00:00 UTC", "Changed by Test User at 01:00am on 22nd June 2024")]
-        [DataRow("Test User", "2024-06-23 00:00:00 UTC", "Changed by Test User at 01:00am on 23rd June 2024")]
+        [DataRow("Test User", "2024-06-01 00:00:00 UTC", "Changed by Test User at 12:00am on 01st June 2024")]
+        [DataRow("Test User", "2024-06-02 00:00:00 UTC", "Changed by Test User at 12:00am on 02nd June 2024")]
+        [DataRow("Test User", "2024-06-03 00:00:00 UTC", "Changed by Test User at 12:00am on 03rd June 2024")]
+        [DataRow("Test User", "2024-06-04 00:00:00 UTC", "Changed by Test User at 12:00am on 04th June 2024")]
+        [DataRow("Test User", "2024-06-21 00:00:00 UTC", "Changed by Test User at 12:00am on 21st June 2024")]
+        [DataRow("Test User", "2024-06-22 00:00:00 UTC", "Changed by Test User at 12:00am on 22nd June 2024")]
+        [DataRow("Test User", "2024-06-23 00:00:00 UTC", "Changed by Test User at 12:00am on 23rd June 2024")]
         public void GetFormattedChangeMessage_ShouldReturnCorrectOrdinal_ForDaysWithSpecialSuffixes(
             string username, string dateString, string expectedMessage)
         {
