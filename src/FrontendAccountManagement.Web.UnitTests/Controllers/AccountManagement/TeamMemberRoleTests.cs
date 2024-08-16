@@ -58,6 +58,33 @@ public class TeamMemberRoleTests : AccountManagementTestBase
     public async Task GivenOnTeamMemberRolePage_WhenTeamMemberPermissionsHttpGetCalled_ThenTeamMemberPermissionsViewModelReturned_AndBackLinkSet()
     {
         // Arrange
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        JourneySessionMock.AccountManagementSession.AddUserJourney = new AddUserJourneyModel
+        {
+            UserRole = "RegulatorAdmin"
+        };
+
+        var sessionJourney = new JourneySession
+        {
+            AccountManagementSession = new AccountManagementSession
+            {
+                AddUserJourney = new AddUserJourneyModel
+                {
+                    UserRole = SelectedRole
+                },
+                Journey = new List<string> { PagePath.TeamMemberEmail, PagePath.TeamMemberPermissions }
+            },
+            UserData = mockUserData
+        };
+
+        SetupBase(mockUserData, journeySession: sessionJourney);
+
         FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
             .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(new List<Core.Models.ServiceRole>
                 {
