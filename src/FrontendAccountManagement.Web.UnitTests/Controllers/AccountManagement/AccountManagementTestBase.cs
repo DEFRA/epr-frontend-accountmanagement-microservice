@@ -39,7 +39,8 @@ public abstract class AccountManagementTestBase
 
     protected JourneySession JourneySessionMock { get; set; }
 
-    protected void SetupBase(UserData userData = null, string deploymentRole = "", int userServiceRoleId = 0)
+    protected void SetupBase(UserData userData = null, string deploymentRole = "", int userServiceRoleId = 0
+    , JourneySession journeySession = null)
     {
         HttpContextMock = new Mock<HttpContext>();
         UserMock = new Mock<ClaimsPrincipal>();
@@ -54,8 +55,11 @@ public abstract class AccountManagementTestBase
 
         SetUpUserData(userData);
 
+        journeySession ??= new JourneySession
+            { UserData = userData ?? new UserData { ServiceRoleId = userServiceRoleId } };
+
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-            .Returns(Task.FromResult(new JourneySession { UserData = userData ?? new UserData { ServiceRoleId = userServiceRoleId } }));
+            .Returns(Task.FromResult(journeySession));
 
         DeploymentRoleOptionsMock.Setup(options => options.Value)
             .Returns(new DeploymentRoleOptions { DeploymentRole = deploymentRole });
