@@ -6,7 +6,7 @@ namespace FrontendAccountManagement.Web.Extensions
     {
         public static string GetFormattedChangeMessage(this BaseConfirmationViewModel model, string action)
         {
-            var locatDateTime = model.UpdatedDatetime.UtcToGmt();
+            var locatDateTime = model.UpdatedDatetime;
 
             var timePart = locatDateTime.ToString("hh:mmtt").ToLower();
 
