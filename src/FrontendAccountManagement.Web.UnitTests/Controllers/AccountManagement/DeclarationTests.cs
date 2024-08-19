@@ -151,5 +151,126 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             Assert.AreEqual((int)HttpStatusCode.Forbidden, redirectToActionResult.RouteValues["statusCode"]);
         }
 
+        [TestMethod]
+        public async Task Declaration_ShouldThrowInvalidOperationException_WhenRoleInOrganisationIsNullOrEmpty()
+        {
+            // Arrange
+            var userData = new UserData
+            {
+                ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+                ServiceRoleId = 3,
+                RoleInOrganisation = null,
+            };
+
+            Exception result = null;
+
+            SetupBase(userData);
+
+            // Act
+            try
+            {
+                await SystemUnderTest.Declaration();
+            }
+            catch (Exception ex)
+            {
+                result = ex;
+            }
+
+            // Assert
+            result.Should().BeOfType<InvalidOperationException>();
+            SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task Declaration_ShouldThrowInvalidOperationException_WhenServiceRoleIdIsDefault()
+        {
+            // Arrange
+            var userData = new UserData
+            {
+                ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+                ServiceRoleId = default,
+                RoleInOrganisation = Core.Enums.PersonRole.Admin.ToString(),
+            };
+
+            Exception result = null;
+
+            SetupBase(userData);
+
+            // Act
+            try
+            {
+                await SystemUnderTest.Declaration();
+            }
+            catch (Exception ex)
+            {
+                result = ex;
+            }
+
+            // Assert
+            result.Should().BeOfType<InvalidOperationException>();
+            SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task Declaration_ShouldThrowInvalidOperationException_WhenRoleInOrganisationIsEmpty()
+        {
+            // Arrange
+            var userData = new UserData
+            {
+                ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+                ServiceRoleId = 3,
+                RoleInOrganisation = string.Empty,
+            };
+
+            Exception result = null;
+
+            SetupBase(userData);
+
+            // Act
+            try
+            {
+                await SystemUnderTest.Declaration();
+            }
+            catch (Exception ex)
+            {
+                result = ex;
+            }
+
+            // Assert
+            result.Should().BeOfType<InvalidOperationException>();
+            Assert.IsTrue(result.Message == "Unknown role in organisation.");
+            SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task Declaration_ShouldThrowInvalidOperationException_WhenRoleInOrganisationIsNull()
+        {
+            // Arrange
+            var userData = new UserData
+            {
+                ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+                ServiceRoleId = 3,
+                RoleInOrganisation = null,
+            };
+
+            Exception result = null;
+
+            SetupBase(userData);
+
+            // Act
+            try
+            {
+                await SystemUnderTest.Declaration();
+            }
+            catch (Exception ex)
+            {
+                result = ex;
+            }
+
+            // Assert
+            result.Should().BeOfType<InvalidOperationException>();
+            Assert.IsTrue(result.Message == "Unknown role in organisation.");
+            SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+        }
     }
 }

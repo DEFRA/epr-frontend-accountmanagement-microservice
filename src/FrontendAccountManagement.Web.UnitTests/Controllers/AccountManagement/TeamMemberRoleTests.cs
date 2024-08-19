@@ -251,24 +251,44 @@ public class TeamMemberRoleTests : AccountManagementTestBase
         SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
     }
 
-    //[TestMethod]
-    //public async Task GivenOnTeamMemberRolePage_DisplayPageNotFound_WhenUserIsBasicAdmin()
-    //{
-    //    // Arrange
-    //    var userData = new UserData
-    //    {
-    //        ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
-    //        ServiceRoleId = 3,
-    //        RoleInOrganisation = PersonRole.Admin.ToString(),
-    //    };
+    [TestMethod]
+    public async Task GivenOnTeamMemberRolePage_DisplayPageAsNormal_WhenUserIsBasicAdmin()
+    {
+        // Arrange
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
 
-    //    SetupBase(userData);
+        JourneySessionMock.AccountManagementSession.AddUserJourney = new AddUserJourneyModel
+        {
+            UserRole = "BasicAdmin"
+        };
 
-    //    // Act
-    //    var result = await SystemUnderTest.TeamMemberPermissions();
+        var sessionJourney = new JourneySession
+        {
+            AccountManagementSession = new AccountManagementSession
+            {
+                AddUserJourney = new AddUserJourneyModel
+                {
+                    UserRole = "Admin"
+                }
+            },
+            UserData = mockUserData
+        };
 
-    //    // Assert
-    //    result.Should().BeOfType<NotFoundResult>();
-    //    SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
-    //}
+        SetupBase(mockUserData, "Admin", journeySession: sessionJourney);
+
+        FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
+            .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(new List<Core.Models.ServiceRole> { TestRole }));
+
+        // Act
+        var result = await SystemUnderTest.TeamMemberPermissions();
+
+        // Assert
+        result.Should().BeOfType<ViewResult>();
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+    }
 }

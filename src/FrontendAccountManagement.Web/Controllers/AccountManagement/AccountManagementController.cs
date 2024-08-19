@@ -1162,7 +1162,7 @@ public class AccountManagementController : Controller
         return isUpdatable;
     }
 
-    private bool IsEmployeeUser(UserData userData)
+    private static bool IsEmployeeUser(UserData userData)
     {
         var roleInOrganisation = userData.RoleInOrganisation;
 
@@ -1174,7 +1174,7 @@ public class AccountManagementController : Controller
         return roleInOrganisation == PersonRole.Employee.ToString();
     }
 
-    private bool IsBasicAdmin(UserData userData)
+    private static bool IsBasicAdmin(UserData userData)
     {
         var roleInOrganisation = userData.RoleInOrganisation.ToString();
 
