@@ -139,7 +139,7 @@
     <value>y manylion yr hoffech eu diweddaru (megis enw a chyfeiriad eich sefydliad)</value>
   </data>
   <data name="EmailLine" xml:space="preserve">
-    <value>I newid manylion eich sefydliad, anfonwch neges ebost at &lt;a href="mailto:{0}" class="govuk-link"&gt;{0}&lt;/a&gt;</value>
+    <value>I newid manylion eich sefydliad, anfonwch neges ebost at &lt;a href="mailto:{0}?subject=Newid manylion eich sefydliad" " class="govuk-link"&gt;{0}&lt;/a&gt;</value>
   </data>
   <data name="Header" xml:space="preserve">
     <value>Newid manylion eich sefydliad</value>
