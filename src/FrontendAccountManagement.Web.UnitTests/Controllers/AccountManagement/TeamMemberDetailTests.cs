@@ -80,7 +80,9 @@ public class TeamMemberDetailTests : AccountManagementTestBase
                 {
                     PagePath.TeamMemberPermissions,
                     PagePath.TeamMemberDetails, PagePath.RemoveTeamMember
-                }
+                },
+                InviteeEmailAddress = Email,
+                RoleKey = SelectedUserRole
             },
             UserData = mockUserData
         };
