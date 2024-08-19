@@ -692,7 +692,7 @@ public class AccountManagementTests : AccountManagementTestBase
     }
 
     [TestMethod]
-    public async Task CompanyDetailsHaveNotChanged_ShouldThrowInvalidOperationException_WhenRoleInOrganisationIsNullOrEmpty()
+    public async Task CompanyDetailsHaveNotChanged_ShouldThrowInvalidOperationException_WhenRoleInOrganisationIsEmpty()
     {
         // Arrange
         var userData = new UserData
@@ -700,6 +700,37 @@ public class AccountManagementTests : AccountManagementTestBase
             ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
             ServiceRoleId = 3,
             RoleInOrganisation = string.Empty,
+        };
+
+        Exception result = null;
+
+        SetupBase(userData);
+
+        // Act
+        try
+        {
+            await SystemUnderTest.CompanyDetailsHaveNotChanged();
+        }
+        catch (Exception ex)
+        {
+            result = ex;
+        }
+
+        // Assert
+        result.Should().BeOfType<InvalidOperationException>();
+        Assert.IsTrue(result.Message == "Unknown role in organisation.");
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CompanyDetailsHaveNotChanged_ShouldThrowInvalidOperationException_WhenRoleInOrganisationIsNull()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
+            RoleInOrganisation = null,
         };
 
         Exception result = null;
