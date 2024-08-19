@@ -130,7 +130,7 @@
     <value>Eich prif le busnes</value>
   </data>
   <data name="UkNation.PrincipalPlaceOfBusinessIfNotRegistered" xml:space="preserve">
-    <value>Eich prif le busnes (os nad ydych chi wedi cofrestru)</value>
+    <value>Eich prif le busnes (os nad ydych chi wedi'ch cofrestru)</value>
   </data>
   <data name="UkNation.Title" xml:space="preserve">
     <value>Eich gwlad yn y Deyrnas Unedig</value>
@@ -139,13 +139,13 @@
     <value>Mae angen inni wybod ym mha wlad yn y Deyrnas Unedig rydych chi.</value>
   </data>
   <data name="UkNation.WhereInTheIsYourUKBusinessBased" xml:space="preserve">
-    <value>Ble yn y Deyrnas Unedig mae eich sefydliad wedi’i leoli?</value>
+    <value>Ble yn y Deyrnas Unedig mae eich busnes wedi'i leoli?</value>
   </data>
   <data name="UkNation.WhereYourHeadOfficeIs" xml:space="preserve">
     <value>Ble mae eich prif swyddfa</value>
   </data>
   <data name="UkNation.WhereYourOrganisationIsRegistered" xml:space="preserve">
-    <value>Ble mae’ch sefydliad wedi’i gofrestru</value>
+    <value>Ble mae eich sefydliad wedi'i gofrestru</value>
   </data>
   <data name="UkNation.WhereYourUKBranchIs" xml:space="preserve">
     <value>Ble mae eich cangen yn y Deyrnas Unedig neu eich cyfeiriad post yn y Deyrnas Unedig</value>
