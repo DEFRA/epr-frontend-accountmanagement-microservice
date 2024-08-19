@@ -163,7 +163,7 @@ public class AccountManagementController : Controller
     {
         var userData = User.GetUserData();
 
-        if (IsEmployeeUser(userData) || IsBasicServiceRole(userData))
+        if (IsEmployeeUser(userData) || IsBasicAdmin(userData))
         {
             return NotFound();
         }
@@ -1197,23 +1197,5 @@ public class AccountManagementController : Controller
 
         return roleInOrganisation == PersonRole.Admin.ToString() &&
             serviceRoleId == (int)ServiceRole.Basic;
-    }
-
-    private bool IsBasicServiceRole(UserData userData)
-    {
-        var roleInOrganisation = userData.RoleInOrganisation.ToString();
-
-        var serviceRoleId = userData.ServiceRoleId;
-
-        if (string.IsNullOrEmpty(roleInOrganisation))
-        {
-            throw new InvalidOperationException("Unknown role in organisation.");
-        }
-        if (serviceRoleId == 0)
-        {
-            throw new InvalidDataException("Unknown service role.");
-        }
-
-        return serviceRoleId == (int)ServiceRole.Basic;
     }
 }
