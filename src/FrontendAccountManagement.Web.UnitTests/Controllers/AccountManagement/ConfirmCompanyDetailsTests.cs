@@ -13,6 +13,7 @@ using System.Text.Json;
 using FrontendAccountManagement.Core.Sessions;
 using Microsoft.AspNetCore.Http;
 using FrontendAccountManagement.Core.Enums;
+using FrontendAccountManagement.Core.Models;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 {
@@ -30,7 +31,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         {
             _userData = _fixture.Build<UserData>()
                 .With(x => x.RoleInOrganisation, PersonRole.Admin.ToString())
-                .With(x => x.ServiceRoleId, (int)ServiceRole.Approved)
+                .With(x => x.ServiceRoleId, (int)Core.Enums.ServiceRole.Approved)
                 .Create();
 
             _companiesHouseResponse = _fixture.Create<CompaniesHouseResponse>();
@@ -50,7 +51,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         {
             // Arrange
             _companiesHouseResponse.Organisation.RegisteredOffice = null;
-            SetupUserData("Approved Person");
+            SetupUserData("Approved Person", 1, "Admin");
 
             // Act
             var result = await SystemUnderTest.ConfirmCompanyDetails();
@@ -68,7 +69,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         {
             // Arrange
             _companiesHouseResponse.Organisation.RegisteredOffice = _fixture.Create<AddressDto>();
-            SetupUserData("Approved Person");
+            SetupUserData("Approved Person", 1, "Admin");
 
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
                 .Returns(Task.FromResult(new JourneySession
@@ -92,7 +93,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             // Arrange
             var userData = new UserData
             {
-                ServiceRole = ServiceRole.Basic.ToString(),
+                ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
                 ServiceRoleId = 3,
                 RoleInOrganisation = PersonRole.Employee.ToString(),
             };
@@ -112,7 +113,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             // Arrange
             var userData = new UserData
             {
-                ServiceRole = ServiceRole.Basic.ToString(),
+                ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
                 ServiceRoleId = 3,
                 RoleInOrganisation = PersonRole.Admin.ToString(),
             };
@@ -126,11 +127,15 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             Assert.IsInstanceOfType(result, typeof(NotFoundResult));
         }
 
-        private void SetupUserData(string serviceRole)
+        private void SetupUserData(string serviceRole,
+            int? serviceRoleId = null,
+            string roleInOrganisation = null)
         {
             var userData = new UserData
             {
                 ServiceRole = serviceRole,
+                ServiceRoleId = serviceRoleId != null ? serviceRoleId.Value : default,
+                RoleInOrganisation = string.IsNullOrEmpty(roleInOrganisation) ? default : roleInOrganisation,
                 Organisations = new List<Organisation>
                 {
                     new Organisation
