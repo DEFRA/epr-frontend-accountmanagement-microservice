@@ -97,7 +97,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             SetupBase(userData);
 
             // Act
-            var result = await SystemUnderTest.CheckCompaniesHouseDetails();
+            var result = await SystemUnderTest.Declaration();
 
             // Assert
             result.Should().BeOfType<NotFoundResult>();
@@ -118,7 +118,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             SetupBase(userData);
 
             // Act
-            var result = await SystemUnderTest.CheckCompaniesHouseDetails();
+            var result = await SystemUnderTest.Declaration();
 
             // Assert
             result.Should().BeOfType<NotFoundResult>();
