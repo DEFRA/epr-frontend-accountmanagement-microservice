@@ -93,6 +93,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             var userData = new UserData
             {
                 ServiceRole = ServiceRole.Basic.ToString(),
+                ServiceRoleId = 3,
                 RoleInOrganisation = PersonRole.Employee.ToString(),
             };
 

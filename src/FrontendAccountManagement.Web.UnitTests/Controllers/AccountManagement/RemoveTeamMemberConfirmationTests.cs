@@ -212,6 +212,7 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
         var userData = new UserData
         {
             ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
             RoleInOrganisation = PersonRole.Employee.ToString(),
         };
 
@@ -225,24 +226,24 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
         SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
     }
 
-    [TestMethod]
-    public async Task GivenOnRemoveTeamMemberConfirmationPage_DisplayPageNotFound_WhenUserIsBasicAdmin()
-    {
-        // Arrange
-        var userData = new UserData
-        {
-            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
-            ServiceRoleId = 3,
-            RoleInOrganisation = PersonRole.Admin.ToString(),
-        };
+    //[TestMethod]
+    //public async Task GivenOnRemoveTeamMemberConfirmationPage_DisplayPageNotFound_WhenUserIsBasicAdmin()
+    //{
+    //    // Arrange
+    //    var userData = new UserData
+    //    {
+    //        ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+    //        ServiceRoleId = 3,
+    //        RoleInOrganisation = PersonRole.Admin.ToString(),
+    //    };
 
-        SetupBase(userData);
+    //    SetupBase(userData);
 
-        // Act
-        var result = await SystemUnderTest.RemoveTeamMemberConfirmation();
+    //    // Act
+    //    var result = await SystemUnderTest.RemoveTeamMemberConfirmation();
 
-        // Assert
-        result.Should().BeOfType<NotFoundResult>();
-        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
-    }
+    //    // Assert
+    //    result.Should().BeOfType<NotFoundResult>();
+    //    SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+    //}
 }

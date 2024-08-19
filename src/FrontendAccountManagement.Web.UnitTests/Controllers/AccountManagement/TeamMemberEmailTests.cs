@@ -203,6 +203,7 @@ public class TeamMemberEmailTests : AccountManagementTestBase
         var userData = new UserData
         {
             ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
             RoleInOrganisation = PersonRole.Employee.ToString(),
         };
 
