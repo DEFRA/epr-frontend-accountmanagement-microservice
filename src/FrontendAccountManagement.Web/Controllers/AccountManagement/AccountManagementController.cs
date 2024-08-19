@@ -1164,17 +1164,11 @@ public class AccountManagementController : Controller
 
     private bool IsEmployeeUser(UserData userData)
     {
-        var roleInOrganisation = userData.RoleInOrganisation.ToString();
-
-        var serviceRoleId = userData.ServiceRoleId;
+        var roleInOrganisation = userData.RoleInOrganisation;
 
         if (string.IsNullOrEmpty(roleInOrganisation))
         {
             throw new InvalidOperationException("Unknown role in organisation.");
-        }
-        if (serviceRoleId == 0)
-        {
-            throw new InvalidDataException("Unknown service role.");
         }
 
         return roleInOrganisation == PersonRole.Employee.ToString();
@@ -1190,9 +1184,9 @@ public class AccountManagementController : Controller
         {
             throw new InvalidOperationException("Unknown role in organisation.");
         }
-        if (serviceRoleId == 0)
+        if (serviceRoleId == default)
         {
-            throw new InvalidDataException("Unknown service role.");
+            throw new InvalidOperationException("Unknown service role.");
         }
 
         return roleInOrganisation == PersonRole.Admin.ToString() &&
