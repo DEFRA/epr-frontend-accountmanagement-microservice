@@ -226,24 +226,39 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
         SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
     }
 
-    //[TestMethod]
-    //public async Task GivenOnRemoveTeamMemberConfirmationPage_DisplayPageNotFound_WhenUserIsBasicAdmin()
-    //{
-    //    // Arrange
-    //    var userData = new UserData
-    //    {
-    //        ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
-    //        ServiceRoleId = 3,
-    //        RoleInOrganisation = PersonRole.Admin.ToString(),
-    //    };
+    [TestMethod]
+    public async Task GivenOnRemoveTeamMemberConfirmationPage_DisplayPageAsNormal_WhenUserIsBasicAdmin()
+    {
+        // Arrange
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
 
-    //    SetupBase(userData);
+        var sessionJourney = new JourneySession
+        {
+            AccountManagementSession = new AccountManagementSession
+            {
+                RemoveUserJourney = new RemoveUserJourneyModel
+                {
+                    FirstName = FirstName,
+                    LastName = LastName,
+                    PersonId = _personId
+                },
+                Journey = new List<string> { PagePath.ManageAccount, PagePath.TeamMemberDetails, PagePath.RemoveTeamMember }
+            },
+            UserData = mockUserData
+        };
 
-    //    // Act
-    //    var result = await SystemUnderTest.RemoveTeamMemberConfirmation();
+        SetupBase(mockUserData, journeySession: sessionJourney);
 
-    //    // Assert
-    //    result.Should().BeOfType<NotFoundResult>();
-    //    SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
-    //}
+        // Act
+        var result = await SystemUnderTest.RemoveTeamMemberConfirmation();
+
+        // Assert
+        result.Should().BeOfType<ViewResult>();
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+    }
 }

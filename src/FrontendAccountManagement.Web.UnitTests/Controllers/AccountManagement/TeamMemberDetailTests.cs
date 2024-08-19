@@ -64,6 +64,29 @@ public class TeamMemberDetailTests : AccountManagementTestBase
     [TestMethod]
     public async Task GivenOnTeamMemberDetailsPage_WhenTeamMemberDetailsPageHttpGetCalled_ThenTeamMemberDetailsViewModelReturned_AndBackLinkSet()
     {
+        // Arrange
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        var sessionJourney = new JourneySession
+        {
+            AccountManagementSession = new AccountManagementSession
+            {
+                Journey = new List<string>
+                {
+                    PagePath.TeamMemberPermissions,
+                    PagePath.TeamMemberDetails, PagePath.RemoveTeamMember
+                }
+            },
+            UserData = mockUserData
+        };
+
+        SetupBase(mockUserData, journeySession: sessionJourney);
+
         // Act
         var result = await SystemUnderTest.TeamMemberDetails() as ViewResult;
         var model = result.Model as TeamMemberDetailsViewModel;
@@ -174,7 +197,7 @@ public class TeamMemberDetailTests : AccountManagementTestBase
     }
 
     [TestMethod]
-    public async Task GivenOnTeamMemberDetailsPage_DisplayPageNotFound_WhenUserIsBasicAdmin()
+    public async Task GivenOnTeamMemberDetailsPage_DisplayPageAsNormal_WhenUserIsBasicAdmin()
     {
         // Arrange
         var userData = new UserData
@@ -190,7 +213,7 @@ public class TeamMemberDetailTests : AccountManagementTestBase
         var result = await SystemUnderTest.TeamMemberDetails();
 
         // Assert
-        result.Should().BeOfType<NotFoundResult>();
+        result.Should().BeOfType<ViewResult>();
         SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
     }
 }

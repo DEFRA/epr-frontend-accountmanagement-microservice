@@ -32,7 +32,12 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         public async Task Declaration_ReturnsViewWithModel_ForAValidRequest()
         {
             // Arrange
-            var userData = new UserData();
+            var userData = new UserData
+            {
+                ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+                ServiceRoleId = 1,
+                RoleInOrganisation = PersonRole.Admin.ToString(),
+            };
 
             SetupBase(userData);
 
@@ -85,6 +90,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             var userData = new UserData
             {
                 ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+                ServiceRoleId = 3,
                 RoleInOrganisation = PersonRole.Employee.ToString(),
             };
 
@@ -125,7 +131,10 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             // Arrange
             var mockUserData = new UserData
             {
-                IsChangeRequestPending = true
+                IsChangeRequestPending = true,
+                ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+                ServiceRoleId = 1,
+                RoleInOrganisation = PersonRole.Admin.ToString(),
             };
 
             SetupBase(mockUserData);

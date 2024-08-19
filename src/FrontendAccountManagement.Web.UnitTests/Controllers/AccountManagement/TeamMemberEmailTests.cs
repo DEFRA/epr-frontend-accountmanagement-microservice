@@ -169,6 +169,14 @@ public class TeamMemberEmailTests : AccountManagementTestBase
     public async Task GivenOnTeamMemberEmailPage_WhenTeamMemberEmailPageHttpGetCalled_ValidEmailFormat_AndEmailValuePreviouslySet_ThenEmailValueIsPopulated(string email)
     {
         // Arrange
+
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
         var session = new JourneySession
         {
             AccountManagementSession = new AccountManagementSession
@@ -179,8 +187,6 @@ public class TeamMemberEmailTests : AccountManagementTestBase
                 }
             }
         };
-
-        var mockUserData = new UserData();
 
         SetupBase(mockUserData);
 
@@ -218,7 +224,7 @@ public class TeamMemberEmailTests : AccountManagementTestBase
     }
 
     [TestMethod]
-    public async Task GivenOnTeamMemberEmailPage_WhenUserIsBasicAdmin_ThenDisplayPageNotFound()
+    public async Task GivenOnTeamMemberEmailPage_WhenUserIsBasicAdmin_ThenDisplayPageAsNormal()
     {
         // Arrange
         var userData = new UserData
@@ -234,7 +240,7 @@ public class TeamMemberEmailTests : AccountManagementTestBase
         var result = await SystemUnderTest.TeamMemberEmail();
 
         // Assert
-        result.Should().BeOfType<NotFoundResult>();
+        result.Should().BeOfType<ViewResult>();
         SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
     }
 }
