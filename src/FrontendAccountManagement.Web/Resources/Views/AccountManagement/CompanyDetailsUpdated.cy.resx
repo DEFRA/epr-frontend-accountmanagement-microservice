@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Body" xml:space="preserve">
-    <value>Rhaid ichi ddweud wrth y rheoleiddiwr am y diweddariad ym manylion eich sefydliad. &lt;br/&gt;&lt;br/&gt; I wneud hyn, cyflwynwch ffeil manylion sefydliad newydd. Rhaid ichi wneud hyn o fewn 28 diwrnod ar ôl i'ch sefydliad newid eu manylion. &lt;br/&gt;&lt;br/&gt; Os ydych chi wedi cyflwyno ffeil gyda'r wybodaeth ddiwygiedig yn barod, does dim angen ichi wneud hynny eto.</value>
+    <value>Rhaid ichi ddweud wrth y rheoleiddiwr am y diweddariad ym manylion eich sefydliad. I wneud hyn, cyflwynwch ffeil manylion sefydliad newydd.&lt;br/&gt;&lt;br/&gt;Rhaid ichi wneud hyn o fewn 28 diwrnod ar ôl i'ch sefydliad newid eu manylion. &lt;br/&gt;&lt;br/&gt; Os ydych chi wedi cyflwyno ffeil gyda'r wybodaeth ddiwygiedig yn barod, does dim angen ichi wneud hynny eto.</value>
   </data>
   <data name="ChangedBy" xml:space="preserve">
     <value>Wedi'u newid gan {0} am {1}{2} ar {3} {5} {6}.</value>
