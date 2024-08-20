@@ -163,11 +163,9 @@ public class AccountManagementController : Controller
     {
         var userData = User.GetUserData();
 
-        var redirectResult = CheckUserRoleAndRedirect(userData);
-
-        if (redirectResult != null)
+        if (IsEmployeeUser(userData) || IsBasicAdmin(userData))
         {
-            return redirectResult;
+            return NotFound();
         }
 
         if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
@@ -200,11 +198,9 @@ public class AccountManagementController : Controller
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var redirectResult = CheckUserRoleAndRedirect(userData);
-
-        if (redirectResult != null)
+        if (IsEmployeeUser(userData))
         {
-            return redirectResult;
+            return NotFound();
         }
 
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ManageAccount);
@@ -248,11 +244,9 @@ public class AccountManagementController : Controller
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var redirectResult = CheckUserRoleAndRedirect(userData);
-
-        if (redirectResult != null)
+        if (IsEmployeeUser(userData))
         {
-            return redirectResult;
+            return NotFound();
         }
 
         SetBackLink(session, PagePath.TeamMemberPermissions);
@@ -320,11 +314,9 @@ public class AccountManagementController : Controller
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var redirectResult = CheckUserRoleAndRedirect(userData);
-
-        if (redirectResult != null)
+        if (IsEmployeeUser(userData))
         {
-            return redirectResult;
+            return NotFound();
         }
 
         SetBackLink(session, PagePath.TeamMemberDetails);
@@ -393,11 +385,9 @@ public class AccountManagementController : Controller
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var redirectResult = CheckUserRoleAndRedirect(userData);
-
-        if (redirectResult != null)
+        if (IsEmployeeUser(userData))
         {
-            return redirectResult;
+            return NotFound();
         }
 
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ManageAccount);
@@ -462,11 +452,9 @@ public class AccountManagementController : Controller
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var redirectResult = CheckUserRoleAndRedirect(userData);
-
-        if (redirectResult != null)
+        if (IsEmployeeUser(userData) || IsBasicAdmin(userData))
         {
-            return redirectResult;
+            return NotFound();
         }
 
         if (!ModelState.IsValid)
@@ -756,7 +744,7 @@ public class AccountManagementController : Controller
         {
             Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
             UpdatedDatetime = changedDateAt.UtcToGmt()
-    };
+        };
 
         return View(model);
     }
@@ -782,11 +770,9 @@ public class AccountManagementController : Controller
     {
         var userData = User.GetUserData();
 
-        var redirectResult = CheckUserRoleAndRedirect(userData);
-
-        if (redirectResult != null)
+        if (IsEmployeeUser(userData) || IsBasicAdmin(userData))
         {
-            return redirectResult;
+            return NotFound();
         }
 
         if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
@@ -844,11 +830,9 @@ public class AccountManagementController : Controller
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var redirectResult = CheckUserRoleAndRedirect(userData);
-
-        if (redirectResult != null)
+        if (IsEmployeeUser(userData) || IsBasicAdmin(userData))
         {
-            return redirectResult;
+            return NotFound();
         }
 
         // must be approved or delegated user
@@ -936,11 +920,9 @@ public class AccountManagementController : Controller
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        var redirectResult = CheckUserRoleAndRedirect(userData);
-
-        if (redirectResult != null)
+        if (IsEmployeeUser(userData) || IsBasicAdmin(userData))
         {
-            return redirectResult;
+            return NotFound();
         }
 
         await SaveSessionAndJourney(session, PagePath.ConfirmCompanyDetails, PagePath.UkNation);
@@ -1180,21 +1162,34 @@ public class AccountManagementController : Controller
         return isUpdatable;
     }
 
-    protected IActionResult CheckUserRoleAndRedirect(UserData userData)
+    private static bool IsEmployeeUser(UserData userData)
     {
         var roleInOrganisation = userData.RoleInOrganisation;
 
-        var serviceRoleId = userData.ServiceRoleId;
-
-        if ((!string.IsNullOrEmpty(roleInOrganisation) &&
-            roleInOrganisation != PersonRole.Admin.ToString()) ||
-            (serviceRoleId > 0 &&
-            serviceRoleId == (int)ServiceRole.Basic))
+        if (string.IsNullOrEmpty(roleInOrganisation))
         {
-            return NotFound();
+            throw new InvalidOperationException("Unknown role in organisation.");
         }
 
-        return null;
+        return roleInOrganisation == PersonRole.Employee.ToString();
     }
 
+    private static bool IsBasicAdmin(UserData userData)
+    {
+        var roleInOrganisation = userData.RoleInOrganisation.ToString();
+
+        var serviceRoleId = userData.ServiceRoleId;
+
+        if (string.IsNullOrEmpty(roleInOrganisation))
+        {
+            throw new InvalidOperationException("Unknown role in organisation.");
+        }
+        if (serviceRoleId == default)
+        {
+            throw new InvalidOperationException("Unknown service role.");
+        }
+
+        return roleInOrganisation == PersonRole.Admin.ToString() &&
+            serviceRoleId == (int)ServiceRole.Basic;
+    }
 }

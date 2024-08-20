@@ -212,6 +212,7 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
         var userData = new UserData
         {
             ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
             RoleInOrganisation = PersonRole.Employee.ToString(),
         };
 
@@ -226,23 +227,38 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
     }
 
     [TestMethod]
-    public async Task GivenOnRemoveTeamMemberConfirmationPage_DisplayPageNotFound_WhenUserIsBasicAdmin()
+    public async Task GivenOnRemoveTeamMemberConfirmationPage_DisplayPageAsNormal_WhenUserIsBasicAdmin()
     {
         // Arrange
-        var userData = new UserData
+        var mockUserData = new UserData
         {
             ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
             ServiceRoleId = 3,
             RoleInOrganisation = PersonRole.Admin.ToString(),
         };
 
-        SetupBase(userData);
+        var sessionJourney = new JourneySession
+        {
+            AccountManagementSession = new AccountManagementSession
+            {
+                RemoveUserJourney = new RemoveUserJourneyModel
+                {
+                    FirstName = FirstName,
+                    LastName = LastName,
+                    PersonId = _personId
+                },
+                Journey = new List<string> { PagePath.ManageAccount, PagePath.TeamMemberDetails, PagePath.RemoveTeamMember }
+            },
+            UserData = mockUserData
+        };
+
+        SetupBase(mockUserData, journeySession: sessionJourney);
 
         // Act
         var result = await SystemUnderTest.RemoveTeamMemberConfirmation();
 
         // Assert
-        result.Should().BeOfType<NotFoundResult>();
+        result.Should().BeOfType<ViewResult>();
         SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
     }
 }

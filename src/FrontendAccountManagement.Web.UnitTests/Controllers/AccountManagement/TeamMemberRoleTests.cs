@@ -237,6 +237,7 @@ public class TeamMemberRoleTests : AccountManagementTestBase
         var userData = new UserData
         {
             ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
             RoleInOrganisation = PersonRole.Employee.ToString(),
         };
 
@@ -251,23 +252,43 @@ public class TeamMemberRoleTests : AccountManagementTestBase
     }
 
     [TestMethod]
-    public async Task GivenOnTeamMemberRolePage_DisplayPageNotFound_WhenUserIsBasicAdmin()
+    public async Task GivenOnTeamMemberRolePage_DisplayPageAsNormal_WhenUserIsBasicAdmin()
     {
         // Arrange
-        var userData = new UserData
+        var mockUserData = new UserData
         {
             ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
             ServiceRoleId = 3,
             RoleInOrganisation = PersonRole.Admin.ToString(),
         };
 
-        SetupBase(userData);
+        JourneySessionMock.AccountManagementSession.AddUserJourney = new AddUserJourneyModel
+        {
+            UserRole = "BasicAdmin"
+        };
+
+        var sessionJourney = new JourneySession
+        {
+            AccountManagementSession = new AccountManagementSession
+            {
+                AddUserJourney = new AddUserJourneyModel
+                {
+                    UserRole = "Admin"
+                }
+            },
+            UserData = mockUserData
+        };
+
+        SetupBase(mockUserData, "Admin", journeySession: sessionJourney);
+
+        FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
+            .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(new List<Core.Models.ServiceRole> { TestRole }));
 
         // Act
         var result = await SystemUnderTest.TeamMemberPermissions();
 
         // Assert
-        result.Should().BeOfType<NotFoundResult>();
+        result.Should().BeOfType<ViewResult>();
         SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
     }
 }
