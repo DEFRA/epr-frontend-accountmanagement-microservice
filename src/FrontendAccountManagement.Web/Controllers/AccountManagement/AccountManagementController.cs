@@ -599,9 +599,12 @@ public class AccountManagementController : Controller
             return View(editUserDetailsViewModel);
         }
 
-        if (TempData[NewUserDetailsKey] == null)
-            TempData.Add(NewUserDetailsKey, JsonSerializer.Serialize(editUserDetailsViewModel));
-
+        //tries to add new temp data and if its already exists replace it with the new one
+        if (!TempData.TryAdd(NewUserDetailsKey, JsonSerializer.Serialize(editUserDetailsViewModel)))
+        {
+            TempData[NewUserDetailsKey] = JsonSerializer.Serialize(editUserDetailsViewModel);
+        }
+            
         return RedirectToAction(nameof(PagePath.CheckYourDetails));
     }
 
