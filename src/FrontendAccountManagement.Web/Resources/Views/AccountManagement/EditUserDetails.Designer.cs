@@ -151,15 +151,6 @@ namespace FrontendAccountManagement.Web.Resources.Views.AccountManagement {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Telephone number must be 50 characters or less.
-        /// </summary>
-        internal static string TelephoneMaxLength {
-            get {
-                return ResourceManager.GetString("TelephoneMaxLength", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Telephone number.
         /// </summary>
         internal static string TelephoneNumber {

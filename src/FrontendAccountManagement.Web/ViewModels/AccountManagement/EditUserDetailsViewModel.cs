@@ -27,9 +27,7 @@ namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
         [StringLength(50, ErrorMessageResourceName = "JobTitleMaxLength", ErrorMessageResourceType = typeof(EditUserDetails))]
         public string? JobTitle { get; set; }
 
-        [Required(ErrorMessageResourceName = "TelephoneNumberMissing", ErrorMessageResourceType = typeof(EditUserDetails))]
-        [StringLength(50, ErrorMessageResourceName = "TelephoneMaxLength", ErrorMessageResourceType = typeof(EditUserDetails))]
-        [TelephoneNumberValidation(ErrorMessageResourceName = "TelephoneNumberInvalid", ErrorMessageResourceType = typeof(EditUserDetails))]
+        [TelephoneNumberValidation()]
         public string? Telephone { get; set; }
     }
 }

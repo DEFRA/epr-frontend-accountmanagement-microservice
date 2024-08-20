@@ -147,9 +147,6 @@
   <data name="LastNameMissing" xml:space="preserve">
     <value>Rhowch eich enw olaf</value>
   </data>
-  <data name="TelephoneMaxLength" xml:space="preserve">
-    <value>[Welsh]Telephone number must be 50 characters or less</value>
-  </data>
   <data name="TelephoneNumber" xml:space="preserve">
     <value>Rhif ffôn</value>
   </data>

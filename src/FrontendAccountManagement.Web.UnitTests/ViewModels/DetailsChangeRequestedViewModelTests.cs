@@ -24,7 +24,7 @@ namespace FrontendAccountManagement.Web.UnitTests.ViewModels
             var result = viewModel.GetFormattedChangeMessage("Requested");
 
             // Assert
-            var expectedMessage = "Requested by Dwight Schrute at 01:06pm on 25th June 2024";
+            var expectedMessage = "Requested by Dwight Schrute at 12:06pm on 25th June 2024";
             result.Should().Be(expectedMessage);
         }
     }
