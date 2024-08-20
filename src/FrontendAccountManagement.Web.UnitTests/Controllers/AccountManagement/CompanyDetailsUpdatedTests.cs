@@ -22,7 +22,9 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             // Arrange
             base.SetupBase(new UserData { FirstName = firstName, LastName = lastName});
             this.SystemUnderTest.TempData = new TempDataDictionary(new Mock<HttpContext>().Object, new Mock<ITempDataProvider>().Object);
+
             var parsedDate = DateTime.Parse(changeDate, CultureInfo.InvariantCulture);
+
             this.SystemUnderTest.TempData.Add("OrganisationDetailsUpdatedTime", parsedDate);
 
             // Act

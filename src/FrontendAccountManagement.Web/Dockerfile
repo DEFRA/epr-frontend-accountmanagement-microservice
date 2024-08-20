@@ -34,6 +34,11 @@ RUN dotnet publish -c Release -o out
 FROM defradigital/dotnetcore:dotnet6.0
 COPY --from=build-env --chown=dotnet /home/dotnet/FrontendAccountManagement.Web/out .
 
+# Install tzdata
+USER root
+RUN apk add --no-cache tzdata
+USER dotnet
+
 # Add internationalisation support
 USER root
 RUN apk add icu-libs icu-data-full libintl

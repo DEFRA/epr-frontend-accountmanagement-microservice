@@ -17,6 +17,7 @@ using Organisation = EPR.Common.Authorization.Models.Organisation;
 using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using AutoMapper;
 using FrontendAccountManagement.Web.Constants.Enums;
+using FrontendAccountManagement.Web.Controllers.AccountManagement;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 
@@ -512,7 +513,7 @@ public class AccountManagementTests : AccountManagementTestBase
 
         // Assert
         result.Should().BeOfType<UnauthorizedResult>();
-        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Never);
     }
 
     [TestMethod]
@@ -522,6 +523,7 @@ public class AccountManagementTests : AccountManagementTestBase
         var userData = new UserData
         {
             ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
             RoleInOrganisation = PersonRole.Employee.ToString(),
         };
 
@@ -532,7 +534,7 @@ public class AccountManagementTests : AccountManagementTestBase
 
         // Assert
         result.Should().BeOfType<NotFoundResult>();
-        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Never);
     }
 
     [TestMethod]
@@ -553,7 +555,7 @@ public class AccountManagementTests : AccountManagementTestBase
 
         // Assert
         result.Should().BeOfType<NotFoundResult>();
-        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Never);
     }
 
     [TestMethod]
@@ -563,6 +565,7 @@ public class AccountManagementTests : AccountManagementTestBase
         var userData = new UserData
         {
             ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
             RoleInOrganisation = PersonRole.Employee.ToString(),
         };
 
@@ -596,6 +599,160 @@ public class AccountManagementTests : AccountManagementTestBase
         result.Should().BeOfType<NotFoundResult>();
         SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
     }
+
+    [TestMethod]
+    public async Task CheckCompaniesHouseDetails_ShouldThrowInvalidOperationException_WhenRoleInOrganisationIsNullOrEmpty()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
+            RoleInOrganisation = null,
+        };
+
+        Exception result = null;
+
+        SetupBase(userData);
+
+        // Act
+        try
+        {
+            await SystemUnderTest.CheckCompaniesHouseDetails();
+        }
+        catch (Exception ex)
+        {
+            result = ex;
+        }
+
+        // Assert
+        result.Should().BeOfType<InvalidOperationException>();
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CheckCompaniesHouseDetails_ShouldThrowInvalidOperationException_WhenServiceRoleIdIsDefault()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = default,
+            RoleInOrganisation = Core.Enums.PersonRole.Admin.ToString(),
+        };
+
+        Exception result = null;
+
+        SetupBase(userData);
+
+        // Act
+        try
+        {
+            await SystemUnderTest.CheckCompaniesHouseDetails();
+        }
+        catch (Exception ex)
+        {
+            result = ex;
+        }
+
+        // Assert
+        result.Should().BeOfType<InvalidOperationException>();
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CompanyDetailsHaveNotChanged_ShouldThrowInvalidOperationException_WhenServiceRoleIdIsDefault()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = default,
+            RoleInOrganisation = Core.Enums.PersonRole.Admin.ToString(),
+        };
+
+        Exception result = null;
+
+        SetupBase(userData);
+
+        // Act
+        try
+        {
+            await SystemUnderTest.CompanyDetailsHaveNotChanged();
+        }
+        catch (Exception ex)
+        {
+            result = ex;
+        }
+
+        // Assert
+        result.Should().BeOfType<InvalidOperationException>();
+        Assert.IsTrue(result.Message == "Unknown service role.");
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CompanyDetailsHaveNotChanged_ShouldThrowInvalidOperationException_WhenRoleInOrganisationIsEmpty()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
+            RoleInOrganisation = string.Empty,
+        };
+
+        Exception result = null;
+
+        SetupBase(userData);
+
+        // Act
+        try
+        {
+            await SystemUnderTest.CompanyDetailsHaveNotChanged();
+        }
+        catch (Exception ex)
+        {
+            result = ex;
+        }
+
+        // Assert
+        result.Should().BeOfType<InvalidOperationException>();
+        Assert.IsTrue(result.Message == "Unknown role in organisation.");
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CompanyDetailsHaveNotChanged_ShouldThrowInvalidOperationException_WhenRoleInOrganisationIsNull()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
+            RoleInOrganisation = null,
+        };
+
+        Exception result = null;
+
+        SetupBase(userData);
+
+        // Act
+        try
+        {
+            await SystemUnderTest.CompanyDetailsHaveNotChanged();
+        }
+        catch (Exception ex)
+        {
+            result = ex;
+        }
+
+        // Assert
+        result.Should().BeOfType<InvalidOperationException>();
+        Assert.IsTrue(result.Message == "Unknown role in organisation.");
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Never);
+    }
+
 
     private UserData SetupUserData(
         string serviceRole)
@@ -649,5 +806,18 @@ public class AccountManagementTests : AccountManagementTestBase
         HttpContextMock.Setup(c => c.User).Returns(claimsPrincipal);
 
         return userData;
+    }
+
+    [TestMethod]
+    public async Task ChangeCompanyDetails_ReturnsViewResult()
+    {
+        // Arrange
+        SetupBase();
+
+        // Act
+        var result = await SystemUnderTest.ChangeCompanyDetails();
+
+        // Assert
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
     }
 }

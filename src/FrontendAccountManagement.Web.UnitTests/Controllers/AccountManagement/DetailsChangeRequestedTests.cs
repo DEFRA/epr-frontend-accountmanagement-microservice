@@ -1,5 +1,6 @@
 ﻿using EPR.Common.Authorization.Models;
 using FrontendAccountManagement.Core.Sessions;
+using FrontendAccountManagement.Web.Extensions;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -40,7 +41,8 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             var model = viewResult.Model as DetailsChangeRequestedViewModel;
             model.Should().NotBeNull();
             model.Username.Should().Be("Dwight Schrute");
-            model.UpdatedDatetime.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
+            var changedDateAt = DateTime.UtcNow;
+            model.UpdatedDatetime.Should().BeCloseTo(changedDateAt.UtcToGmt(), TimeSpan.FromSeconds(1));
         }
     }
 }
