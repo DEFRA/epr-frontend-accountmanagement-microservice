@@ -92,21 +92,4 @@ public class TelephoneValidatorTests
         // Assert
         Assert.AreEqual("Enter your telephone number", result.ErrorMessage);
     }
-
-    /// <summary>
-    /// Check that the IsValid method returns the correct error message when a phone number longer than 50 characters is validated.
-    /// </summary>
-    [TestMethod]
-    public void IsValid_FailOnNumberTooLong()
-    {
-        // Arrange
-        var toTest = new TelephoneNumberValidationAttribute();
-        string phoneNumber = "012345678901234567890123456789012345678901234567890";
-
-        // Act
-        var result = toTest.GetValidationResult(phoneNumber, new ValidationContext(phoneNumber));
-
-        // Assert
-        Assert.AreEqual("Telephone number must be 50 characters or less", result.ErrorMessage);
-    }
 }

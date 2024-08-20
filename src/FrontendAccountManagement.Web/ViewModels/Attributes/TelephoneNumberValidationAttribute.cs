@@ -19,10 +19,6 @@ public class TelephoneNumberValidationAttribute : ValidationAttribute
         {
             return new ValidationResult(EditUserDetails.TelephoneNumberMissing);
         }
-        if(phoneNumber.Length > 50)
-        {
-            return new ValidationResult(EditUserDetails.TelephoneMaxLength);
-        }
         if (!IsValid(phoneNumber))
         {
             return new ValidationResult(EditUserDetails.TelephoneNumberInvalid);
