@@ -1,3 +1,4 @@
+using FrontendAccountManagement.Web.Resources.Views.AccountManagement;
 using PhoneNumbers;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
@@ -14,7 +15,16 @@ public class TelephoneNumberValidationAttribute : ValidationAttribute
     {
         var phoneNumber = value?.ToString() ?? string.Empty;
 
-        return IsValid(phoneNumber) ? ValidationResult.Success : new ValidationResult(ErrorMessage);
+        if(string.IsNullOrEmpty(phoneNumber))
+        {
+            return new ValidationResult(EditUserDetails.TelephoneNumberMissing);
+        }
+        if (!IsValid(phoneNumber))
+        {
+            return new ValidationResult(EditUserDetails.TelephoneNumberInvalid);
+        }
+
+        return ValidationResult.Success;
     }
 
     private static bool IsValid(string telephoneNumber)
