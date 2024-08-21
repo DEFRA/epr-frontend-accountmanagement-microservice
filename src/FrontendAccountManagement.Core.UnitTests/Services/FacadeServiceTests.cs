@@ -846,6 +846,88 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
         }
 
         [TestMethod]
+        public async Task GetEnrolmentStatus_WithEnrolmentsNull_IsSuccessfulReturnsNull()
+        {
+            // Arrange
+            var organisationId = Guid.NewGuid();
+            var connectionId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
+            var serviceKey = ServiceRoles.Packaging.BasicUser;
+
+            var expectedResponse = new ConnectionWithEnrolments
+            {
+                PersonRole = PersonRole.Admin,
+                UserId = userId,
+                Enrolments = new Collection<EnrolmentsFromConnection> { }
+            };
+
+            var httpTestHandler = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(JsonSerializer.Serialize(expectedResponse))
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpTestHandler);
+
+            // Act
+            var response = await _facadeService.GetEnrolmentStatus(organisationId, connectionId, serviceKey, serviceKey);
+
+            // Assert
+            Assert.IsNull(response);
+            httpTestHandler.Dispose();
+        }
+
+        [TestMethod]
+        public async Task GetEnrolmentStatus_WithServiceKeyNotPresentInEnrolments_IsSuccessfulReturnsNull()
+        {
+            // Arrange
+            var organisationId = Guid.NewGuid();
+            var connectionId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
+            var serviceKey = ServiceRoles.Packaging.BasicUser;
+            var enrolmentStatus = EnrolmentStatus.Invited;
+
+            var expectedResponse = new ConnectionWithEnrolments
+            {
+                PersonRole = PersonRole.Admin,
+                UserId = userId,
+                Enrolments = new Collection<EnrolmentsFromConnection>
+                    {
+                        new EnrolmentsFromConnection
+                        {
+                            ServiceRoleKey = serviceKey,
+                            EnrolmentStatus = enrolmentStatus
+                        }
+                    }
+            };
+
+            var httpTestHandler = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(JsonSerializer.Serialize(expectedResponse))
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpTestHandler);
+
+            // Act
+            var response = await _facadeService.GetEnrolmentStatus(organisationId, connectionId, serviceKey, ServiceRoles.Packaging.DelegatedPerson);
+
+            // Assert
+            Assert.IsNull(response);
+            httpTestHandler.Dispose();
+        }
+
+        [TestMethod]
         public async Task GetUsersForOrganisationAsync_WithValidRequest_IsSuccessfulReturnsVoid()
         {
             // Arrange
