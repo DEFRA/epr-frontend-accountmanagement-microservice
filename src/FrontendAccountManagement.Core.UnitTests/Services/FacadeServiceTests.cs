@@ -474,6 +474,55 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
         }
 
         [TestMethod]
+        public async Task GetPermissionTypeFromConnection_WithValidRequestAndWithRoleEmployee_IsSuccessfulReturnsResult()
+        {
+            // Arrange
+            var organisationId = Guid.NewGuid();
+            var connectionId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
+            var serviceKey = ServiceRoles.Packaging.BasicUser;
+            var role = PersonRole.Employee;
+
+            var expectedResponse = new ConnectionWithEnrolments
+            {
+                PersonRole = role,
+                UserId = userId,
+                Enrolments = new Collection<EnrolmentsFromConnection>
+                    {
+                        new EnrolmentsFromConnection
+                        {
+                            ServiceRoleKey = serviceKey,
+                            EnrolmentStatus = EnrolmentStatus.NotSet
+                        }
+                    }
+            };
+
+            var httpTestHandler = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(JsonSerializer.Serialize(expectedResponse))
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpTestHandler);
+
+            // Act
+            var response = await _facadeService.GetPermissionTypeFromConnectionAsync(organisationId, connectionId, serviceKey);
+
+            // Assert
+            Assert.IsNotNull(response);
+            var result = ((PermissionType, Guid))response;
+            Assert.AreEqual(expected: PermissionType.Basic, actual: result!.Item1);
+            Assert.AreEqual(expected: userId, actual: result!.Item2);
+
+            httpTestHandler.Dispose();
+        }
+
+        [TestMethod]
         public async Task GetPermissionTypeFromConnection_WithInvitedStatus_IsUnsuccessfulReturnsNulls()
         {
             // Arrange
