@@ -355,6 +355,56 @@ public class AccountManagementTests : AccountManagementTestBase
         Assert.IsNotNull(viewResult);
     }
 
+    /// <summary>
+    /// Test that if there are user details already stored in temp data (i.e. the user has entered new details, proceded to the next
+    /// page, then clicked back to return to this one), the stored details are overwritten with whichever details
+    /// they've changed this time.
+    /// </summary>
+    [TestMethod]
+    public async Task EditUserDetailsPost_NewUserDetailsAlreadySet()
+    {
+        // Arrange
+        var previousNewDetails = new EditUserDetailsViewModel
+        {
+            FirstName = "Previous first name",
+            LastName = "Previous last name",
+            JobTitle = "Previous job",
+            Telephone = "Previous telephone number"
+        };
+        SystemUnderTest.TempData.Add("NewUserDetails", JsonSerializer.Serialize(previousNewDetails));
+
+        var newNewDetails = new EditUserDetailsViewModel
+        {
+            FirstName = "New first name",
+            LastName = "New last name",
+            JobTitle = "New job",
+            Telephone = "New telephone number"
+        };
+
+        // Check the initial state of the temp data is correct before we act.
+        Assert.AreEqual(previousNewDetails, DeserialiseUserDetailsJson(SystemUnderTest.TempData["NewUserDetails"]));
+
+
+        // Act
+        await SystemUnderTest.EditUserDetails(newNewDetails);
+
+        // Assert
+        Assert.AreEqual(newNewDetails, DeserialiseUserDetailsJson(SystemUnderTest.TempData["NewUserDetails"]));
+    }
+
+    /// <summary>
+    /// Parses the user details from the temp data back to an object.
+    /// </summary>
+    private EditUserDetailsViewModel DeserialiseUserDetailsJson(object json)
+    {
+        var stream = new MemoryStream();
+        var writer = new StreamWriter(stream);
+        writer.Write(json);
+        writer.Flush();
+        stream.Position = 0;
+        return (EditUserDetailsViewModel) JsonSerializer.Deserialize(stream, typeof(EditUserDetailsViewModel));
+    }
+
     [TestMethod]
     [DataRow("Approved Person")]
     [DataRow("Delegated Person")]
@@ -365,8 +415,8 @@ public class AccountManagementTests : AccountManagementTestBase
 
         var viewModel = new CheckYourOrganisationDetailsViewModel();
 
-        TempDataDictionaryMock.Setup(t => t["CheckYourOrganisationDetails"]).Returns(
-            JsonSerializer.Serialize(viewModel));
+        TempDataDictionary["CheckYourOrganisationDetails"]=
+            JsonSerializer.Serialize(viewModel);
 
         // Act
         var result = await SystemUnderTest.CheckCompaniesHouseDetails() as ViewResult;

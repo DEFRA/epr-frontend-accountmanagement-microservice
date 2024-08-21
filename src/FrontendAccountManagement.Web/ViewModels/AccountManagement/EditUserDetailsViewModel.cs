@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
 {
     [ExcludeFromCodeCoverage]
-    public class EditUserDetailsViewModel
+    public record EditUserDetailsViewModel
     {
         [Required(ErrorMessageResourceName = "FirstNameMissing", ErrorMessageResourceType = typeof(EditUserDetails))]
         [StringLength(50, ErrorMessageResourceName = "FirstNameMaxLength", ErrorMessageResourceType = typeof(EditUserDetails))]
