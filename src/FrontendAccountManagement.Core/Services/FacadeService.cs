@@ -229,8 +229,6 @@ public class FacadeService : IFacadeService
 
         var response = await _httpClient.DeleteAsync($"enrolments/{personExternalId}?organisationId={organisationId}&serviceRoleId={serviceRoleId}");
 
-        response.EnsureSuccessStatusCode();
-
         return response.IsSuccessStatusCode ? EndpointResponseStatus.Success : EndpointResponseStatus.Fail;
     }
 

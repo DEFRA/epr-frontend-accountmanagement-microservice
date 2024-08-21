@@ -880,7 +880,6 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
         }
 
         [TestMethod]
-        [ExpectedException(typeof(HttpRequestException))]
         public async Task RemoveUserForOrganisation_WithValidRequest_IsUnsuccessfulReturnsResult()
         {
             // Arrange
