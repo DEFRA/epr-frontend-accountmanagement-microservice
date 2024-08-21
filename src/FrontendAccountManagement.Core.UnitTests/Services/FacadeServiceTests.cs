@@ -1,6 +1,7 @@
 using FrontendAccountManagement.Core.Constants;
 using System.Collections.ObjectModel;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using EPR.Common.Authorization.Models;
 using FluentAssertions;
@@ -839,6 +840,35 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
 
             // Act
             var response = await _facadeService.GetEnrolmentStatus(organisationId, connectionId, serviceKey, serviceKey);
+
+            // Assert
+            Assert.IsNull(response);
+            httpTestHandler.Dispose();
+        }
+
+        [TestMethod]
+        public async Task GetEnrolmentStatus_WithConnectionWithEnrolmentsNull_IsSuccessfulReturnsNull()
+        {
+            // Arrange
+            var organisationId = Guid.NewGuid();
+            var connectionId = Guid.NewGuid();
+            var serviceKey = ServiceRoles.Packaging.BasicUser;
+
+            var httpTestHandler = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent("null", Encoding.UTF8, "application/json")
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpTestHandler);
+
+            // Act
+            var response = await _facadeService.GetEnrolmentStatus(organisationId, connectionId, serviceKey, ServiceRoles.Packaging.DelegatedPerson);
 
             // Assert
             Assert.IsNull(response);

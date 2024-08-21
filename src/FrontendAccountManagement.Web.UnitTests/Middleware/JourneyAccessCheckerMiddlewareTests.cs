@@ -239,6 +239,29 @@ public class JourneyAccessCheckerMiddlewareTests
     }
 
     [TestMethod]
+    public async Task GivenAccessRequiredPageToManagePermissions_WhenJourneySessionIsNull_ThenRedirect()
+    {
+        // Arrange
+        const string firstPageUrl = $"/manage-account/{PagePath.ManageAccount}";
+        var id = Guid.NewGuid();
+
+        SetupEndpointMock(new JourneyAccessAttribute(PagePath.RelationshipWithOrganisation, JourneyName.ManagePermissions));
+
+        _sessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync((JourneySession)null);
+
+        var routingFeatureMock = new Mock<IRoutingFeature>();
+        routingFeatureMock.Setup(x => x.RouteData).Returns(new RouteData(new RouteValueDictionary { { "id", id } }));
+
+        _httpContextMock.Setup(x => x.Features.Get<IRoutingFeature>()).Returns(routingFeatureMock.Object);
+
+        // Act
+        await _middleware.Invoke(_httpContextMock.Object, _sessionManagerMock.Object);
+
+        // Assert
+        _httpResponseMock.Verify(x => x.Redirect(firstPageUrl), Times.Once);
+    }
+
+    [TestMethod]
     [DataRow(PagePath.TeamMemberEmail, PagePath.ManageAccount, PagePath.TeamMemberEmail)]
     public async Task GivenAccessRequiredPage_WhichIsPartOfTheVisitedURLs_WhenInvokeCalled_ThenNoRedirectionHappened(
         string pageUrl, params string[] visitedUrls)
