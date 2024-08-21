@@ -33,8 +33,10 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             _tokenAcquisitionMock = new Mock<ITokenAcquisition>();
             _httpClient = new HttpClient(_mockHandler.Object)
             {
-                BaseAddress = new Uri("http://example")
+                BaseAddress = null
             };
+
+            _httpClient.DefaultRequestHeaders.Add("X-EPR-Organisation", "Test");
 
             var inMemorySettings = new Dictionary<string, string> {
                 {"TopLevelKey", "TopLevelValue"},
