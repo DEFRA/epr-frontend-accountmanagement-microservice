@@ -32,7 +32,7 @@ public abstract class AccountManagementTestBase
     protected Mock<IOptions<ExternalUrlsOptions>> UrlsOptionMock;
     protected Mock<IOptions<DeploymentRoleOptions>> DeploymentRoleOptionsMock;
     protected Mock<ILogger<AccountManagementController>> LoggerMock;
-    protected Mock<ITempDataDictionary> TempDataDictionaryMock;
+    protected ITempDataDictionary TempDataDictionary;
     protected Mock<IClaimsExtensionsWrapper> ClaimsExtensionsWrapperMock;
     protected Mock<IMapper> AutoMapperMock;
     protected AccountManagementController SystemUnderTest;
@@ -49,7 +49,7 @@ public abstract class AccountManagementTestBase
         FacadeServiceMock = new Mock<IFacadeService>();
         UrlsOptionMock = new Mock<IOptions<ExternalUrlsOptions>>();
         DeploymentRoleOptionsMock = new Mock<IOptions<DeploymentRoleOptions>>();
-        TempDataDictionaryMock = new Mock<ITempDataDictionary>();
+        TempDataDictionary = new TempDataDictionary(this.HttpContextMock.Object, new Mock<ITempDataProvider>().Object);
         ClaimsExtensionsWrapperMock = new Mock<IClaimsExtensionsWrapper>();
         AutoMapperMock = new Mock<IMapper>();
 
@@ -68,7 +68,6 @@ public abstract class AccountManagementTestBase
             .Returns(new ExternalUrlsOptions { LandingPageUrl = "/back/to/home" });
 
         LoggerMock = new Mock<ILogger<AccountManagementController>>();
-        TempDataDictionaryMock = new Mock<ITempDataDictionary>();
 
         SystemUnderTest = new AccountManagementController(
             SessionManagerMock.Object,
@@ -80,7 +79,7 @@ public abstract class AccountManagementTestBase
             AutoMapperMock.Object);
 
         SystemUnderTest.ControllerContext.HttpContext = HttpContextMock.Object;
-        SystemUnderTest.TempData = TempDataDictionaryMock.Object;
+        SystemUnderTest.TempData = this.TempDataDictionary;
     }
     
     private void SetUpUserData(UserData userData)
