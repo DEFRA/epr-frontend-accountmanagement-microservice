@@ -119,7 +119,7 @@ public class FacadeService : IFacadeService
         var connectionWithEnrolments = await response.Content.ReadFromJsonWithEnumsAsync<ConnectionWithEnrolments>();
 
         if (connectionWithEnrolments == null ||
-            connectionWithEnrolments.Enrolments.Count <= 0 ||
+            connectionWithEnrolments.Enrolments.Count == 0 ||
             connectionWithEnrolments.Enrolments.Any(e => e.EnrolmentStatus == EnrolmentStatus.Invited))
         {
             return (null, null);
