@@ -402,7 +402,7 @@ public class AccountManagementTests : AccountManagementTestBase
         writer.Write(json);
         writer.Flush();
         stream.Position = 0;
-        return (EditUserDetailsViewModel) JsonSerializer.Deserialize(stream, typeof(EditUserDetailsViewModel));
+        return (EditUserDetailsViewModel)JsonSerializer.Deserialize(stream, typeof(EditUserDetailsViewModel));
     }
 
     [TestMethod]
@@ -415,7 +415,7 @@ public class AccountManagementTests : AccountManagementTestBase
 
         var viewModel = new CheckYourOrganisationDetailsViewModel();
 
-        TempDataDictionary["CheckYourOrganisationDetails"]=
+        TempDataDictionary["CheckYourOrganisationDetails"] =
             JsonSerializer.Serialize(viewModel);
 
         // Act
@@ -869,5 +869,160 @@ public class AccountManagementTests : AccountManagementTestBase
 
         // Assert
         Assert.IsInstanceOfType(result, typeof(ViewResult));
+    }
+
+    [TestMethod]
+    public async Task CheckData_RedirectsToCompanyDetailsHaveNotChanged_WhenTheDataMatches()
+    {
+        // Arrange
+        var mockUserData = new UserData
+        {
+            Organisations = new List<Organisation>
+            {
+                new Organisation
+                {
+                    Name = "Org Name",
+                    TradingName = "Trading Name",
+                    SubBuildingName = "Sub Building",
+                    BuildingName = "Building Name",
+                    BuildingNumber = "1",
+                    Street = "Street",
+                    Locality = "Locality",
+                    DependentLocality = "Dependent Locality",
+                    Town = "Town",
+                    County = "County",
+                    Country = "Country",
+                    Postcode = "Postcode",
+                    CompaniesHouseNumber = "12345678"
+                }
+            }
+        };
+
+        var companiesHouseResponse = new CompaniesHouseResponse
+        {
+            Organisation = new OrganisationDto
+            {
+                Name = "Org Name",
+                TradingName = "Trading Name",
+                RegisteredOffice = new AddressDto
+                {
+                    SubBuildingName = "Sub Building",
+                    BuildingName = "Building Name",
+                    BuildingNumber = "1",
+                    Street = "Street",
+                    Locality = "Locality",
+                    DependentLocality = "Dependent Locality",
+                    Town = "Town",
+                    County = "County",
+                    Country = new CountryDto { Name = "Country" },
+                    Postcode = "Postcode"
+                }
+            }
+        };
+
+        SetupBase(mockUserData);
+
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .ReturnsAsync(new JourneySession { UserData = mockUserData });
+
+        FacadeServiceMock.Setup(f => f.GetCompaniesHouseResponseAsync(It.IsAny<string?>()))
+            .ReturnsAsync(companiesHouseResponse);
+
+        // Act
+        var result = await SystemUnderTest.CheckData() as RedirectToActionResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(nameof(AccountManagementController.CompanyDetailsHaveNotChanged), result.ActionName);
+
+        FacadeServiceMock.Verify(f => f.GetCompaniesHouseResponseAsync(It.IsAny<string>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CheckData_RedirectsToConfirmCompanyDetails_WhenTheDataDoesNotMatch()
+    {
+        // Arrange
+        var mockUserData = new UserData
+        {
+            Organisations = new List<Organisation>
+            {
+                new Organisation
+                {
+                    Name = "Org Name",
+                    TradingName = "Trading Name",
+                    SubBuildingName = "Sub Building",
+                    BuildingName = "Building Name",
+                    BuildingNumber = "1",
+                    Street = "Street",
+                    Locality = "Locality",
+                    DependentLocality = "Dependent Locality",
+                    Town = "Town",
+                    County = "County",
+                    Country = "Country",
+                    Postcode = "Postcode",
+                    CompaniesHouseNumber = "12345678"
+                }
+            }
+        };
+
+        var companiesHouseResponse = new CompaniesHouseResponse
+        {
+            Organisation = new OrganisationDto
+            {
+                Name = "Different Org Name", // Simulating mismatch
+                TradingName = "Trading Name",
+                RegisteredOffice = new AddressDto
+                {
+                    SubBuildingName = "Sub Building",
+                    BuildingName = "Building Name",
+                    BuildingNumber = "1",
+                    Street = "Street",
+                    Locality = "Locality",
+                    DependentLocality = "Dependent Locality",
+                    Town = "Town",
+                    County = "County",
+                    Country = new CountryDto { Name = "Country" },
+                    Postcode = "Postcode"
+                }
+            }
+        };
+
+        SetupBase(mockUserData);
+
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .ReturnsAsync(new JourneySession { UserData = mockUserData });
+
+        FacadeServiceMock.Setup(f => f.GetCompaniesHouseResponseAsync(It.IsAny<string>()))
+            .ReturnsAsync(companiesHouseResponse);
+
+        // Act
+        var result = await SystemUnderTest.CheckData() as RedirectToActionResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(nameof(AccountManagementController.ConfirmCompanyDetails), result.ActionName);
+
+        FacadeServiceMock.Verify(f => f.GetCompaniesHouseResponseAsync(It.IsAny<string>()), Times.Once);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
+    public async Task CheckData_ThrowsArgumentNullException_WhenThereIsNoOrganisationData()
+    {
+        // Arrange
+        var mockUserData = new UserData
+        {
+            Organisations = new List<Organisation>()
+        };
+
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .ReturnsAsync(new JourneySession { UserData = mockUserData });
+
+        SetupBase(mockUserData);
+
+        // Act
+        await SystemUnderTest.CheckData();
+
+        FacadeServiceMock.Verify(f => f.GetCompaniesHouseResponseAsync(It.IsAny<string>()), Times.Never);
     }
 }
