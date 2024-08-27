@@ -8,7 +8,7 @@ public static class ClaimsPrincipalExtension
 {
     public static Guid? GetOrganisationId(this ClaimsPrincipal principal)
     {
-        return GetUserData(principal)?.Organisations.First().Id;
+        return GetUserData(principal)?.Organisations[0].Id;
     }
 
     public static bool IsApprovedPerson(this ClaimsPrincipal principal)

@@ -49,7 +49,7 @@
                                 @Localizer["ConfirmChangePermission.Approved.DetailsParagraph1"]
                             </p>
                             
-                            @if (nationIds.Any(n => n is England or NoNation))
+                            @if (nationIds.Exists(n => n is England or NoNation))
                             {
                                 <p class="govuk-body">
                                     <span class="govuk-!-font-weight-bold">@Localizer["ConfirmChangePermission.Approved.EnglandTitle"]</span><br/>
@@ -58,7 +58,7 @@
                                        class="govuk-link govuk-link--no-visited-state">@Localizer["ConfirmChangePermission.Approved.EnglandEmail"]</a>
                                 </p>
                             }
-                            @if (nationIds.Any(n => n is Wales or NoNation))
+                            @if (nationIds.Exists(n => n is Wales or NoNation))
                             {
                                 <p class="govuk-body">
                                     <span class="govuk-!-font-weight-bold">@Localizer["ConfirmChangePermission.Approved.WalesTitle"]</span><br />
@@ -67,7 +67,7 @@
                                        class="govuk-link govuk-link--no-visited-state">@Localizer["ConfirmChangePermission.Approved.WalesEmail"]</a>
                                 </p>
                             }
-                            @if (nationIds.Any(n => n is Scotland or NoNation))
+                            @if (nationIds.Exists(n => n is Scotland or NoNation))
                             {
                                 <p class="govuk-body">
                                     <span class="govuk-!-font-weight-bold">@Localizer["ConfirmChangePermission.Approved.ScotlandTitle"]</span><br />
@@ -76,7 +76,7 @@
                                        class="govuk-link govuk-link--no-visited-state">@Localizer["ConfirmChangePermission.Approved.ScotlandEmail"]</a>
                                 </p>
                             }                            
-                            @if (nationIds.Any(n => n is NorthernIreland or NoNation))
+                            @if (nationIds.Exists(n => n is NorthernIreland or NoNation))
                             {
                                 <p class="govuk-body">
                                     <span class="govuk-!-font-weight-bold">@Localizer["ConfirmChangePermission.Approved.NorthernIrelandTitle"]</span><br />

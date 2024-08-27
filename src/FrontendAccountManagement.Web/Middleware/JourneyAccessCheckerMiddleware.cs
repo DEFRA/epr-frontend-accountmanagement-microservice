@@ -38,59 +38,79 @@ public class JourneyAccessCheckerMiddleware
         var endpoint = httpContext.Features.Get<IEndpointFeature>()?.Endpoint;
         var attribute = endpoint?.Metadata.GetMetadata<JourneyAccessAttribute>();
 
-        if (attribute != null)
+        if (attribute == null)
         {
-            string? pageToRedirect = null;
+            await _next(httpContext);
+            return;
+        }
 
-            if (attribute.JourneyType == JourneyName.ManagePermissionsStart || attribute.JourneyType == JourneyName.ManagePermissions)
-            {
-                var id = ParseRouteId(httpContext);
+        string? pageToRedirect = attribute.JourneyType == JourneyName.ManagePermissionsStart || attribute.JourneyType == JourneyName.ManagePermissions
+            ? await GetManagePermissionsRedirectPath(attribute, httpContext, sessionManager)
+            : await GetManageAccountRedirectPath(attribute, httpContext, sessionManager);
 
-                if (id == null)
-                {
-                    pageToRedirect = PagePath.ManageAccount;
-                }
-
-                if (attribute.JourneyType == JourneyName.ManagePermissions)
-                {
-                    var sessionValue = await sessionManager.GetSessionAsync(httpContext.Session);
-                    var permissionManagementSession = sessionValue?.PermissionManagementSession;
-
-                    var permissionManagementSessionItem = permissionManagementSession?.Items.FirstOrDefault(x => x.Id == id);
-
-                    if (permissionManagementSessionItem == null || permissionManagementSessionItem.Journey.Count == 0)
-                    {
-                        pageToRedirect = PagePath.ManageAccount;
-                    }
-                    else if (!permissionManagementSessionItem.Journey.Contains($"{attribute.PagePath}/{id}"))
-                    {
-                        pageToRedirect = permissionManagementSessionItem.Journey.Last();
-                    }
-                }
-            }
-            else
-            {
-                var sessionValue = await sessionManager.GetSessionAsync(httpContext.Session);
-                var accountManagementSessionValue = sessionValue?.AccountManagementSession;
-
-                if (accountManagementSessionValue == null || accountManagementSessionValue.Journey.Count == 0)
-                {
-                    pageToRedirect = PagePath.ManageAccount;
-                }
-                else if (!accountManagementSessionValue.Journey.Contains(attribute.PagePath))
-                {
-                    pageToRedirect = accountManagementSessionValue.Journey.Last();
-                }
-            }
-
-            if (!string.IsNullOrEmpty(pageToRedirect))
-            {
-                httpContext.Response.Redirect($"{httpContext.Request.PathBase}/{pageToRedirect}");
-                return;
-            }
+        if (!string.IsNullOrEmpty(pageToRedirect))
+        {
+            httpContext.Response.Redirect($"{httpContext.Request.PathBase}/{pageToRedirect}");
+            return;
         }
 
         await _next(httpContext);
+    }
+
+    private static async Task<string> GetManagePermissionsRedirectPath(
+        JourneyAccessAttribute attribute,
+        HttpContext httpContext,
+        ISessionManager<JourneySession> sessionManager)
+    {
+        string? pageToRedirect = null;
+
+        var id = ParseRouteId(httpContext);
+
+        if (id == null)
+        {
+            pageToRedirect = PagePath.ManageAccount;
+        }
+
+        if (attribute.JourneyType == JourneyName.ManagePermissions)
+        {
+            var sessionValue = await sessionManager.GetSessionAsync(httpContext.Session);
+            var permissionManagementSession = sessionValue?.PermissionManagementSession;
+
+            var permissionManagementSessionItem = permissionManagementSession?.Items.Find(x => x.Id == id);
+
+            if (permissionManagementSessionItem == null || permissionManagementSessionItem.Journey.Count == 0)
+            {
+                pageToRedirect = PagePath.ManageAccount;
+            }
+            else if (!permissionManagementSessionItem.Journey.Contains($"{attribute.PagePath}/{id}"))
+            {
+                pageToRedirect = permissionManagementSessionItem.Journey[permissionManagementSessionItem.Journey.Count -1];
+            }
+        }
+
+        return pageToRedirect;
+    }
+
+    private static async Task<string> GetManageAccountRedirectPath(
+        JourneyAccessAttribute attribute,
+        HttpContext httpContext,
+        ISessionManager<JourneySession> sessionManager)
+    {
+        string? pageToRedirect = null;
+
+        var sessionValue = await sessionManager.GetSessionAsync(httpContext.Session);
+        var accountManagementSessionValue = sessionValue?.AccountManagementSession;
+
+        if (accountManagementSessionValue == null || accountManagementSessionValue.Journey.Count == 0)
+        {
+            pageToRedirect = PagePath.ManageAccount;
+        }
+        else if (!accountManagementSessionValue.Journey.Contains(attribute.PagePath))
+        {
+            pageToRedirect = accountManagementSessionValue.Journey[accountManagementSessionValue.Journey.Count - 1];
+        }
+
+        return pageToRedirect;
     }
 
     private static Guid? ParseRouteId(HttpContext context)

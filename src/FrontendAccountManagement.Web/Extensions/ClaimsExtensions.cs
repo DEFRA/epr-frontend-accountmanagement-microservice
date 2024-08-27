@@ -35,7 +35,7 @@ public static class ClaimsExtensions
         var claim = claimsIdentity?.FindFirst(ClaimTypes.UserData);
         if (claim != null)
         {
-            claimsIdentity?.RemoveClaim(claim);
+            claimsIdentity.RemoveClaim(claim);
         }
 
         var claims = new List<Claim> { new(ClaimTypes.UserData, JsonSerializer.Serialize(userData)) };
