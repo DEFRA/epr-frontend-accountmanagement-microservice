@@ -3,7 +3,6 @@
 @model FrontendAccountManagement.Web.Configs.ExternalUrlsOptions
 
 @{
-    string privacyLink = $"{Model.PrivacyLink}?returnurl={Url.CurrentPath()}";
     string cookieLink = $"{Model.CookiesLink}?returnurl={Url.CurrentPath()}";
 
     string DecorateUrl(string url)

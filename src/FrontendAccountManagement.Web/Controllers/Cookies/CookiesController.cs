@@ -1,6 +1,7 @@
 ﻿using FrontendAccountManagement.Web.Extensions;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Cookies;
+using FrontendAccountManagement.Web.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

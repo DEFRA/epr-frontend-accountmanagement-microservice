@@ -23,7 +23,7 @@ public class ManageTeamViewComponent : ViewComponent
     {
         var httpContext = _contextAccessor.HttpContext;
         var userData = httpContext.User.GetUserData();
-        var organisationId = userData.Organisations.First().Id.ToString();
+        var organisationId = userData.Organisations[0].Id.ToString();
         var serviceRoleId = userData.ServiceRoleId;
         var serviceRoleEnum = (ServiceRole)serviceRoleId;
         var roleInOrganisation = userData.RoleInOrganisation;

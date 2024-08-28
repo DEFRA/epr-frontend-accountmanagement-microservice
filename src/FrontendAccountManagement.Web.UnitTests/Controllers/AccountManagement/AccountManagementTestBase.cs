@@ -9,13 +9,13 @@ using FrontendAccountManagement.Web.Controllers.AccountManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using System.Security.Claims;
 using System.Text.Json;
 using FrontendAccountManagement.Web.Utilities;
 using FrontendAccountManagement.Web.Utilities.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 
@@ -35,6 +35,7 @@ public abstract class AccountManagementTestBase
     protected ITempDataDictionary TempDataDictionary;
     protected Mock<IClaimsExtensionsWrapper> ClaimsExtensionsWrapperMock;
     protected Mock<IMapper> AutoMapperMock;
+    protected Mock<ITempDataDictionary> TempDataDictionaryMock;
     protected AccountManagementController SystemUnderTest;
 
     protected JourneySession JourneySessionMock { get; set; }
@@ -68,6 +69,7 @@ public abstract class AccountManagementTestBase
             .Returns(new ExternalUrlsOptions { LandingPageUrl = "/back/to/home" });
 
         LoggerMock = new Mock<ILogger<AccountManagementController>>();
+        TempDataDictionaryMock = new Mock<ITempDataDictionary>();
 
         SystemUnderTest = new AccountManagementController(
             SessionManagerMock.Object,

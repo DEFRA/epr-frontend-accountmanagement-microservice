@@ -21,7 +21,7 @@ public class SessionManagerTests
     private byte[] _sessionBytes;
 
     private Mock<ISession> _sessionMock;
-    private ISessionManager<JourneySession> _sessionManager;
+    private JourneySessionManager _sessionManager;
 
     [TestInitialize]
     public void Setup()

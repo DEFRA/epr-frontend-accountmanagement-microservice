@@ -158,7 +158,7 @@ public class CookieServiceTests
         requestFeature.Headers = new HeaderDictionary();
         if (key != string.Empty && value != string.Empty)
         {
-            requestFeature.Headers.Add(HeaderNames.Cookie, new StringValues(key + "=" + value));
+            requestFeature.Headers[HeaderNames.Cookie] = new StringValues(key + "=" + value);
         }
 
         featureCollection.Set<IHttpRequestFeature>(requestFeature);

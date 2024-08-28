@@ -5,7 +5,7 @@
 {
     @foreach (var error in Model.Errors)
     {
-        var textInsert = Model.TextInserts?.FirstOrDefault(t => t.Key == error.Key).Value;
+        var textInsert = Model.TextInserts?.Find(t => t.Key == error.Key).Value;
 
         @for (var i = 0; i < error.Errors.Count; i++)
         {
