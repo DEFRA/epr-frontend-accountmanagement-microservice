@@ -9,13 +9,6 @@ namespace FrontendAccountManagement.Web.Extensions;
 
 public static class ClaimsExtensions
 {
-    public static UserData GetUserData(this ClaimsPrincipal claimsPrincipal)
-    {
-        var userDataClaim = claimsPrincipal.Claims.First(c => c.Type == ClaimTypes.UserData);
-
-        return JsonSerializer.Deserialize<UserData>(userDataClaim.Value);
-    }
-
     public static async Task UpdateUserDataClaimsAndSignInAsync(HttpContext httpContext, UserData userData)
     {
         
