@@ -100,7 +100,7 @@ public class AccountManagementTests : AccountManagementTestBase
         RemoveUserJourneyModel userDetails = new() { FirstName = "An", LastName = "Test" };
         AccountManagementSession removeUserAccount = new() { RemoveUserStatus = 0, RemoveUserJourney = userDetails };
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-           .Returns(Task.FromResult(new JourneySession { AccountManagementSession =  removeUserAccount }));
+           .Returns(Task.FromResult(new JourneySession { AccountManagementSession = removeUserAccount }));
         // Act
         var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
 

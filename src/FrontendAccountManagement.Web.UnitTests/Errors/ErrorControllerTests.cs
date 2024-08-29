@@ -5,14 +5,14 @@ using System.Net;
 namespace FrontendAccountManagement.Web.UnitTests.Errors;
 
 [TestClass]
-public class ErrorControllerTests 
+public class ErrorControllerTests
 {
     private ErrorController _errorController;
 
     [TestInitialize]
     public void Setup()
     {
-        _errorController = new ErrorController();        
+        _errorController = new ErrorController();
     }
 
     [TestMethod]

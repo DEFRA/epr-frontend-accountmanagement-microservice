@@ -39,7 +39,7 @@ public class AccountManagementController : Controller
         _urlOptions = urlOptions.Value;
         _deploymentRoleOptions = deploymentRoleOptions.Value;
     }
-    
+
     [HttpGet]
     [Route("")]
     [Route(PagePath.ManageAccount)]
@@ -55,7 +55,7 @@ public class AccountManagementController : Controller
                 statusCode = (int)HttpStatusCode.Forbidden
             });
         }
-        
+
         session.AccountManagementSession.AddUserJourney = null;
         if (session.AccountManagementSession.RemoveUserStatus != null)
         {
@@ -65,11 +65,11 @@ public class AccountManagementController : Controller
             session.AccountManagementSession.RemoveUserStatus = null;
             session.AccountManagementSession.RemoveUserJourney = null;
         }
-        
+
         if (session.AccountManagementSession.AddUserStatus != null)
         {
             model.InviteStatus = session.AccountManagementSession.AddUserStatus;
-            model.InvitedUserEmail =session.AccountManagementSession.InviteeEmailAddress;
+            model.InvitedUserEmail = session.AccountManagementSession.InviteeEmailAddress;
             session.AccountManagementSession.InviteeEmailAddress = null;
             session.AccountManagementSession.AddUserStatus = null;
         }
@@ -79,10 +79,10 @@ public class AccountManagementController : Controller
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccount);
 
         SetCustomBackLink(_urlOptions.LandingPageUrl);
-        
+
         return View(nameof(ManageAccount), model);
     }
-    
+
     [HttpGet]
     [Route(PagePath.TeamMemberEmail)]
     public async Task<IActionResult> TeamMemberEmail()
@@ -101,7 +101,7 @@ public class AccountManagementController : Controller
 
         return View(nameof(TeamMemberEmail), model);
     }
-    
+
     [HttpPost]
     [Route(PagePath.TeamMemberEmail)]
     public async Task<IActionResult> TeamMemberEmail(TeamMemberEmailViewModel model)
@@ -119,16 +119,16 @@ public class AccountManagementController : Controller
 
         return await SaveSessionAndRedirect(session, nameof(TeamMemberPermissions), PagePath.TeamMemberEmail, PagePath.TeamMemberPermissions);
     }
-    
+
     [HttpGet]
     [Route(PagePath.TeamMemberPermissions)]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     public async Task<IActionResult> TeamMemberPermissions()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        
+
         SetBackLink(session, PagePath.TeamMemberPermissions);
-        
+
         var serviceRoles = await _facadeService.GetAllServiceRolesAsync();
         if (serviceRoles == null || !serviceRoles.Any())
         {
@@ -155,10 +155,10 @@ public class AccountManagementController : Controller
                 .OrderByDescending(x => x.Key).ToList();
             model.SavedUserRole = session.AccountManagementSession.AddUserJourney.UserRole;
         }
-        
+
         return View(nameof(TeamMemberPermissions), model);
     }
-    
+
     [HttpPost]
     [Route(PagePath.TeamMemberPermissions)]
     public async Task<IActionResult> TeamMemberPermissions(TeamMemberPermissionsViewModel model)
@@ -173,7 +173,7 @@ public class AccountManagementController : Controller
             model.ServiceRoles = serviceRoles
                 .Where(x => x.ServiceRoleId == 3)
                 .OrderByDescending(x => x.Key).ToList();
-            
+
             return View(nameof(TeamMemberPermissions), model);
         }
 
@@ -182,14 +182,14 @@ public class AccountManagementController : Controller
 
         return await SaveSessionAndRedirect(session, nameof(TeamMemberDetails), PagePath.TeamMemberPermissions, PagePath.TeamMemberDetails);
     }
-    
+
     [HttpGet]
     [AllowAnonymous]
     [Route(PagePath.TeamMemberDetails)]
     public async Task<IActionResult> TeamMemberDetails()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        
+
         SetBackLink(session, PagePath.TeamMemberDetails);
         var model = new TeamMemberDetailsViewModel
         {
@@ -229,12 +229,12 @@ public class AccountManagementController : Controller
                 RoleKey = session.AccountManagementSession.RoleKey
             }
         };
-        
+
         session.AccountManagementSession.AddUserStatus = await _facadeService.SendUserInvite(request);
-        
+
         return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.TeamMemberDetails, PagePath.ManageAccount);
     }
-    
+
     [HttpPost]
     [Route(PagePath.PreRemoveTeamMember)]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
@@ -244,9 +244,9 @@ public class AccountManagementController : Controller
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         SetRemoveUserJourneyValues(session, firstName, lastName, personId);
         await SaveSession(session);
-        return RedirectToAction("RemoveTeamMemberConfirmation","AccountManagement");
+        return RedirectToAction("RemoveTeamMemberConfirmation", "AccountManagement");
     }
-    
+
     [HttpGet]
     [Route(PagePath.RemoveTeamMember)]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
@@ -268,7 +268,7 @@ public class AccountManagementController : Controller
 
         return View(nameof(RemoveTeamMemberConfirmation), model);
     }
-    
+
     [HttpPost]
     [Route(PagePath.RemoveTeamMember)]
     public async Task<IActionResult> RemoveTeamMemberConfirmation(RemoveTeamMemberConfirmationViewModel model)
@@ -281,16 +281,16 @@ public class AccountManagementController : Controller
             SetBackLink(session, PagePath.TeamMemberPermissions);
             return View(model);
         }
-        
+
         var personExternalId = model.PersonId.ToString();
-        var organisation = userData.Organisations.FirstOrDefault();        
+        var organisation = userData.Organisations.FirstOrDefault();
         if (organisation?.Id == null)
         {
             return RedirectToAction(nameof(ManageAccount));
         }
         var organisationId = organisation!.Id.ToString();
         var serviceRoleId = userData.ServiceRoleId;
-        var result = await _facadeService.RemoveUserForOrganisation(personExternalId, organisationId, serviceRoleId );
+        var result = await _facadeService.RemoveUserForOrganisation(personExternalId, organisationId, serviceRoleId);
         session.AccountManagementSession.RemoveUserStatus = result;
 
         return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.RemoveTeamMember, PagePath.ManageAccount);
@@ -315,7 +315,7 @@ public class AccountManagementController : Controller
             session.AccountManagementSession.RemoveUserJourney.PersonId = personId;
         }
     }
-    
+
     private async Task<RedirectToActionResult> SaveSessionAndRedirect(
         JourneySession session,
         string actionName,
@@ -335,7 +335,7 @@ public class AccountManagementController : Controller
 
         await SaveSession(session);
     }
-    
+
     private async Task SaveSession(JourneySession session)
     {
         await _sessionManager.SaveSessionAsync(HttpContext.Session, session);
