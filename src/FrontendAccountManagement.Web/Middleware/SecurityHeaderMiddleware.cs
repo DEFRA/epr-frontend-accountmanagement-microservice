@@ -28,16 +28,16 @@ public class SecurityHeaderMiddleware
             "oversized-images=(self),payment=(),picture-in-picture=(),publickey-credentials-get=(),speaker-selection=()," +
             "sync-xhr=(self),unoptimized-images=(self),unsized-media=(self),usb=(),screen-wake-lock=(),web-share=(),xr-spatial-tracking=()";
 
-        httpContext.Response.Headers.Add("Content-Security-Policy", GetContentSecurityPolicyHeader(scriptNonce, whitelistedFormActionAddresses));
-        httpContext.Response.Headers.Add("Cross-Origin-Embedder-Policy", "require-corp");
-        httpContext.Response.Headers.Add("Cross-Origin-Opener-Policy", "same-origin");
-        httpContext.Response.Headers.Add("Cross-Origin-Resource-Policy", "same-origin");
-        httpContext.Response.Headers.Add("Permissions-Policy", permissionsPolicy);
-        httpContext.Response.Headers.Add("Referrer-Policy", "strict-origin-when-cross-origin");
-        httpContext.Response.Headers.Add("X-Content-Type-Options", "nosniff");
-        httpContext.Response.Headers.Add("X-Frame-Options", "deny");
-        httpContext.Response.Headers.Add("X-Permitted-Cross-Domain-Policies", "none");
-        httpContext.Response.Headers.Add("X-Robots-Tag", "noindex, nofollow");
+        httpContext.Response.Headers.ContentSecurityPolicy = GetContentSecurityPolicyHeader(scriptNonce, whitelistedFormActionAddresses);
+        httpContext.Response.Headers["Cross-Origin-Embedder-Policy"] = "require-corp";
+        httpContext.Response.Headers["Cross-Origin-Opener-Policy"] = "same-origin";
+        httpContext.Response.Headers["Cross-Origin-Resource-Policy"] = "same-origin";
+        httpContext.Response.Headers["Permissions-Policy"] = permissionsPolicy;
+        httpContext.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+        httpContext.Response.Headers.XContentTypeOptions = "nosniff";
+        httpContext.Response.Headers.XFrameOptions = "deny";
+        httpContext.Response.Headers["X-Permitted-Cross-Domain-Policies"] = "none";
+        httpContext.Response.Headers["X-Robots-Tag"] = "noindex, nofollow";
 
         httpContext.Items[ContextKeys.ScriptNonceKey] = scriptNonce;
 

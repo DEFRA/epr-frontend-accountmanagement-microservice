@@ -16,18 +16,11 @@ public class PrimaryNavigationTests : ViewComponentsTestBase
     private const string _placeholderLinkText = "https://non-existent.com/landing-page";
     private readonly Mock<IHttpContextAccessor> _contextAccessorMock = new();
     private PrimaryNavigationViewComponent _component;
-    private NavigationModel _landingPageLink;
     private NavigationModel _manageAccountLink;
 
     [TestInitialize]
     public void Setup()
     {
-        _landingPageLink = new NavigationModel
-        {
-            LocalizerKey = "PrimaryNavigation.Home",
-            LinkValue = _placeholderLinkText,
-        };
-
         _manageAccountLink = new NavigationModel
         {
             LocalizerKey = "PrimaryNavigation.ManageAccount",

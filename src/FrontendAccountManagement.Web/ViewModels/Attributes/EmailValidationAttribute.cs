@@ -13,7 +13,7 @@ public class EmailValidationAttribute : ValidationAttribute
 
     protected override ValidationResult IsValid(object? value, ValidationContext validationContext)
     {
-        if (value != null && !RegexUtilities.IsValidEmail(value?.ToString() ?? string.Empty))
+        if (value != null && !RegexUtilities.IsValidEmail(value.ToString()))
         {
             return new ValidationResult(ErrorMessage);
         }

@@ -107,7 +107,7 @@ public class UserDataCheckerMiddlewareTests
     public async Task Middleware_CallsGetUserAccountAndSignsIn_WhenUserDataDoesNotExistInUserClaims()
     {
         // Arrange
-        var claims = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>(), "authenticationType"));
+        var claims = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>() { }, "authenticationType"));
         var serviceProviderMock = new Mock<IServiceProvider>();
         serviceProviderMock.Setup(x => x.GetService(typeof(IAuthenticationService))).Returns(Mock.Of<IAuthenticationService>());
         _httpContextMock.Setup(x => x.User).Returns(claims);

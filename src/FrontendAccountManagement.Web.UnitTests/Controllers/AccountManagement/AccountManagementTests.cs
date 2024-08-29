@@ -402,7 +402,7 @@ public class AccountManagementTests : AccountManagementTestBase
         writer.Write(json);
         writer.Flush();
         stream.Position = 0;
-        return (EditUserDetailsViewModel)JsonSerializer.Deserialize(stream, typeof(EditUserDetailsViewModel));
+        return (EditUserDetailsViewModel) JsonSerializer.Deserialize(stream, typeof(EditUserDetailsViewModel));
     }
 
     [TestMethod]

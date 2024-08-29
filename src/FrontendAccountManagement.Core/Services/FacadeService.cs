@@ -134,7 +134,7 @@ public class FacadeService : IFacadeService
         var connectionWithEnrolments = await response.Content.ReadFromJsonWithEnumsAsync<ConnectionWithEnrolments>();
 
         if (connectionWithEnrolments == null ||
-            !connectionWithEnrolments.Enrolments.Any() ||
+            connectionWithEnrolments.Enrolments.Count == 0 ||
             connectionWithEnrolments.Enrolments.Any(e => e.EnrolmentStatus == EnrolmentStatus.Invited))
         {
             return (null, null);
@@ -175,7 +175,7 @@ public class FacadeService : IFacadeService
 
         var connectionWithEnrolments = await response.Content.ReadFromJsonWithEnumsAsync<ConnectionWithEnrolments>();
 
-        return connectionWithEnrolments?.Enrolments.FirstOrDefault(e => e.ServiceRoleKey.Equals(serviceRoleKey)).EnrolmentStatus;
+        return connectionWithEnrolments?.Enrolments.FirstOrDefault(e => e.ServiceRoleKey.Equals(serviceRoleKey))?.EnrolmentStatus;
     }
 
     public async Task UpdatePersonRoleAdminOrEmployee(Guid connectionId, PersonRole personRole, Guid organisationId, string serviceKey)
@@ -243,8 +243,6 @@ public class FacadeService : IFacadeService
         await PrepareAuthenticatedClient();
 
         var response = await _httpClient.DeleteAsync($"enrolments/{personExternalId}?organisationId={organisationId}&serviceRoleId={serviceRoleId}");
-
-        response.EnsureSuccessStatusCode();
 
         return response.IsSuccessStatusCode ? EndpointResponseStatus.Success : EndpointResponseStatus.Fail;
     }

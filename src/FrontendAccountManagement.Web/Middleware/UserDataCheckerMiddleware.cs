@@ -28,7 +28,7 @@ public class UserDataCheckerMiddleware : IMiddleware
         
         var existingUserData = context.User.GetUserData();
 
-        if (!anonControllers.Any(c => c == controllerName) && context.User.Identity is { IsAuthenticated: true } && existingUserData is null)
+        if (!anonControllers.Contains(controllerName) && context.User.Identity is { IsAuthenticated: true } && existingUserData is null)
         {
             var userAccount = await _facadeService.GetUserAccount();
 
