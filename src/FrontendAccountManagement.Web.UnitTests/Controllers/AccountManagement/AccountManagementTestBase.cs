@@ -69,7 +69,6 @@ public abstract class AccountManagementTestBase
             .Returns(new ExternalUrlsOptions { LandingPageUrl = "/back/to/home" });
 
         LoggerMock = new Mock<ILogger<AccountManagementController>>();
-        TempDataDictionaryMock = new Mock<ITempDataDictionary>();
 
         SystemUnderTest = new AccountManagementController(
             SessionManagerMock.Object,
