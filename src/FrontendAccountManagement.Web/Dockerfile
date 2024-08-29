@@ -40,7 +40,6 @@ USER root
 # Install tzdata
 USER root
 RUN apk add --no-cache tzdata
-USER dotnet
 
 # Add internationalisation support
 RUN apk --no-cache add icu-libs icu-data-full libintl
