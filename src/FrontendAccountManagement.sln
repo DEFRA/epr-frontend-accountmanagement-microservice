@@ -11,11 +11,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{A17B9A70-5A6
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FrontendAccountManagement.Core", "FrontendAccountManagement.Core\FrontendAccountManagement.Core.csproj", "{CDC979DD-C0E5-4CE8-9C3C-A7BA077041D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrontendAccountManagement.IntegrationTests", "FrontendAccountManagement.IntegrationTests\FrontendAccountManagement.IntegrationTests.csproj", "{F7E76615-AAE5-4DB9-89D2-8A25BA4003A3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FrontendAccountManagement.IntegrationTests", "FrontendAccountManagement.IntegrationTests\FrontendAccountManagement.IntegrationTests.csproj", "{F7E76615-AAE5-4DB9-89D2-8A25BA4003A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrontendAccountManagement.Core.UnitTests", "FrontendAccountManagement.Core.UnitTests\FrontendAccountManagement.Core.UnitTests.csproj", "{F5B83008-CF7F-4277-96AF-154292B01876}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FrontendAccountManagement.Core.UnitTests", "FrontendAccountManagement.Core.UnitTests\FrontendAccountManagement.Core.UnitTests.csproj", "{F5B83008-CF7F-4277-96AF-154292B01876}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrontendAccountManagement.Web.UnitTests", "FrontendAccountManagement.Web.UnitTests\FrontendAccountManagement.Web.UnitTests.csproj", "{EF133B62-8EBC-49AE-BF81-4E9C08311A13}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FrontendAccountManagement.Web.UnitTests", "FrontendAccountManagement.Web.UnitTests\FrontendAccountManagement.Web.UnitTests.csproj", "{EF133B62-8EBC-49AE-BF81-4E9C08311A13}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{92A43BCD-AF68-4B13-A4B6-F3270886745C}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

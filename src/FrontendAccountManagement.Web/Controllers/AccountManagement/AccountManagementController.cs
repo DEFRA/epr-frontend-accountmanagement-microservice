@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
 using System;
 using System.Net;
@@ -46,7 +47,9 @@ public class AccountManagementController : Controller
     private readonly DeploymentRoleOptions _deploymentRoleOptions;
     private readonly IClaimsExtensionsWrapper _claimsExtensionsWrapper;
     private readonly IMapper _mapper;
+    private readonly IFeatureManager _featureManager;
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "Its Allowed for now in this case")]
     public AccountManagementController(
         ISessionManager<JourneySession> sessionManager,
         IFacadeService facadeService,
@@ -54,6 +57,7 @@ public class AccountManagementController : Controller
         IOptions<DeploymentRoleOptions> deploymentRoleOptions,
         ILogger<AccountManagementController> logger,
         IClaimsExtensionsWrapper claimsExtensionsWrapper,
+        IFeatureManager featureManager,
         IMapper mapper)
     {
         _sessionManager = sessionManager;
@@ -62,6 +66,7 @@ public class AccountManagementController : Controller
         _urlOptions = urlOptions.Value;
         _deploymentRoleOptions = deploymentRoleOptions.Value;
         _claimsExtensionsWrapper = claimsExtensionsWrapper;
+        _featureManager = featureManager;
         _mapper = mapper;
     }
 
@@ -138,6 +143,7 @@ public class AccountManagementController : Controller
             model.IsBasicUser = IsBasicUser(userAccount);
             model.IsChangeRequestPending = userAccount.IsChangeRequestPending;
             model.IsAdmin = userAccount.RoleInOrganisation == PersonRole.Admin.ToString();
+            model.ShowManageUserDetailChanges = await _featureManager.IsEnabledAsync(FeatureFlags.ManageUserDetailChanges);
         }
         return View(nameof(ManageAccount), model);
     }
