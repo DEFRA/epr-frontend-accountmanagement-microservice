@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using EPR.Common.Authorization.Models;
-using FrontendAccountManagement.Core.Models;
 using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
@@ -13,9 +12,9 @@ using Microsoft.Extensions.Options;
 using Moq;
 using System.Security.Claims;
 using System.Text.Json;
-using FrontendAccountManagement.Web.Utilities;
 using FrontendAccountManagement.Web.Utilities.Interfaces;
 using Microsoft.Extensions.Logging;
+using Microsoft.FeatureManagement;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 
@@ -29,6 +28,7 @@ public abstract class AccountManagementTestBase
     protected Mock<ClaimsIdentity> ClaimsIdentityMock;
     public Mock<ISessionManager<JourneySession>> SessionManagerMock;
     protected Mock<IFacadeService> FacadeServiceMock;
+    protected Mock<IFeatureManager> FeatureManagerMock;
     protected Mock<IOptions<ExternalUrlsOptions>> UrlsOptionMock;
     protected Mock<IOptions<DeploymentRoleOptions>> DeploymentRoleOptionsMock;
     protected Mock<ILogger<AccountManagementController>> LoggerMock;
@@ -48,7 +48,8 @@ public abstract class AccountManagementTestBase
         ClaimsIdentityMock = new Mock<ClaimsIdentity>();
         SessionManagerMock = new Mock<ISessionManager<JourneySession>>();
         FacadeServiceMock = new Mock<IFacadeService>();
-        UrlsOptionMock = new Mock<IOptions<ExternalUrlsOptions>>();
+        FeatureManagerMock = new Mock<IFeatureManager>();
+         UrlsOptionMock = new Mock<IOptions<ExternalUrlsOptions>>();
         DeploymentRoleOptionsMock = new Mock<IOptions<DeploymentRoleOptions>>();
         TempDataDictionary = new TempDataDictionary(this.HttpContextMock.Object, new Mock<ITempDataProvider>().Object);
         ClaimsExtensionsWrapperMock = new Mock<IClaimsExtensionsWrapper>();
@@ -77,6 +78,7 @@ public abstract class AccountManagementTestBase
             DeploymentRoleOptionsMock.Object,
             LoggerMock.Object,
             ClaimsExtensionsWrapperMock.Object,
+            FeatureManagerMock.Object,
             AutoMapperMock.Object);
 
         SystemUnderTest.ControllerContext.HttpContext = HttpContextMock.Object;

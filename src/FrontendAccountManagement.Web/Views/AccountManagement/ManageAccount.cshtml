@@ -42,6 +42,8 @@
                     @await Html.PartialAsync("Partials/_SuccessBanner", Localizer["UserRemoved", Model.RemovedUsersName])
                 }
 
+                @if (Model.ShowManageUserDetailChanges)
+                {
                 <h1 class="govuk-heading-l govuk-!-margin-bottom-8">
                     @Localizer["ManageAccountDetails"]
                 </h1>
@@ -169,6 +171,7 @@
                     </div>
                 </dl>
                 <br />
+                }
 
                 @if (Model.IsAdmin.HasValue && Model.IsAdmin.Value)
                 {

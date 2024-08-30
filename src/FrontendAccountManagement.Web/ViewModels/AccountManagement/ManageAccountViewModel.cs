@@ -40,5 +40,7 @@ namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
         public bool? IsChangeRequestPending { get; set; } = false;
 
         public bool? IsAdmin { get; set; }
+
+        public bool ShowManageUserDetailChanges { get; set; }
     }
 }
