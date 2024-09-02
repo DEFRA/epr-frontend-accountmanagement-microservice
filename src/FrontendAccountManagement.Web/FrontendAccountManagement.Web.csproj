@@ -36,11 +36,10 @@
       <PackageReference Include="Microsoft.Identity.Web.UI" Version="3.1.0" />
       <PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
       <PackageReference Update="SonarAnalyzer.CSharp" Version="9.30.0.95878" />
-      <PackageReference Include="EPR.Common.Authorization" Version="1.0.16-rc.662802" />
+      <PackageReference Include="EPR.Common.Authorization" Version="1.0.17" />
       <PackageReference Include="AutoMapper" Version="13.0.1" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.8" />
-      <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="2.5.1" />
       <PackageReference Update="SonarAnalyzer.CSharp" Version="9.32.0.97167" />
     </ItemGroup>
 
