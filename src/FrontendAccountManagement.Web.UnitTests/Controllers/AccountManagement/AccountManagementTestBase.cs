@@ -27,7 +27,7 @@ public abstract class AccountManagementTestBase
     protected Mock<ClaimsPrincipal> UserMock;
     protected Mock<ClaimsIdentity> ClaimsIdentityMock;
     public Mock<ISessionManager<JourneySession>> SessionManagerMock;
-    protected Mock<IFacadeService> FacadeServiceMock;
+    protected Mock<IFacadeService> FacadeServiceMock = new Mock<IFacadeService>();
     protected Mock<IFeatureManager> FeatureManagerMock;
     protected Mock<IOptions<ExternalUrlsOptions>> UrlsOptionMock;
     protected Mock<IOptions<DeploymentRoleOptions>> DeploymentRoleOptionsMock;
@@ -47,7 +47,6 @@ public abstract class AccountManagementTestBase
         UserMock = new Mock<ClaimsPrincipal>();
         ClaimsIdentityMock = new Mock<ClaimsIdentity>();
         SessionManagerMock = new Mock<ISessionManager<JourneySession>>();
-        FacadeServiceMock = new Mock<IFacadeService>();
         FeatureManagerMock = new Mock<IFeatureManager>();
          UrlsOptionMock = new Mock<IOptions<ExternalUrlsOptions>>();
         DeploymentRoleOptionsMock = new Mock<IOptions<DeploymentRoleOptions>>();

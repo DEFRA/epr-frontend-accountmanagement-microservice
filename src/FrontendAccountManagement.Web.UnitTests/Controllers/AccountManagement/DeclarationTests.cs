@@ -11,6 +11,7 @@ using System;
 using FrontendAccountManagement.Core.Enums;
 using Organisation = EPR.Common.Authorization.Models.Organisation;
 using Microsoft.Extensions.Logging;
+using FrontendAccountManagement.Core.Models;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 {
@@ -71,7 +72,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             // Arrange
             var userData = new UserData
             {
-                ServiceRole = ServiceRole.Approved.ToString(),
+                ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
                 ServiceRoleId = 1,
                 RoleInOrganisation = PersonRole.Admin.ToString(),
             };
@@ -313,5 +314,87 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             Assert.IsTrue(result.Message == "Unknown role in organisation.");
             SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
         }
+
+        /// <summary>
+        /// Check that when the user is a basic user, the UpdateUserDetailsRequest page is returned.
+        /// </summary>
+        [TestMethod]
+        public async Task Declaration_Post_UserIsBasicUser()
+        {
+            // Arrange
+            var userData = new UserData
+            {
+                ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+                ServiceRoleId = (int)Core.Enums.ServiceRole.Basic,
+                RoleInOrganisation = PersonRole.Employee.ToString(),
+            };
+
+            SetupBase(userData);
+
+            var viewModel = new Mock<EditUserDetailsViewModel>();
+
+            // Act
+            var result = await SystemUnderTest.DeclarationPost(viewModel.Object);
+
+
+            //Assert
+            Assert.IsInstanceOfType<ViewResult>(result);
+            var resultViewModel = (EditUserDetailsViewModel)((ViewResult)result).Model;
+            Assert.AreSame(viewModel.Object, resultViewModel);
+        }
+
+        /// <summary>
+        /// Check that update user is an approved user, they're redirected to the details change requested page.
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task Declaration_Post_UserIsApprovedUser()
+        {
+            // Arrange
+            var userData = new UserData
+            {
+                Id = Guid.NewGuid(),
+                ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+                ServiceRoleId = (int)Core.Enums.ServiceRole.Approved,
+                RoleInOrganisation = PersonRole.Employee.ToString(),
+                Organisations = new List<Organisation>
+                {
+                    new Organisation()
+                    {
+                        Id = Guid.NewGuid(),
+                    }
+                }
+            };
+
+            this.FacadeServiceMock.Setup(mock => mock.UpdateUserDetailsAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<UpdateUserDetailsRequest>()))
+                .Returns(Task.FromResult(new UpdateUserDetailsResponse 
+                { 
+                    HasApprovedOrDelegatedUserDetailsSentForApproval = true,
+                }));
+
+            this.FacadeServiceMock.Setup(mock => mock.GetUserAccount())
+                .Returns(Task.FromResult(new UserAccountDto
+                {
+
+                }));
+
+            this.SetupBase(userData);
+
+            var viewModel = new Mock<EditUserDetailsViewModel>();
+
+            // Act
+            var result = await SystemUnderTest.DeclarationPost(viewModel.Object);
+
+            //Assert
+            Assert.IsInstanceOfType<RedirectToActionResult>(result);
+            var resultAction = (RedirectToActionResult)result;
+            Assert.AreSame("DetailsChangeRequested", resultAction.ActionName);
+        }
+
+
     }
 }
