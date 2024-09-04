@@ -106,9 +106,6 @@ public class TeamMemberRoleTests : AccountManagementTestBase
     public async Task GivenOnTeamMemberRolePage_WhenTeamMemberPermissionsHttpGetCalled_AndNoRolesReturnedFromFacade_ThenThrowException()
     {
         // Arrange
-        FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
-            .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(new List<Core.Models.ServiceRole>()));
-
         var mockUserData = new UserData
         {
             ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
@@ -117,6 +114,9 @@ public class TeamMemberRoleTests : AccountManagementTestBase
         };
 
         SetupBase(mockUserData);
+
+        FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
+           .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(new List<Core.Models.ServiceRole>()));
 
         // Act
         var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
