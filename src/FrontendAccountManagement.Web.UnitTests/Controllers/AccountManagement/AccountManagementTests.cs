@@ -1072,4 +1072,63 @@ public class AccountManagementTests : AccountManagementTestBase
         redirectResult.RouteValues.Should().ContainKey("statusCode");
         redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
     }
+
+    [TestMethod]
+    public async Task EditUserDetails_TempDataHasValidAmendedUserDetails_DeserializesAndReturnsViewWithModel()
+    {
+        // Arrange
+        var mockUserData = new UserData
+        {
+            FirstName = FirstName,
+            LastName = LastName,
+            Telephone = Telephone,
+            IsChangeRequestPending = false,
+            Organisations = new List<Organisation>()
+        };
+
+        var expectedModel = new EditUserDetailsViewModel
+        {
+            FirstName = FirstName,
+            LastName = LastName,
+            Telephone = Telephone
+        };
+
+        var serializedModel = JsonSerializer.Serialize(expectedModel);
+
+        SetupBase(mockUserData);
+
+        TempDataDictionary["AmendedUserDetails"] = serializedModel;
+
+        AutoMapperMock.Setup(m =>
+            m.Map<EditUserDetailsViewModel>(mockUserData))
+            .Returns(expectedModel);
+
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .ReturnsAsync(new JourneySession
+            {
+                UserData = mockUserData
+            });
+
+        // Act
+        var result = await SystemUnderTest.EditUserDetails();
+
+        // Assert
+        var viewResult = result as ViewResult;
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
+        Assert.IsNotNull(viewResult);
+        Assert.AreEqual(expectedModel.FirstName, ((EditUserDetailsViewModel)viewResult.Model).FirstName);
+    }
+
+    [TestMethod]
+    public async Task ConfirmDetailsOfTheCompany_ShouldRedirectToUkNation()
+    {
+        // Act
+        var result = await SystemUnderTest.ConfirmDetailsOfTheCompany();
+
+        // Assert
+        var redirectToActionResult = result as RedirectToActionResult;
+        Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
+        Assert.IsNotNull(redirectToActionResult);
+        Assert.AreEqual(nameof(SystemUnderTest.UkNation), redirectToActionResult.ActionName);
+    }
 }
