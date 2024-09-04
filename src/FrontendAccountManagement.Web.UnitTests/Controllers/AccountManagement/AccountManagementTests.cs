@@ -1131,4 +1131,38 @@ public class AccountManagementTests : AccountManagementTestBase
         Assert.IsNotNull(redirectToActionResult);
         Assert.AreEqual(nameof(SystemUnderTest.UkNation), redirectToActionResult.ActionName);
     }
+
+    [TestMethod]
+    public async Task UpdateDetailsConfirmation_ShouldReturnForbidden_WhenIsChangeRequestPendingIsTrue()
+    {
+        // Arrange
+        var mockUserData = new UserData
+        {
+            FirstName = FirstName,
+            LastName = LastName,
+            Telephone = Telephone,
+            IsChangeRequestPending = true,
+            Organisations = new List<Organisation>()
+        };
+
+        SetupBase(mockUserData);
+
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .ReturnsAsync(new JourneySession
+            {
+                UserData = mockUserData
+            });
+
+        // Act
+        var result = await SystemUnderTest.UpdateDetailsConfirmation();
+
+        // Assert
+        result.Should().BeOfType<RedirectToActionResult>();
+        var redirectResult = (RedirectToActionResult)result;
+
+        redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+        redirectResult.ActionName.Should().Be(PagePath.Error);
+        redirectResult.RouteValues.Should().ContainKey("statusCode");
+        redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
+    }
 }
