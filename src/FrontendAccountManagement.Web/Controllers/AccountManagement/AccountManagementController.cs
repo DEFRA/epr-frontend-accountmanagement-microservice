@@ -598,7 +598,7 @@ public class AccountManagementController : Controller
         {
             TempData[NewUserDetailsKey] = JsonSerializer.Serialize(editUserDetailsViewModel);
         }
-            
+
         return RedirectToAction(nameof(PagePath.CheckYourDetails));
     }
 
