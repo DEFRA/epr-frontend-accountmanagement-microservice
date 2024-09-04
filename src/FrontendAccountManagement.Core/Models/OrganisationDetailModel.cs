@@ -1,4 +1,7 @@
 namespace FrontendAccountManagement.Core.Models;
+using System.Diagnostics.CodeAnalysis;
+
+[ExcludeFromCodeCoverage]
 public class OrganisationDetailModel
 {
     public Guid Id { get; set; }

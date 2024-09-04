@@ -1,6 +1,8 @@
 
 namespace FrontendAccountManagement.Core.Models;
+using System.Diagnostics.CodeAnalysis;
 
+[ExcludeFromCodeCoverage]
 public class UserDetailsModel
 {
     public Guid Id { get; set; }

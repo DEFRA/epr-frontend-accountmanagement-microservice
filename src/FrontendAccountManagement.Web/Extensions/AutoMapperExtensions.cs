@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using FrontendAccountManagement.Web.Profiles;
+using System.Diagnostics.CodeAnalysis;
 
 namespace FrontendAccountManagement.Web.Extensions
 {
+    [ExcludeFromCodeCoverage]
     /// <summary>
     /// Extension class for any further AutoMapper functionality
     /// </summary>
