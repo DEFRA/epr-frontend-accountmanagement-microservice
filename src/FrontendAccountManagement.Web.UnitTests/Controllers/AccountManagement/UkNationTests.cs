@@ -8,6 +8,7 @@ using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using System.Text.Json;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 
@@ -20,6 +21,8 @@ public class UkNationTests : AccountManagementTestBase
     private Mock<HttpContext>? _httpContextMock;
 
     private Fixture _fixture = new Fixture();
+
+    private const string CheckYourOrganisationDetailsKey = "CheckYourOrganisationDetails";
 
     [TestInitialize]
     public void Setup()
@@ -127,5 +130,40 @@ public class UkNationTests : AccountManagementTestBase
         // Assert
         result.Should().BeOfType<NotFoundResult>();
         SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task UkNation_WhenTempDataHasValidData_ShouldReturnViewWithUkNation()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.RegulatorAdmin.ToString(),
+            ServiceRoleId = 4,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        SetupBase(userData);
+
+        var session = new JourneySession();
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .ReturnsAsync(session);
+
+        var checkYourOrgDetails = new CheckYourOrganisationDetailsViewModel
+        {
+            UkNation = UkNation.England
+        };
+
+        TempDataDictionary[CheckYourOrganisationDetailsKey] = JsonSerializer.Serialize(checkYourOrgDetails);
+        TempDataDictionary.Keep(CheckYourOrganisationDetailsKey);
+
+        // Act
+        var result = await SystemUnderTest.UkNation() as ViewResult;
+        var viewModel = result?.Model as UkNationViewModel;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.IsNotNull(viewModel);
+        Assert.AreEqual(UkNation.England, viewModel.UkNation);
     }
 }
