@@ -962,7 +962,7 @@ public class AccountManagementController : Controller
     public async Task<IActionResult> UkNation(UkNationViewModel model)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-
+        var userData = User.GetUserData();
         SetCustomBackLink(PagePath.ConfirmCompanyDetails, false);
 
         if (!ModelState.IsValid)
@@ -977,7 +977,7 @@ public class AccountManagementController : Controller
 
         var checkYourOrganisationModel = new CheckYourOrganisationDetailsViewModel
         {
-            OrganisationId = session.UserData.Organisations.FirstOrDefault()?.Id ?? Guid.Empty,
+            OrganisationId = userData.Organisations.FirstOrDefault()?.Id ?? Guid.Empty,
             Address = string.Join(", ", address.AddressFields.Where(field => !string.IsNullOrWhiteSpace(field))),
             TradingName = session.CompaniesHouseSession?.CompaniesHouseData?.Organisation?.Name,
             UkNation = model.UkNation.Value
