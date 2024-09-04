@@ -26,5 +26,44 @@ namespace FrontendAccountManagement.Web.UnitTests.Extensions
             // Assert
             Assert.AreEqual(expected, result.ToString("HH:mm"));
         }
+
+        [TestMethod]
+        public void ToReadableDate_ValidDateTime_ReturnsCorrectFormat()
+        {
+            // Arrange
+            var dateTime = new DateTime(2023, 8, 23, 12, 0, 0, DateTimeKind.Utc); // 23rd August 2023
+
+            // Act
+            var result = dateTime.ToReadableDate();
+
+            // Assert
+            Assert.AreEqual("23 August 2023", result);
+        }
+
+        [TestMethod]
+        public void ToShortReadableDate_ValidDateTime_ReturnsCorrectFormat()
+        {
+            // Arrange
+            var dateTime = new DateTime(2023, 8, 23, 14, 30, 0, DateTimeKind.Utc); // 23rd August 2023
+
+            // Act
+            var result = dateTime.ToShortReadableDate();
+
+            // Assert
+            Assert.AreEqual("23 Aug 2023", result);
+        }
+
+        [TestMethod]
+        public void ToShortReadableWithShortYearDate_ValidDateTime_ReturnsCorrectFormat()
+        {
+            // Arrange
+            var dateTime = new DateTime(2024, 8, 23, 14, 30, 0, DateTimeKind.Utc); // 23rd August 2024
+
+            // Act
+            var result = dateTime.ToShortReadableWithShortYearDate();
+
+            // Assert
+            Assert.AreEqual("23 Aug 24", result);
+        }
     }
 }
