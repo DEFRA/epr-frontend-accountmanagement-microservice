@@ -10,6 +10,7 @@ using EPR.Common.Authorization.Models;
 using System;
 using FrontendAccountManagement.Core.Enums;
 using Organisation = EPR.Common.Authorization.Models.Organisation;
+using Microsoft.Extensions.Logging;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 {
@@ -48,6 +49,46 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             Assert.IsInstanceOfType(result, typeof(ViewResult));
             var viewResult = result as ViewResult;
             Assert.IsInstanceOfType(viewResult.Model, typeof(EditUserDetailsViewModel));
+
+            // Verify the session was saved and the back link was set
+            SessionManagerMock.Verify(
+                m =>
+                    m.SaveSessionAsync(
+                        It.IsAny<ISession>(),
+                        It.IsAny<JourneySession>())
+                    , Times.Once);
+        }
+
+        // /// <summary>
+        // /// Check that the viewmodel returned when accessing the declaration page contains the user data extracted from tempdata..
+        // /// </summary>
+        [TestMethod]
+        public async Task Declaration_ReturnsExistingUserDetailsWhenPresent()
+        {
+            var firstName = "Bob";
+            var lastName = "McPlaceholder";
+
+            // Arrange
+            var userData = new UserData
+            {
+                ServiceRole = ServiceRole.Approved.ToString(),
+                ServiceRoleId = 1,
+                RoleInOrganisation = PersonRole.Admin.ToString(),
+            };
+            
+            SetupBase(userData);
+
+            SystemUnderTest.TempData.Add("AmendedUserDetails", $"{{ \"FirstName\": \"{firstName}\", \"LastName\": \"{lastName}\" }}");
+
+            // Act
+            var result = await SystemUnderTest.Declaration();
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
+            var viewResult = (ViewResult) result;
+            var viewModelResult = (EditUserDetailsViewModel)viewResult.Model;
+            Assert.AreEqual(firstName, viewModelResult.FirstName);
+            Assert.AreEqual(lastName, viewModelResult.LastName);
 
             // Verify the session was saved and the back link was set
             SessionManagerMock.Verify(
