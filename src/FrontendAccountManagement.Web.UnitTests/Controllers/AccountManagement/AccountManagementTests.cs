@@ -45,6 +45,8 @@ public class AccountManagementTests : AccountManagementTestBase
     private const int ServiceRoleId = 1;
     private const string ServiceRoleKey = "Approved.Admin";
 
+    private const string AmendedUserDetailsKey = "AmendedUserDetails";
+
 
     [TestInitialize]
     public void Setup()
@@ -402,7 +404,7 @@ public class AccountManagementTests : AccountManagementTestBase
         writer.Write(json);
         writer.Flush();
         stream.Position = 0;
-        return (EditUserDetailsViewModel) JsonSerializer.Deserialize(stream, typeof(EditUserDetailsViewModel));
+        return (EditUserDetailsViewModel)JsonSerializer.Deserialize(stream, typeof(EditUserDetailsViewModel));
     }
 
     [TestMethod]
@@ -1024,5 +1026,50 @@ public class AccountManagementTests : AccountManagementTestBase
         await SystemUnderTest.CheckData();
 
         FacadeServiceMock.Verify(f => f.GetCompaniesHouseResponseAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task EditUserDetails_ShouldReturnForbidden_WhenIsChangeRequestPendingIsTrue()
+    {
+        // Arrange
+        var mockUserData = new UserData
+        {
+            FirstName = FirstName,
+            LastName = LastName,
+            Telephone = Telephone,
+            IsChangeRequestPending = true,
+            Organisations = new List<Organisation>()
+        };
+
+        var expectedModel = new EditUserDetailsViewModel
+        {
+            FirstName = FirstName,
+            LastName = LastName,
+            Telephone = Telephone
+        };
+
+        AutoMapperMock.Setup(m =>
+            m.Map<EditUserDetailsViewModel>(mockUserData))
+            .Returns(expectedModel);
+
+        SetupBase(mockUserData);
+
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .ReturnsAsync(new JourneySession
+            {
+                UserData = mockUserData
+            });
+
+        // Act
+        var result = await SystemUnderTest.EditUserDetails();
+
+        // Assert
+        result.Should().BeOfType<RedirectToActionResult>();
+        var redirectResult = (RedirectToActionResult)result;
+
+        redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+        redirectResult.ActionName.Should().Be(PagePath.Error);
+        redirectResult.RouteValues.Should().ContainKey("statusCode");
+        redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
     }
 }
