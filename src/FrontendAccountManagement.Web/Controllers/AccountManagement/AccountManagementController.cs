@@ -1,6 +1,11 @@
-using System.Net;
+using AutoMapper;
 using EPR.Common.Authorization.Constants;
+using EPR.Common.Authorization.Extensions;
 using EPR.Common.Authorization.Models;
+using EPR.Common.Authorization.Sessions;
+using FrontendAccountManagement.Core.Enums;
+using FrontendAccountManagement.Core.Enums;
+using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Services;
@@ -8,13 +13,20 @@ using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.Errors;
-using FrontendAccountManagement.Web.Sessions;
+using FrontendAccountManagement.Web.Extensions;
+using FrontendAccountManagement.Web.Profiles;
+using FrontendAccountManagement.Web.Utilities.Interfaces;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
-using FrontendAccountManagement.Web.Extensions;
+using System;
+using System.Net;
+using System.Text.Json;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
@@ -23,23 +35,41 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 public class AccountManagementController : Controller
 {
     private const string RolesNotFoundException = "Could not retrieve service roles or none found";
+    private const string CheckYourOrganisationDetailsKey = "CheckYourOrganisationDetails";
+    private const string OrganisationDetailsUpdatedTimeKey = "OrganisationDetailsUpdatedTime";
+    private const string AmendedUserDetailsKey = "AmendedUserDetails";
+    private const string NewUserDetailsKey = "NewUserDetails";
+    private const string ServiceKey = "Packaging";
     private readonly ISessionManager<JourneySession> _sessionManager;
     private readonly IFacadeService _facadeService;
+    private readonly ILogger<AccountManagementController> _logger;
     private readonly ExternalUrlsOptions _urlOptions;
     private readonly DeploymentRoleOptions _deploymentRoleOptions;
+    private readonly IClaimsExtensionsWrapper _claimsExtensionsWrapper;
+    private readonly IMapper _mapper;
+    private readonly IFeatureManager _featureManager;
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "Its Allowed for now in this case")]
     public AccountManagementController(
         ISessionManager<JourneySession> sessionManager,
         IFacadeService facadeService,
         IOptions<ExternalUrlsOptions> urlOptions,
-        IOptions<DeploymentRoleOptions> deploymentRoleOptions)
+        IOptions<DeploymentRoleOptions> deploymentRoleOptions,
+        ILogger<AccountManagementController> logger,
+        IClaimsExtensionsWrapper claimsExtensionsWrapper,
+        IFeatureManager featureManager,
+        IMapper mapper)
     {
         _sessionManager = sessionManager;
         _facadeService = facadeService;
+        _logger = logger;
         _urlOptions = urlOptions.Value;
         _deploymentRoleOptions = deploymentRoleOptions.Value;
+        _claimsExtensionsWrapper = claimsExtensionsWrapper;
+        _featureManager = featureManager;
+        _mapper = mapper;
     }
-    
+
     [HttpGet]
     [Route("")]
     [Route(PagePath.ManageAccount)]
@@ -55,7 +85,7 @@ public class AccountManagementController : Controller
                 statusCode = (int)HttpStatusCode.Forbidden
             });
         }
-        
+
         session.AccountManagementSession.AddUserJourney = null;
         if (session.AccountManagementSession.RemoveUserStatus != null)
         {
@@ -65,11 +95,11 @@ public class AccountManagementController : Controller
             session.AccountManagementSession.RemoveUserStatus = null;
             session.AccountManagementSession.RemoveUserJourney = null;
         }
-        
+
         if (session.AccountManagementSession.AddUserStatus != null)
         {
             model.InviteStatus = session.AccountManagementSession.AddUserStatus;
-            model.InvitedUserEmail =session.AccountManagementSession.InviteeEmailAddress;
+            model.InvitedUserEmail = session.AccountManagementSession.InviteeEmailAddress;
             session.AccountManagementSession.InviteeEmailAddress = null;
             session.AccountManagementSession.AddUserStatus = null;
         }
@@ -79,15 +109,106 @@ public class AccountManagementController : Controller
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccount);
 
         SetCustomBackLink(_urlOptions.LandingPageUrl);
-        
+
+        var userAccount = User.GetUserData();
+
+        if (userAccount is null)
+        {
+            _logger.LogInformation("User authenticated but account could not be found");
+        }
+        else
+        {
+            var organisation = userAccount.Organisations.First();
+            model.UserName = string.Format("{0} {1}", userAccount.FirstName, userAccount.LastName);
+            model.Telephone = userAccount.Telephone;
+            var userOrg = userAccount.Organisations?.FirstOrDefault();
+            model.JobTitle = userAccount.JobTitle;
+            model.CompanyName = userOrg.Name;
+            model.OrganisationAddress = string.Join(", ", new[] {
+                organisation.SubBuildingName,
+                organisation.BuildingNumber,
+                organisation.BuildingName,
+                organisation.Street,
+                organisation.Town,
+                organisation.County,
+                organisation.Postcode,
+            }.Where(s => !string.IsNullOrWhiteSpace(s)));
+            model.EnrolmentStatus = userAccount.EnrolmentStatus;
+            var serviceRoleId = userAccount.ServiceRoleId;
+            var serviceRoleEnum = (ServiceRole)serviceRoleId;
+            var roleInOrganisation = userAccount.RoleInOrganisation;
+            model.ServiceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
+            model.OrganisationType = userOrg.OrganisationType;
+            model.HasPermissionToChangeCompany = HasPermissionToChangeCompany(userAccount);
+            model.IsBasicUser = IsBasicUser(userAccount);
+            model.IsChangeRequestPending = userAccount.IsChangeRequestPending;
+            model.IsAdmin = userAccount.RoleInOrganisation == PersonRole.Admin.ToString();
+            model.ShowManageUserDetailChanges = await _featureManager.IsEnabledAsync(FeatureFlags.ManageUserDetailChanges);
+        }
         return View(nameof(ManageAccount), model);
     }
-    
+
+    [HttpGet]
+    [Route(PagePath.CompanyDetailsCheck)]
+    public async Task<ActionResult> CheckData()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var isDataMatching = await CompareDataAsync(session);
+
+        if (isDataMatching)
+        {
+            return RedirectToAction(nameof(CompanyDetailsHaveNotChanged));
+        }
+
+        return RedirectToAction(nameof(ConfirmCompanyDetails));
+    }
+
+    [HttpGet]
+    [Route(PagePath.CompanyDetailsHaveNotChanged)]
+    public async Task<IActionResult> CompanyDetailsHaveNotChanged()
+    {
+        var userData = User.GetUserData();
+
+        if (IsEmployeeUser(userData) || IsBasicAdmin(userData))
+        {
+            return NotFound();
+        }
+
+        if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
+        {
+            return Unauthorized();
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var companiesHouseData = session.CompaniesHouseSession.CompaniesHouseData;
+
+        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CompanyDetailsHaveNotChanged);
+
+        SetBackLink(session, PagePath.CompanyDetailsHaveNotChanged);
+
+        var companiesHouseChangeDetailsUrl = _urlOptions.CompanyHouseChangeRequestLink;
+
+        var model = _mapper.Map<CompanyDetailsHaveNotChangedViewModel>(
+            companiesHouseData,
+            opts =>
+                opts.Items["CompaniesHouseChangeDetailsUrl"] = companiesHouseChangeDetailsUrl);
+
+        return View(model);
+    }
+
     [HttpGet]
     [Route(PagePath.TeamMemberEmail)]
     public async Task<IActionResult> TeamMemberEmail()
     {
+        var userData = User.GetUserData();
+
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        if (IsEmployeeUser(userData))
+        {
+            return NotFound();
+        }
+
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ManageAccount);
         session.AccountManagementSession.AddUserJourney ??= new AddUserJourneyModel();
 
@@ -101,7 +222,7 @@ public class AccountManagementController : Controller
 
         return View(nameof(TeamMemberEmail), model);
     }
-    
+
     [HttpPost]
     [Route(PagePath.TeamMemberEmail)]
     public async Task<IActionResult> TeamMemberEmail(TeamMemberEmailViewModel model)
@@ -119,16 +240,23 @@ public class AccountManagementController : Controller
 
         return await SaveSessionAndRedirect(session, nameof(TeamMemberPermissions), PagePath.TeamMemberEmail, PagePath.TeamMemberPermissions);
     }
-    
+
     [HttpGet]
     [Route(PagePath.TeamMemberPermissions)]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     public async Task<IActionResult> TeamMemberPermissions()
     {
+        var userData = User.GetUserData();
+
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        
+
+        if (IsEmployeeUser(userData))
+        {
+            return NotFound();
+        }
+
         SetBackLink(session, PagePath.TeamMemberPermissions);
-        
+
         var serviceRoles = await _facadeService.GetAllServiceRolesAsync();
         if (serviceRoles == null || !serviceRoles.Any())
         {
@@ -155,10 +283,10 @@ public class AccountManagementController : Controller
                 .OrderByDescending(x => x.Key).ToList();
             model.SavedUserRole = session.AccountManagementSession.AddUserJourney.UserRole;
         }
-        
+
         return View(nameof(TeamMemberPermissions), model);
     }
-    
+
     [HttpPost]
     [Route(PagePath.TeamMemberPermissions)]
     public async Task<IActionResult> TeamMemberPermissions(TeamMemberPermissionsViewModel model)
@@ -173,7 +301,7 @@ public class AccountManagementController : Controller
             model.ServiceRoles = serviceRoles
                 .Where(x => x.ServiceRoleId == 3)
                 .OrderByDescending(x => x.Key).ToList();
-            
+
             return View(nameof(TeamMemberPermissions), model);
         }
 
@@ -182,14 +310,21 @@ public class AccountManagementController : Controller
 
         return await SaveSessionAndRedirect(session, nameof(TeamMemberDetails), PagePath.TeamMemberPermissions, PagePath.TeamMemberDetails);
     }
-    
+
     [HttpGet]
     [AllowAnonymous]
     [Route(PagePath.TeamMemberDetails)]
     public async Task<IActionResult> TeamMemberDetails()
     {
+        var userData = User.GetUserData();
+
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        
+
+        if (IsEmployeeUser(userData))
+        {
+            return NotFound();
+        }
+
         SetBackLink(session, PagePath.TeamMemberDetails);
         var model = new TeamMemberDetailsViewModel
         {
@@ -229,12 +364,12 @@ public class AccountManagementController : Controller
                 RoleKey = session.AccountManagementSession.RoleKey
             }
         };
-        
+
         session.AccountManagementSession.AddUserStatus = await _facadeService.SendUserInvite(request);
-        
+
         return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.TeamMemberDetails, PagePath.ManageAccount);
     }
-    
+
     [HttpPost]
     [Route(PagePath.PreRemoveTeamMember)]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
@@ -244,15 +379,23 @@ public class AccountManagementController : Controller
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         SetRemoveUserJourneyValues(session, firstName, lastName, personId);
         await SaveSession(session);
-        return RedirectToAction("RemoveTeamMemberConfirmation","AccountManagement");
+        return RedirectToAction("RemoveTeamMemberConfirmation", "AccountManagement");
     }
-    
+
     [HttpGet]
     [Route(PagePath.RemoveTeamMember)]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     public async Task<IActionResult> RemoveTeamMemberConfirmation()
     {
+        var userData = User.GetUserData();
+
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        if (IsEmployeeUser(userData))
+        {
+            return NotFound();
+        }
+
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ManageAccount);
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.RemoveTeamMember);
 
@@ -268,7 +411,7 @@ public class AccountManagementController : Controller
 
         return View(nameof(RemoveTeamMemberConfirmation), model);
     }
-    
+
     [HttpPost]
     [Route(PagePath.RemoveTeamMember)]
     public async Task<IActionResult> RemoveTeamMemberConfirmation(RemoveTeamMemberConfirmationViewModel model)
@@ -281,19 +424,606 @@ public class AccountManagementController : Controller
             SetBackLink(session, PagePath.TeamMemberPermissions);
             return View(model);
         }
-        
+
         var personExternalId = model.PersonId.ToString();
-        var organisation = userData.Organisations.FirstOrDefault();        
+        var organisation = userData.Organisations.FirstOrDefault();
         if (organisation?.Id == null)
         {
             return RedirectToAction(nameof(ManageAccount));
         }
         var organisationId = organisation!.Id.ToString();
         var serviceRoleId = userData.ServiceRoleId;
-        var result = await _facadeService.RemoveUserForOrganisation(personExternalId, organisationId, serviceRoleId );
+        var result = await _facadeService.RemoveUserForOrganisation(personExternalId, organisationId, serviceRoleId);
         session.AccountManagementSession.RemoveUserStatus = result;
 
         return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.RemoveTeamMember, PagePath.ManageAccount);
+    }
+
+    /// <summary>
+    /// Displays the "Declaration" page.
+    /// </summary>
+    /// <remarks>
+    /// The page is only displayed when arriving from the "Check your details" page.
+    /// If navigated to directly, the user is forwarded to an error page.
+    /// </remarks>
+    /// <param name="navigationToken">
+    /// A value used to verify that the user came from the "Check your details" page.
+    /// Its specific value doesn't matter, but it's compared to a copy stored in the session data as an extra layer of validation.
+    /// </param>
+    [HttpGet]
+    [Route(PagePath.Declaration)]
+    public async Task<IActionResult> Declaration()
+    {
+        var userData = User.GetUserData();
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        if (IsEmployeeUser(userData) || IsBasicAdmin(userData))
+        {
+            return NotFound();
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest();
+        }
+
+        var editUserDetailsViewModel = new EditUserDetailsViewModel();
+
+        if (userData.IsChangeRequestPending)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.Forbidden
+            });
+        }
+
+        if (TempData[AmendedUserDetailsKey] != null)
+        {
+            try
+            {
+                editUserDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogInformation(exception, "Deserialising NewUserDetails Failed.");
+            }
+        }
+
+        SaveSessionAndJourney(session, PagePath.CheckYourDetails, PagePath.Declaration);
+        SetBackLink(session, PagePath.Declaration);
+
+        TempData.Keep(AmendedUserDetailsKey);
+        TempData.Keep(NewUserDetailsKey);
+
+        return View(nameof(Declaration), editUserDetailsViewModel);
+    }
+
+
+    [HttpPost]
+    [Route(PagePath.Declaration, Name = "Declaration")]
+    public async Task<IActionResult> DeclarationPost(EditUserDetailsViewModel model)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var userData = User.GetUserData();
+
+
+        var userDetailsDto = _mapper.Map<UpdateUserDetailsRequest>(model);
+        var userOrg = userData.Organisations?.FirstOrDefault();
+
+        // check if change is only phone number
+        if (IsApprovedOrDelegatedUser(userData))
+        {
+            var reponse = await _facadeService.UpdateUserDetailsAsync(userData.Id.Value, userOrg.Id.Value, ServiceKey, userDetailsDto);
+            if (reponse.HasApprovedOrDelegatedUserDetailsSentForApproval)
+            {
+                if (TempData[AmendedUserDetailsKey] != null) TempData.Remove(AmendedUserDetailsKey);
+                // refresh the user data from the database
+                var userAccount = await _facadeService.GetUserAccount();
+                session.UserData = userAccount.User;
+                await SaveSession(session);
+                // update cookie  with the latest data
+                await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
+                return RedirectToAction(nameof(DetailsChangeRequested));
+            }
+        }
+        SaveSessionAndJourney(session, PagePath.CheckYourDetails, PagePath.Declaration);
+        SetBackLink(session, PagePath.Declaration);
+        return View(model);
+    }
+
+    [HttpGet]
+    [Route(PagePath.WhatAreYourDetails)]
+    public async Task<IActionResult> EditUserDetails()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var userData = User.GetUserData();
+        var model = _mapper.Map<EditUserDetailsViewModel>(userData);
+        if (userData.IsChangeRequestPending)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.Forbidden
+            });
+        }
+
+        if (TempData[AmendedUserDetailsKey] != null)
+        {
+            try
+            {
+                model = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Deserialising NewUserDetails Failed.");
+            }
+        }
+
+        SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.WhatAreYourDetails);
+        SetBackLink(session, PagePath.WhatAreYourDetails);
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [Route(PagePath.WhatAreYourDetails)]
+    public async Task<IActionResult> EditUserDetails(EditUserDetailsViewModel editUserDetailsViewModel)
+    {
+        // is there a modelstate error for job title, but job title never existed
+        if (ModelState.ContainsKey(nameof(EditUserDetailsViewModel.JobTitle)) &&
+            ModelState.FirstOrDefault(ms => ms.Key == nameof(EditUserDetailsViewModel.JobTitle)).Value.Errors.Any() &&
+            !editUserDetailsViewModel.PropertyExists(m => m.OriginalJobTitle))
+        {
+            // if so, remove the error
+            ModelState.Remove(nameof(EditUserDetailsViewModel.JobTitle));
+        }
+
+        // is there a modelstate error for telephone, but telephone never existed
+        if (ModelState.ContainsKey(nameof(EditUserDetailsViewModel.Telephone)) &&
+            ModelState.FirstOrDefault(ms => ms.Key == nameof(EditUserDetailsViewModel.Telephone)).Value.Errors.Any() &&
+            !editUserDetailsViewModel.PropertyExists(m => m.OriginalTelephone))
+        {
+            // if so, remove the error
+            ModelState.Remove(nameof(EditUserDetailsViewModel.Telephone));
+        }
+
+        if (!ModelState.IsValid)
+        {
+            await SetBackLink(PagePath.WhatAreYourDetails);
+            return View(editUserDetailsViewModel);
+        }
+
+        //tries to add new temp data and if its already exists replace it with the new one
+        if (!TempData.TryAdd(NewUserDetailsKey, JsonSerializer.Serialize(editUserDetailsViewModel)))
+        {
+            TempData[NewUserDetailsKey] = JsonSerializer.Serialize(editUserDetailsViewModel);
+        }
+
+        return RedirectToAction(nameof(PagePath.CheckYourDetails));
+    }
+
+    [HttpGet]
+    [Route(PagePath.CheckYourDetails)]
+    public async Task<IActionResult> CheckYourDetails()
+    {
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var userData = User.GetUserData();
+
+        if (userData.IsChangeRequestPending)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.Forbidden
+            });
+        }
+
+        bool isUpdatable = false;
+        var serviceRole = userData.ServiceRole ?? string.Empty;
+        var roleInOrganisation = userData.RoleInOrganisation ?? string.Empty;
+
+        var editUserDetailsViewModel = new EditUserDetailsViewModel();
+
+        if (TempData[NewUserDetailsKey] != null)
+        {
+            try
+            {
+                editUserDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[NewUserDetailsKey] as string);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogInformation(exception, "Deserialising NewUserDetails Failed.");
+            }
+        }
+
+        var model = new EditUserDetailsViewModel
+        {
+            FirstName = editUserDetailsViewModel.FirstName ?? userData.FirstName,
+            LastName = editUserDetailsViewModel.LastName ?? userData.LastName,
+            JobTitle = editUserDetailsViewModel.JobTitle ?? userData.JobTitle,
+            Telephone = editUserDetailsViewModel.Telephone ?? userData.Telephone,
+            OriginalFirstName = editUserDetailsViewModel.OriginalFirstName ?? string.Empty,
+            OriginalLastName = editUserDetailsViewModel.OriginalLastName ?? string.Empty,
+            OriginalJobTitle = editUserDetailsViewModel.OriginalJobTitle ?? string.Empty,
+            OriginalTelephone = editUserDetailsViewModel.OriginalTelephone ?? string.Empty
+        };
+
+        isUpdatable = SetUpdatableValue(isUpdatable, serviceRole, roleInOrganisation, model);
+
+        SaveSessionAndJourney(session, PagePath.WhatAreYourDetails, PagePath.CheckYourDetails);
+        SetBackLink(PagePath.CheckYourDetails);
+
+        if (TempData[AmendedUserDetailsKey] == null)
+        {
+            TempData.Add(AmendedUserDetailsKey, JsonSerializer.Serialize(editUserDetailsViewModel));
+        }
+
+        ViewBag.IsUpdatable = isUpdatable;
+
+        TempData.Keep(AmendedUserDetailsKey);
+        TempData.Keep(NewUserDetailsKey);
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [Route(PagePath.CheckYourDetails)]
+    public async Task<IActionResult> CheckYourDetails(EditUserDetailsViewModel model)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var userData = User.GetUserData();
+        var serviceRole = userData.ServiceRole ?? string.Empty;
+        var roleInOrganisation = userData.RoleInOrganisation ?? string.Empty;
+        bool isUpdatable = false;
+        var userDetailsDto = _mapper.Map<UpdateUserDetailsRequest>(model);
+        var userOrg = userData.Organisations?.FirstOrDefault();
+
+        // check if change is only phone number
+        if (
+            model.FirstName == model.OriginalFirstName &&
+            model.LastName == model.OriginalLastName &&
+            model.JobTitle == model.OriginalJobTitle &&
+            model.Telephone != model.OriginalTelephone)
+        {
+            var reponse = await _facadeService.UpdateUserDetailsAsync(
+                userData.Id.Value,
+                userOrg.Id.Value,
+                ServiceKey,
+                userDetailsDto);
+
+            if (reponse.HasTelephoneOnlyUpdated)
+            {
+                if (TempData[AmendedUserDetailsKey] != null) TempData.Remove(AmendedUserDetailsKey);
+                // refresh the user data from the database
+                var userAccount = await _facadeService.GetUserAccount();
+                session.UserData = userAccount.User;
+                await SaveSession(session);
+                // update cookie  with the latest data
+                await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
+                return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
+            }
+        }
+        else if (IsBasicUser(userData))
+        {
+            var reponse = await _facadeService.UpdateUserDetailsAsync(
+                userData.Id.Value,
+                userOrg.Id.Value,
+                ServiceKey,
+                userDetailsDto);
+
+            if (reponse.HasBasicUserDetailsUpdated)
+            {
+                if (TempData[AmendedUserDetailsKey] != null) TempData.Remove(AmendedUserDetailsKey);
+                // refresh the user data from the database
+                var userAccount = await _facadeService.GetUserAccount();
+                session.UserData = userAccount.User;
+                await SaveSession(session);
+                // update cookie  with the latest data
+                await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
+                return RedirectToAction(nameof(PagePath.UpdateDetailsConfirmation));
+            }
+        }
+        else if (IsApprovedOrDelegatedUser(userData))
+        {
+            if (TempData[AmendedUserDetailsKey] == null)
+            {
+                TempData.Add(AmendedUserDetailsKey, JsonSerializer.Serialize(model));
+            }
+            return RedirectToAction(nameof(PagePath.Declaration));
+        }
+
+        SaveSessionAndJourney(session, PagePath.WhatAreYourDetails, PagePath.CheckYourDetails);
+        SetBackLink(PagePath.CheckYourDetails);
+        isUpdatable = SetUpdatableValue(isUpdatable, serviceRole, roleInOrganisation, model);
+        ViewBag.IsUpdatable = isUpdatable;
+        return View(model);
+    }
+
+    [HttpGet]
+    [Route(PagePath.UpdateDetailsConfirmation)]
+    public async Task<IActionResult> UpdateDetailsConfirmation()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        var userData = User.GetUserData();
+
+        if (userData.IsChangeRequestPending)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.Forbidden
+            });
+        }
+
+        var changedDateAt = DateTime.UtcNow;
+        var model = new UpdateDetailsConfirmationViewModel
+        {
+            Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
+            UpdatedDatetime = changedDateAt.UtcToGmt()
+        };
+
+        return View(model);
+    }
+
+    [HttpGet]
+    [Route(PagePath.DetailsChangeRequestedNotification)]
+    public async Task<IActionResult> DetailsChangeRequested()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var changedDateAt = DateTime.UtcNow;
+        var model = new DetailsChangeRequestedViewModel
+        {
+            Username = $"{session.UserData.FirstName} {session.UserData.LastName}",
+            UpdatedDatetime = changedDateAt.UtcToGmt()
+        };
+
+        return View(nameof(DetailsChangeRequested), model);
+    }
+
+    [HttpGet]
+    [Route(PagePath.ConfirmCompanyDetails)]
+    public async Task<IActionResult> ConfirmCompanyDetails()
+    {
+        var userData = User.GetUserData();
+
+        if (IsEmployeeUser(userData) || IsBasicAdmin(userData))
+        {
+            return NotFound();
+        }
+
+        if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
+        {
+            return Unauthorized();
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ConfirmCompanyDetails);
+        SetBackLink(session, PagePath.ConfirmCompanyDetails);
+
+        var companiesHouseData = session.CompaniesHouseSession.CompaniesHouseData;
+
+        if (companiesHouseData?.Organisation?.RegisteredOffice is null)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.NotFound
+            });
+        }
+
+        var viewModel = _mapper.Map<ConfirmCompanyDetailsViewModel>(companiesHouseData);
+        viewModel.ExternalCompanyHouseChangeRequestLink = _urlOptions.CompanyHouseChangeRequestLink;
+
+        return View(viewModel);
+    }
+
+    [HttpGet]
+    [Route(PagePath.CompanyDetailsUpdated)]
+    public async Task<IActionResult> CompanyDetailsUpdated()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        TempData.TryGetValue("OrganisationDetailsUpdatedTime", out var changeDate);
+        var model = new CompanyDetailsUpdatedViewModel
+        {
+            UserName = $"{session.UserData.FirstName} {session.UserData.LastName}",
+            ChangeDate = (DateTime)changeDate,
+        };
+
+        TempData.Keep("OrganisationDetailsUpdatedTime");
+        return View(nameof(CompanyDetailsUpdated), model);
+    }
+
+    /// <summary>
+    /// Displays a page with the updated data from the "choose your nation" page
+    /// for the user to confirm they have entered the correct information
+    /// </summary>
+    /// <returns>async IActionResult containing the view</returns>
+    [HttpGet]
+    [Route(PagePath.CheckCompaniesHouseDetails)]
+    public async Task<IActionResult> CheckCompaniesHouseDetails()
+    {
+        var userData = User.GetUserData();
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        if (IsEmployeeUser(userData) || IsBasicAdmin(userData))
+        {
+            return NotFound();
+        }
+
+        // must be approved or delegated user
+        if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
+        {
+            return Unauthorized();
+        }
+
+        // deserialize data from TempStorage
+        var viewModel = JsonSerializer.Deserialize<CheckYourOrganisationDetailsViewModel>(
+            TempData[CheckYourOrganisationDetailsKey] as string);
+
+        // keep the data for one more request cycle, just in case the page is refreshed
+        TempData.Keep(CheckYourOrganisationDetailsKey);
+
+        await SaveSessionAndJourney(
+            session,
+            PagePath.UkNation,
+            PagePath.CheckCompaniesHouseDetails);
+        SetBackLink(session, PagePath.CheckCompaniesHouseDetails);
+
+        return View(viewModel);
+    }
+
+    /// <summary>
+    /// Displays a page with the updated data from the "choose your nation" page
+    /// for the user to confirm they have entered the correct information
+    /// </summary>
+    /// <returns>async IActionResult containing the redirect to the next page</returns>
+    [HttpPost]
+    [Route(PagePath.CheckCompaniesHouseDetails)]
+    public async Task<IActionResult> CheckCompaniesHouseDetails(CheckYourOrganisationDetailsViewModel viewModel)
+    {
+        // must be approved or delegated user
+        if (!(User.IsApprovedPerson() || User.IsDelegatedPerson()))
+        {
+            return Unauthorized();
+        }
+
+        if (!ModelState.IsValid)
+        {
+            TempData[CheckYourOrganisationDetailsKey] = JsonSerializer.Serialize(viewModel);
+            return View(viewModel);
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        // map to a dto that can be used to update organisation details, including the nation id
+        var organisation = _mapper.Map<OrganisationUpdateDto>(
+            session.CompaniesHouseSession.CompaniesHouseData.Organisation,
+            options =>
+                options.Items[CompaniesHouseResponseProfile.NationIdKey] = (int)viewModel.UkNation);
+
+        await _facadeService.UpdateOrganisationDetails(viewModel.OrganisationId, organisation);
+
+        TempData.Remove(CheckYourOrganisationDetailsKey);
+
+        // refresh the user data from the database
+        var userAccount = await _facadeService.GetUserAccount();
+        session.UserData = userAccount.User;
+        await SaveSession(session);
+
+        // need to do this so that the cookie updates with the latest data
+        await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
+
+        // save the date/time that the update was performed for the next page
+        var changedDateAt = DateTime.UtcNow;
+        TempData[OrganisationDetailsUpdatedTimeKey] = changedDateAt.UtcToGmt();
+
+        return RedirectToAction(nameof(CompanyDetailsUpdated));
+    }
+
+    [HttpPost]
+    [Route(PagePath.ConfirmCompanyDetails)]
+    public async Task<IActionResult> ConfirmDetailsOfTheCompany()
+    {
+        return RedirectToAction(nameof(UkNation));
+    }
+
+    [HttpGet]
+    [Route(PagePath.UkNation)]
+    public async Task<IActionResult> UkNation()
+    {
+        var userData = User.GetUserData();
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        if (IsEmployeeUser(userData) || IsBasicAdmin(userData))
+        {
+            return NotFound();
+        }
+
+        await SaveSessionAndJourney(session, PagePath.ConfirmCompanyDetails, PagePath.UkNation);
+        SetBackLink(session, PagePath.UkNation);
+
+        var viewModel = new UkNationViewModel();
+
+        // see if there has been previously stored data
+        if (TempData[CheckYourOrganisationDetailsKey] is string checkYourOrgDetails &&
+            !string.IsNullOrWhiteSpace(TempData[CheckYourOrganisationDetailsKey] as string))
+        {
+            viewModel.UkNation = JsonSerializer.Deserialize<CheckYourOrganisationDetailsViewModel>(checkYourOrgDetails).UkNation;
+            TempData.Keep(CheckYourOrganisationDetailsKey);
+        }
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [Route(PagePath.UkNation)]
+    public async Task<IActionResult> UkNation(UkNationViewModel model)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        SetCustomBackLink(PagePath.ConfirmCompanyDetails, false);
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var addressDto = session.CompaniesHouseSession.CompaniesHouseData.Organisation
+            .RegisteredOffice;
+
+        var address = _mapper.Map<AddressViewModel>(addressDto);
+
+        var checkYourOrganisationModel = new CheckYourOrganisationDetailsViewModel
+        {
+            OrganisationId = session.UserData.Organisations.FirstOrDefault()?.Id ?? Guid.Empty,
+            Address = string.Join(", ", address.AddressFields.Where(field => !string.IsNullOrWhiteSpace(field))),
+            TradingName = session.CompaniesHouseSession?.CompaniesHouseData?.Organisation?.Name,
+            UkNation = model.UkNation.Value
+        };
+        TempData[CheckYourOrganisationDetailsKey] = JsonSerializer.Serialize(checkYourOrganisationModel);
+
+        return RedirectToAction(nameof(CheckCompaniesHouseDetails));
+    }
+
+    [HttpGet]
+    [Route(PagePath.ChangeCompanyDetails)]
+    public async Task<IActionResult> ChangeCompanyDetails()
+    {
+        SetCustomBackLink(PagePath.ManageAccount, false);
+        return View();
+    }
+
+    private async Task<bool> CompareDataAsync(JourneySession session)
+    {
+        var userData = User.GetUserData();
+
+        var organisationData = userData.Organisations.FirstOrDefault();
+
+        if (organisationData == null)
+        {
+            throw new ArgumentNullException(nameof(organisationData));
+        }
+
+        var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.CompaniesHouseNumber);
+        session.CompaniesHouseSession.CompaniesHouseData = companiesHouseData;
+
+        await SaveSession(session);
+
+        return companiesHouseData != null &&
+               organisationData.Name == companiesHouseData.Organisation.Name &&
+               organisationData.TradingName == companiesHouseData.Organisation.TradingName &&
+               organisationData.SubBuildingName == companiesHouseData.Organisation.RegisteredOffice.SubBuildingName &&
+               organisationData.BuildingName == companiesHouseData.Organisation.RegisteredOffice.BuildingName &&
+               organisationData.BuildingNumber == companiesHouseData.Organisation.RegisteredOffice.BuildingNumber &&
+               organisationData.Street == companiesHouseData.Organisation.RegisteredOffice.Street &&
+               organisationData.Locality == companiesHouseData.Organisation.RegisteredOffice.Locality &&
+               organisationData.DependentLocality == companiesHouseData.Organisation.RegisteredOffice.DependentLocality &&
+               organisationData.Town == companiesHouseData.Organisation.RegisteredOffice.Town &&
+               organisationData.County == companiesHouseData.Organisation.RegisteredOffice.County &&
+               organisationData.Country == companiesHouseData.Organisation.RegisteredOffice.Country.Name &&
+               organisationData.Postcode == companiesHouseData.Organisation.RegisteredOffice.Postcode;
     }
 
     private static void SetRemoveUserJourneyValues(JourneySession session, string firstName, string lastName, Guid personId)
@@ -315,7 +1045,7 @@ public class AccountManagementController : Controller
             session.AccountManagementSession.RemoveUserJourney.PersonId = personId;
         }
     }
-    
+
     private async Task<RedirectToActionResult> SaveSessionAndRedirect(
         JourneySession session,
         string actionName,
@@ -327,15 +1057,23 @@ public class AccountManagementController : Controller
         return RedirectToAction(actionName);
     }
 
-    private async Task SaveSessionAndJourney(JourneySession session, string currentPagePath, string? nextPagePath)
+    /// <summary>
+    /// Saves the session data and adds a step to the list detailing the user's journey through the site.
+    /// </summary>
+    /// <param name="session">The session data to save.</param>
+    /// <param name="sourcePagePath">The page this step of the journey starts from (typically the page we've just come from.).</param>
+    /// <param name="destinationPagePath">The page this step of the journey ends at (typically the current page.).</param>
+    /// <returns>A <see cref="Task"/>.</returns>
+    private async Task SaveSessionAndJourney(JourneySession session, string sourcePagePath, string? destinationPagePath)
     {
-        ClearRestOfJourney(session, currentPagePath);
+        ClearRestOfJourney(session, sourcePagePath);
 
-        session.AccountManagementSession.Journey.AddIfNotExists(nextPagePath);
+        session.AccountManagementSession.Journey.AddIfNotExists(destinationPagePath);
 
         await SaveSession(session);
     }
-    
+
+
     private async Task SaveSession(JourneySession session)
     {
         await _sessionManager.SaveSessionAsync(HttpContext.Session, session);
@@ -349,14 +1087,27 @@ public class AccountManagementController : Controller
         session.AccountManagementSession.Journey = session.AccountManagementSession.Journey.Take(index + 1).ToList();
     }
 
+    private async Task SetBackLink(string currentPagePath)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
+    }
+
     private void SetBackLink(JourneySession session, string currentPagePath)
     {
         ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
     }
 
-    private void SetCustomBackLink(string pagePath)
+    private void SetCustomBackLink(string pagePath, bool showCustomBackLabel = true)
     {
-        ViewBag.CustomBackLinkToDisplay = pagePath;
+        if (showCustomBackLabel)
+        {
+            ViewBag.CustomBackLinkToDisplay = pagePath;
+        }
+        else
+        {
+            ViewBag.BackLinkToDisplay = pagePath;
+        }
     }
 
     private bool HasPermissionToView(UserData userData)
@@ -366,9 +1117,8 @@ public class AccountManagementController : Controller
         {
             return IsRegulatorAdmin(userData);
         }
-
         // regulator users cannot view if producer deployment
-        return !IsRegulatorUser(userData);
+        return !IsRegulatorUser(userData) || IsBasicUser(userData);
     }
 
     private static bool IsRegulatorAdmin(UserData userData) =>
@@ -379,4 +1129,83 @@ public class AccountManagementController : Controller
 
     private static bool IsRegulatorUser(UserData userData) =>
         IsRegulatorAdmin(userData) || IsRegulatorBasic(userData);
+
+    private static bool IsBasicUser(UserData userData) =>
+       userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Basic &&
+        (userData.RoleInOrganisation == PersonRole.Employee.ToString() ||
+        userData.RoleInOrganisation == PersonRole.Admin.ToString());
+
+    private static bool HasPermissionToChangeCompany(UserData userData)
+    {
+        var roleInOrganisation = userData.RoleInOrganisation;
+        if ((userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Approved || userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Delegated)
+            && !string.IsNullOrEmpty(roleInOrganisation) && roleInOrganisation == PersonRole.Admin.ToString())
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private static bool IsApprovedOrDelegatedUser(UserData userData)
+    {
+        var roleInOrganisation = userData.RoleInOrganisation;
+        if ((userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Approved || userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Delegated)
+            && !string.IsNullOrEmpty(roleInOrganisation) && (roleInOrganisation == PersonRole.Admin.ToString() || roleInOrganisation == PersonRole.Employee.ToString()))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private static bool SetUpdatableValue(bool isUpdatable, string serviceRole, string roleInOrganisation, EditUserDetailsViewModel model)
+    {
+        if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower()
+           && (roleInOrganisation == RoleInOrganisation.Admin || roleInOrganisation == RoleInOrganisation.Employee))
+        {
+            isUpdatable = true;
+        }
+        else
+        {
+            if (
+                model.FirstName == model.OriginalFirstName &&
+                model.LastName == model.OriginalLastName &&
+                model.JobTitle == model.OriginalJobTitle &&
+                model.Telephone != model.OriginalTelephone)
+            {
+                isUpdatable = true;
+            }
+        }
+        return isUpdatable;
+    }
+
+    private static bool IsEmployeeUser(UserData userData)
+    {
+        var roleInOrganisation = userData.RoleInOrganisation;
+
+        if (string.IsNullOrEmpty(roleInOrganisation))
+        {
+            throw new InvalidOperationException("Unknown role in organisation.");
+        }
+
+        return roleInOrganisation == PersonRole.Employee.ToString();
+    }
+
+    private static bool IsBasicAdmin(UserData userData)
+    {
+        var roleInOrganisation = userData.RoleInOrganisation.ToString();
+
+        var serviceRoleId = userData.ServiceRoleId;
+
+        if (string.IsNullOrEmpty(roleInOrganisation))
+        {
+            throw new InvalidOperationException("Unknown role in organisation.");
+        }
+        if (serviceRoleId == default)
+        {
+            throw new InvalidOperationException("Unknown service role.");
+        }
+
+        return roleInOrganisation == PersonRole.Admin.ToString() &&
+            serviceRoleId == (int)ServiceRole.Basic;
+    }
 }

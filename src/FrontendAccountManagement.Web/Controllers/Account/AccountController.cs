@@ -15,6 +15,14 @@ namespace FrontendAccountManagement.Web.Controllers.Account
     public class AccountController : Controller
     {
         /// <summary>
+        /// Constructor of <see cref="AccountController"/> from <see cref="MicrosoftIdentityOptions"/>
+        /// This constructor is used by dependency injection.
+        /// </summary>
+        public AccountController()
+        {
+        }
+
+        /// <summary>
         /// Handles user sign in.
         /// </summary>
         /// <param name="scheme">Authentication scheme.</param>

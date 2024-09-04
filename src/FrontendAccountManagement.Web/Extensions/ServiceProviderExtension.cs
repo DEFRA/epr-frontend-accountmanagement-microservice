@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using StackExchange.Redis;
+using EPR.Common.Authorization.Sessions;
+using FrontendAccountManagement.Core.Services;
 
 namespace FrontendAccountManagement.Web.Extensions;
 
@@ -75,7 +77,8 @@ public static class ServiceProviderExtension
     private static void RegisterServices(IServiceCollection services)
     {
         services.AddSingleton<ICookieService, CookieService>();
-        services.AddScoped<ISessionManager<JourneySession>, JourneySessionManager>();
+        services.AddScoped<ISessionManager<JourneySession>, SessionManager<JourneySession>>();
+        services.AddTransient<IDateTimeProvider, SystemDateTimeProvider>();
     }
 
     private static void SetTempDataCookieOptions(IServiceCollection services, IConfiguration configuration)

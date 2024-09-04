@@ -1,17 +1,19 @@
-using System.Net;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Web;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using FrontendAccountManagement.Core.Models;
-using FrontendAccountManagement.Core.Sessions;
+using FrontendAccountManagement.Core.Configuration;
 using FrontendAccountManagement.Core.Constants;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Extensions;
-using System.Text.Json;
+using FrontendAccountManagement.Core.Models;
+using FrontendAccountManagement.Core.Models.CompaniesHouse;
+using FrontendAccountManagement.Core.Sessions;
+using Microsoft.Extensions.Options;
+using Microsoft.Identity.Web;
+using System.Net;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
-
 namespace FrontendAccountManagement.Core.Services;
 
 public class FacadeService : IFacadeService
@@ -21,18 +23,31 @@ public class FacadeService : IFacadeService
     private readonly string _baseAddress;
     private readonly string _serviceRolesPath;
     private readonly string _getUserAccountPath;
+    private readonly string _getCompanyFromCompaniesHousePath;
+
+    private readonly string _putUserDetailsByUserIdPath;
+    private readonly string _putUpdateOrganisationPath;
     private readonly string[] _scopes;
 
-    public FacadeService(HttpClient httpClient, ITokenAcquisition tokenAcquisition, IConfiguration configuration)
+    public FacadeService(
+        HttpClient httpClient,
+        ITokenAcquisition tokenAcquisition,
+        IOptions<FacadeApiConfiguration> options)
     {
+        var config = options.Value;
+
         _httpClient = httpClient;
         _tokenAcquisition = tokenAcquisition;
-        _baseAddress = configuration["FacadeAPI:Address"];
-        _serviceRolesPath = configuration["FacadeAPI:GetServiceRolesPath"];
-        _getUserAccountPath = configuration["FacadeAPI:GetUserAccountPath"];
+        _baseAddress = config.Address;
+        _serviceRolesPath = config.GetServiceRolesPath;
+        _getUserAccountPath = config.GetUserAccountPath;
+        _getCompanyFromCompaniesHousePath = config.GetCompanyFromCompaniesHousePath;
+
+        _putUserDetailsByUserIdPath = config.PutUserDetailsByUserIdPath;
+        _putUpdateOrganisationPath = config.PutUpdateOrganisationPath;
         _scopes = new[]
         {
-            configuration["FacadeAPI:DownStreamScope"],
+            config.DownStreamScope,
         };
     }
 
@@ -83,7 +98,7 @@ public class FacadeService : IFacadeService
             return EndpointResponseStatus.UserExists;
         }
 
-        throw (new Exception(response.Content.ToString()));
+        return EndpointResponseStatus.Fail;
     }
 
     public async Task<ConnectionPerson?> GetPersonDetailsFromConnectionAsync(Guid organisationId, Guid connectionId, string serviceKey)
@@ -203,7 +218,7 @@ public class FacadeService : IFacadeService
         request.Headers.Add("X-EPR-Organisation", organisationId.ToString());
 
         var response = await _httpClient.SendAsync(request);
-         
+
         response.EnsureSuccessStatusCode();
     }
 
@@ -238,7 +253,73 @@ public class FacadeService : IFacadeService
 
         var response = await _httpClient.GetAsync($"organisations/organisation-nation?organisationId={organisationId}");
 
-        return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<List<int>>() : new List<int>{0};
+        return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<List<int>>() : new List<int> { 0 };
+    }
+
+    public async Task<CompaniesHouseResponse> GetCompaniesHouseResponseAsync(string companyHouseNumber)
+    {
+        await PrepareAuthenticatedClient();
+
+        var response = await _httpClient.GetAsync($"{_getCompanyFromCompaniesHousePath}?id={companyHouseNumber}");
+
+        if (response.StatusCode == HttpStatusCode.NoContent)
+        {
+            return null;
+        }
+
+        response.EnsureSuccessStatusCode();
+
+        var companiesHouseData = await response.Content.ReadFromJsonAsync<CompaniesHouseResponse>();
+
+        return companiesHouseData;
+
+    }
+
+    /// <summary>
+    /// Requests the facade to update the nation id for a
+    /// given organisation id
+    /// </summary>
+    /// <param name="organisationId">The organisation id to update</param>
+    /// <param name="nationId">The nation id to use</param>
+    /// <returns>An async task</returns>
+    public async Task UpdateOrganisationDetails(
+        Guid organisationId,
+        OrganisationUpdateDto organisation)
+    {
+        await PrepareAuthenticatedClient();
+
+        var response = await _httpClient.PutAsJsonAsync($"{_putUpdateOrganisationPath}/{organisationId}", organisation);
+
+        string result = await response.Content.ReadAsStringAsync();
+        response.EnsureSuccessStatusCode();
+    }
+
+    /// <summary>
+    /// Update User Details
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="organisationId"></param>
+    /// <param name="serviceKey"></param>
+    /// <param name="userDetailsUpdateModelRequest"></param>
+    /// <returns></returns>
+    public async Task<UpdateUserDetailsResponse> UpdateUserDetailsAsync(
+        Guid userId,
+        Guid organisationId,
+        string serviceKey,
+        UpdateUserDetailsRequest userDetailsUpdateModelRequest)
+    {
+        await PrepareAuthenticatedClient();
+        var uri = new Uri($"{_baseAddress}{_putUserDetailsByUserIdPath}?serviceKey={serviceKey}");
+        var request = new HttpRequestMessage(HttpMethod.Put, uri)
+        {
+            Content = new StringContent(JsonSerializer.Serialize(userDetailsUpdateModelRequest), Encoding.UTF8, "application/json"),
+        };
+        request.Headers.Add("X-EPR-Organisation", organisationId.ToString());
+        var response = await _httpClient.SendAsync(request);
+
+        response.EnsureSuccessStatusCode();
+        var responseData = await response.Content.ReadFromJsonAsync<UpdateUserDetailsResponse>();
+        return responseData;
     }
 
     private async Task PrepareAuthenticatedClient()

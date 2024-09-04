@@ -1,6 +1,7 @@
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.MockedData;
 using FrontendAccountManagement.Core.Models;
+using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using FrontendAccountManagement.Core.Sessions;
 
 namespace FrontendAccountManagement.Core.Services;
@@ -83,7 +84,7 @@ public class MockedFacadeService : IFacadeService
     {
         throw new NotImplementedException();
     }
-        
+
     public Task NominateToDelegatedPerson(Guid connectionId, Guid organisationId, string serviceKey, DelegatedPersonNominationRequest nominationRequest)
     {
         return Task.CompletedTask;
@@ -91,6 +92,65 @@ public class MockedFacadeService : IFacadeService
 
     public Task<List<int>> GetNationIds(Guid organisationId)
     {
-        return Task.FromResult(new List<int>{1,2});
+        return Task.FromResult(new List<int> { 1, 2 });
+    }
+
+    public Task<CompaniesHouseResponse> GetCompaniesHouseResponseAsync(string companyHouseNumber)
+    {
+        var stubResponse = new CompaniesHouseResponse
+        {
+            AccountCreatedOn = DateTimeOffset.UtcNow.AddDays(-15),
+            Organisation = new OrganisationDto
+            {
+                Name = "Stub company name",
+                RegistrationNumber = "AB122345",
+                RegisteredOffice = new AddressDto
+                {
+                    Street = "Test street",
+                    BuildingName = "Test Building name",
+                    BuildingNumber = "11",
+                    Country = new CountryDto
+                    {
+                        Iso = "123",
+                        Name = "United Kingdom"
+                    },
+                    Town = "London",
+                    SubBuildingName = "test stub building name",
+                    Postcode = "wh1c 2wd"
+                },
+                OrganisationData = new OrganisationDataDto
+                {
+                    DateOfCreation = DateTime.UtcNow.AddMonths(-1),
+                    Status = "mock company",
+                    Type = "limited"
+                }
+            }
+        };
+
+        return Task.FromResult(stubResponse);
+    }
+
+    public async Task UpdateOrganisationDetails(
+        Guid organisationId,
+        OrganisationUpdateDto organisation)
+    {
+        await Task.CompletedTask;
+    }
+
+    public async Task UpdateUserDetails(Guid? userId, UpdateUserDetailsRequest userDetailsDto)
+    {
+        await Task.CompletedTask;
+    }
+
+    public async Task<UpdateUserDetailsResponse> UpdateUserDetailsAsync(Guid userId, Guid organisationId, string serviceKey, UpdateUserDetailsRequest userDetailsUpdateModelRequest)
+    {
+
+        var stubResponse = new UpdateUserDetailsResponse
+        {
+            HasApprovedOrDelegatedUserDetailsSentForApproval = false,
+            HasBasicUserDetailsUpdated = true,
+            HasTelephoneOnlyUpdated = false
+        };
+        return await Task.FromResult(stubResponse);
     }
 }

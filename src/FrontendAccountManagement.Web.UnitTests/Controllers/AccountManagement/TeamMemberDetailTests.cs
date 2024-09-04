@@ -1,4 +1,5 @@
 using EPR.Common.Authorization.Models;
+using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Constants;
@@ -7,6 +8,7 @@ using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Organisation = EPR.Common.Authorization.Models.Organisation;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 
@@ -35,7 +37,7 @@ public class TeamMemberDetailTests : AccountManagementTestBase
                 }
             }
         };
-            
+
         SetupBase(_userData);
 
         JourneySessionMock = new JourneySession
@@ -58,10 +60,35 @@ public class TeamMemberDetailTests : AccountManagementTestBase
         SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>()))
             .ReturnsAsync(JourneySessionMock);
     }
-    
+
     [TestMethod]
     public async Task GivenOnTeamMemberDetailsPage_WhenTeamMemberDetailsPageHttpGetCalled_ThenTeamMemberDetailsViewModelReturned_AndBackLinkSet()
     {
+        // Arrange
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        var sessionJourney = new JourneySession
+        {
+            AccountManagementSession = new AccountManagementSession
+            {
+                Journey = new List<string>
+                {
+                    PagePath.TeamMemberPermissions,
+                    PagePath.TeamMemberDetails, PagePath.RemoveTeamMember
+                },
+                InviteeEmailAddress = Email,
+                RoleKey = SelectedUserRole
+            },
+            UserData = mockUserData
+        };
+
+        SetupBase(mockUserData, journeySession: sessionJourney);
+
         // Act
         var result = await SystemUnderTest.TeamMemberDetails() as ViewResult;
         var model = result.Model as TeamMemberDetailsViewModel;
@@ -69,11 +96,11 @@ public class TeamMemberDetailTests : AccountManagementTestBase
         // Assert
         result.ViewName.Should().Be(ViewName);
         AssertBackLink(result, PagePath.TeamMemberPermissions);
-        
+
         Assert.AreEqual(Email, model.Email);
         Assert.AreEqual(SelectedUserRole, model.SelectedUserRole);
     }
-    
+
     [TestMethod]
     public async Task GivenOnTeamMemberDetailsPage_WhenTeamMemberDetailsHttpPostCalled_ThenRedirectToManageAccount_AndUpdateSession()
     {
@@ -84,7 +111,7 @@ public class TeamMemberDetailTests : AccountManagementTestBase
         result.ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
         SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
     }
-    
+
     [TestMethod]
     public async Task GivenOnTeamMemberDetailsPage_WhenTeamMemberDetailsHttpPostCalled_AndSendInviteFailed_ThenRedirectToManageAccount_AndUpdateSession()
     {
@@ -96,9 +123,9 @@ public class TeamMemberDetailTests : AccountManagementTestBase
                 FirstName = "Fname",
                 LastName = "Lname"
             },
-            InvitedUser = new ()
+            InvitedUser = new()
             {
-                
+
                 Email = "test@abc.com"
             }
         };
@@ -148,5 +175,47 @@ public class TeamMemberDetailTests : AccountManagementTestBase
         Assert.IsNotNull(result);
         result.Should().BeOfType<RedirectToActionResult>();
         ((RedirectToActionResult)result).ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
+    }
+
+    [TestMethod]
+    public async Task GivenOnTeamMemberDetailsPage_DisplayPageNotFound_WhenUserIsBasicEmployee()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
+            RoleInOrganisation = PersonRole.Employee.ToString(),
+        };
+
+        SetupBase(userData);
+
+        // Act
+        var result = await SystemUnderTest.TeamMemberDetails();
+
+        // Assert
+        result.Should().BeOfType<NotFoundResult>();
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GivenOnTeamMemberDetailsPage_DisplayPageAsNormal_WhenUserIsBasicAdmin()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        SetupBase(userData);
+
+        // Act
+        var result = await SystemUnderTest.TeamMemberDetails();
+
+        // Assert
+        result.Should().BeOfType<ViewResult>();
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
     }
 }

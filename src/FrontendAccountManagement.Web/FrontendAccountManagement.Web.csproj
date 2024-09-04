@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
@@ -26,17 +26,21 @@
     </ItemGroup>
   
     <ItemGroup>
-      <PackageReference Include="EPR.Common.Authorization" Version="1.0.16" />
       <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
-      <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="8.0.7" />
-      <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="8.0.7" />
-      <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.7" />
-      <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.7" />
+      <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="8.0.8" />
+      <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="8.0.8" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.8" />
+      <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.8" />
       <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="3.5.0" />
-      <PackageReference Include="Microsoft.Identity.Web" Version="3.0.1" />
-      <PackageReference Include="Microsoft.Identity.Web.UI" Version="3.0.1" />
-      <PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" />
+      <PackageReference Include="Microsoft.Identity.Web" Version="3.1.0" />
+      <PackageReference Include="Microsoft.Identity.Web.UI" Version="3.1.0" />
+      <PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
       <PackageReference Update="SonarAnalyzer.CSharp" Version="9.30.0.95878" />
+      <PackageReference Include="EPR.Common.Authorization" Version="1.0.17" />
+      <PackageReference Include="AutoMapper" Version="13.0.1" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.8" />
+      <PackageReference Update="SonarAnalyzer.CSharp" Version="9.32.0.97167" />
     </ItemGroup>
 
     <ItemGroup>
@@ -44,6 +48,19 @@
     </ItemGroup>
 
     <ItemGroup>
+      <EmbeddedResource Update="Resources\Enums\UkNationResource.cy.resx">
+        <SubType>Designer</SubType>
+        <Generator>PublicResXFileCodeGenerator</Generator>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Enums\UkNationResource.resx">
+        <SubType>Designer</SubType>
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>UkNationResource.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\AccountManagement\EditUserDetails.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>EditUserDetails.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
       <EmbeddedResource Update="Resources\Views\AccountManagement\TeamMemberEmail.en.resx">
         <Generator>ResXFileCodeGenerator</Generator>
         <LastGenOutput>TeamMemberEmail.en.Designer.cs</LastGenOutput>
@@ -55,6 +72,10 @@
       <EmbeddedResource Update="Resources\Views\AccountManagement\TeamMemberDetails.resx">
         <Generator>ResXFileCodeGenerator</Generator>
         <LastGenOutput>TeamMemberDetails.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\AccountManagement\UkNation.resx">
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>UkNation.Designer.cs</LastGenOutput>
       </EmbeddedResource>
       <EmbeddedResource Update="Resources\Views\PermissionManagement\CheckDetailsSendInvite.cy.resx">
         <SubType>Designer</SubType>
@@ -139,10 +160,25 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Compile Update="Resources\Enums\UkNationResource.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>UkNationResource.resx</DependentUpon>
+      </Compile>
+      <Compile Update="Resources\Views\AccountManagement\EditUserDetails.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>EditUserDetails.resx</DependentUpon>
+      </Compile>
       <Compile Update="Resources\Views\AccountManagement\TeamMemberDetails.Designer.cs">
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>
         <DependentUpon>TeamMemberDetails.resx</DependentUpon>
+      </Compile>
+      <Compile Update="Resources\Views\AccountManagement\UkNation.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>UkNation.resx</DependentUpon>
       </Compile>
     </ItemGroup>
 

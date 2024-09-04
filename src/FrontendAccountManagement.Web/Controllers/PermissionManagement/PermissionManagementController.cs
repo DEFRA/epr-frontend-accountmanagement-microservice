@@ -3,6 +3,7 @@ using System.Text.Json;
 using EPR.Common.Authorization.Constants;
 using EPR.Common.Authorization.Extensions;
 using EPR.Common.Authorization.Models;
+using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
@@ -12,7 +13,6 @@ using FrontendAccountManagement.Core.Sessions.Mappings;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.Attributes;
-using FrontendAccountManagement.Web.Sessions;
 using FrontendAccountManagement.Web.ViewModels;
 using FrontendAccountManagement.Web.ViewModels.PermissionManagement;
 using Microsoft.AspNetCore.Authorization;
@@ -24,7 +24,7 @@ using Microsoft.Identity.Web;
 namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
 {
     [FeatureGate(FeatureFlags.ManageUserPermissions)]
-    [Authorize(Policy = PolicyConstants.AccountManagementPolicy)]
+    [Authorize(Policy = PolicyConstants.AccountPermissionManagementPolicy)]
     public class PermissionManagementController : Controller
     {
         private readonly ISessionManager<JourneySession> _sessionManager;
@@ -174,7 +174,6 @@ namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
         [JourneyAccess(PagePath.RelationshipWithOrganisation, JourneyName.ManagePermissions)]
         public async Task<IActionResult> RelationshipWithOrganisation(Guid id)
         {
-            const string claimsUri = System.Security.Claims.ClaimTypes.UserData;
             var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
             var currentSessionItem = session?.PermissionManagementSession.Items.Find(i => i.Id == id);
             if (currentSessionItem == null)
@@ -182,7 +181,7 @@ namespace FrontendAccountManagement.Web.Controllers.PermissionManagement
                 return RedirectHome();
             }
             
-            var userDataClaim = User.Claims.FirstOrDefault(c => c.Type == claimsUri);
+            var userDataClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.UserData);
             if (userDataClaim == null)
             {
                 return RedirectHome();

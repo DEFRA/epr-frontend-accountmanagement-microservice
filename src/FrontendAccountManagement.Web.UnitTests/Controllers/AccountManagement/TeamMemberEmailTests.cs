@@ -1,3 +1,5 @@
+using EPR.Common.Authorization.Models;
+using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Constants;
@@ -46,6 +48,16 @@ public class TeamMemberEmailTests : AccountManagementTestBase
     [TestMethod]
     public async Task GivenOnTeamMemberEmailPage_WhenTeamMemberEmailPageHttpGetCalled_ThenTeamMemberEmailPageReturned_AndBackLinkSet()
     {
+        // Arrange
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        SetupBase(mockUserData);
+
         // Act
         var result = await SystemUnderTest.TeamMemberEmail() as ViewResult;
 
@@ -61,6 +73,15 @@ public class TeamMemberEmailTests : AccountManagementTestBase
         AccountManagementSession addUserAccount = new() { AddUserStatus = 0, AddUserJourney = null };
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
            .Returns(Task.FromResult(new JourneySession { AccountManagementSession = addUserAccount }));
+
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        SetupBase(mockUserData);
 
         // Act
         var result = await SystemUnderTest.TeamMemberEmail() as ViewResult;
@@ -148,13 +169,78 @@ public class TeamMemberEmailTests : AccountManagementTestBase
     public async Task GivenOnTeamMemberEmailPage_WhenTeamMemberEmailPageHttpGetCalled_ValidEmailFormat_AndEmailValuePreviouslySet_ThenEmailValueIsPopulated(string email)
     {
         // Arrange
-        JourneySessionMock.AccountManagementSession.AddUserJourney.Email = email;
+
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        var session = new JourneySession
+        {
+            AccountManagementSession = new AccountManagementSession
+            {
+                AddUserJourney = new AddUserJourneyModel
+                {
+                    Email = email
+                }
+            }
+        };
+
+        SetupBase(mockUserData);
+
+        SessionManagerMock.Setup(m =>
+            m.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
 
         // Act
         var result = await SystemUnderTest.TeamMemberEmail() as ViewResult;
         var model = result.Model as TeamMemberEmailViewModel;
 
         // Assert
-        Assert.AreEqual(ValidEmailFormat ,model.SavedEmail);
+        Assert.AreEqual(ValidEmailFormat, model.SavedEmail);
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GivenOnTeamMemberEmailPage_WhenUserIsBasicEmployee_ThenDisplayPageNotFound()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
+            RoleInOrganisation = PersonRole.Employee.ToString(),
+        };
+
+        SetupBase(userData);
+
+        // Act
+        var result = await SystemUnderTest.TeamMemberEmail();
+
+        // Assert
+        result.Should().BeOfType<NotFoundResult>();
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GivenOnTeamMemberEmailPage_WhenUserIsBasicAdmin_ThenDisplayPageAsNormal()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        SetupBase(userData);
+
+        // Act
+        var result = await SystemUnderTest.TeamMemberEmail();
+
+        // Assert
+        result.Should().BeOfType<ViewResult>();
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
     }
 }

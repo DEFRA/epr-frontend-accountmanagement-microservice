@@ -9,10 +9,13 @@ using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
+using FrontendAccountManagement.Core.Models.CompaniesHouse;
+using System.Net.Http.Json;
+using FrontendAccountManagement.Core.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace FrontendAccountManagement.Core.UnitTests.Services
 {
@@ -24,7 +27,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
         private Mock<ITokenAcquisition> _tokenAcquisitionMock = null!;
         private HttpClient _httpClient = null!;
         private FacadeService _facadeService = null!;
-        private IConfiguration _configuration;
+        private Mock<IOptions<FacadeApiConfiguration>> _configuration;
 
         [TestInitialize]
         public void Setup()
@@ -34,7 +37,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             _tokenAcquisitionMock = new Mock<ITokenAcquisition>();
             _httpClient = new HttpClient(_mockHandler.Object)
             {
-                BaseAddress = null
+                BaseAddress = new Uri("http://example")
             };
 
             _httpClient.DefaultRequestHeaders.Add("X-EPR-Organisation", "Test");
@@ -48,11 +51,17 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 {"FacadeAPI:DownStreamScope", "https://eprb2cdev.onmicrosoft.com/account-creation-facade/account-creation" }
             };
 
-            _configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(inMemorySettings)
-                .Build();
+            _configuration = new Mock<IOptions<FacadeApiConfiguration>>();
 
-            _facadeService = new FacadeService(_httpClient, _tokenAcquisitionMock.Object, _configuration);
+            _configuration.Setup(c => c.Value).Returns(new FacadeApiConfiguration
+            {
+
+            });
+
+            _facadeService = new FacadeService(
+                _httpClient,
+                _tokenAcquisitionMock.Object,
+                _configuration.Object);
         }
 
         [TestMethod]
@@ -1135,11 +1144,11 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
         {
             // Arrange
             var organisationId = Guid.NewGuid();
-            var expectedResponse = new List<int>{2};
+            var expectedResponse = new List<int> { 2 };
 
             var httpTestHandler = new HttpResponseMessage
             {
-                StatusCode = HttpStatusCode.OK           ,
+                StatusCode = HttpStatusCode.OK,
                 Content = new StringContent(JsonSerializer.Serialize(expectedResponse))
             };
 
@@ -1158,13 +1167,13 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             response.Result.Should().BeEquivalentTo(expectedResponse);
             httpTestHandler.Dispose();
         }
-        
+
         [TestMethod]
         public async Task GetNationId_WithValidRequest_IsUnsuccessful_ReturnsZero()
         {
             // Arrange
             var organisationId = Guid.NewGuid();
-            var expectedResponse = new List<int>{0};
+            var expectedResponse = new List<int> { 0 };
             var httpTestHandler = new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.NotFound
@@ -1178,12 +1187,122 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 .ReturnsAsync(httpTestHandler);
 
             // Act
-            var response =  _facadeService.GetNationIds(organisationId);
+            var response = _facadeService.GetNationIds(organisationId);
 
             // Assert
             Assert.IsNotNull(response);
             response.Result.Should().BeEquivalentTo(expectedResponse);
             httpTestHandler.Dispose();
         }
+
+        [TestMethod]
+        public async Task UpdateNationIdByOrganisationId_CallsEndPoint()
+        {
+            // Arrange
+            var organisationId = Guid.NewGuid();
+            var organisation = new OrganisationUpdateDto();
+
+            var expectedResponse = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(expectedResponse).Verifiable();
+
+            // Act
+            await _facadeService.UpdateOrganisationDetails(
+                organisationId,
+                organisation);
+
+            // Assert
+            _mockHandler.Protected().Verify(
+                "SendAsync",
+                Times.Once(),
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Put),
+                ItExpr.IsAny<CancellationToken>()
+            );
+        }
+
+        [TestMethod]
+        public async Task GetCompaniesHouseResponseAsync_NoContent_ReturnsNull()
+        {
+            // Arrange
+            var companyHouseNumber = "12345678";
+            var responseMessage = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.NoContent
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(responseMessage);
+
+            // Act
+            var result = await _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber);
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
+        [TestMethod]
+        public async Task GetCompaniesHouseResponseAsync_Success_ReturnsCompaniesHouseResponse()
+        {
+            // Arrange
+            var companyHouseNumber = "12345678";
+            var expectedResponse = new CompaniesHouseResponse
+            {
+                Organisation = new OrganisationDto
+                {
+                    Name = "Test company name"
+                }
+            };
+            var responseMessage = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = JsonContent.Create(expectedResponse)
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(responseMessage);
+
+            // Act
+            var result = await _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Test company name", result.Organisation.Name);
+        }
+
+        [TestMethod]
+        public async Task GetCompaniesHouseResponseAsync_Error_ThrowsException()
+        {
+            // Arrange
+            var companyHouseNumber = "12345678";
+            var responseMessage = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.BadRequest
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(responseMessage);
+
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<HttpRequestException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
+        }
+
     }
 }

@@ -139,4 +139,31 @@ Rheoli manylion y cyfrif</value>
   <data name="PermissionsUpdated" xml:space="preserve">
     <value>Caniatâd {0} wedi’i ddiweddaru</value>
   </data>
+  <data name="JobTitle" xml:space="preserve">
+    <value>Teitl y swydd:</value>
+  </data>
+  <data name="OrganisationAddress" xml:space="preserve">
+    <value>Cyfeiriad:</value>
+  </data>
+  <data name="Permissions" xml:space="preserve">
+    <value>Caniatadau:</value>
+  </data>
+  <data name="TelephoneNumber" xml:space="preserve">
+    <value>Rhif ffôn:</value>
+  </data>
+  <data name="CompanyName" xml:space="preserve">
+    <value>Enw:</value>
+  </data>
+  <data name="YourDetails" xml:space="preserve">
+    <value>Eich manylion chi</value>
+  </data>
+  <data name="YourName" xml:space="preserve">
+    <value>Enw:</value>
+  </data>
+  <data name="YourOrganisation" xml:space="preserve">
+    <value>Eich sefydliad chi</value>
+  </data>
+  <data name="Pending" xml:space="preserve">
+    <value>YN YR ARFAETH</value>
+  </data>
 </root>

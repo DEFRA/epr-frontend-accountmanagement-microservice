@@ -1,0 +1,71 @@
+﻿@using FrontendAccountManagement.Web.Constants
+@using FrontendAccountManagement.Web.Constants.Enums
+@using FrontendAccountManagement.Web.Extensions
+@using FrontendAccountManagement.Web.ViewModels.AccountManagement
+
+@model CheckYourOrganisationDetailsViewModel
+
+@{
+    ViewData["Title"] = Localizer["CheckYourOrganisationsDetailsTitle"];
+}
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div class="govuk-form-group">
+                    <h1 class="govuk-heading-l govuk-!-margin-bottom-4">
+                        <label>
+                            @Localizer["CheckYourOrganisationsDetailsTitle"]
+                        </label>
+                    </h1>
+                    <dl class="govuk-summary-list">
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                @Localizer["TradingName"]
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                @Model.TradingName
+                            </dd>
+                            <dd class="govuk-summary-list__actions">
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                @Localizer["Address"]
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                @Model.Address
+                            </dd>
+                            <dd class="govuk-summary-list__actions">
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                @Localizer["UKNation"]
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                @Model.UkNation.GetDisplayName()
+                            </dd>
+                            <dd class="govuk-summary-list__actions">
+                                <a class="govuk-link" asp-controller="AccountManagement" asp-action="UkNation">@SharedLocalizer["Change"]</a>
+                            </dd>
+                        </div>
+                    </dl>
+                    <form asp-controller="AccountManagement" asp-action="PagePath.CheckCompaniesHouseDetails" method="post">
+                        <input type="hidden" asp-for="OrganisationId" />
+                        <input type="hidden" asp-for="Address" />
+                        <input type="hidden" asp-for="UkNation" />
+                        <input type="hidden" asp-for="TradingName" />
+                        <div class="govuk-button-group">
+                            <button class="govuk-button" data-module="govuk-button">
+                                @SharedLocalizer["SaveAndContinue"]
+                            </button>
+                            <a class="govuk-link" asp-controller="AccountManagement" asp-action="ManageAccount">@SharedLocalizer["Cancel"]</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
