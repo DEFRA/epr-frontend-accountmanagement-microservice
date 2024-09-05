@@ -127,6 +127,48 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             Assert.IsInstanceOfType(result, typeof(NotFoundResult));
         }
 
+        [TestMethod]
+        public async Task ConfirmCompanyDetails_ShouldDisplayErrorPage_WhenUserIsNotAnApprovedPerson()
+        {
+            // Arrange
+            var userData = new UserData
+            {
+                ServiceRole = Core.Enums.ServiceRole.RegulatorAdmin.ToString(),
+                ServiceRoleId = 4,
+                RoleInOrganisation = PersonRole.Admin.ToString(),
+            };
+
+            SetupBase(userData);
+
+            // Act
+            var result = await SystemUnderTest.ConfirmCompanyDetails();
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(UnauthorizedResult));
+        }
+
+        [TestMethod]
+        public async Task CheckCompaniesHouseDetails_ShouldDisplayErrorPage_WhenUserIsNotAnApprovedPerson()
+        {
+            // Arrange
+            var userData = new UserData
+            {
+                ServiceRole = Core.Enums.ServiceRole.RegulatorAdmin.ToString(),
+                ServiceRoleId = 4,
+                RoleInOrganisation = PersonRole.Admin.ToString(),
+            };
+
+            var mockViewModel = new CheckYourOrganisationDetailsViewModel();
+
+            SetupBase(userData);
+
+            // Act
+            var result = await SystemUnderTest.CheckCompaniesHouseDetails(mockViewModel);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(UnauthorizedResult));
+        }
+
         private void SetupUserData(string serviceRole,
             int? serviceRoleId = null,
             string roleInOrganisation = null)
