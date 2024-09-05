@@ -138,7 +138,7 @@ public class AccountManagementController : Controller
             var serviceRoleEnum = (ServiceRole)serviceRoleId;
             var roleInOrganisation = userAccount.RoleInOrganisation;
             model.ServiceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
-            model.OrganisationType = userOrg.OrganisationType;
+            model.OrganisationType = userOrg?.OrganisationType;
             model.HasPermissionToChangeCompany = HasPermissionToChangeCompany(userAccount);
             model.IsBasicUser = IsBasicUser(userAccount);
             model.IsChangeRequestPending = userAccount.IsChangeRequestPending;
