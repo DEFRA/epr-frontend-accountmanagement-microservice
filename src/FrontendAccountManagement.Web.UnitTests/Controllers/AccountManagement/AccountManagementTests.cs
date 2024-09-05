@@ -1008,8 +1008,8 @@ public class AccountManagementTests : AccountManagementTestBase
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
-    public async Task CheckData_ThrowsArgumentNullException_WhenThereIsNoOrganisationData()
+    [ExpectedException(typeof(InvalidOperationException))]
+    public async Task CheckData_ThrowsInvalidOperationException_WhenThereIsNoOrganisationData()
     {
         // Arrange
         var mockUserData = new UserData

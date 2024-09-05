@@ -20,11 +20,8 @@ public static class ClaimsExtensions
         // tidied up correctly
         while (claim != null)
         {
-            if (claim != null)
-            {
-                claimsIdentity?.RemoveClaim(claim);
-                claim = claim = claimsIdentity?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.UserData);
-            }
+            claimsIdentity.RemoveClaim(claim);
+            claim = claimsIdentity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.UserData);
         }
 
         var claims = new List<Claim>

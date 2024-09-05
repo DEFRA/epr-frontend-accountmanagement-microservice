@@ -118,12 +118,12 @@ public class AccountManagementController : Controller
         }
         else
         {
-            var organisation = userAccount.Organisations.First();
+            var organisation = userAccount.Organisations[0];
             model.UserName = string.Format("{0} {1}", userAccount.FirstName, userAccount.LastName);
             model.Telephone = userAccount.Telephone;
             var userOrg = userAccount.Organisations?.FirstOrDefault();
             model.JobTitle = userAccount.JobTitle;
-            model.CompanyName = userOrg.Name;
+            model.CompanyName = userOrg?.Name;
             model.OrganisationAddress = string.Join(", ", new[] {
                 organisation.SubBuildingName,
                 organisation.BuildingNumber,
@@ -510,11 +510,12 @@ public class AccountManagementController : Controller
 
         var userDetailsDto = _mapper.Map<UpdateUserDetailsRequest>(model);
         var userOrg = userData.Organisations?.FirstOrDefault();
+        Guid userOrgId = userOrg?.Id.Value ?? Guid.Empty;
 
         // check if change is only phone number
         if (IsApprovedOrDelegatedUser(userData))
         {
-            var reponse = await _facadeService.UpdateUserDetailsAsync(userData.Id.Value, userOrg.Id.Value, ServiceKey, userDetailsDto);
+            var reponse = await _facadeService.UpdateUserDetailsAsync(userData.Id.Value, userOrgId, ServiceKey, userDetailsDto);
             if (reponse.HasApprovedOrDelegatedUserDetailsSentForApproval)
             {
                 if (TempData[AmendedUserDetailsKey] != null) TempData.Remove(AmendedUserDetailsKey);
@@ -687,7 +688,7 @@ public class AccountManagementController : Controller
         {
             var reponse = await _facadeService.UpdateUserDetailsAsync(
                 userData.Id.Value,
-                userOrg.Id.Value,
+                userOrg?.Id.Value ?? Guid.Empty,
                 ServiceKey,
                 userDetailsDto);
 
@@ -707,7 +708,7 @@ public class AccountManagementController : Controller
         {
             var reponse = await _facadeService.UpdateUserDetailsAsync(
                 userData.Id.Value,
-                userOrg.Id.Value,
+                userOrg?.Id.Value ?? Guid.Empty,
                 ServiceKey,
                 userDetailsDto);
 
@@ -1003,7 +1004,7 @@ public class AccountManagementController : Controller
 
         if (organisationData == null)
         {
-            throw new ArgumentNullException(nameof(organisationData));
+            throw new InvalidOperationException(nameof(organisationData));
         }
 
         var companiesHouseData = await _facadeService.GetCompaniesHouseResponseAsync(organisationData.CompaniesHouseNumber);

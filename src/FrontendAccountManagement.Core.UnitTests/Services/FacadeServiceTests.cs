@@ -1303,6 +1303,5 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             // Act & Assert
             await Assert.ThrowsExceptionAsync<HttpRequestException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
         }
-
     }
 }

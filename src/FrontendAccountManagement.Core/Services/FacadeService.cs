@@ -290,7 +290,7 @@ public class FacadeService : IFacadeService
 
         var response = await _httpClient.PutAsJsonAsync($"{_putUpdateOrganisationPath}/{organisationId}", organisation);
 
-        string result = await response.Content.ReadAsStringAsync();
+        await response.Content.ReadAsStringAsync();
         response.EnsureSuccessStatusCode();
     }
 
