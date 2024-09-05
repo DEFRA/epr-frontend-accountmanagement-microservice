@@ -73,38 +73,25 @@ public class AccountManagementTests : AccountManagementTestBase
     public async Task GivenOnManageAccountPage_WhenDeploymentRoleIsRegulator_WithRegulatorAdminServiceRole_ThenShowManageAccountPage()
     {
         // Arrange
-        SetupBase(deploymentRole: DeploymentRoleOptions.RegulatorRoleValue,
-            userServiceRoleId: (int)Core.Enums.ServiceRole.RegulatorAdmin);
-
-        var userData = new UserData
+        var mockUserData = new UserData
         {
+            FirstName = FirstName,
+            LastName = LastName,
+            Telephone = Telephone,
+            IsChangeRequestPending = true,
+            ServiceRole = Core.Enums.ServiceRole.RegulatorAdmin.ToString(),
+            ServiceRoleId = (int)Core.Enums.ServiceRole.RegulatorAdmin,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
             Organisations = new List<Organisation>
             {
-                new Organisation
-                {
-                }
+                new Organisation()
             }
         };
 
-        // Create a mock identity
-        var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.UserData, JsonSerializer.Serialize(userData)),
-        };
-
-        var identity = new Mock<ClaimsIdentity>();
-        identity.Setup(i => i.IsAuthenticated).Returns(true);
-        identity.Setup(i => i.Claims).Returns(claims);
-
-        // Create a mock ClaimsPrincipal
-        var mockClaimsPrincipal = new Mock<ClaimsPrincipal>();
-        mockClaimsPrincipal.Setup(p => p.Identity).Returns(identity.Object);
-        mockClaimsPrincipal.Setup(p => p.Claims).Returns(claims);
-
-        // Use the mock ClaimsPrincipal in your tests
-        var claimsPrincipal = mockClaimsPrincipal.Object;
-
-        HttpContextMock.Setup(c => c.User).Returns(claimsPrincipal);
+        SetupBase(
+            deploymentRole: DeploymentRoleOptions.RegulatorRoleValue,
+            userServiceRoleId: (int)Core.Enums.ServiceRole.RegulatorAdmin,
+            userData: mockUserData);
 
         // Act
         var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
@@ -121,8 +108,25 @@ public class AccountManagementTests : AccountManagementTestBase
     public async Task GivenOnManageAccountPage_WhenDeploymentRoleIsRegulator_WithInvalidServiceRole_ThenReturnForbidden()
     {
         // Arrange
-        SetupBase(deploymentRole: DeploymentRoleOptions.RegulatorRoleValue,
-            userServiceRoleId: (int)Core.Enums.ServiceRole.RegulatorBasic);
+        var mockUserData = new UserData
+        {
+            FirstName = FirstName,
+            LastName = LastName,
+            Telephone = Telephone,
+            IsChangeRequestPending = true,
+            ServiceRole = Core.Enums.ServiceRole.RegulatorBasic.ToString(),
+            ServiceRoleId = (int)Core.Enums.ServiceRole.RegulatorBasic,
+            RoleInOrganisation = PersonRole.Employee.ToString(),
+            Organisations = new List<Organisation>
+            {
+                new Organisation()
+            }
+        };
+
+        SetupBase(
+            deploymentRole: DeploymentRoleOptions.RegulatorRoleValue,
+            userServiceRoleId: (int)Core.Enums.ServiceRole.RegulatorBasic,
+            userData: mockUserData);
 
         // Act
         var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel());
@@ -141,8 +145,34 @@ public class AccountManagementTests : AccountManagementTestBase
     public async Task GivenOnManageAccountPage_WhenDeploymentRoleIsNotRegulator_WithRegulatorAdminServiceRole_ThenReturnForbidden()
     {
         // Arrange
-        SetupBase(deploymentRole: string.Empty,
-            userServiceRoleId: (int)Core.Enums.ServiceRole.RegulatorAdmin);
+        var mockUserData = new UserData
+        {
+            FirstName = FirstName,
+            LastName = LastName,
+            Telephone = Telephone,
+            IsChangeRequestPending = true,
+            ServiceRole = Core.Enums.ServiceRole.RegulatorBasic.ToString(),
+            ServiceRoleId = (int)Core.Enums.ServiceRole.RegulatorBasic,
+            RoleInOrganisation = PersonRole.Employee.ToString(),
+            Organisations = new List<Organisation>
+            {
+                new Organisation()
+            }
+        };
+
+
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .ReturnsAsync(new JourneySession
+            {
+                UserData = mockUserData
+            });
+
+        SetupBase(
+            deploymentRole: string.Empty,
+            userServiceRoleId: (int)Core.Enums.ServiceRole.RegulatorAdmin,
+            userData: mockUserData);
+
+      
 
         // Act
         var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel());

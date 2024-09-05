@@ -78,7 +78,9 @@ public class AccountManagementController : Controller
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         session ??= new JourneySession();
 
-        if (!HasPermissionToView(session.UserData))
+        var userAccount = User.GetUserData();
+
+        if (!HasPermissionToView(userAccount))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
             {
@@ -109,8 +111,6 @@ public class AccountManagementController : Controller
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccount);
 
         SetCustomBackLink(_urlOptions.LandingPageUrl);
-
-        var userAccount = User.GetUserData();
 
         if (userAccount is null)
         {
@@ -964,6 +964,8 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
+        var userData = User.GetUserData();
+
         SetCustomBackLink(PagePath.ConfirmCompanyDetails, false);
 
         if (!ModelState.IsValid)
@@ -978,7 +980,7 @@ public class AccountManagementController : Controller
 
         var checkYourOrganisationModel = new CheckYourOrganisationDetailsViewModel
         {
-            OrganisationId = session.UserData.Organisations.FirstOrDefault()?.Id ?? Guid.Empty,
+            OrganisationId = userData.Organisations.FirstOrDefault()?.Id ?? Guid.Empty,
             Address = string.Join(", ", address.AddressFields.Where(field => !string.IsNullOrWhiteSpace(field))),
             TradingName = session.CompaniesHouseSession?.CompaniesHouseData?.Organisation?.Name,
             UkNation = model.UkNation.Value
