@@ -6,11 +6,11 @@ using System.Security.Claims;
 
 namespace FrontendAccountManagement.Web.UnitTests.Middleware;
 
+using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.Attributes;
 using FrontendAccountManagement.Web.Middleware;
-using FrontendAccountManagement.Web.Sessions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Routing;

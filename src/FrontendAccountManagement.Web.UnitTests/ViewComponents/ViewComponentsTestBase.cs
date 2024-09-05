@@ -1,7 +1,7 @@
 using EPR.Common.Authorization.Models;
+using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
-using FrontendAccountManagement.Web.Sessions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -33,6 +33,11 @@ public abstract class ViewComponentsTestBase
         }
         
         UserMock.Setup(x => x.Claims).Returns(claims);
+
+        var mockClaimsIdentity = new Mock<ClaimsIdentity>();
+        UserMock.Setup(cp => cp.Identity).Returns(mockClaimsIdentity.Object);
+        mockClaimsIdentity.Setup(ci => ci.Claims).Returns(claims);
+
         HttpContextMock.Setup(x => x.Request.PathBase).Returns( new PathString($"/manage-account"));
         HttpContextMock.Setup(x => x.Request.Path).Returns($"/{requestPath}");
         HttpContextMock.Setup(x => x.Session).Returns(Session.Object);

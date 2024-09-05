@@ -1,8 +1,11 @@
-﻿using FrontendAccountManagement.Core.Extensions;
+﻿using FrontendAccountManagement.Core.Configuration;
+using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Extensions;
 using FrontendAccountManagement.Web.HealthChecks;
 using FrontendAccountManagement.Web.Middleware;
+using FrontendAccountManagement.Web.Utilities;
+using FrontendAccountManagement.Web.Utilities.Interfaces;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
@@ -19,6 +22,7 @@ builder.Services
     .ConfigureMsalDistributedTokenOptions(builder.Configuration);
 
 builder.Services
+    .AddAutoMapper(typeof(Program))
     .AddAntiforgery(options => options.Cookie.Name = builder.Configuration.GetValue<string>("CookieOptions:AntiForgeryCookieName"))
     .AddControllersWithViews(options => {
         options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
@@ -34,20 +38,27 @@ builder.Services
     })
     .AddDataAnnotationsLocalization();
 
-builder.Services.Configure<DeploymentRoleOptions>(options =>
-{
-    options.DeploymentRole = builder.Configuration.GetValue<string>(DeploymentRoleOptions.ConfigSection);
-});
+builder.Services
+    .Configure<DeploymentRoleOptions>(options =>
+    {
+        options.DeploymentRole = builder.Configuration.GetValue<string>(DeploymentRoleOptions.ConfigSection);
+    })
+    .ConfigureAutoMapper();
 
 builder.Services.AddRazorPages();
+builder.Services.AddHttpContextAccessor();
 
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
-{
-    options.ForwardedHeaders = ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedProto;
-    options.ForwardedHostHeaderName = builder.Configuration.GetValue<string>("ForwardedHeaders:ForwardedHostHeaderName");
-    options.OriginalHostHeaderName = builder.Configuration.GetValue<string>("ForwardedHeaders:OriginalHostHeaderName");
-    options.AllowedHosts = builder.Configuration.GetValue<string>("ForwardedHeaders:AllowedHosts").Split(";");
-});
+builder.Services.AddTransient<IClaimsExtensionsWrapper, ClaimsExtensionsWrapper>();
+
+builder.Services
+    .Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedProto;
+        options.ForwardedHostHeaderName = builder.Configuration.GetValue<string>("ForwardedHeaders:ForwardedHostHeaderName");
+        options.OriginalHostHeaderName = builder.Configuration.GetValue<string>("ForwardedHeaders:OriginalHostHeaderName");
+        options.AllowedHosts = builder.Configuration.GetValue<string>("ForwardedHeaders:AllowedHosts").Split(";");
+    })
+    .Configure<FacadeApiConfiguration>(builder.Configuration.GetSection(FacadeApiConfiguration.SectionName));
 
 builder.Services
     .AddApplicationInsightsTelemetry()

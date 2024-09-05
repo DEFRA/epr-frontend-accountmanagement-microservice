@@ -37,6 +37,10 @@ FROM defradigital/dotnetcore:dotnet8.0
 #Temporariky switch to root user to install packages
 USER root
 
+# Install tzdata
+USER root
+RUN apk add --no-cache tzdata
+
 # Add internationalisation support
 RUN apk --no-cache add icu-libs icu-data-full libintl
 

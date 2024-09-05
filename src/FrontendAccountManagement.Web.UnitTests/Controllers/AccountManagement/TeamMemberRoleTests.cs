@@ -6,6 +6,8 @@ using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Web.Constants;
 using Moq;
+using EPR.Common.Authorization.Models;
+using FrontendAccountManagement.Core.Enums;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 
@@ -18,7 +20,7 @@ public class TeamMemberRoleTests : AccountManagementTestBase
     private const string RolesNotFoundException = "Could not retrieve service roles or none found";
     private const string PreviouslyEnteredEmail = "fakeemail@test.com";
 
-    private readonly ServiceRole TestRole = new()
+    private readonly Core.Models.ServiceRole TestRole = new()
     {
         ServiceRoleId = 3,
         PersonRoleId = 1,
@@ -51,17 +53,44 @@ public class TeamMemberRoleTests : AccountManagementTestBase
         SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>()))
             .ReturnsAsync(JourneySessionMock);
     }
-    
+
     [TestMethod]
     public async Task GivenOnTeamMemberRolePage_WhenTeamMemberPermissionsHttpGetCalled_ThenTeamMemberPermissionsViewModelReturned_AndBackLinkSet()
     {
         // Arrange
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        JourneySessionMock.AccountManagementSession.AddUserJourney = new AddUserJourneyModel
+        {
+            UserRole = "RegulatorAdmin"
+        };
+
+        var sessionJourney = new JourneySession
+        {
+            AccountManagementSession = new AccountManagementSession
+            {
+                AddUserJourney = new AddUserJourneyModel
+                {
+                    UserRole = SelectedRole
+                },
+                Journey = new List<string> { PagePath.TeamMemberEmail, PagePath.TeamMemberPermissions }
+            },
+            UserData = mockUserData
+        };
+
+        SetupBase(mockUserData, journeySession: sessionJourney);
+
         FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
-            .Returns(Task.FromResult<IEnumerable<ServiceRole>>(new List<ServiceRole>
+            .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(new List<Core.Models.ServiceRole>
                 {
                     TestRole
                 }));
-        
+
         // Act
         var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
         var model = result.Model as TeamMemberPermissionsViewModel;
@@ -71,34 +100,52 @@ public class TeamMemberRoleTests : AccountManagementTestBase
         AssertBackLink(result, PagePath.TeamMemberEmail);
         Assert.IsTrue(model.ServiceRoles.Contains(TestRole));
     }
-    
+
     [TestMethod]
     [ExpectedException(typeof(InvalidOperationException), RolesNotFoundException)]
     public async Task GivenOnTeamMemberRolePage_WhenTeamMemberPermissionsHttpGetCalled_AndNoRolesReturnedFromFacade_ThenThrowException()
     {
-        // Act
-        FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
-            .Returns(Task.FromResult<IEnumerable<ServiceRole>>(new List<ServiceRole>()));
-        
         // Arrange
+        FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
+            .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(new List<Core.Models.ServiceRole>()));
+
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        SetupBase(mockUserData);
+
+        // Act
         var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
-        
+
         // Assert
         result.ViewName.Should().Be(ViewName);
         result.Model.Should().BeOfType<TeamMemberPermissionsViewModel>();
     }
-    
+
     [TestMethod]
-    [ExpectedException(typeof(Exception), RolesNotFoundException)]
+    [ExpectedException(typeof(InvalidOperationException), RolesNotFoundException)]
     public async Task GivenOnTeamMemberRolePage_WhenTeamMemberPermissionsHttpGetCalled_AndExceptionReturnedFromFacade_ThenThrowException()
     {
-        // Act
-        FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
-            .Throws(new Exception());
-        
         // Arrange
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        SetupBase(mockUserData);
+
+        FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
+            .Throws(new InvalidOperationException());
+
+        // Act
         var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
-        
+
         // Assert
         result.ViewName.Should().Be(ViewName);
         result.Model.Should().BeOfType<TeamMemberPermissionsViewModel>();
@@ -146,16 +193,102 @@ public class TeamMemberRoleTests : AccountManagementTestBase
     public async Task GivenOnTeamMemberRolePage_WhenTeamMemberPermissionsHttpGetCalled_RolePreviouslySet_ThenRoleValueIsPopulated(string role)
     {
         // Arrange
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        JourneySessionMock.AccountManagementSession.AddUserJourney = new AddUserJourneyModel
+        {
+            UserRole = "RegulatorAdmin"
+        };
+
+        var sessionJourney = new JourneySession
+        {
+            AccountManagementSession = new AccountManagementSession
+            {
+                AddUserJourney = new AddUserJourneyModel
+                {
+                    UserRole = SelectedRole
+                }
+            },
+            UserData = mockUserData
+        };
+
+        SetupBase(mockUserData, "Regulator", journeySession: sessionJourney);
+
         FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
-            .Returns(Task.FromResult<IEnumerable<ServiceRole>>(new List<ServiceRole> { TestRole }));
-        
-        JourneySessionMock.AccountManagementSession.AddUserJourney.UserRole = role;
-        
+            .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(new List<Core.Models.ServiceRole> { TestRole }));
+
         // Act
         var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
         var model = result.Model as TeamMemberPermissionsViewModel;
-        
+
         // Assert
-        Assert.AreEqual(role ,model.SavedUserRole);
+        Assert.AreEqual(role, model.SavedUserRole);
+    }
+
+    [TestMethod]
+    public async Task GivenOnTeamMemberRolePage_DisplayPageNotFound_WhenUserIsBasicEmployee()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
+            RoleInOrganisation = PersonRole.Employee.ToString(),
+        };
+
+        SetupBase(userData);
+
+        // Act
+        var result = await SystemUnderTest.TeamMemberPermissions();
+
+        // Assert
+        result.Should().BeOfType<NotFoundResult>();
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GivenOnTeamMemberRolePage_DisplayPageAsNormal_WhenUserIsBasicAdmin()
+    {
+        // Arrange
+        var mockUserData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Basic.ToString(),
+            ServiceRoleId = 3,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+
+        JourneySessionMock.AccountManagementSession.AddUserJourney = new AddUserJourneyModel
+        {
+            UserRole = "BasicAdmin"
+        };
+
+        var sessionJourney = new JourneySession
+        {
+            AccountManagementSession = new AccountManagementSession
+            {
+                AddUserJourney = new AddUserJourneyModel
+                {
+                    UserRole = "Admin"
+                }
+            },
+            UserData = mockUserData
+        };
+
+        SetupBase(mockUserData, "Admin", journeySession: sessionJourney);
+
+        FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
+            .Returns(Task.FromResult<IEnumerable<Core.Models.ServiceRole>>(new List<Core.Models.ServiceRole> { TestRole }));
+
+        // Act
+        var result = await SystemUnderTest.TeamMemberPermissions();
+
+        // Assert
+        result.Should().BeOfType<ViewResult>();
+        SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
     }
 }

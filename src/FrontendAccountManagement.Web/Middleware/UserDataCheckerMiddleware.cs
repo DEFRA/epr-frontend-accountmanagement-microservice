@@ -1,5 +1,6 @@
-﻿using FrontendAccountManagement.Core.Services;
-using FrontendAccountManagement.Web.Extensions;
+﻿using EPR.Common.Authorization.Extensions;
+using FrontendAccountManagement.Core.Services;
+using FrontendAccountManagement.Web.Utilities.Interfaces;
 using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace FrontendAccountManagement.Web.Middleware;
@@ -7,13 +8,16 @@ namespace FrontendAccountManagement.Web.Middleware;
 public class UserDataCheckerMiddleware : IMiddleware
 {
     private readonly IFacadeService _facadeService;
+    private readonly IClaimsExtensionsWrapper _claimsExtensionsWrapper;
     private readonly ILogger<UserDataCheckerMiddleware> _logger;
 
     public UserDataCheckerMiddleware(
         IFacadeService facadeService,
+        IClaimsExtensionsWrapper claimsExtensionsWrapper,
         ILogger<UserDataCheckerMiddleware> logger)
     {
         _facadeService = facadeService;
+        _claimsExtensionsWrapper = claimsExtensionsWrapper;
         _logger = logger;
     }
 
@@ -22,7 +26,7 @@ public class UserDataCheckerMiddleware : IMiddleware
         var anonControllers = new List<string> { "Privacy", "Cookies", "Culture" };
         var controllerName = GetControllerName(context);
         
-        var existingUserData = context.User.TryGetUserData(_logger);
+        var existingUserData = context.User.GetUserData();
 
         if (!anonControllers.Contains(controllerName) && context.User.Identity is { IsAuthenticated: true } && existingUserData is null)
         {
@@ -34,7 +38,7 @@ public class UserDataCheckerMiddleware : IMiddleware
             }
             else
             {
-                await ClaimsExtensions.UpdateUserDataClaimsAndSignInAsync(context, userAccount.User);
+                await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
             }
         }
 
