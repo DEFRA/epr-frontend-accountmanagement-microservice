@@ -41,12 +41,12 @@
                 {
                     @await Html.PartialAsync("Partials/_SuccessBanner", Localizer["UserRemoved", Model.RemovedUsersName])
                 }
-
-                @if (Model.ShowManageUserDetailChanges && (Model.IsRegulatorUser.HasValue && !Model.IsRegulatorUser.Value))
-                {
                 <h1 class="govuk-heading-l govuk-!-margin-bottom-8">
                     @Localizer["ManageAccountDetails"]
                 </h1>
+                @if (Model.ShowManageUserDetailChanges && (Model.IsRegulatorUser.HasValue && !Model.IsRegulatorUser.Value))
+                {
+
                 @if (!string.IsNullOrEmpty(Model.OrganisationType) && Model.OrganisationType != OrganisationType.NotSet)
                 {
                     <dl class="govuk-summary-list govuk-!-margin-bottom-0">
