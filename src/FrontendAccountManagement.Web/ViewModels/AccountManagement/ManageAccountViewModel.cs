@@ -35,7 +35,7 @@ namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
 
         public bool? HasPermissionToChangeCompany { get; set; } = false;
 
-        public bool? IsBasicUser { get; set; } = false;
+        public bool? IsRegulatorUser { get; set; } = false;
 
         public bool? IsChangeRequestPending { get; set; } = false;
 
