@@ -140,7 +140,7 @@ public class AccountManagementController : Controller
             model.ServiceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
             model.OrganisationType = userOrg?.OrganisationType;
             model.HasPermissionToChangeCompany = HasPermissionToChangeCompany(userAccount);
-            model.IsBasicUser = IsBasicUser(userAccount);
+            model.IsRegulatorUser = IsRegulatorUser(userAccount);
             model.IsChangeRequestPending = userAccount.IsChangeRequestPending;
             model.IsAdmin = userAccount.RoleInOrganisation == PersonRole.Admin.ToString();
             model.ShowManageUserDetailChanges = await _featureManager.IsEnabledAsync(FeatureFlags.ManageUserDetailChanges);
@@ -1121,7 +1121,7 @@ public class AccountManagementController : Controller
             return IsRegulatorAdmin(userData);
         }
         // regulator users cannot view if producer deployment
-        return !IsRegulatorUser(userData) || IsBasicUser(userData);
+        return !IsRegulatorUser(userData);
     }
 
     private static bool IsRegulatorAdmin(UserData userData) =>
