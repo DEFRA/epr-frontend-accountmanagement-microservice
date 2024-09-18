@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using FrontendAccountManagement.Web.Constants;
+using FrontendAccountManagement.Web.ViewModels.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,6 +13,6 @@ public class ErrorController : Controller
     public ViewResult Error(int? statusCode)
     {
         var errorView = statusCode == (int?)HttpStatusCode.NotFound ? "PageNotFound" : "Error";
-        return View(errorView);
+        return View(errorView, new ErrorViewModel());
     }
 }
