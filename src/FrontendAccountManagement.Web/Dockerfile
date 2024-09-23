@@ -36,7 +36,7 @@ COPY --from=build-env --chown=dotnet /home/dotnet/FrontendAccountManagement.Web/
 
 # Add internationalisation support
 USER root
-RUN apk add icu-libs icu-data-full libintl
+RUN apk add icu-libs icu-data-full libintl tzdata
 USER dotnet
 
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=0
