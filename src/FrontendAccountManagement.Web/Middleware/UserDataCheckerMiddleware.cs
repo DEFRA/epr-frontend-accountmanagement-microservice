@@ -23,7 +23,7 @@ public class UserDataCheckerMiddleware : IMiddleware
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        var anonControllers = new List<string> { "Privacy", "Cookies", "Culture" };
+        var anonControllers = new List<string> { "Privacy", "Cookies", "Culture", "Health" };
         var controllerName = GetControllerName(context);
         
         var existingUserData = context.User.GetUserData();
