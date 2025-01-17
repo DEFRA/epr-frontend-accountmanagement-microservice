@@ -16,6 +16,7 @@ using FrontendAccountManagement.Web.Controllers.Errors;
 using FrontendAccountManagement.Web.Extensions;
 using FrontendAccountManagement.Web.Profiles;
 using FrontendAccountManagement.Web.Utilities.Interfaces;
+using FrontendAccountManagement.Web.ViewModels;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -108,8 +109,6 @@ public class AccountManagementController : Controller
 
         model.PersonUpdated = TempData["PersonUpdated"] == null ? null : TempData["PersonUpdated"].ToString();
 
-        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccount);
-
         SetCustomBackLink(_urlOptions.LandingPageUrl);
 
         if (userAccount is null)
@@ -122,6 +121,9 @@ public class AccountManagementController : Controller
             model.UserName = string.Format("{0} {1}", userAccount.FirstName, userAccount.LastName);
             model.Telephone = userAccount.Telephone;
             var userOrg = userAccount.Organisations?.FirstOrDefault();
+            session.EditCompanyDetailsSession.OrganisationName = userOrg?.TradingName;
+            session.EditCompanyDetailsSession.OrganisationId = userOrg?.Id;
+            session.EditCompanyDetailsSession.OrganisationType = userOrg?.OrganisationType;
             model.JobTitle = userAccount.JobTitle;
             model.CompanyName = userOrg?.Name;
             model.OrganisationAddress = string.Join(", ", new[] {
@@ -145,6 +147,9 @@ public class AccountManagementController : Controller
             model.IsAdmin = userAccount.RoleInOrganisation == PersonRole.Admin.ToString();
             model.ShowManageUserDetailChanges = await _featureManager.IsEnabledAsync(FeatureFlags.ManageUserDetailChanges);
         }
+
+        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccount);
+
         return View(nameof(ManageAccount), model);
     }
 
@@ -996,6 +1001,62 @@ public class AccountManagementController : Controller
     {
         SetCustomBackLink(PagePath.ManageAccount, false);
         return View();
+    }
+
+    [HttpGet]
+    [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
+    [Route(PagePath.UpdateCompanyAddress)]
+    public async Task<IActionResult> UpdateCompanyAddress()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        if (session != null)
+        {
+            if (session.EditCompanyDetailsSession.OrganisationType == OrganisationType.CompaniesHouseCompany)
+            {
+                return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+                {
+                    statusCode = (int)HttpStatusCode.Forbidden
+                });
+            }
+
+            if (session.EditCompanyDetailsSession.IsUpdateCompanyName)
+            {
+                SetCustomBackLink(PagePath.CompanyName, false);
+            }
+            else
+            {
+                SetCustomBackLink(PagePath.UpdateCompanyName, false);
+            }
+        }
+
+
+        return View(new UpdateCompanyAddressViewModel
+        {
+            isUpdateCompanyAddress = null
+        });
+    }
+
+    [HttpPost]
+    [Route(PagePath.UpdateCompanyAddress)]
+    public async Task<IActionResult> UpdateCompanyAddress(UpdateCompanyAddressViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
+
+        session.EditCompanyDetailsSession.IsUpdateCompanyAddress = model.isUpdateCompanyAddress == YesNoAnswer.Yes;
+
+        if (session.EditCompanyDetailsSession.IsUpdateCompanyAddress)
+        {
+            return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.UpdateCompanyAddress, PagePath.BusinessAddressPostcode);
+        }
+        else
+        {
+            return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.UpdateCompanyAddress, string.Empty);
+        }
     }
 
     private async Task<bool> CompareDataAsync(JourneySession session)

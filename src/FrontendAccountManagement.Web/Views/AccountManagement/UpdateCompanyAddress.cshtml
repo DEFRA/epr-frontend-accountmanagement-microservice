@@ -1,0 +1,65 @@
+﻿@using FrontendAccountManagement.Web.Extensions
+@using FrontendAccountManagement.Web.ViewModels.AccountManagement
+@using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
+
+@model UpdateCompanyAddressViewModel
+
+@{
+    ViewData["Title"] = Localizer["UpdateCompanyAddress.Title"];
+    var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer);
+}
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                @await Html.PartialAsync("Partials/Govuk/_ErrorSummary", errorsViewModel)
+
+                <form asp-controller="AccountManagement" asp-action="UpdateCompanyAddress" method="post">
+                    <div class="govuk-form-group@(!ViewData.ModelState.IsValid ? " govuk-form-group--error" : "")">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                                <h1 class="govuk-heading-m govuk-!-margin-bottom-4">
+                                    Do you want to update your organisation’s business address?
+                                </h1>
+                            </legend>
+
+                            @await Html.PartialAsync("Partials/Govuk/_ErrorList", errorsViewModel)
+
+                            <div class="govuk-radios" data-module="govuk-radios">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input"
+                                           type="radio"
+                                           gov-for="isUpdateCompanyAddress"
+                                           gov-value="@nameof(YesNoAnswer.Yes)"
+                                           gov-first-option="true">
+                                    <label class="govuk-label govuk-radios__label"
+                                           gov-for="isUpdateCompanyAddress"
+                                           gov-value="@nameof(YesNoAnswer.Yes)"
+                                           gov-first-option="true">
+                                        @SharedLocalizer["Yes"]
+                                    </label>
+                                </div>
+
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" type="radio"
+                                           gov-for="isUpdateCompanyAddress"
+                                           gov-value="@nameof(YesNoAnswer.No)">
+                                    <label class="govuk-label govuk-radios__label"
+                                           gov-for="isUpdateCompanyAddress"
+                                           gov-value="@nameof(YesNoAnswer.No)">
+                                        @SharedLocalizer["No"]
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <button class="govuk-button" data-module="govuk-button">
+                        @SharedLocalizer["Continue"]
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
