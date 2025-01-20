@@ -117,11 +117,12 @@ public class AccountManagementController : Controller
         }
         else
         {
+            session.UserData = userAccount;
             var organisation = userAccount.Organisations[0];
             model.UserName = string.Format("{0} {1}", userAccount.FirstName, userAccount.LastName);
             model.Telephone = userAccount.Telephone;
             var userOrg = userAccount.Organisations?.FirstOrDefault();
-            session.EditCompanyDetailsSession.OrganisationName = userOrg?.TradingName;
+            session.EditCompanyDetailsSession.OrganisationName = userOrg?.Name;
             session.EditCompanyDetailsSession.OrganisationId = userOrg?.Id;
             session.EditCompanyDetailsSession.OrganisationType = userOrg?.OrganisationType;
             model.JobTitle = userAccount.JobTitle;
@@ -1051,11 +1052,19 @@ public class AccountManagementController : Controller
 
         if (session.EditCompanyDetailsSession.IsUpdateCompanyAddress)
         {
-            return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.UpdateCompanyAddress, PagePath.BusinessAddressPostcode);
+            return await SaveSessionAndRedirect(session, "BusinessAddressPostcode", PagePath.BusinessAddressPostcode, PagePath.BusinessAddressPostcode);
         }
         else
         {
-            return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.UpdateCompanyAddress, string.Empty);
+            var organisation = session.UserData?.Organisations[0];
+            if (organisation?.Name != session.EditCompanyDetailsSession.OrganisationName)
+            {
+                return await SaveSessionAndRedirect(session, "CheckYourCompanyDetails", PagePath.CheckYourCompanyDetails, string.Empty);
+            }
+            else
+            {
+                return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.UpdateCompanyAddress, string.Empty);
+            }
         }
     }
 
