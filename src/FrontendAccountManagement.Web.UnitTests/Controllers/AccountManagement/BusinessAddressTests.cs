@@ -94,9 +94,9 @@ public class BusinessAddressTests : AccountManagementTestBase
         // Arrange
         _journeySession.AccountManagementSession.Journey.RemoveAll(x => x == PagePath.SelectBusinessAddress);
 
+        TempDataDictionaryMock = new Mock<ITempDataDictionary>();
         TempDataDictionaryMock.Setup(x => x.ContainsKey(It.IsAny<string>())).Returns(true);
         
-
         SystemUnderTest.ModelState.AddModelError(nameof(BusinessAddressViewModel.BuildingNumber), "Field is required");
         SystemUnderTest.TempData = TempDataDictionaryMock.Object;
         var request = new BusinessAddressViewModel { Postcode = "AB01 BB3", Town = "Nowhere" };
