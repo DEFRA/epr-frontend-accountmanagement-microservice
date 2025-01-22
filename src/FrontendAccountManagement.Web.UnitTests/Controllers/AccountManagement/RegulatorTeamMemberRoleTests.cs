@@ -31,9 +31,7 @@ public class RegulatorTeamMemberRoleTests : AccountManagementTestBase
     {
         SetupBase(null, DeploymentRole);
 
-        JourneySessionMock = new JourneySession
-        {
-            AccountManagementSession = new AccountManagementSession
+        JourneySessionMock = new AccountManagementSession
             {
                 Journey = new List<string>
                 {
@@ -45,8 +43,7 @@ public class RegulatorTeamMemberRoleTests : AccountManagementTestBase
                 {
                     Email = PreviouslyEnteredEmail
                 }
-            }
-        };
+            };
 
         SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>()))
             .ReturnsAsync(JourneySessionMock);
@@ -63,17 +60,14 @@ public class RegulatorTeamMemberRoleTests : AccountManagementTestBase
             RoleInOrganisation = PersonRole.Admin.ToString(),
         };
 
-        var sessionJourney = new JourneySession
-        {
-            AccountManagementSession = new AccountManagementSession
+        var sessionJourney = new AccountManagementSession
             {
                 AddUserJourney = new AddUserJourneyModel
                 {
                     UserRole = "RegulatorAdmin"
                 },
-                Journey = new List<string> { PagePath.TeamMemberEmail, PagePath.TeamMemberPermissions }
-            },
-            UserData = mockUserData
+                Journey = new List<string> { PagePath.TeamMemberEmail, PagePath.TeamMemberPermissions },
+                UserData = mockUserData
         };
 
         SetupBase(mockUserData, DeploymentRole, journeySession: sessionJourney);
@@ -175,16 +169,13 @@ public class RegulatorTeamMemberRoleTests : AccountManagementTestBase
             RoleInOrganisation = PersonRole.Admin.ToString(),
         };
 
-        var sessionJourney = new JourneySession
-        {
-            AccountManagementSession = new AccountManagementSession
+        var sessionJourney = new AccountManagementSession
             {
                 AddUserJourney = new AddUserJourneyModel
                 {
                     UserRole = "RegulatorAdmin"
                 },
-                Journey = new List<string> { PagePath.TeamMemberEmail, PagePath.TeamMemberPermissions }
-            },
+                Journey = new List<string> { PagePath.TeamMemberEmail, PagePath.TeamMemberPermissions },
             UserData = mockUserData
         };
 

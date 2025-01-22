@@ -25,7 +25,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             SetupBase(_userData);
            
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-                .Returns(Task.FromResult(new JourneySession { UserData = _userData }));
+                .Returns(Task.FromResult(new AccountManagementSession { UserData = _userData }));
         }
 
         [TestMethod]

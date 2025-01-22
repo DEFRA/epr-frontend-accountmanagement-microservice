@@ -41,22 +41,19 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
 
         SetupBase(_userData);
 
-        JourneySessionMock = new JourneySession
+        JourneySessionMock = new AccountManagementSession
         {
-            AccountManagementSession = new AccountManagementSession
-            {
-                Journey = new List<string>
+            Journey = new List<string>
                 {
                     PagePath.ManageAccount,
                     PagePath.RemoveTeamMember
                 },
-                RemoveUserJourney = new()
-                {
-                    FirstName = FirstName,
-                    LastName = LastName,
-                    PersonId = _personId
-                },
-            }
+            RemoveUserJourney = new()
+            {
+                FirstName = FirstName,
+                LastName = LastName,
+                PersonId = _personId
+            },
         };
 
         _personExternalId = Guid.NewGuid().ToString();
@@ -78,14 +75,12 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
             RoleInOrganisation = PersonRole.Admin.ToString(),
         };
 
-        JourneySessionMock.AccountManagementSession.AddUserJourney = new AddUserJourneyModel
+        JourneySessionMock.AddUserJourney = new AddUserJourneyModel
         {
             UserRole = "RegulatorAdmin"
         };
 
-        var sessionJourney = new JourneySession
-        {
-            AccountManagementSession = new AccountManagementSession
+        var sessionJourney = new AccountManagementSession
             {
                 RemoveUserJourney = new RemoveUserJourneyModel
                 {
@@ -93,8 +88,7 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
                     LastName = LastName,
                     PersonId = _personId
                 },
-                Journey = new List<string> { PagePath.ManageAccount, PagePath.TeamMemberDetails, PagePath.RemoveTeamMember }
-            },
+                Journey = new List<string> { PagePath.ManageAccount, PagePath.TeamMemberDetails, PagePath.RemoveTeamMember },
             UserData = mockUserData
         };
 
@@ -120,24 +114,24 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
         await SystemUnderTest.RemoveTeamMemberPreConfirmation(FirstName, LastName, _personId);
 
         // Assert
-        Assert.AreEqual(FirstName, JourneySessionMock.AccountManagementSession.RemoveUserJourney.FirstName);
-        Assert.AreEqual(LastName, JourneySessionMock.AccountManagementSession.RemoveUserJourney.LastName);
-        Assert.AreEqual(_personId, JourneySessionMock.AccountManagementSession.RemoveUserJourney.PersonId);
+        Assert.AreEqual(FirstName, JourneySessionMock.RemoveUserJourney.FirstName);
+        Assert.AreEqual(LastName, JourneySessionMock.RemoveUserJourney.LastName);
+        Assert.AreEqual(_personId, JourneySessionMock.RemoveUserJourney.PersonId);
     }
 
     [TestMethod]
     public async Task GivenOnRemoveTeamMemberPreConfirmationPage_CheckDetailsSaved_WithNullRemoveUserJourney_ToStart()
     {
         // arrange
-        JourneySessionMock.AccountManagementSession.RemoveUserJourney = null;
+        JourneySessionMock.RemoveUserJourney = null;
 
         // Act
         await SystemUnderTest.RemoveTeamMemberPreConfirmation(FirstName, LastName, _personId);
 
         // Assert
-        Assert.AreEqual(FirstName, JourneySessionMock.AccountManagementSession.RemoveUserJourney.FirstName);
-        Assert.AreEqual(LastName, JourneySessionMock.AccountManagementSession.RemoveUserJourney.LastName);
-        Assert.AreEqual(_personId, JourneySessionMock.AccountManagementSession.RemoveUserJourney.PersonId);
+        Assert.AreEqual(FirstName, JourneySessionMock.RemoveUserJourney.FirstName);
+        Assert.AreEqual(LastName, JourneySessionMock.RemoveUserJourney.LastName);
+        Assert.AreEqual(_personId, JourneySessionMock.RemoveUserJourney.PersonId);
     }
 
     [TestMethod]
@@ -147,9 +141,9 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
         await SystemUnderTest.RemoveTeamMemberPreConfirmation(null, null, Guid.Empty);
 
         // Assert
-        Assert.AreEqual(FirstName, JourneySessionMock.AccountManagementSession.RemoveUserJourney.FirstName);
-        Assert.AreEqual(LastName, JourneySessionMock.AccountManagementSession.RemoveUserJourney.LastName);
-        Assert.AreEqual(_personId, JourneySessionMock.AccountManagementSession.RemoveUserJourney.PersonId);
+        Assert.AreEqual(FirstName, JourneySessionMock.RemoveUserJourney.FirstName);
+        Assert.AreEqual(LastName, JourneySessionMock.RemoveUserJourney.LastName);
+        Assert.AreEqual(_personId, JourneySessionMock.RemoveUserJourney.PersonId);
     }
 
     [TestMethod]
@@ -171,7 +165,7 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
         // Assert
         result.Should().BeOfType<RedirectToActionResult>();
         result.ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
-        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
+        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<AccountManagementSession>()), Times.Once);
     }
 
     [TestMethod]
@@ -237,9 +231,7 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
             RoleInOrganisation = PersonRole.Admin.ToString(),
         };
 
-        var sessionJourney = new JourneySession
-        {
-            AccountManagementSession = new AccountManagementSession
+        var sessionJourney = new AccountManagementSession
             {
                 RemoveUserJourney = new RemoveUserJourneyModel
                 {
@@ -247,8 +239,7 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
                     LastName = LastName,
                     PersonId = _personId
                 },
-                Journey = new List<string> { PagePath.ManageAccount, PagePath.TeamMemberDetails, PagePath.RemoveTeamMember }
-            },
+                Journey = new List<string> { PagePath.ManageAccount, PagePath.TeamMemberDetails, PagePath.RemoveTeamMember },
             UserData = mockUserData
         };
 

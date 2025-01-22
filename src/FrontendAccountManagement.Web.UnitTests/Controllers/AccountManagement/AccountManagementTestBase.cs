@@ -26,7 +26,7 @@ public abstract class AccountManagementTestBase
     protected Mock<HttpContext> HttpContextMock;
     protected Mock<ClaimsPrincipal> UserMock;
     protected Mock<ClaimsIdentity> ClaimsIdentityMock;
-    public Mock<ISessionManager<JourneySession>> SessionManagerMock;
+    public Mock<ISessionManager<AccountManagementSession>> SessionManagerMock;
     protected Mock<IFacadeService> FacadeServiceMock = new Mock<IFacadeService>();
     protected Mock<IFeatureManager> FeatureManagerMock;
     protected Mock<IOptions<ExternalUrlsOptions>> UrlsOptionMock;
@@ -38,15 +38,15 @@ public abstract class AccountManagementTestBase
     protected Mock<ITempDataDictionary> TempDataDictionaryMock;
     protected AccountManagementController SystemUnderTest;
 
-    protected JourneySession JourneySessionMock { get; set; }
+    protected AccountManagementSession JourneySessionMock { get; set; }
 
     protected void SetupBase(UserData userData = null, string deploymentRole = "", int userServiceRoleId = 0
-    , JourneySession journeySession = null)
+    , AccountManagementSession journeySession = null)
     {
         HttpContextMock = new Mock<HttpContext>();
         UserMock = new Mock<ClaimsPrincipal>();
         ClaimsIdentityMock = new Mock<ClaimsIdentity>();
-        SessionManagerMock = new Mock<ISessionManager<JourneySession>>();
+        SessionManagerMock = new Mock<ISessionManager<AccountManagementSession>>();
         FeatureManagerMock = new Mock<IFeatureManager>();
          UrlsOptionMock = new Mock<IOptions<ExternalUrlsOptions>>();
         DeploymentRoleOptionsMock = new Mock<IOptions<DeploymentRoleOptions>>();
@@ -56,8 +56,8 @@ public abstract class AccountManagementTestBase
 
         SetUpUserData(userData);
 
-        journeySession ??= new JourneySession
-            { UserData = userData ?? new UserData { ServiceRoleId = userServiceRoleId } };
+        journeySession ??= new AccountManagementSession
+        { UserData = userData ?? new UserData { ServiceRoleId = userServiceRoleId } };
 
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
             .Returns(Task.FromResult(journeySession));

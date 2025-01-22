@@ -56,7 +56,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 m =>
                     m.SaveSessionAsync(
                         It.IsAny<ISession>(),
-                        It.IsAny<JourneySession>())
+                        It.IsAny<AccountManagementSession>())
                     , Times.Once);
         }
 
@@ -96,7 +96,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 m =>
                     m.SaveSessionAsync(
                         It.IsAny<ISession>(),
-                        It.IsAny<JourneySession>())
+                        It.IsAny<AccountManagementSession>())
                     , Times.Once);
         }
 

@@ -19,7 +19,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
     public class CheckYourDetailsTests : AccountManagementTestBase
     {
         private UserData _userData;
-        private JourneySession _journeySession;
+        private AccountManagementSession _journeySession;
         private Fixture _fixture = new Fixture();
         private EditUserDetailsViewModel _viewModel;
         private UpdateUserDetailsRequest _userDetailsDto;
@@ -37,10 +37,10 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             SetupBase(_userData);
 
-            _journeySession = new JourneySession
+            _journeySession = new AccountManagementSession
             {
                 UserData = _userData,
-                AccountManagementSession = new AccountManagementSession() { Journey = new List<string>() }
+                Journey = new List<string>()
             };
 
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))

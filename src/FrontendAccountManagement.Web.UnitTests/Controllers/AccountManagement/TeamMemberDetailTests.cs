@@ -40,21 +40,18 @@ public class TeamMemberDetailTests : AccountManagementTestBase
 
         SetupBase(_userData);
 
-        JourneySessionMock = new JourneySession
+        JourneySessionMock = new AccountManagementSession
         {
-            AccountManagementSession = new AccountManagementSession
-            {
-                Journey = new List<string>
+            Journey = new List<string>
                 {
                     PagePath.ManageAccount,
                     PagePath.TeamMemberEmail,
                     PagePath.TeamMemberPermissions,
                     PagePath.TeamMemberDetails
                 },
-                OrganisationName = organisationName,
-                InviteeEmailAddress = "unit@test.com",
-                RoleKey = "Basic.Employee",
-            }
+            OrganisationName = organisationName,
+            InviteeEmailAddress = "unit@test.com",
+            RoleKey = "Basic.Employee",
         };
 
         SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>()))
@@ -72,18 +69,15 @@ public class TeamMemberDetailTests : AccountManagementTestBase
             RoleInOrganisation = PersonRole.Admin.ToString(),
         };
 
-        var sessionJourney = new JourneySession
+        var sessionJourney = new AccountManagementSession
         {
-            AccountManagementSession = new AccountManagementSession
-            {
-                Journey = new List<string>
+            Journey = new List<string>
                 {
                     PagePath.TeamMemberPermissions,
                     PagePath.TeamMemberDetails, PagePath.RemoveTeamMember
                 },
-                InviteeEmailAddress = Email,
-                RoleKey = SelectedUserRole
-            },
+            InviteeEmailAddress = Email,
+            RoleKey = SelectedUserRole,
             UserData = mockUserData
         };
 
@@ -109,7 +103,7 @@ public class TeamMemberDetailTests : AccountManagementTestBase
 
         // Assert
         result.ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
-        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
+        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<AccountManagementSession>()), Times.Once);
     }
 
     [TestMethod]
@@ -136,7 +130,7 @@ public class TeamMemberDetailTests : AccountManagementTestBase
 
         // Assert
         result.ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
-        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
+        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<AccountManagementSession>()), Times.Once);
     }
 
     [TestMethod]
