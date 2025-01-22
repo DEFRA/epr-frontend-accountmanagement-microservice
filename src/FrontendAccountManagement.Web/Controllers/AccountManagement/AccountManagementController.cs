@@ -3,6 +3,7 @@ using EPR.Common.Authorization.Constants;
 using EPR.Common.Authorization.Extensions;
 using EPR.Common.Authorization.Models;
 using EPR.Common.Authorization.Sessions;
+using FrontendAccountManagement.Core.Addresses;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Enums;
@@ -34,6 +35,7 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 [Authorize(Policy = PolicyConstants.AccountManagementPolicy)]
 public class AccountManagementController : Controller
 {
+    private const string PostcodeLookupFailedKey = "PostcodeLookupFailed";
     private const string RolesNotFoundException = "Could not retrieve service roles or none found";
     private const string CheckYourOrganisationDetailsKey = "CheckYourOrganisationDetails";
     private const string OrganisationDetailsUpdatedTimeKey = "OrganisationDetailsUpdatedTime";
@@ -834,6 +836,84 @@ public class AccountManagementController : Controller
         return View(nameof(CompanyDetailsUpdated), model);
     }
 
+    [HttpGet]
+    [Route(PagePath.BusinessAddress)]
+    public async Task<IActionResult> BusinessAddress()
+    {
+        if (IsCompaniesHouseUser())
+        {
+            return RedirectToAction(nameof(ErrorController.Error), nameof(ErrorController), new
+            {
+                statusCode = (int)HttpStatusCode.Forbidden
+            });
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        SetCustomBackLink(PagePath.BusinessAddressPostcode, false);
+
+        var model = new BusinessAddressViewModel
+        {
+            SubBuildingName = session.AccountManagementSession.BusinessAddress?.SubBuildingName,
+            BuildingName = session.AccountManagementSession.BusinessAddress?.BuildingName,
+            BuildingNumber = session.AccountManagementSession.BusinessAddress?.BuildingNumber,
+            Street = session.AccountManagementSession.BusinessAddress?.Street,
+            Town = session.AccountManagementSession.BusinessAddress?.Town,
+            County = session.AccountManagementSession.BusinessAddress?.County,
+            Postcode = session.AccountManagementSession.BusinessAddress?.Postcode
+        };
+
+        if (TempData.ContainsKey(PostcodeLookupFailedKey))
+        {
+            model.ShowWarning = true;
+            TempData[PostcodeLookupFailedKey] = true;
+        }
+        await _sessionManager.SaveSessionAsync(HttpContext.Session, session);
+
+        return View(nameof(BusinessAddress), model);
+    }
+
+    [HttpPost]
+    [Route(PagePath.BusinessAddress)]
+    public async Task<IActionResult> BusinessAddress(BusinessAddressViewModel model)
+    {
+        if (IsCompaniesHouseUser())
+        {
+            return RedirectToAction(nameof(ErrorController.Error), nameof(ErrorController), new
+            {
+                statusCode = (int)HttpStatusCode.Forbidden
+            });
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        if (!ModelState.IsValid)
+        {
+            SetCustomBackLink(PagePath.BusinessAddressPostcode, false);
+
+            if (TempData.ContainsKey(PostcodeLookupFailedKey))
+            {
+                model.ShowWarning = true;
+                TempData[PostcodeLookupFailedKey] = true;
+            }
+
+            return View(model);
+        }
+
+        session.AccountManagementSession.BusinessAddress = new Address
+        {
+            SubBuildingName = model.SubBuildingName,
+            BuildingName = model.BuildingName,
+            BuildingNumber = model.BuildingNumber,
+            Street = model.Street,
+            Town = model.Town,
+            County = model.County,
+            Postcode = model.Postcode
+        };
+
+        return await SaveSessionAndRedirect(session, nameof(UkNation), PagePath.BusinessAddress, PagePath.UkNation);
+    }
+
     /// <summary>
     /// Displays a page with the updated data from the "choose your nation" page
     /// for the user to confirm they have entered the correct information
@@ -996,6 +1076,20 @@ public class AccountManagementController : Controller
     {
         SetCustomBackLink(PagePath.ManageAccount, false);
         return View();
+    }
+
+    private bool IsCompaniesHouseUser()
+    {
+        var userData = User.GetUserData();
+
+        var organisationData = userData.Organisations.FirstOrDefault();
+
+        if (organisationData == null)
+        {
+            throw new InvalidOperationException(nameof(organisationData));
+        }
+
+        return organisationData.CompaniesHouseNumber != null;
     }
 
     private async Task<bool> CompareDataAsync(JourneySession session)

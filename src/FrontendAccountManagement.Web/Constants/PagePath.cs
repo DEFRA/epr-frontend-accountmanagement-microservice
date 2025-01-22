@@ -1,5 +1,5 @@
 namespace FrontendAccountManagement.Web.Constants;
-
+ 
 public static class PagePath
 {
     // Journey paths
@@ -21,7 +21,14 @@ public static class PagePath
     public const string CompanyDetailsHaveNotChanged = "company-details-have-not-changed";
     public const string UpdateDetailsConfirmation = "your-details-have-been-updated";
     public const string ChangeCompanyDetails = "change-company-details";
-
+    public const string SelectBusinessAddress = "select-business-address"; 
+    public const string BusinessAddress = "business-address";
+    public const string NonCompaniesHouseUkNation = "non-companies-house-uk-nation";
+    public const string UpdateCompanyName = "update-company-name";
+    public const string CompanyName = "company-name";
+    public const string UpdateCompanyAddress = "update-company-address";
+    public const string BusinessAddressPostcode = "business-address-postcode";
+ 
     // Change role journey paths
     public const string ChangeAccountPermissions = "change-account-permissions";
     public const string RelationshipWithOrganisation = "relationship-with-organisation";
@@ -32,7 +39,7 @@ public static class PagePath
     public const string NameOfOrganisation = "name-of-organisation";
     public const string CheckDetailsSendInvite = "check-details-send-invite";
     public const string InvitationToChangeSent = "invitation-to-change-sent";
-
+ 
     // Non journey paths
     public const string Accessibility = "accessibility";
     public const string SignedOut = "signed-out";
