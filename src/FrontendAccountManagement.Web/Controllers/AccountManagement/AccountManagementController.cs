@@ -109,22 +109,19 @@ public class AccountManagementController : Controller
 
         model.PersonUpdated = TempData["PersonUpdated"] == null ? null : TempData["PersonUpdated"].ToString();
 
-        SetCustomBackLink(_urlOptions.LandingPageUrl);
-
         if (userAccount is null)
         {
             _logger.LogInformation("User authenticated but account could not be found");
         }
         else
         {
-            session.UserData = userAccount;
             var organisation = userAccount.Organisations[0];
             model.UserName = string.Format("{0} {1}", userAccount.FirstName, userAccount.LastName);
             model.Telephone = userAccount.Telephone;
             var userOrg = userAccount.Organisations?.FirstOrDefault();
-            session.EditCompanyDetailsSession.OrganisationName = userOrg?.Name;
-            session.EditCompanyDetailsSession.OrganisationId = userOrg?.Id;
-            session.EditCompanyDetailsSession.OrganisationType = userOrg?.OrganisationType;
+            session.AccountManagementSession.OrganisationName = userOrg?.Name;
+            session.AccountManagementSession.OrganisationId = userOrg?.Id;
+            session.AccountManagementSession.OrganisationType = userOrg?.OrganisationType;
             model.JobTitle = userAccount.JobTitle;
             model.CompanyName = userOrg?.Name;
             model.OrganisationAddress = string.Join(", ", new[] {
@@ -150,6 +147,8 @@ public class AccountManagementController : Controller
         }
 
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccount);
+
+        SetCustomBackLink(_urlOptions.LandingPageUrl);
 
         return View(nameof(ManageAccount), model);
     }
@@ -1012,7 +1011,7 @@ public class AccountManagementController : Controller
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         if (session != null)
         {
-            if (session.EditCompanyDetailsSession.OrganisationType == OrganisationType.CompaniesHouseCompany)
+            if (session.AccountManagementSession?.OrganisationType == OrganisationType.CompaniesHouseCompany)
             {
                 return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
                 {
@@ -1020,20 +1019,12 @@ public class AccountManagementController : Controller
                 });
             }
 
-            if (session.EditCompanyDetailsSession.IsUpdateCompanyName)
-            {
-                SetCustomBackLink(PagePath.CompanyName, false);
-            }
-            else
-            {
-                SetCustomBackLink(PagePath.UpdateCompanyName, false);
-            }
+            SetBackLink(session, PagePath.UpdateCompanyAddress);
         }
-
 
         return View(new UpdateCompanyAddressViewModel
         {
-            isUpdateCompanyAddress = null
+            IsUpdateCompanyAddress = null
         });
     }
 
@@ -1048,16 +1039,15 @@ public class AccountManagementController : Controller
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
 
-        session.EditCompanyDetailsSession.IsUpdateCompanyAddress = model.isUpdateCompanyAddress == YesNoAnswer.Yes;
+        session.AccountManagementSession.IsUpdateCompanyAddress = model.IsUpdateCompanyAddress == YesNoAnswer.Yes;
 
-        if (session.EditCompanyDetailsSession.IsUpdateCompanyAddress)
+        if (session.AccountManagementSession.IsUpdateCompanyAddress)
         {
             return await SaveSessionAndRedirect(session, "BusinessAddressPostcode", PagePath.BusinessAddressPostcode, PagePath.BusinessAddressPostcode);
         }
         else
         {
-            var organisation = session.UserData?.Organisations[0];
-            if (organisation?.Name != session.EditCompanyDetailsSession.OrganisationName)
+            if (session.AccountManagementSession.IsUpdateCompanyName)
             {
                 return await SaveSessionAndRedirect(session, "CheckYourCompanyDetails", PagePath.CheckYourCompanyDetails, string.Empty);
             }

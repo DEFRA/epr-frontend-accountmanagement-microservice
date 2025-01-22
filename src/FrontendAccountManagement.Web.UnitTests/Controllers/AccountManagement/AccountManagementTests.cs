@@ -853,7 +853,7 @@ public class AccountManagementTests : AccountManagementTestBase
             var viewResult = result as ViewResult;
             viewResult.Model.Should().BeOfType<UpdateCompanyAddressViewModel>();
             var model = viewResult.Model as UpdateCompanyAddressViewModel;
-            model.isUpdateCompanyAddress.Should().BeNull();
+            model.IsUpdateCompanyAddress.Should().BeNull();
         }
     }
 
@@ -863,7 +863,7 @@ public class AccountManagementTests : AccountManagementTestBase
         // Arrange
         var session = new JourneySession
         {
-            EditCompanyDetailsSession = new EditCompanyDetailsSession
+            AccountManagementSession = new AccountManagementSession
             {
                 OrganisationType = OrganisationType
             }
@@ -889,7 +889,7 @@ public class AccountManagementTests : AccountManagementTestBase
         // Arrange
         var session = new JourneySession
         {
-            EditCompanyDetailsSession = new EditCompanyDetailsSession
+            AccountManagementSession = new AccountManagementSession
             {
                 IsUpdateCompanyName = true
             }
@@ -911,7 +911,7 @@ public class AccountManagementTests : AccountManagementTestBase
 
         var model = new UpdateCompanyAddressViewModel
         {
-            isUpdateCompanyAddress = null // Invalid value to trigger the error
+            IsUpdateCompanyAddress = null // Invalid value to trigger the error
         };
 
         // Act
@@ -932,7 +932,7 @@ public class AccountManagementTests : AccountManagementTestBase
         // Arrange
         var model = new UpdateCompanyAddressViewModel
         {
-            isUpdateCompanyAddress = YesNoAnswer.Yes
+            IsUpdateCompanyAddress = YesNoAnswer.Yes
         };
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync((JourneySession)null);
 
@@ -954,7 +954,7 @@ public class AccountManagementTests : AccountManagementTestBase
         // Arrange
         var model = new UpdateCompanyAddressViewModel
         {
-            isUpdateCompanyAddress = YesNoAnswer.Yes
+            IsUpdateCompanyAddress = YesNoAnswer.Yes
         };
         var session = new JourneySession();
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
@@ -977,21 +977,14 @@ public class AccountManagementTests : AccountManagementTestBase
         // Arrange
         var model = new UpdateCompanyAddressViewModel
         {
-            isUpdateCompanyAddress = YesNoAnswer.No
+            IsUpdateCompanyAddress = YesNoAnswer.No
         };
 
         var session = new JourneySession
         {
-            UserData = new UserData
+            AccountManagementSession = new AccountManagementSession
             {
-                Organisations = new List<Organisation>
-                {
-                    new Organisation { Name = "OldCompany" }
-                }
-            },
-            EditCompanyDetailsSession = new EditCompanyDetailsSession
-            {
-                OrganisationName = "NewCompany"
+                IsUpdateCompanyName = true
             }
         };
 
@@ -1015,7 +1008,7 @@ public class AccountManagementTests : AccountManagementTestBase
         // Arrange
         var model = new UpdateCompanyAddressViewModel
         {
-            isUpdateCompanyAddress = YesNoAnswer.No
+            IsUpdateCompanyAddress = YesNoAnswer.No
         };
 
         var session = new JourneySession
@@ -1027,7 +1020,7 @@ public class AccountManagementTests : AccountManagementTestBase
                     new Organisation { Name = "CompanyName" }
                 }
             },
-            EditCompanyDetailsSession = new EditCompanyDetailsSession
+            AccountManagementSession = new AccountManagementSession
             {
                 OrganisationName = "CompanyName"
             }
