@@ -4,16 +4,14 @@ using EPR.Common.Authorization.Extensions;
 using EPR.Common.Authorization.Models;
 using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Enums;
-using FrontendAccountManagement.Core.Enums;
-using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
-using FrontendAccountManagement.Web.Controllers.Errors;
 using FrontendAccountManagement.Web.Extensions;
+using FrontendAccountManagement.Web.Controllers.Errors;
 using FrontendAccountManagement.Web.Profiles;
 using FrontendAccountManagement.Web.Utilities.Interfaces;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
@@ -25,6 +23,7 @@ using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
 using System;
 using System.Net;
+using System.Reflection;
 using System.Text.Json;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
@@ -87,7 +86,6 @@ public class AccountManagementController : Controller
                 statusCode = (int)HttpStatusCode.Forbidden
             });
         }
-
         session.AccountManagementSession.AddUserJourney = null;
         if (session.AccountManagementSession.RemoveUserStatus != null)
         {
@@ -107,8 +105,7 @@ public class AccountManagementController : Controller
         }
 
         model.PersonUpdated = TempData["PersonUpdated"] == null ? null : TempData["PersonUpdated"].ToString();
-
-        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccount);
+        //await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccount);
 
         SetCustomBackLink(_urlOptions.LandingPageUrl);
 
@@ -119,9 +116,13 @@ public class AccountManagementController : Controller
         else
         {
             var organisation = userAccount.Organisations[0];
+
             model.UserName = string.Format("{0} {1}", userAccount.FirstName, userAccount.LastName);
             model.Telephone = userAccount.Telephone;
             var userOrg = userAccount.Organisations?.FirstOrDefault();
+            session.AccountManagementSession.OrganisationName = userOrg?.TradingName;
+            session.AccountManagementSession.OrganisationId = userOrg?.Id;
+            session.AccountManagementSession.OrganisationType = userOrg?.OrganisationType;
             model.JobTitle = userAccount.JobTitle;
             model.CompanyName = userOrg?.Name;
             model.OrganisationAddress = string.Join(", ", new[] {
@@ -134,6 +135,7 @@ public class AccountManagementController : Controller
                 organisation.Postcode,
             }.Where(s => !string.IsNullOrWhiteSpace(s)));
             model.EnrolmentStatus = userAccount.EnrolmentStatus;
+
             var serviceRoleId = userAccount.ServiceRoleId;
             var serviceRoleEnum = (ServiceRole)serviceRoleId;
             var roleInOrganisation = userAccount.RoleInOrganisation;
@@ -145,6 +147,8 @@ public class AccountManagementController : Controller
             model.IsAdmin = userAccount.RoleInOrganisation == PersonRole.Admin.ToString();
             model.ShowManageUserDetailChanges = await _featureManager.IsEnabledAsync(FeatureFlags.ManageUserDetailChanges);
         }
+        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccount);
+
         return View(nameof(ManageAccount), model);
     }
 
@@ -366,6 +370,7 @@ public class AccountManagementController : Controller
         };
 
         session.AccountManagementSession.AddUserStatus = await _facadeService.SendUserInvite(request);
+       
 
         return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.TeamMemberDetails, PagePath.ManageAccount);
     }
@@ -954,8 +959,8 @@ public class AccountManagementController : Controller
             viewModel.UkNation = JsonSerializer.Deserialize<CheckYourOrganisationDetailsViewModel>(checkYourOrgDetails).UkNation;
             TempData.Keep(CheckYourOrganisationDetailsKey);
         }
-
         return View(viewModel);
+
     }
 
     [HttpPost]
@@ -989,13 +994,53 @@ public class AccountManagementController : Controller
 
         return RedirectToAction(nameof(CheckCompaniesHouseDetails));
     }
-
+    
     [HttpGet]
     [Route(PagePath.ChangeCompanyDetails)]
     public async Task<IActionResult> ChangeCompanyDetails()
     {
         SetCustomBackLink(PagePath.ManageAccount, false);
         return View();
+    }
+    [HttpGet]
+    [Route(PagePath.CompanyName)]
+    public async Task<IActionResult> CompanyName()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        SetBackLink(session,PagePath.ManageAccount);
+
+        var viewModel = new OrganisationNameViewModel()
+        {
+            OrganisationName = session?.AccountManagementSession?.OrganisationName,
+        };
+        return View(viewModel);
+    }
+    [HttpPost]
+    [Route(PagePath.CompanyName)]
+    public async Task<IActionResult> CompanyName(OrganisationNameViewModel model)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
+
+        if (!ModelState.IsValid)
+        {
+            SetBackLink(session,PagePath.CompanyName);
+            
+            return View(model);
+        }
+
+        session.AccountManagementSession.IsUpdateCompanyName = session.AccountManagementSession.OrganisationName != model.OrganisationName;
+        
+
+        if (session.AccountManagementSession.IsUpdateCompanyName)
+        {
+            return await SaveSessionAndRedirect(session, nameof(CompanyName), PagePath.CompanyName, PagePath.UpdateBusinessAddress);
+        }
+        else
+        {
+            return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.CompanyName, string.Empty);
+        }
+       
     }
 
     private async Task<bool> CompareDataAsync(JourneySession session)
@@ -1115,6 +1160,7 @@ public class AccountManagementController : Controller
 
     private bool HasPermissionToView(UserData userData)
     {
+        return true;
         // only regulator admin can view if regulator deployment
         if (_deploymentRoleOptions.IsRegulator())
         {

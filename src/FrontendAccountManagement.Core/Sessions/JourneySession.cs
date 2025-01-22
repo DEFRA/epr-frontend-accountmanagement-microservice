@@ -10,5 +10,6 @@ public class JourneySession : IHasUserData
     public PermissionManagementSession PermissionManagementSession { get; set; } = new();
 
     public CompaniesHouseSession CompaniesHouseSession { get; set; } = new ();
+   
     public bool IsComplianceScheme { get; set; }
 }

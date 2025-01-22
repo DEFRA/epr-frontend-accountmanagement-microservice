@@ -57,6 +57,9 @@
         <Generator>PublicResXFileCodeGenerator</Generator>
         <LastGenOutput>UkNationResource.Designer.cs</LastGenOutput>
       </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\AccountManagement\CompanyName.en.resx">
+        <SubType>Designer</SubType>
+      </EmbeddedResource>
       <EmbeddedResource Update="Resources\Views\AccountManagement\EditUserDetails.resx">
         <Generator>ResXFileCodeGenerator</Generator>
         <LastGenOutput>EditUserDetails.Designer.cs</LastGenOutput>
