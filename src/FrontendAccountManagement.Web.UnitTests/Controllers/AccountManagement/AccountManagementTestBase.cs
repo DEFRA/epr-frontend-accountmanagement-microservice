@@ -26,7 +26,7 @@ public abstract class AccountManagementTestBase
     protected Mock<HttpContext> HttpContextMock;
     protected Mock<ClaimsPrincipal> UserMock;
     protected Mock<ClaimsIdentity> ClaimsIdentityMock;
-    public Mock<ISessionManager<AccountManagementSession>> SessionManagerMock;
+    public Mock<ISessionManager<JourneySession>> SessionManagerMock;
     protected Mock<IFacadeService> FacadeServiceMock = new Mock<IFacadeService>();
     protected Mock<IFeatureManager> FeatureManagerMock;
     protected Mock<IOptions<ExternalUrlsOptions>> UrlsOptionMock;
@@ -38,17 +38,17 @@ public abstract class AccountManagementTestBase
     protected Mock<ITempDataDictionary> TempDataDictionaryMock;
     protected AccountManagementController SystemUnderTest;
 
-    protected AccountManagementSession JourneySessionMock { get; set; }
+    protected JourneySession JourneySessionMock { get; set; }
 
     protected void SetupBase(UserData userData = null, string deploymentRole = "", int userServiceRoleId = 0
-    , AccountManagementSession journeySession = null)
+    , JourneySession journeySession = null)
     {
         HttpContextMock = new Mock<HttpContext>();
         UserMock = new Mock<ClaimsPrincipal>();
         ClaimsIdentityMock = new Mock<ClaimsIdentity>();
-        SessionManagerMock = new Mock<ISessionManager<AccountManagementSession>>();
+        SessionManagerMock = new Mock<ISessionManager<JourneySession>>();
         FeatureManagerMock = new Mock<IFeatureManager>();
-         UrlsOptionMock = new Mock<IOptions<ExternalUrlsOptions>>();
+        UrlsOptionMock = new Mock<IOptions<ExternalUrlsOptions>>();
         DeploymentRoleOptionsMock = new Mock<IOptions<DeploymentRoleOptions>>();
         TempDataDictionary = new TempDataDictionary(this.HttpContextMock.Object, new Mock<ITempDataProvider>().Object);
         ClaimsExtensionsWrapperMock = new Mock<IClaimsExtensionsWrapper>();
@@ -56,7 +56,7 @@ public abstract class AccountManagementTestBase
 
         SetUpUserData(userData);
 
-        journeySession ??= new AccountManagementSession
+        journeySession ??= new JourneySession
         { UserData = userData ?? new UserData { ServiceRoleId = userServiceRoleId } };
 
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
@@ -83,7 +83,7 @@ public abstract class AccountManagementTestBase
         SystemUnderTest.ControllerContext.HttpContext = HttpContextMock.Object;
         SystemUnderTest.TempData = this.TempDataDictionary;
     }
-    
+
     private void SetUpUserData(UserData userData)
     {
         var claims = new List<Claim>();

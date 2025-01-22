@@ -56,7 +56,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 m =>
                     m.SaveSessionAsync(
                         It.IsAny<ISession>(),
-                        It.IsAny<AccountManagementSession>())
+                        It.IsAny<JourneySession>())
                     , Times.Once);
         }
 
@@ -76,7 +76,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 ServiceRoleId = 1,
                 RoleInOrganisation = PersonRole.Admin.ToString(),
             };
-            
+
             SetupBase(userData);
 
             SystemUnderTest.TempData.Add("AmendedUserDetails", $"{{ \"FirstName\": \"{firstName}\", \"LastName\": \"{lastName}\" }}");
@@ -86,7 +86,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ViewResult));
-            var viewResult = (ViewResult) result;
+            var viewResult = (ViewResult)result;
             var viewModelResult = (EditUserDetailsViewModel)viewResult.Model;
             Assert.AreEqual(firstName, viewModelResult.FirstName);
             Assert.AreEqual(lastName, viewModelResult.LastName);
@@ -96,7 +96,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 m =>
                     m.SaveSessionAsync(
                         It.IsAny<ISession>(),
-                        It.IsAny<AccountManagementSession>())
+                        It.IsAny<JourneySession>())
                     , Times.Once);
         }
 
@@ -371,8 +371,8 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
                 It.IsAny<UpdateUserDetailsRequest>()))
-                .Returns(Task.FromResult(new UpdateUserDetailsResponse 
-                { 
+                .Returns(Task.FromResult(new UpdateUserDetailsResponse
+                {
                     HasApprovedOrDelegatedUserDetailsSentForApproval = true,
                 }));
 

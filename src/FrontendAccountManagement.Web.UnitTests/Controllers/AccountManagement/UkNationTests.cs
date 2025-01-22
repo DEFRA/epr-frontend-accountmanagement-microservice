@@ -63,7 +63,7 @@ public class UkNationTests : AccountManagementTestBase
     {
         // Arrange
         var model = new UkNationViewModel { UkNation = UkNation.England };
-        var session = _fixture.Create<AccountManagementSession>();
+        var session = _fixture.Create<JourneySession>();
 
         session.CompaniesHouseSession = new CompaniesHouseSession
         {
@@ -145,7 +145,7 @@ public class UkNationTests : AccountManagementTestBase
 
         SetupBase(userData);
 
-        var session = new AccountManagementSession();
+        var session = new JourneySession();
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
             .ReturnsAsync(session);
 

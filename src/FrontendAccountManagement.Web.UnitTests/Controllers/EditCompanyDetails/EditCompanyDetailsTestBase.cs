@@ -10,20 +10,20 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.EditCompanyDetails
 {
     public abstract class EditCompanyDetailsTestBase
     {
-        protected Mock<ISessionManager<EditCompanyDetailsSession>> SessionManagerMock = null!;
+        protected Mock<ISessionManager<JourneySession>> SessionManagerMock = null!;
         protected Mock<ILogger<EditCompanyDetailsController>> LoggerMock = null!;
         protected Mock<IMapper> AutoMapperMock;
         protected EditCompanyDetailsController EditCompanyDetailsControllerTest;
 
-        protected void SetupBase(EditCompanyDetailsSession editCompanyDetailsSession = null)
+        protected void SetupBase(JourneySession journeySession = null)
         {
-            SessionManagerMock = new Mock<ISessionManager<EditCompanyDetailsSession>>();
+            SessionManagerMock = new Mock<ISessionManager<JourneySession>>();
             AutoMapperMock = new Mock<IMapper>();
 
-            editCompanyDetailsSession ??= new EditCompanyDetailsSession();
+            journeySession ??= new JourneySession();
 
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-                .Returns(Task.FromResult(editCompanyDetailsSession));
+                .Returns(Task.FromResult(journeySession));
 
             LoggerMock = new Mock<ILogger<EditCompanyDetailsController>>();
 

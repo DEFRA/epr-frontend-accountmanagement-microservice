@@ -33,17 +33,20 @@ public class TeamMemberRoleTests : AccountManagementTestBase
     {
         SetupBase();
 
-        JourneySessionMock = new AccountManagementSession
+        JourneySessionMock = new JourneySession
         {
-            Journey = new List<string>
+            AccountManagementSession = new AccountManagementSession
+            {
+                Journey = new List<string>
                 {
                     PagePath.ManageAccount,
                     PagePath.TeamMemberEmail,
                     PagePath.TeamMemberPermissions
                 },
-            AddUserJourney = new AddUserJourneyModel
-            {
-                Email = PreviouslyEnteredEmail
+                AddUserJourney = new AddUserJourneyModel
+                {
+                    Email = PreviouslyEnteredEmail
+                }
             }
         };
 
@@ -62,18 +65,21 @@ public class TeamMemberRoleTests : AccountManagementTestBase
             RoleInOrganisation = PersonRole.Admin.ToString(),
         };
 
-        JourneySessionMock.AddUserJourney = new AddUserJourneyModel
+        JourneySessionMock.AccountManagementSession.AddUserJourney = new AddUserJourneyModel
         {
             UserRole = "RegulatorAdmin"
         };
 
-        var sessionJourney =  new AccountManagementSession
+        var sessionJourney = new JourneySession
         {
-            AddUserJourney = new AddUserJourneyModel
+            AccountManagementSession = new AccountManagementSession
             {
-                UserRole = SelectedRole
+                AddUserJourney = new AddUserJourneyModel
+                {
+                    UserRole = SelectedRole
+                },
+                Journey = new List<string> { PagePath.TeamMemberEmail, PagePath.TeamMemberPermissions }
             },
-            Journey = new List<string> { PagePath.TeamMemberEmail, PagePath.TeamMemberPermissions },
             UserData = mockUserData
         };
 
@@ -178,7 +184,7 @@ public class TeamMemberRoleTests : AccountManagementTestBase
 
         // Assert
         result.ActionName.Should().Be(nameof(AccountManagementController.TeamMemberDetails));
-        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<AccountManagementSession>()),
+        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()),
             Times.Once);
     }
 
@@ -194,16 +200,19 @@ public class TeamMemberRoleTests : AccountManagementTestBase
             RoleInOrganisation = PersonRole.Admin.ToString(),
         };
 
-        JourneySessionMock.AddUserJourney = new AddUserJourneyModel
+        JourneySessionMock.AccountManagementSession.AddUserJourney = new AddUserJourneyModel
         {
             UserRole = "RegulatorAdmin"
         };
 
-        var sessionJourney = new AccountManagementSession
+        var sessionJourney = new JourneySession
         {
-            AddUserJourney = new AddUserJourneyModel
+            AccountManagementSession = new AccountManagementSession
             {
-                UserRole = SelectedRole
+                AddUserJourney = new AddUserJourneyModel
+                {
+                    UserRole = SelectedRole
+                }
             },
             UserData = mockUserData
         };
@@ -253,16 +262,19 @@ public class TeamMemberRoleTests : AccountManagementTestBase
             RoleInOrganisation = PersonRole.Admin.ToString(),
         };
 
-        JourneySessionMock.AddUserJourney = new AddUserJourneyModel
+        JourneySessionMock.AccountManagementSession.AddUserJourney = new AddUserJourneyModel
         {
             UserRole = "BasicAdmin"
         };
 
-        var sessionJourney = new AccountManagementSession
+        var sessionJourney = new JourneySession
         {
-            AddUserJourney = new AddUserJourneyModel
+            AccountManagementSession = new AccountManagementSession
             {
-                UserRole = "Admin"
+                AddUserJourney = new AddUserJourneyModel
+                {
+                    UserRole = "Admin"
+                }
             },
             UserData = mockUserData
         };

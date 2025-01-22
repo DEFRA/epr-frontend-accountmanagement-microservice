@@ -28,14 +28,17 @@ public class TeamMemberEmailTests : AccountManagementTestBase
     {
         SetupBase();
 
-        JourneySessionMock = new AccountManagementSession
+        JourneySessionMock = new JourneySession
         {
-            Journey = new List<string>
+            AccountManagementSession = new AccountManagementSession
+            {
+                Journey = new List<string>
                 {
                     PagePath.ManageAccount,
                     PagePath.TeamMemberEmail,
                 },
-            AddUserJourney = new AddUserJourneyModel()
+                AddUserJourney = new AddUserJourneyModel()
+            }
         };
 
         SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>()))
@@ -69,7 +72,7 @@ public class TeamMemberEmailTests : AccountManagementTestBase
         // Arrange              
         AccountManagementSession addUserAccount = new() { AddUserStatus = 0, AddUserJourney = null };
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-           .Returns(Task.FromResult(addUserAccount));
+           .Returns(Task.FromResult(new JourneySession { AccountManagementSession = addUserAccount }));
 
         var mockUserData = new UserData
         {
@@ -101,7 +104,7 @@ public class TeamMemberEmailTests : AccountManagementTestBase
 
         // Assert
         result.ActionName.Should().Be(nameof(AccountManagementController.TeamMemberPermissions));
-        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<AccountManagementSession>()), Times.Once);
+        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
     }
 
     // no email input
@@ -120,7 +123,7 @@ public class TeamMemberEmailTests : AccountManagementTestBase
         // Assert
         result.ViewName.Should().Be(ViewName);
         Assert.AreEqual(ModelErrorValueMissingString, result.ViewData.ModelState["Error"].Errors[0].ErrorMessage);
-        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<AccountManagementSession>()), Times.Never);
+        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Never);
     }
 
     // invalid email
@@ -139,7 +142,7 @@ public class TeamMemberEmailTests : AccountManagementTestBase
         // Assert
         result.ViewName.Should().Be(ViewName);
         Assert.AreEqual(ModelErrorValueEmailFormat, result.ViewData.ModelState["Error"].Errors[0].ErrorMessage);
-        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<AccountManagementSession>()), Times.Never);
+        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Never);
     }
 
     // email exceeds max length
@@ -158,7 +161,7 @@ public class TeamMemberEmailTests : AccountManagementTestBase
         // Assert
         result.ViewName.Should().Be(ViewName);
         Assert.AreEqual(ModelErrorEmailTooLong, result.ViewData.ModelState["Error"].Errors[0].ErrorMessage);
-        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<AccountManagementSession>()), Times.Never);
+        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Never);
     }
 
     [TestMethod]
@@ -174,11 +177,14 @@ public class TeamMemberEmailTests : AccountManagementTestBase
             RoleInOrganisation = PersonRole.Admin.ToString(),
         };
 
-        var session = new AccountManagementSession
+        var session = new JourneySession
         {
-            AddUserJourney = new AddUserJourneyModel
+            AccountManagementSession = new AccountManagementSession
             {
-                Email = email
+                AddUserJourney = new AddUserJourneyModel
+                {
+                    Email = email
+                }
             }
         };
 

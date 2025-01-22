@@ -66,7 +66,7 @@ public class AccountManagementTests : AccountManagementTestBase
         // Assert
         result.Should().BeOfType<ViewResult>();
         result.ViewName.Should().Be(ViewName);
-        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<AccountManagementSession>()), Times.Once);
+        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
     }
 
     [TestMethod]
@@ -99,7 +99,7 @@ public class AccountManagementTests : AccountManagementTestBase
         // Assert
         result.Should().BeOfType<ViewResult>();
         result.ViewName.Should().Be(ViewName);
-        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<AccountManagementSession>()), Times.Once);
+        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
         result.ViewData.Should().ContainKey("CustomBackLinkToDisplay");
         result.ViewData["CustomBackLinkToDisplay"].Should().Be("/back/to/home");
     }
@@ -162,7 +162,7 @@ public class AccountManagementTests : AccountManagementTestBase
 
 
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-            .ReturnsAsync(new AccountManagementSession
+            .ReturnsAsync(new JourneySession
             {
                 UserData = mockUserData
             });
@@ -172,7 +172,7 @@ public class AccountManagementTests : AccountManagementTestBase
             userServiceRoleId: (int)Core.Enums.ServiceRole.RegulatorAdmin,
             userData: mockUserData);
 
-      
+
 
         // Act
         var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel());
@@ -196,7 +196,7 @@ public class AccountManagementTests : AccountManagementTestBase
         RemoveUserJourneyModel userDetails = new() { FirstName = "An", LastName = "Test" };
         AccountManagementSession removeUserAccount = new() { RemoveUserStatus = 0, RemoveUserJourney = userDetails };
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-           .Returns(Task.FromResult(removeUserAccount));
+           .Returns(Task.FromResult(new JourneySession { AccountManagementSession = removeUserAccount }));
 
         // Act
         var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
@@ -204,7 +204,7 @@ public class AccountManagementTests : AccountManagementTestBase
         // Assert
         result.Should().BeOfType<ViewResult>();
         result.ViewName.Should().Be(ViewName);
-        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<AccountManagementSession>()), Times.Once);
+        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
     }
 
     [TestMethod]
@@ -216,14 +216,14 @@ public class AccountManagementTests : AccountManagementTestBase
         AddUserJourneyModel userDetails = new() { Email = "an.other@test.com", UserRole = "Test" };
         AccountManagementSession addUserAccount = new() { AddUserStatus = 0, AddUserJourney = userDetails };
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-           .Returns(Task.FromResult(addUserAccount));
+           .Returns(Task.FromResult(new JourneySession { AccountManagementSession = addUserAccount }));
         // Act
         var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
 
         // Assert
         result.Should().BeOfType<ViewResult>();
         result.ViewName.Should().Be(ViewName);
-        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<AccountManagementSession>()), Times.Once);
+        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
     }
 
     [TestMethod]
@@ -271,7 +271,7 @@ public class AccountManagementTests : AccountManagementTestBase
         // Assert
         result.Should().BeOfType<ViewResult>();
         result.ViewName.Should().Be(ViewName);
-        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<AccountManagementSession>()), Times.Once);
+        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
 
         Assert.AreEqual(string.Format("{0} {1}", FirstName, LastName), model.UserName);
         Assert.AreEqual(JobTitle, model.JobTitle);
@@ -481,7 +481,7 @@ public class AccountManagementTests : AccountManagementTestBase
         var userData = SetupUserData(serviceRole);
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
             .Returns(Task.FromResult(
-                new AccountManagementSession
+                new JourneySession
                 {
                     UserData = userData,
                     CompaniesHouseSession = new CompaniesHouseSession
@@ -955,7 +955,7 @@ public class AccountManagementTests : AccountManagementTestBase
         SetupBase(mockUserData);
 
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-            .ReturnsAsync(new AccountManagementSession { UserData = mockUserData });
+            .ReturnsAsync(new JourneySession { UserData = mockUserData });
 
         FacadeServiceMock.Setup(f => f.GetCompaniesHouseResponseAsync(It.IsAny<string?>()))
             .ReturnsAsync(companiesHouseResponse);
@@ -1022,7 +1022,7 @@ public class AccountManagementTests : AccountManagementTestBase
         SetupBase(mockUserData);
 
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-            .ReturnsAsync(new AccountManagementSession { UserData = mockUserData });
+            .ReturnsAsync(new JourneySession { UserData = mockUserData });
 
         FacadeServiceMock.Setup(f => f.GetCompaniesHouseResponseAsync(It.IsAny<string>()))
             .ReturnsAsync(companiesHouseResponse);
@@ -1048,7 +1048,7 @@ public class AccountManagementTests : AccountManagementTestBase
         };
 
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-            .ReturnsAsync(new AccountManagementSession { UserData = mockUserData });
+            .ReturnsAsync(new JourneySession { UserData = mockUserData });
 
         SetupBase(mockUserData);
 
@@ -1085,7 +1085,7 @@ public class AccountManagementTests : AccountManagementTestBase
         SetupBase(mockUserData);
 
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-            .ReturnsAsync(new AccountManagementSession
+            .ReturnsAsync(new JourneySession
             {
                 UserData = mockUserData
             });
@@ -1134,7 +1134,7 @@ public class AccountManagementTests : AccountManagementTestBase
             .Returns(expectedModel);
 
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-            .ReturnsAsync(new AccountManagementSession
+            .ReturnsAsync(new JourneySession
             {
                 UserData = mockUserData
             });
@@ -1178,7 +1178,7 @@ public class AccountManagementTests : AccountManagementTestBase
         SetupBase(mockUserData);
 
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-            .ReturnsAsync(new AccountManagementSession
+            .ReturnsAsync(new JourneySession
             {
                 UserData = mockUserData
             });

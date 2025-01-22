@@ -72,7 +72,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             SetupUserData("Approved Person", 1, "Admin");
 
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-                .Returns(Task.FromResult(new AccountManagementSession
+                .Returns(Task.FromResult(new JourneySession
                 {
                     CompaniesHouseSession = new CompaniesHouseSession { CompaniesHouseData = _companiesHouseResponse }
                 }));

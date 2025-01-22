@@ -161,6 +161,6 @@ public static class ServiceProviderExtension
 
     private static void ConfigureAuthorization(IServiceCollection services, IConfiguration configuration)
     {
-        services.RegisterPolicy<AccountManagementSession>(configuration);
+        services.RegisterPolicy<JourneySession>(configuration);
     }
 }

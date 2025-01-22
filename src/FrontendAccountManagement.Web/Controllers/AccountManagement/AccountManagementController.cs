@@ -33,7 +33,7 @@ using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 
 [Authorize(Policy = PolicyConstants.AccountManagementPolicy)]
-public class AccountManagementController : BaseController<AccountManagementSession>
+public class AccountManagementController : BaseController<JourneySession, AccountManagementSession>
 {
     private const string RolesNotFoundException = "Could not retrieve service roles or none found";
     private const string CheckYourOrganisationDetailsKey = "CheckYourOrganisationDetails";
@@ -41,7 +41,7 @@ public class AccountManagementController : BaseController<AccountManagementSessi
     private const string AmendedUserDetailsKey = "AmendedUserDetails";
     private const string NewUserDetailsKey = "NewUserDetails";
     private const string ServiceKey = "Packaging";
-    private readonly ISessionManager<AccountManagementSession> _sessionManager;
+    private readonly ISessionManager<JourneySession> _sessionManager;
     private readonly IFacadeService _facadeService;
     private readonly ILogger<AccountManagementController> _logger;
     private readonly ExternalUrlsOptions _urlOptions;
@@ -52,7 +52,7 @@ public class AccountManagementController : BaseController<AccountManagementSessi
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "Its Allowed for now in this case")]
     public AccountManagementController(
-        ISessionManager<AccountManagementSession> sessionManager,
+        ISessionManager<JourneySession> sessionManager,
         IFacadeService facadeService,
         IOptions<ExternalUrlsOptions> urlOptions,
         IOptions<DeploymentRoleOptions> deploymentRoleOptions,
@@ -77,7 +77,7 @@ public class AccountManagementController : BaseController<AccountManagementSessi
     public async Task<IActionResult> ManageAccount(ManageAccountViewModel model)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        session ??= new AccountManagementSession();
+        session ??= new JourneySession();
 
         var userAccount = User.GetUserData();
 
@@ -89,22 +89,22 @@ public class AccountManagementController : BaseController<AccountManagementSessi
             });
         }
 
-        session.AddUserJourney = null;
-        if (session.RemoveUserStatus != null)
+        session.AccountManagementSession.AddUserJourney = null;
+        if (session.AccountManagementSession.RemoveUserStatus != null)
         {
-            model.UserRemovedStatus = session.RemoveUserStatus;
+            model.UserRemovedStatus = session.AccountManagementSession.RemoveUserStatus;
             model.RemovedUsersName =
-                $"{session.RemoveUserJourney.FirstName} {session.RemoveUserJourney.LastName}";
-            session.RemoveUserStatus = null;
-            session.RemoveUserJourney = null;
+                $"{session.AccountManagementSession.RemoveUserJourney.FirstName} {session.AccountManagementSession.RemoveUserJourney.LastName}";
+            session.AccountManagementSession.RemoveUserStatus = null;
+            session.AccountManagementSession.RemoveUserJourney = null;
         }
 
-        if (session.AddUserStatus != null)
+        if (session.AccountManagementSession.AddUserStatus != null)
         {
-            model.InviteStatus = session.AddUserStatus;
-            model.InvitedUserEmail = session.InviteeEmailAddress;
-            session.InviteeEmailAddress = null;
-            session.AddUserStatus = null;
+            model.InviteStatus = session.AccountManagementSession.AddUserStatus;
+            model.InvitedUserEmail = session.AccountManagementSession.InviteeEmailAddress;
+            session.AccountManagementSession.InviteeEmailAddress = null;
+            session.AccountManagementSession.AddUserStatus = null;
         }
 
         model.PersonUpdated = TempData["PersonUpdated"] == null ? null : TempData["PersonUpdated"].ToString();
@@ -183,7 +183,7 @@ public class AccountManagementController : BaseController<AccountManagementSessi
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var companiesHouseData = session.CompaniesHouseSession.CompaniesHouseData;
 
-        session.Journey.AddIfNotExists(PagePath.CompanyDetailsHaveNotChanged);
+        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CompanyDetailsHaveNotChanged);
 
         SetBackLink(session, PagePath.CompanyDetailsHaveNotChanged);
 
@@ -210,15 +210,15 @@ public class AccountManagementController : BaseController<AccountManagementSessi
             return NotFound();
         }
 
-        session.Journey.AddIfNotExists(PagePath.ManageAccount);
-        session.AddUserJourney ??= new AddUserJourneyModel();
+        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ManageAccount);
+        session.AccountManagementSession.AddUserJourney ??= new AddUserJourneyModel();
 
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.TeamMemberEmail);
         SetBackLink(session, PagePath.TeamMemberEmail);
 
         var model = new TeamMemberEmailViewModel
         {
-            SavedEmail = session.AddUserJourney.Email
+            SavedEmail = session.AccountManagementSession.AddUserJourney.Email
         };
 
         return View(nameof(TeamMemberEmail), model);
@@ -236,8 +236,8 @@ public class AccountManagementController : BaseController<AccountManagementSessi
             return View(nameof(TeamMemberEmail), model);
         }
 
-        session.InviteeEmailAddress = model.Email;
-        session.AddUserJourney.Email = model.Email;
+        session.AccountManagementSession.InviteeEmailAddress = model.Email;
+        session.AccountManagementSession.AddUserJourney.Email = model.Email;
 
         return await SaveSessionAndRedirect(session, nameof(TeamMemberPermissions), PagePath.TeamMemberEmail, PagePath.TeamMemberPermissions);
     }
@@ -273,7 +273,7 @@ public class AccountManagementController : BaseController<AccountManagementSessi
             model.ServiceRoles = serviceRoles
                 .Where(x => x.ServiceRoleId == basicRoleId)
                 .OrderByDescending(x => x.Key).ToList();
-            model.SavedUserRole = session.AddUserJourney.UserRole;
+            model.SavedUserRole = session.AccountManagementSession.AddUserJourney.UserRole;
         }
         else
         {
@@ -282,7 +282,7 @@ public class AccountManagementController : BaseController<AccountManagementSessi
             model.ServiceRoles = serviceRoles
                 .Where(x => x.ServiceRoleId >= regulatorAdminRoleId && x.ServiceRoleId <= regulatorBasicRoleId)
                 .OrderByDescending(x => x.Key).ToList();
-            model.SavedUserRole = session.AddUserJourney.UserRole;
+            model.SavedUserRole = session.AccountManagementSession.AddUserJourney.UserRole;
         }
 
         return View(nameof(TeamMemberPermissions), model);
@@ -306,8 +306,8 @@ public class AccountManagementController : BaseController<AccountManagementSessi
             return View(nameof(TeamMemberPermissions), model);
         }
 
-        session.RoleKey = model.SelectedUserRole;
-        session.AddUserJourney.UserRole = model.SelectedUserRole;
+        session.AccountManagementSession.RoleKey = model.SelectedUserRole;
+        session.AccountManagementSession.AddUserJourney.UserRole = model.SelectedUserRole;
 
         return await SaveSessionAndRedirect(session, nameof(TeamMemberDetails), PagePath.TeamMemberPermissions, PagePath.TeamMemberDetails);
     }
@@ -329,8 +329,8 @@ public class AccountManagementController : BaseController<AccountManagementSessi
         SetBackLink(session, PagePath.TeamMemberDetails);
         var model = new TeamMemberDetailsViewModel
         {
-            Email = session.InviteeEmailAddress,
-            SelectedUserRole = session.RoleKey,
+            Email = session.AccountManagementSession.InviteeEmailAddress,
+            SelectedUserRole = session.AccountManagementSession.RoleKey,
         };
 
         return View(nameof(TeamMemberDetails), model);
@@ -359,14 +359,14 @@ public class AccountManagementController : BaseController<AccountManagementSessi
             },
             InvitedUser = new InvitedUser
             {
-                Email = session.InviteeEmailAddress,
+                Email = session.AccountManagementSession.InviteeEmailAddress,
                 OrganisationId = organisation.Id,
                 OrganisationName = organisation.Name,
-                RoleKey = session.RoleKey
+                RoleKey = session.AccountManagementSession.RoleKey
             }
         };
 
-        session.AddUserStatus = await _facadeService.SendUserInvite(request);
+        session.AccountManagementSession.AddUserStatus = await _facadeService.SendUserInvite(request);
 
         return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.TeamMemberDetails, PagePath.ManageAccount);
     }
@@ -397,15 +397,15 @@ public class AccountManagementController : BaseController<AccountManagementSessi
             return NotFound();
         }
 
-        session.Journey.AddIfNotExists(PagePath.ManageAccount);
-        session.Journey.AddIfNotExists(PagePath.RemoveTeamMember);
+        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ManageAccount);
+        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.RemoveTeamMember);
 
         SetBackLink(session, PagePath.RemoveTeamMember);
         var model = new RemoveTeamMemberConfirmationViewModel
         {
-            FirstName = session.RemoveUserJourney.FirstName,
-            LastName = session.RemoveUserJourney.LastName,
-            PersonId = session.RemoveUserJourney.PersonId
+            FirstName = session.AccountManagementSession.RemoveUserJourney.FirstName,
+            LastName = session.AccountManagementSession.RemoveUserJourney.LastName,
+            PersonId = session.AccountManagementSession.RemoveUserJourney.PersonId
         };
 
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.RemoveTeamMember);
@@ -435,7 +435,7 @@ public class AccountManagementController : BaseController<AccountManagementSessi
         var organisationId = organisation!.Id.ToString();
         var serviceRoleId = userData.ServiceRoleId;
         var result = await _facadeService.RemoveUserForOrganisation(personExternalId, organisationId, serviceRoleId);
-        session.RemoveUserStatus = result;
+        session.AccountManagementSession.RemoveUserStatus = result;
 
         return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.RemoveTeamMember, PagePath.ManageAccount);
     }
@@ -999,7 +999,7 @@ public class AccountManagementController : BaseController<AccountManagementSessi
         return View();
     }
 
-    private async Task<bool> CompareDataAsync(AccountManagementSession session)
+    private async Task<bool> CompareDataAsync(JourneySession session)
     {
         var userData = User.GetUserData();
 
@@ -1030,11 +1030,11 @@ public class AccountManagementController : BaseController<AccountManagementSessi
                organisationData.Postcode == companiesHouseData.Organisation.RegisteredOffice.Postcode;
     }
 
-    private static void SetRemoveUserJourneyValues(AccountManagementSession session, string firstName, string lastName, Guid personId)
+    private static void SetRemoveUserJourneyValues(JourneySession session, string firstName, string lastName, Guid personId)
     {
-        if (session.RemoveUserJourney == null)
+        if (session.AccountManagementSession.RemoveUserJourney == null)
         {
-            session.RemoveUserJourney = new RemoveUserJourneyModel
+            session.AccountManagementSession.RemoveUserJourney = new RemoveUserJourneyModel
             {
                 FirstName = firstName,
                 LastName = lastName,
@@ -1044,16 +1044,16 @@ public class AccountManagementController : BaseController<AccountManagementSessi
 
         if (!string.IsNullOrEmpty(firstName) && !string.IsNullOrEmpty(lastName) && personId != Guid.Empty)
         {
-            session.RemoveUserJourney.FirstName = firstName;
-            session.RemoveUserJourney.LastName = lastName;
-            session.RemoveUserJourney.PersonId = personId;
+            session.AccountManagementSession.RemoveUserJourney.FirstName = firstName;
+            session.AccountManagementSession.RemoveUserJourney.LastName = lastName;
+            session.AccountManagementSession.RemoveUserJourney.PersonId = personId;
         }
     }
 
     private async Task SetBackLink(string currentPagePath)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        ViewBag.BackLinkToDisplay = session.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
+        ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
     }
 
     private void SetCustomBackLink(string pagePath, bool showCustomBackLabel = true)

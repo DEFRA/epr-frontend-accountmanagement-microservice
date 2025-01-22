@@ -1,13 +1,10 @@
-﻿using EPR.Common.Authorization.Interfaces;
-using EPR.Common.Authorization.Models;
-using FrontendAccountManagement.Core.Models;
+﻿using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Sessions.Interfaces;
 
 namespace FrontendAccountManagement.Core.Sessions
 {
-    public class AccountManagementSession : IHasUserData, IJourneySession
+    public class AccountManagementSession : IJourneySession
     {
-        public UserData UserData { get; set; } = new();
         public List<string> Journey { get; set; } = new();
 
         public string? OrganisationName { get; set; }
@@ -23,7 +20,6 @@ namespace FrontendAccountManagement.Core.Sessions
         public EndpointResponseStatus? RemoveUserStatus { get; set; }
         
         public EndpointResponseStatus? AddUserStatus { get; set; }
-        public CompaniesHouseSession CompaniesHouseSession { get; set; } = new();
 
     }
 }

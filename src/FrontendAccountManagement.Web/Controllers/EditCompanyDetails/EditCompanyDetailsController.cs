@@ -5,14 +5,14 @@ using FrontendAccountManagement.Web.Controllers.Base;
 
 namespace FrontendAccountManagement.Web.Controllers.EditCompanyDetails
 {
-    public class EditCompanyDetailsController : BaseController<EditCompanyDetailsSession>
+    public class EditCompanyDetailsController : BaseController<JourneySession, EditCompanyDetailsSession>
     {
-        private readonly ISessionManager<EditCompanyDetailsSession> _sessionManager;
+        private readonly ISessionManager<JourneySession> _sessionManager;
         private readonly ILogger<EditCompanyDetailsController> _logger;
         private readonly IMapper _mapper;
 
         public EditCompanyDetailsController(
-        ISessionManager<EditCompanyDetailsSession> sessionManager,
+        ISessionManager<JourneySession> sessionManager,
         ILogger<EditCompanyDetailsController> logger,
         IMapper mapper) : base(sessionManager)
         {
