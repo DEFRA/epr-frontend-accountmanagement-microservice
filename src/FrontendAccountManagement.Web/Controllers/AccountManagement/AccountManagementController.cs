@@ -1043,13 +1043,13 @@ public class AccountManagementController : Controller
 
         if (session.AccountManagementSession.IsUpdateCompanyAddress)
         {
-            return await SaveSessionAndRedirect(session, "BusinessAddressPostcode", PagePath.BusinessAddressPostcode, PagePath.BusinessAddressPostcode);
+            return await SaveSessionAndRedirect(session, "BusinessAddressPostcode", PagePath.UpdateCompanyAddress, PagePath.BusinessAddressPostcode);
         }
         else
         {
             if (session.AccountManagementSession.IsUpdateCompanyName)
             {
-                return await SaveSessionAndRedirect(session, "CheckYourCompanyDetails", PagePath.CheckYourCompanyDetails, string.Empty);
+                return await SaveSessionAndRedirect(session, "CheckYourCompanyDetails", PagePath.UpdateCompanyAddress, PagePath.CheckYourCompanyDetails);
             }
             else
             {
