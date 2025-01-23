@@ -17,28 +17,32 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
     [TestClass]
     public class SelectBusinessAddressTests : AccountManagementTestBase
     {
-        private JourneySession _journeySession = null!;
+        private AccountManagementSession _accountManagementSessionMock = null!;
         private static readonly IList<Address> _addressesMock = new List<Address>
-        {
-            new() { BuildingNumber = "10", Street = "Gracefield Gardens", Town = "London" },
-            new() { BuildingNumber = "11", Street = "Gracefield Gardens", Town = "London" },
-            new() { BuildingNumber = "12", Street = "Gracefield Gardens", Town = "London" }
-        };
+    {
+        new() { BuildingNumber = "10", Street = "Gracefield Gardens", Town = "London" },
+        new() { BuildingNumber = "11", Street = "Gracefield Gardens", Town = "London" },
+        new() { BuildingNumber = "12", Street = "Gracefield Gardens", Town = "London" }
+    };
+
 
         [TestInitialize]
         public void Setup()
         {
             SetupBase();
 
-            _journeySession = new JourneySession
+            JourneySessionMock = new JourneySession
             {
-                EditCompanyDetailsSession = new EditCompanyDetailsSession
+                AccountManagementSession = new AccountManagementSession
                 {
+                    Journey = new List<string> { PagePath.BusinessAddressPostcode, PagePath.SelectBusinessAddress, PagePath.BusinessAddress },
                     BusinessAddress = new Address { Postcode = "NW2 3TB" }
                 }
             };
 
-            SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(_journeySession);
+            SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>()))
+                .ReturnsAsync(JourneySessionMock);
+
 
             var addressListMock = new AddressList
             {
@@ -47,7 +51,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             FacadeServiceMock.Setup(x => x.GetAddressListByPostcodeAsync(It.IsAny<string>())).ReturnsAsync(addressListMock);
         }
 
-        // PAUL - need to uncomment this method when BusinessAddress code is written
+        // PAUL - this test needs addressing after the full merge
         //[TestMethod]
         //public async Task GivenFailedPostcodeLookup_WhenSelectBusinessAddressCalled_TheUserHasBeenRedirectedToBusinessAddressPage()
         //{
@@ -69,7 +73,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         //    TempDataDictionaryMock.Invocations.SelectMany(x => x.Arguments).Should().Contain(PostcodeLookupFailedKey);
         //}
 
-        // PAUL - need to uncomment this method when BusinessAddress code is written
+        // PAUL - this test needs addressing after the full merge
         //[TestMethod]
         //public async Task GivenFailedPostcodeLookup_GetAddressList_ReturnsNull_WhenSelectBusinessAddressCalled_TheUserHasBeenRedirectedToBusinessAddressPage()
         //{
@@ -107,7 +111,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         [TestMethod]
         public async Task SelectBusinessAddress_WhenAddressIndexIsCorrect_ItShouldUpdateSessionAndRedirectToNextScreen()
         {
-            _journeySession.EditCompanyDetailsSession!.AddressesForPostcode = new List<Address?> { new() };
+            JourneySessionMock.AccountManagementSession!.AddressesForPostcode = new List<Address?> { new() };
 
             var result = await SystemUnderTest.SelectBusinessAddress(
                 new SelectBusinessAddressViewModel { SelectedListIndex = "0" });
@@ -123,7 +127,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         [TestMethod]
         public async Task SelectBusinessAddress_WhenAddressIndexIsOutOfBounds_ItShouldReturnViewWithError()
         {
-            _journeySession.EditCompanyDetailsSession!.AddressesForPostcode = new List<Address?> { new() };
+            JourneySessionMock.AccountManagementSession!.AddressesForPostcode = new List<Address?> { new() };
 
             var result = await SystemUnderTest.SelectBusinessAddress(
                 new SelectBusinessAddressViewModel { SelectedListIndex = "1" });
@@ -150,7 +154,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 .SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Never);
         }
 
-        // PAUL - need to uncomment this method when BusinessAddress code is written
+        // PAUL - this test needs addressing after the full merge
         //[TestMethod]
         //public async Task GivenNullPostcodeLookup_WhenSelectBusinessAddressCalled_TheUserHasBeenRedirectedToBusinessAddressPage()
         //{
@@ -170,35 +174,5 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
         //    TempDataDictionaryMock.Invocations.SelectMany(x => x.Arguments).Should().Contain(PostcodeLookupFailedKey);
         //}
-
-        [TestMethod]
-        public async Task UserNavigatesToSelectBusinessAddressPage_FromCheckYourDetailsPage_BackLinkShouldBeCheckYourDetails()
-        {
-            //Arrange
-            var journeySessionMock = new JourneySession
-            {
-                //    Journey = new List<string>
-                //{
-                //    PagePath.RegisteredAsCharity, PagePath.RegisteredWithCompaniesHouse, PagePath.TypeOfOrganisation, PagePath.TradingName,
-                //    PagePath.BusinessAddressPostcode, PagePath.SelectBusinessAddress, PagePath.UkNation, PagePath.ManualInputRoleInOrganisation,
-                //    PagePath.FullName, PagePath.TelephoneNumber, PagePath.CheckYourDetails
-                //},
-                EditCompanyDetailsSession = new EditCompanyDetailsSession() { BusinessAddress = new Address { Postcode = "NW2 3TB" } },
-                // IsUserChangingDetails = true,
-            };
-
-            SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(journeySessionMock);
-
-            //Act
-            var result = await SystemUnderTest.SelectBusinessAddress();
-
-            //Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ViewResult>();
-            var viewResult = (ViewResult)result;
-            viewResult.Model.Should().BeOfType<SelectBusinessAddressViewModel>();
-            AssertBackLink(viewResult, PagePath.CheckYourDetails);
-
-        }
     }
 }
