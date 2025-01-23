@@ -850,7 +850,7 @@ public class AccountManagementController : Controller
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        SetBackLink(PagePath.BusinessAddressPostcode);
+        SetCustomBackLink(PagePath.BusinessAddressPostcode, false);
 
         var model = new BusinessAddressViewModel
         {

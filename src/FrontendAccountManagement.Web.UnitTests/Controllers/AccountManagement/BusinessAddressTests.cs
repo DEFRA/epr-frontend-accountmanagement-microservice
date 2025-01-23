@@ -58,7 +58,7 @@ public class BusinessAddressTests : AccountManagementTestBase
         // Assert
         result.Should().BeOfType<RedirectToActionResult>();
 
-        ((RedirectToActionResult)result).ActionName.Should().Be(nameof(AccountManagementController.UkNation));
+        ((RedirectToActionResult)result).ActionName.Should().Be("non-companies-house-uk-nation");
 
         SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
     }
