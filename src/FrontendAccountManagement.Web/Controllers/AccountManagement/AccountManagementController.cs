@@ -1089,6 +1089,57 @@ public class AccountManagementController : Controller
 
     [HttpGet]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
+    [Route(PagePath.UpdateCompanyName)]
+    public async Task<IActionResult> UpdateCompanyName()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        if (session != null)
+        {
+            session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ManageAccount);
+
+            await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.UpdateCompanyName);
+            SetBackLink(session, PagePath.UpdateCompanyName);
+
+            if (session.AccountManagementSession?.OrganisationType == OrganisationType.CompaniesHouseCompany)
+            {
+                return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+                {
+                    statusCode = (int)HttpStatusCode.Forbidden
+                });
+            }
+        }
+
+        return View(new UpdateCompanyNameViewModel
+        {
+            IsUpdateCompanyName = null
+        });
+    }
+
+    [HttpPost]
+    [Route(PagePath.UpdateCompanyName)]
+    public async Task<IActionResult> UpdateCompanyName(UpdateCompanyNameViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
+
+        session.AccountManagementSession.IsUpdateCompanyName = model.IsUpdateCompanyName == YesNoAnswer.Yes;
+
+        if (session.AccountManagementSession.IsUpdateCompanyName)
+        {
+            return await SaveSessionAndRedirect(session, "CompanyName", PagePath.UpdateCompanyName, PagePath.CompanyName);
+        }
+        else
+        {
+            return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.CompanyName, PagePath.UpdateCompanyAddress);
+        }
+    }
+
+    [HttpGet]
+    [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     [Route(PagePath.UpdateCompanyAddress)]
     public async Task<IActionResult> UpdateCompanyAddress()
     {
