@@ -8,5 +8,5 @@ namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
         public YesNoAnswer? IsUpdateCompanyAddress { get; set; }
     }
 }
-    }
+    
 
