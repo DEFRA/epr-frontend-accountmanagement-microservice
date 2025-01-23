@@ -1,12 +1,12 @@
-﻿
-    using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-    namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
+namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
+{
+    public class UpdateCompanyAddressViewModel
     {
-        public class UpdateCompanyAddressViewModel
-        {
-            [Required(ErrorMessage = "UpdateCompanyAddressErrorMessage")]
-            public YesNoAnswer? isUpdateCompanyAddress { get; set; }
-        }
+        [Required(ErrorMessage = "UpdateCompanyAddress.SelectionError")]
+        public YesNoAnswer? IsUpdateCompanyAddress { get; set; }
+    }
+}
     }
 

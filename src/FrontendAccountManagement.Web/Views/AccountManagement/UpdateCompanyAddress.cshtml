@@ -20,7 +20,7 @@
                         <fieldset class="govuk-fieldset">
                             <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                                 <h1 class="govuk-heading-m govuk-!-margin-bottom-4">
-                                    Do you want to update your organisation’s business address?
+                                    @Localizer["UpdateCompanyAddress.Question"]
                                 </h1>
                             </legend>
 
@@ -30,11 +30,11 @@
                                 <div class="govuk-radios__item">
                                     <input class="govuk-radios__input"
                                            type="radio"
-                                           gov-for="isUpdateCompanyAddress"
+                                           gov-for="IsUpdateCompanyAddress"
                                            gov-value="@nameof(YesNoAnswer.Yes)"
                                            gov-first-option="true">
                                     <label class="govuk-label govuk-radios__label"
-                                           gov-for="isUpdateCompanyAddress"
+                                           gov-for="IsUpdateCompanyAddress"
                                            gov-value="@nameof(YesNoAnswer.Yes)"
                                            gov-first-option="true">
                                         @SharedLocalizer["Yes"]
@@ -43,10 +43,10 @@
 
                                 <div class="govuk-radios__item">
                                     <input class="govuk-radios__input" type="radio"
-                                           gov-for="isUpdateCompanyAddress"
+                                           gov-for="IsUpdateCompanyAddress"
                                            gov-value="@nameof(YesNoAnswer.No)">
                                     <label class="govuk-label govuk-radios__label"
-                                           gov-for="isUpdateCompanyAddress"
+                                           gov-for="IsUpdateCompanyAddress"
                                            gov-value="@nameof(YesNoAnswer.No)">
                                         @SharedLocalizer["No"]
                                     </label>

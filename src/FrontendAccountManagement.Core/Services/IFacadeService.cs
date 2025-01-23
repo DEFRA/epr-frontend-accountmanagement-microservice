@@ -1,3 +1,4 @@
+using FrontendAccountManagement.Core.Addresses;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Models.CompaniesHouse;
@@ -48,10 +49,10 @@ public interface IFacadeService
     /// <param name="userDetailsUpdateModelRequest"></param>
     /// <returns></returns>
     Task<UpdateUserDetailsResponse> UpdateUserDetailsAsync(
-        Guid userId, 
-        Guid organisationId, 
-        string serviceKey, 
+        Guid userId,
+        Guid organisationId,
+        string serviceKey,
         UpdateUserDetailsRequest userDetailsUpdateModelRequest);
 
-
+    Task<AddressList?> GetAddressListByPostcodeAsync(string postcode);
 }
