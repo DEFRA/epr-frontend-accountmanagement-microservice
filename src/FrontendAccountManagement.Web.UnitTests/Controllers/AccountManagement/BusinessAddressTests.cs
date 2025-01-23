@@ -148,6 +148,36 @@ public class BusinessAddressTests : AccountManagementTestBase
     }
 
     [TestMethod]
+    public async Task GivenNoPreviousPage_WhenBusinessAddressCalled_ThenBusinessAddressPageReturned_WithSelectBusinessAddresseAsTheBackLink()
+    {
+        //Arrange
+        TempDataDictionaryMock = new Mock<ITempDataDictionary>();
+        TempDataDictionaryMock.Setup(tempData => tempData.ContainsKey("PostcodeLookupFailed")).Returns(true);
+        TempDataDictionaryMock.SetupSet(tempData => tempData["PostcodeLookupFailed"] = true);
+        SystemUnderTest.TempData = TempDataDictionaryMock.Object;
+
+        _journeySession.AccountManagementSession.Journey = new List<string>();
+
+        //Act
+        var result = await SystemUnderTest.BusinessAddress();
+
+        //Assert
+        result.Should().BeOfType<ViewResult>();
+
+        var viewResult = (ViewResult)result;
+
+        viewResult.Model.Should().BeOfType<BusinessAddressViewModel>();
+
+        ((BusinessAddressViewModel)viewResult.Model).ShowWarning.Should().BeTrue();
+        TempDataDictionaryMock.VerifySet(tempData => tempData["PostcodeLookupFailed"] = true, Times.Once);
+
+        AssertBackLink(viewResult, PagePath.BusinessAddressPostcode);
+
+        SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
+    }
+
+
+    [TestMethod]
     public async Task GivenBusinessAddress_WhenBusinessAddressIsManualAddress_ThenUpdatesModelWIthCorrectValue()
     {
         //Arrange

@@ -850,7 +850,10 @@ public class AccountManagementController : Controller
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        SetCustomBackLink(PagePath.BusinessAddressPostcode, false);
+        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.BusinessAddressPostcode);
+        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.BusinessAddress);
+        session.AccountManagementSession.Journey.RemoveAll(x => x == PagePath.SelectBusinessAddress);
+        SetBackLink(session, PagePath.BusinessAddress);
 
         var model = new BusinessAddressViewModel
         {
