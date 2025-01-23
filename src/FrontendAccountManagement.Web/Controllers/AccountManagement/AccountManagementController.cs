@@ -850,7 +850,7 @@ public class AccountManagementController : Controller
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        SetCustomBackLink(PagePath.BusinessAddressPostcode, false);
+        SetBackLink(PagePath.BusinessAddressPostcode);
 
         var model = new BusinessAddressViewModel
         {
@@ -911,7 +911,7 @@ public class AccountManagementController : Controller
             Postcode = model.Postcode
         };
 
-        return await SaveSessionAndRedirect(session, nameof(UkNation), PagePath.BusinessAddress, PagePath.UkNation);
+        return await SaveSessionAndRedirect(session, "non-companies-house-uk-nation", PagePath.BusinessAddress, PagePath.NonCompaniesHouseUkNation);
     }
 
     /// <summary>
