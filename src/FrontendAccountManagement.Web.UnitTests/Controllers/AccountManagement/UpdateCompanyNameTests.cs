@@ -92,7 +92,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         public async Task Post_UpdateCompanyName_ShouldReturnRedirectWhenModelIsValid()
         {
             // Arrange
-            var model = new UpdateCompanyNameViewModel { isUpdateCompanyName = YesNoAnswer.Yes };
+            var model = new UpdateCompanyNameViewModel { IsUpdateCompanyName = YesNoAnswer.Yes };
             var session = new JourneySession
             {
                 AccountManagementSession = new AccountManagementSession()

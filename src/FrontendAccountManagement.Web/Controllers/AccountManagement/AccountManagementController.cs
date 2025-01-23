@@ -1029,7 +1029,7 @@ public class AccountManagementController : Controller
 
         return View(new UpdateCompanyNameViewModel
         {
-            isUpdateCompanyName = null
+            IsUpdateCompanyName = null
         });
     }
 
@@ -1044,7 +1044,7 @@ public class AccountManagementController : Controller
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
 
-        session.AccountManagementSession.IsUpdateCompanyName = model.isUpdateCompanyName == YesNoAnswer.Yes;
+        session.AccountManagementSession.IsUpdateCompanyName = model.IsUpdateCompanyName == YesNoAnswer.Yes;
 
         if (session.AccountManagementSession.IsUpdateCompanyName)
         {
