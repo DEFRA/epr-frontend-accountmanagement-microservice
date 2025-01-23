@@ -4,7 +4,7 @@ namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
 {
     public class UpdateCompanyAddressViewModel
     {
-        [Required(ErrorMessage = "Select an option")]
+        [Required(ErrorMessage = "UpdateCompanyAddress.SelectionError")]
         public YesNoAnswer? IsUpdateCompanyAddress { get; set; }
     }
 }

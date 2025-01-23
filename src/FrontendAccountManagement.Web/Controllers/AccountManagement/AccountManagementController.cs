@@ -119,8 +119,6 @@ public class AccountManagementController : Controller
             model.UserName = string.Format("{0} {1}", userAccount.FirstName, userAccount.LastName);
             model.Telephone = userAccount.Telephone;
             var userOrg = userAccount.Organisations?.FirstOrDefault();
-            session.AccountManagementSession.OrganisationName = userOrg?.Name;
-            session.AccountManagementSession.OrganisationId = userOrg?.Id;
             session.AccountManagementSession.OrganisationType = userOrg?.OrganisationType;
             model.JobTitle = userAccount.JobTitle;
             model.CompanyName = userOrg?.Name;

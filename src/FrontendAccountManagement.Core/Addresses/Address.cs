@@ -2,6 +2,8 @@
 
 public class Address
 {
+    public string? AddressSingleLine { get; set; }
+
     public string? SubBuildingName { get; set; }
 
     public string? BuildingName { get; set; }
@@ -17,5 +19,10 @@ public class Address
     public string? Country { get; set; }
 
     public string? Postcode { get; set; }
+
+    public string? Locality { get; init; }
+
+    public string? DependentLocality { get; init; }
+
     public bool IsManualAddress { get; set; }
 }
