@@ -89,29 +89,29 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
         // This test case not executed currently due to back page not available "updatecompanyName" 
 
-        //        [TestMethod]
-        //        public async Task UserNavigatesToCompanyNamePage_FromUpdateCompanyNamePage_BackLinkShouldBeUpdateCompanyName()
-        //        {
-        //            //Arrange
-        //            var session = new JourneySession
-        //            {
-        //                AccountManagementSession = new AccountManagementSession
-        //                {
-        //                    OrganisationName = "Company Name"
-        //                }
-        //            };
+        [TestMethod]
+        public async Task UserNavigatesToCompanyNamePage_FromUpdateCompanyNamePage_BackLinkShouldBeUpdateCompanyName()
+        {
+            //Arrange
+            var session = new JourneySession
+            {
+                AccountManagementSession = new AccountManagementSession
+                {
+                    OrganisationName = "Company Name"
+                }
+            };
 
-        //            SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
-        //            //Act
-        //            var result = await SystemUnderTest.CompanyName();
+            SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+            //Act
+            var result = await SystemUnderTest.CompanyName();
 
-        //            //Assert
-        //            result.Should().NotBeNull();
-        //            result.Should().BeOfType<ViewResult>();
-        //            var viewResult = (ViewResult)result;
-        //            viewResult.Model.Should().BeOfType<OrganisationNameViewModel>();
-        //            AssertBackLink(viewResult, PagePath.UpdateCompanyName);
+            //Assert
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ViewResult>();
+            var viewResult = (ViewResult)result;
+            viewResult.Model.Should().BeOfType<OrganisationNameViewModel>();
+            AssertBackLink(viewResult, PagePath.UpdateCompanyName);
 
-        //        }
+        }
     }
 }

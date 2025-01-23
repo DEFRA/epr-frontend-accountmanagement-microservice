@@ -846,87 +846,87 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
             return View(nameof(CompanyDetailsUpdated), model);
         }
 
-    [HttpGet]
-    [Route(PagePath.BusinessAddress)]
-    public async Task<IActionResult> BusinessAddress()
-    {
-        if (IsCompaniesHouseUser())
+        [HttpGet]
+        [Route(PagePath.BusinessAddress)]
+        public async Task<IActionResult> BusinessAddress()
         {
-            return RedirectToAction(nameof(ErrorController.Error), nameof(ErrorController), new
+            if (IsCompaniesHouseUser())
             {
-                statusCode = (int)HttpStatusCode.Forbidden
-            });
-        }
+                return RedirectToAction(nameof(ErrorController.Error), nameof(ErrorController), new
+                {
+                    statusCode = (int)HttpStatusCode.Forbidden
+                });
+            }
 
-        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+            var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.BusinessAddressPostcode);
-        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.BusinessAddress);
-        session.AccountManagementSession.Journey.RemoveAll(x => x == PagePath.SelectBusinessAddress);
-        SetBackLink(session, PagePath.BusinessAddress);
+            session.AccountManagementSession.Journey.AddIfNotExists(PagePath.BusinessAddressPostcode);
+            session.AccountManagementSession.Journey.AddIfNotExists(PagePath.BusinessAddress);
+            session.AccountManagementSession.Journey.RemoveAll(x => x == PagePath.SelectBusinessAddress);
+            SetBackLink(session, PagePath.BusinessAddress);
 
-        var model = new BusinessAddressViewModel
-        {
-            SubBuildingName = session.AccountManagementSession.BusinessAddress?.SubBuildingName,
-            BuildingName = session.AccountManagementSession.BusinessAddress?.BuildingName,
-            BuildingNumber = session.AccountManagementSession.BusinessAddress?.BuildingNumber,
-            Street = session.AccountManagementSession.BusinessAddress?.Street,
-            Town = session.AccountManagementSession.BusinessAddress?.Town,
-            County = session.AccountManagementSession.BusinessAddress?.County,
-            Postcode = session.AccountManagementSession.BusinessAddress?.Postcode
-        };
-
-        if (TempData.ContainsKey(PostcodeLookupFailedKey))
-        {
-            model.ShowWarning = true;
-            TempData[PostcodeLookupFailedKey] = true;
-        }
-        await _sessionManager.SaveSessionAsync(HttpContext.Session, session);
-
-        return View(nameof(BusinessAddress), model);
-    }
-
-    [HttpPost]
-    [Route(PagePath.BusinessAddress)]
-    public async Task<IActionResult> BusinessAddress(BusinessAddressViewModel model)
-    {
-        if (IsCompaniesHouseUser())
-        {
-            return RedirectToAction(nameof(ErrorController.Error), nameof(ErrorController), new
+            var model = new BusinessAddressViewModel
             {
-                statusCode = (int)HttpStatusCode.Forbidden
-            });
-        }
-
-        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-
-        if (!ModelState.IsValid)
-        {
-            SetCustomBackLink(PagePath.BusinessAddressPostcode, false);
+                SubBuildingName = session.AccountManagementSession.BusinessAddress?.SubBuildingName,
+                BuildingName = session.AccountManagementSession.BusinessAddress?.BuildingName,
+                BuildingNumber = session.AccountManagementSession.BusinessAddress?.BuildingNumber,
+                Street = session.AccountManagementSession.BusinessAddress?.Street,
+                Town = session.AccountManagementSession.BusinessAddress?.Town,
+                County = session.AccountManagementSession.BusinessAddress?.County,
+                Postcode = session.AccountManagementSession.BusinessAddress?.Postcode
+            };
 
             if (TempData.ContainsKey(PostcodeLookupFailedKey))
             {
                 model.ShowWarning = true;
                 TempData[PostcodeLookupFailedKey] = true;
             }
+            await _sessionManager.SaveSessionAsync(HttpContext.Session, session);
 
-            return View(model);
+            return View(nameof(BusinessAddress), model);
         }
 
-        session.AccountManagementSession.BusinessAddress = new Address
+        [HttpPost]
+        [Route(PagePath.BusinessAddress)]
+        public async Task<IActionResult> BusinessAddress(BusinessAddressViewModel model)
         {
-            SubBuildingName = model.SubBuildingName,
-            BuildingName = model.BuildingName,
-            BuildingNumber = model.BuildingNumber,
-            Street = model.Street,
-            Town = model.Town,
-            County = model.County,
-            Postcode = model.Postcode
-        };
-        TempData.Remove(PostcodeLookupFailedKey);
+            if (IsCompaniesHouseUser())
+            {
+                return RedirectToAction(nameof(ErrorController.Error), nameof(ErrorController), new
+                {
+                    statusCode = (int)HttpStatusCode.Forbidden
+                });
+            }
 
-        return await SaveSessionAndRedirect(session, "non-companies-house-uk-nation", PagePath.BusinessAddress, PagePath.NonCompaniesHouseUkNation);
-    }
+            var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+            if (!ModelState.IsValid)
+            {
+                SetCustomBackLink(PagePath.BusinessAddressPostcode, false);
+
+                if (TempData.ContainsKey(PostcodeLookupFailedKey))
+                {
+                    model.ShowWarning = true;
+                    TempData[PostcodeLookupFailedKey] = true;
+                }
+
+                return View(model);
+            }
+
+            session.AccountManagementSession.BusinessAddress = new Address
+            {
+                SubBuildingName = model.SubBuildingName,
+                BuildingName = model.BuildingName,
+                BuildingNumber = model.BuildingNumber,
+                Street = model.Street,
+                Town = model.Town,
+                County = model.County,
+                Postcode = model.Postcode
+            };
+            TempData.Remove(PostcodeLookupFailedKey);
+
+            return await SaveSessionAndRedirect(session, "non-companies-house-uk-nation", PagePath.BusinessAddress, PagePath.NonCompaniesHouseUkNation);
+        }
 
         /// <summary>
         /// Displays a page with the updated data from the "choose your nation" page
@@ -1094,57 +1094,57 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
 
         [HttpGet]
         [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
-    [Route(PagePath.UpdateCompanyName)]
-    public async Task<IActionResult> UpdateCompanyName()
-    {
-        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        if (session != null)
+        [Route(PagePath.UpdateCompanyName)]
+        public async Task<IActionResult> UpdateCompanyName()
         {
-            session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ManageAccount);
-
-            await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.UpdateCompanyName);
-            SetBackLink(session, PagePath.UpdateCompanyName);
-
-            if (session.AccountManagementSession?.OrganisationType == OrganisationType.CompaniesHouseCompany)
+            var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+            if (session != null)
             {
-                return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+                session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ManageAccount);
+
+                await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.UpdateCompanyName);
+                SetBackLink(session, PagePath.UpdateCompanyName);
+
+                if (session.AccountManagementSession?.OrganisationType == OrganisationType.CompaniesHouseCompany)
                 {
-                    statusCode = (int)HttpStatusCode.Forbidden
-                });
+                    return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+                    {
+                        statusCode = (int)HttpStatusCode.Forbidden
+                    });
+                }
+            }
+
+            return View(new UpdateCompanyNameViewModel
+            {
+                IsUpdateCompanyName = null
+            });
+        }
+
+        [HttpPost]
+        [Route(PagePath.UpdateCompanyName)]
+        public async Task<IActionResult> UpdateCompanyName(UpdateCompanyNameViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
+
+            session.AccountManagementSession.IsUpdateCompanyName = model.IsUpdateCompanyName == YesNoAnswer.Yes;
+
+            if (session.AccountManagementSession.IsUpdateCompanyName)
+            {
+                return await SaveSessionAndRedirect(session, "CompanyName", PagePath.UpdateCompanyName, PagePath.CompanyName);
+            }
+            else
+            {
+                return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.CompanyName, PagePath.UpdateCompanyAddress);
             }
         }
 
-        return View(new UpdateCompanyNameViewModel
-        {
-            IsUpdateCompanyName = null
-        });
-    }
-
-    [HttpPost]
-    [Route(PagePath.UpdateCompanyName)]
-    public async Task<IActionResult> UpdateCompanyName(UpdateCompanyNameViewModel model)
-    {
-        if (!ModelState.IsValid)
-        {
-            return View(model);
-        }
-
-        var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
-
-        session.AccountManagementSession.IsUpdateCompanyName = model.IsUpdateCompanyName == YesNoAnswer.Yes;
-
-        if (session.AccountManagementSession.IsUpdateCompanyName)
-        {
-            return await SaveSessionAndRedirect(session, "CompanyName", PagePath.UpdateCompanyName, PagePath.CompanyName);
-        }
-        else
-        {
-            return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.CompanyName, PagePath.UpdateCompanyAddress);
-        }
-    }
-
-    [HttpGet]
-    [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
+        [HttpGet]
+        [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
         [Route(PagePath.UpdateCompanyAddress)]
         public async Task<IActionResult> UpdateCompanyAddress()
         {
@@ -1308,29 +1308,36 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
             session.AccountManagementSession.BusinessAddress = session.AccountManagementSession?.AddressesForPostcode[index];
 
             return await SaveSessionAndRedirect(session, nameof(UkNation), PagePath.SelectBusinessAddress, PagePath.BusinessAddress);
-    }
-
-    private bool IsCompaniesHouseUser()
-    {
-        var userData = User.GetUserData();
-
-        var organisationData = userData.Organisations.FirstOrDefault();
-
-        if (organisationData == null)
-        {
-            throw new InvalidOperationException(nameof(organisationData));
         }
 
-        return organisationData.CompaniesHouseNumber != null;
+
+        private bool IsCompaniesHouseUser()
+        {
+            var userData = User.GetUserData();
+
+            var organisationData = userData.Organisations.FirstOrDefault();
+
+            if (organisationData == null)
+            {
+                throw new InvalidOperationException(nameof(organisationData));
+            }
+
+            return organisationData.CompaniesHouseNumber != null;
         }
         [HttpGet]
         [Route(PagePath.CompanyName)]
         public async Task<IActionResult> CompanyName()
         {
             var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+            if (session != null)
+            {
+                session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ManageAccount);
 
-            SetBackLink(session, PagePath.ManageAccount);
+                await SaveSessionAndJourney(session, PagePath.UpdateCompanyName, PagePath.CompanyName);
+                SetBackLink(session, PagePath.CompanyName);
 
+                SetBackLink(session, PagePath.UpdateCompanyName);
+            }
             var viewModel = new OrganisationNameViewModel()
             {
                 OrganisationName = session?.AccountManagementSession?.OrganisationName,
@@ -1345,8 +1352,6 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
 
             if (!ModelState.IsValid)
             {
-                SetBackLink(session, PagePath.CompanyName);
-
                 return View(model);
             }
 
@@ -1355,11 +1360,11 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
 
             if (session.AccountManagementSession.IsUpdateCompanyName)
             {
-                return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.CompanyName, PagePath.UpdateBusinessAddress);
+                return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.CompanyName, PagePath.UpdateCompanyAddress);
             }
             else
             {
-                return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.CompanyName, string.Empty);
+                return await SaveSessionAndRedirect(session, nameof(CompanyName), PagePath.CompanyName, string.Empty);
             }
 
         }
@@ -1579,5 +1584,4 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
                 serviceRoleId == (int)ServiceRole.Basic;
         }
     }
-
 }
