@@ -1,7 +1,5 @@
 using FrontendAccountManagement.Core.Services.Dto.Address;
 
-namespace FrontendAccountManagement.Core.Addresses;
-
 namespace FrontendAccountManagement.Core.Addresses
 {
     public class AddressList

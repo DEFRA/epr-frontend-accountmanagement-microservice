@@ -38,7 +38,6 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 [Authorize(Policy = PolicyConstants.AccountManagementPolicy)]
 public class AccountManagementController : Controller
 {
-    private const string PostcodeLookupFailedKey = "PostcodeLookupFailed";
     private const string RolesNotFoundException = "Could not retrieve service roles or none found";
     private const string CheckYourOrganisationDetailsKey = "CheckYourOrganisationDetails";
     private const string OrganisationDetailsUpdatedTimeKey = "OrganisationDetailsUpdatedTime";
@@ -1253,7 +1252,6 @@ public class AccountManagementController : Controller
         session.AccountManagementSession.BusinessAddress = session.AccountManagementSession?.AddressesForPostcode[index];
 
         return await SaveSessionAndRedirect(session, nameof(UkNation), PagePath.SelectBusinessAddress, PagePath.BusinessAddress);
-        }
     }
 
     private bool IsCompaniesHouseUser()
