@@ -910,6 +910,7 @@ public class AccountManagementController : Controller
             County = model.County,
             Postcode = model.Postcode
         };
+        TempData.Remove(PostcodeLookupFailedKey);
 
         return await SaveSessionAndRedirect(session, "non-companies-house-uk-nation", PagePath.BusinessAddress, PagePath.NonCompaniesHouseUkNation);
     }
