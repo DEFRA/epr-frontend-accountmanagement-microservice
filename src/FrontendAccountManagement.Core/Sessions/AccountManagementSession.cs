@@ -16,11 +16,7 @@ namespace FrontendAccountManagement.Core.Sessions
 
         public EndpointResponseStatus? RemoveUserStatus { get; set; }
         public EndpointResponseStatus? AddUserStatus { get; set; }
-        public Nation? UkNation { get; set; }
         public string? OrganisationType { get; set; }
-        public Guid? OrganisationId { get; set; }
-        public Address? BusinessAddress { get; set; }
-        public List<Address?> AddressesForPostcode { get; set; } = new();
         public bool IsUpdateCompanyAddress { get; set; }
         public bool IsUpdateCompanyName { get; set; }
 
