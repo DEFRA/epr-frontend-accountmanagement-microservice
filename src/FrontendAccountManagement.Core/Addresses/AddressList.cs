@@ -1,9 +1,4 @@
-﻿using FrontendAccountManagement.Core.Services.Dto.Address;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using FrontendAccountManagement.Core.Services.Dto.Address;
 
 namespace FrontendAccountManagement.Core.Addresses
 {
@@ -30,6 +25,8 @@ namespace FrontendAccountManagement.Core.Addresses
                 Town = item.Address.Town,
                 County = item.Address.County,
                 Postcode = item.Address.Postcode,
+                Locality = item.Address.Locality,
+                DependentLocality = item.Address.DependentLocality,
                 IsManualAddress = false
             }).ToList();
         }
