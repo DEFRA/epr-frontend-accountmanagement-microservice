@@ -5,8 +5,8 @@
 
 @{
     ViewData["Title"] = Localizer["EditUserDetailsTitle"];
-
-    var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer);
+    var formFieldOrder = new[] { nameof(EditUserDetailsViewModel.FirstName), nameof(EditUserDetailsViewModel.LastName), nameof(EditUserDetailsViewModel.JobTitle), nameof(EditUserDetailsViewModel.Telephone) };
+    var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer, formFieldOrder);
 }
 
 <div class="govuk-width-container">
