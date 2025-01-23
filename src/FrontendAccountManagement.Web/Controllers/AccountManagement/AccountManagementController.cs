@@ -3,6 +3,7 @@ using EPR.Common.Authorization.Constants;
 using EPR.Common.Authorization.Extensions;
 using EPR.Common.Authorization.Models;
 using EPR.Common.Authorization.Sessions;
+using FrontendAccountManagement.Core.Addresses;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Enums;
@@ -12,6 +13,7 @@ using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
+using FrontendAccountManagement.Web.Controllers.Attributes;
 using FrontendAccountManagement.Web.Controllers.Errors;
 using FrontendAccountManagement.Web.Extensions;
 using FrontendAccountManagement.Web.Profiles;
@@ -26,6 +28,7 @@ using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
 using System;
 using System.Net;
+using System.Reflection;
 using System.Text.Json;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
@@ -41,6 +44,7 @@ public class AccountManagementController : Controller
     private const string AmendedUserDetailsKey = "AmendedUserDetails";
     private const string NewUserDetailsKey = "NewUserDetails";
     private const string ServiceKey = "Packaging";
+    private const string PostcodeLookupFailedKey = "PostcodeLookupFailed";
     private readonly ISessionManager<JourneySession> _sessionManager;
     private readonly IFacadeService _facadeService;
     private readonly ILogger<AccountManagementController> _logger;
@@ -1054,6 +1058,118 @@ public class AccountManagementController : Controller
                 return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.UpdateCompanyAddress, string.Empty);
             }
         }
+    }
+
+    [HttpGet]
+    [Route(PagePath.SelectBusinessAddress)]
+    public async Task<IActionResult> SelectBusinessAddress()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        var viewModel = new SelectBusinessAddressViewModel()
+        {
+            Postcode = session?.AccountManagementSession?.BusinessAddress?.Postcode,
+        };
+        SetBackLink(session, PagePath.SelectBusinessAddress);
+        await _sessionManager.SaveSessionAsync(HttpContext.Session, session);
+
+        AddressList? addressList = null;
+        var addressLookupFailed = false;
+
+        try
+        {
+            if (session == null)
+            {
+                addressLookupFailed = true;
+            }
+            else
+            {
+                addressList = await _facadeService.GetAddressListByPostcodeAsync(session.AccountManagementSession.BusinessAddress.Postcode);
+                if (addressList == null)
+                {
+                    addressLookupFailed = true;
+                }
+            }
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Failed to retrieve addresses for postcode: {BusinessAddressPostcode}", session.AccountManagementSession.BusinessAddress.Postcode);
+            addressLookupFailed = true;
+        }
+
+        if (addressLookupFailed)
+        {
+            await _sessionManager.SaveSessionAsync(HttpContext.Session, session);
+            TempData[PostcodeLookupFailedKey] = true;
+            //return RedirectToAction(nameof(BusinessAddress)); // PAUL add when previous action is created
+        }
+        viewModel.SetAddressItems(addressList.Addresses, viewModel.SelectedListIndex!);
+        session.AccountManagementSession?.AddressesForPostcode.Clear();
+        session.AccountManagementSession?.AddressesForPostcode.AddRange(addressList.Addresses);
+        await _sessionManager.SaveSessionAsync(HttpContext.Session, session);
+        TempData.Remove(PostcodeLookupFailedKey);
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
+    [Route(PagePath.SelectBusinessAddress)]
+    public async Task<IActionResult> SelectBusinessAddress(SelectBusinessAddressViewModel model)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        var indexParseResult = int.TryParse(model.SelectedListIndex, out var index);
+        if (ModelState.IsValid &&
+            (!indexParseResult || index < 0 || index >= session?.AccountManagementSession?.AddressesForPostcode.Count))
+        {
+            ModelState.AddModelError(nameof(model.SelectedListIndex), "SelectBusinessAddress.ErrorMessage");
+        }
+
+        if (!ModelState.IsValid || session == null)
+        {
+            SetBackLink(session, PagePath.SelectBusinessAddress);
+            model.Postcode = session?.AccountManagementSession?.BusinessAddress?.Postcode;
+
+            AddressList? addressList = null;
+            var addressLookupFailed = false;
+
+            try
+            {
+                if (session == null)
+                {
+                    addressLookupFailed = true;
+                }
+                else
+                {
+                    addressList = await _facadeService.GetAddressListByPostcodeAsync(session.AccountManagementSession.BusinessAddress.Postcode);
+                    if (addressList == null)
+                    {
+                        addressLookupFailed = true;
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Failed to retrieve addresses for postcode: {BusinessAddressPostcode}", session.AccountManagementSession.BusinessAddress.Postcode);
+                addressLookupFailed = true;
+            }
+
+            if (addressLookupFailed)
+            {
+                await SaveSession(session);
+                TempData[PostcodeLookupFailedKey] = true;
+                //return RedirectToAction(nameof(BusinessAddress)); // PAUL add when previous action is created
+            }
+            model.SetAddressItems(addressList.Addresses, model.SelectedListIndex);
+
+            return View(model);
+        }
+        model.SetAddressItems(session.AccountManagementSession?.AddressesForPostcode, model.SelectedListIndex!);
+        session.AccountManagementSession ??= new AccountManagementSession();
+        session.AccountManagementSession.BusinessAddress = session.AccountManagementSession?.AddressesForPostcode[index];
+
+        return await SaveSessionAndRedirect(session, nameof(UkNation), PagePath.SelectBusinessAddress, PagePath.BusinessAddress);
     }
 
     private async Task<bool> CompareDataAsync(JourneySession session)
