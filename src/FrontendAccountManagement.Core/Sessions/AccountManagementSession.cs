@@ -19,6 +19,8 @@ namespace FrontendAccountManagement.Core.Sessions
         public string? OrganisationType { get; set; }
         public bool IsUpdateCompanyAddress { get; set; }
         public bool IsUpdateCompanyName { get; set; }
+        public Address? BusinessAddress { get; set; }
+        public List<Address?> AddressesForPostcode { get; set; } = new();
 
     }
 }
