@@ -1,5 +1,5 @@
 namespace FrontendAccountManagement.Web.Constants;
-
+ 
 public static class PagePath
 {
     // Journey paths
@@ -41,7 +41,7 @@ public static class PagePath
     public const string NameOfOrganisation = "name-of-organisation";
     public const string CheckDetailsSendInvite = "check-details-send-invite";
     public const string InvitationToChangeSent = "invitation-to-change-sent";
-
+ 
     // Non journey paths
     public const string Accessibility = "accessibility";
     public const string SignedOut = "signed-out";

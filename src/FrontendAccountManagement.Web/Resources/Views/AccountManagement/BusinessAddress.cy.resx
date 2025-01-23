@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="BusinessAddress.SubBuildingNameLabel" xml:space="preserve">
+    <value>Rhif y fflat neu’r apartment (dewisol)</value>
+  </data>
+    <data name="BusinessAddress.BuildingNumberLabel" xml:space="preserve">
+    <value>Rhif yr adeilad</value>
+  </data>
+    <data name="BusinessAddress.BuildingNameLabel" xml:space="preserve">
+    <value>Enw’r adeilad (dewisol)</value>
+  </data>
+    <data name="BusinessAddress.StreetLabel" xml:space="preserve">
+    <value>Enw’r stryd</value>
+  </data>
+    <data name="BusinessAddress.TownLabel" xml:space="preserve">
+    <value>Tref neu ddinas</value>
+  </data>
+    <data name="BusinessAddress.CountyLabel" xml:space="preserve">
+    <value>Gwlad (dewisol)</value>
+  </data>
+    <data name="BusinessAddress.PostcodeLabel" xml:space="preserve">
+    <value>Cod post</value>
+  </data>
+    <data name="BusinessAddress.BuildingNumberError" xml:space="preserve">
+    <value>Rhowch rif adeilad</value>
+  </data>
+    <data name="BusinessAddress.StreetNameError" xml:space="preserve">
+    <value>Rhowch enw stryd</value>
+  </data>
+    <data name="BusinessAddress.TownError" xml:space="preserve">
+    <value>Rhowch enw tref neu ddinas</value>
+  </data>
+    <data name="BusinessAddress.PostcodeError" xml:space="preserve">
+    <value>Rhowch god post, fel AA1 1AA</value>
+  </data>
+  <data name="BusinessAddress.PostcodeFormatError" xml:space="preserve">
+    <value>Cod Post Annilys</value>
+  </data>
+    <data name="BusinessAddress.Question" xml:space="preserve">
+    <value>Beth yw’ch cyfeiriad busnes?</value>
+  </data>
+  <data name="BusinessAddress.Title" xml:space="preserve">
+    <value>Cyfeiriad Busnes</value>
+  </data>
+  <data name="BusinessAddress.Warning" xml:space="preserve">
+    <value>Rydyn ni wedi methu dod o hyd i’ch cyfeiriad drwy ddefnyddio’r cod post roesoch chi. Rhowch eich cyfeiriad â llaw.</value>
+  </data>
+  <data name="BusinessAddress.SubBuildingNameLengthError" xml:space="preserve">
+    <value>Rhaid i rif y fflat neu’r rhandy fod yn 100 neu lai o gymeriadau</value>
+  </data>
+  <data name="BusinessAddress.BuildingNumberLengthError" xml:space="preserve">
+    <value>Rhaid i rif yr adeilad fod yn 50 neu lai o gymeriadau</value>
+  </data>
+  <data name="BusinessAddress.BuildingNameLengthError" xml:space="preserve">
+    <value>Rhaid i enw’r adeilad fod yn 100 neu lai o gymeriadau</value>
+  </data>
+  <data name="BusinessAddress.StreetNameLengthError" xml:space="preserve">
+    <value>Rhaid i enw’r stryd fod yn 100 neu lai o gymeriadau</value>
+  </data>
+  <data name="BusinessAddress.TownLengthError" xml:space="preserve">
+    <value>Rhaid i’r dref neu’r ddinas fod yn 70 neu lai o gymeriadau</value>
+  </data>
+  <data name="BusinessAddress.CountyLengthError" xml:space="preserve">
+    <value>Rhaid i’r sir fod yn 50 neu lai o gymeriadau</value>
+  </data>
+</root>

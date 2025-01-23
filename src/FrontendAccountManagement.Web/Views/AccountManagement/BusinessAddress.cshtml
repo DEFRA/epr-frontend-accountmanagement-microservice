@@ -1,0 +1,111 @@
+﻿@using FrontendAccountManagement.Web.ViewModels.AccountManagement
+@using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
+@using FrontendAccountManagement.Web.Extensions
+
+@model BusinessAddressViewModel
+
+@{
+    ViewData["Title"] = Localizer["BusinessAddress.Title"];
+
+    var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer,
+    nameof(Model.SubBuildingName), nameof(Model.BuildingNumber), nameof(Model.BuildingName),
+        nameof(Model.Street), nameof(Model.Town), nameof(Model.County), nameof(Model.Postcode));
+
+    const string errorClass = "govuk-input--error";
+}
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                @await Html.PartialAsync("Partials/Govuk/_ErrorSummary", errorsViewModel)
+
+                <form asp-controller="AccountCreation" asp-action="BusinessAddress" method="post">
+                    <div class="govuk-form-group">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                                <h1 class="govuk-heading-l govuk-!-margin-bottom-4">
+                                    @Localizer["BusinessAddress.Question"]
+                                </h1>
+                            </legend>
+
+                            @if (Model.ShowWarning)
+                            {
+                                <p class="govuk-body">
+                                    @Localizer["BusinessAddress.Warning"]
+                                </p>
+                            }
+
+                            <div class="govuk-form-group@(errorsViewModel.HasErrorKey(nameof(Model.SubBuildingName)) ? " govuk-form-group--error" : "")">
+                                <label gov-for="SubBuildingName" class="govuk-label">@Localizer["BusinessAddress.SubBuildingNameLabel"]</label>
+                                @await Html.PartialAsync("Partials/Govuk/_FormItemError", errorsViewModel[nameof(Model.SubBuildingName)])
+                                <input class="govuk-input govuk-!-width-one-half @Html.Raw(errorsViewModel.HasErrorKey(nameof(Model.SubBuildingName)) ? errorClass : "")"
+                                       type="text"
+                                       gov-for="SubBuildingName"
+                                       gov-value="@Model.SubBuildingName">
+                            </div>
+
+                            <div class="govuk-form-group@(errorsViewModel.HasErrorKey(nameof(Model.BuildingNumber)) ? " govuk-form-group--error" : "")">
+                                <label gov-for="BuildingNumber" class="govuk-label">@Localizer["BusinessAddress.BuildingNumberLabel"]</label>
+                                @await Html.PartialAsync("Partials/Govuk/_FormItemError", errorsViewModel[nameof(Model.BuildingNumber)])
+                                <input class="govuk-input govuk-!-width-one-half @Html.Raw(errorsViewModel.HasErrorKey(nameof(Model.BuildingNumber)) ? errorClass : "")"
+                                       type="text"
+                                       gov-for="BuildingNumber"
+                                       gov-value="@Model.BuildingNumber">
+                            </div>
+
+                            <div class="govuk-form-group@(errorsViewModel.HasErrorKey(nameof(Model.BuildingName)) ? " govuk-form-group--error" : "")">
+                                <label gov-for="BuildingName" class="govuk-label">@Localizer["BusinessAddress.BuildingNameLabel"]</label>
+                                @await Html.PartialAsync("Partials/Govuk/_FormItemError", errorsViewModel[nameof(Model.BuildingName)])
+                                <input class="govuk-input govuk-!-width-full @Html.Raw(errorsViewModel.HasErrorKey(nameof(Model.BuildingName)) ? errorClass : "")"
+                                       type="text"
+                                       gov-for="BuildingName"
+                                       gov-value="@Model.BuildingName">
+                            </div>
+
+                            <div class="govuk-form-group@(errorsViewModel.HasErrorKey(nameof(Model.Street)) ? " govuk-form-group--error" : "")">
+                                <label gov-for="Street" class="govuk-label">@Localizer["BusinessAddress.StreetLabel"]</label>
+                                @await Html.PartialAsync("Partials/Govuk/_FormItemError", errorsViewModel[nameof(Model.Street)])
+                                <input class="govuk-input govuk-!-width-full @Html.Raw(errorsViewModel.HasErrorKey(nameof(Model.Street)) ? errorClass : "")"
+                                       type="text"
+                                       gov-for="Street"
+                                       gov-value="@Model.Street">
+                            </div>
+
+                            <div class="govuk-form-group@(errorsViewModel.HasErrorKey(nameof(Model.Town)) ? " govuk-form-group--error" : "")">
+                                <label gov-for="Town" class="govuk-label">@Localizer["BusinessAddress.TownLabel"]</label>
+                                @await Html.PartialAsync("Partials/Govuk/_FormItemError", errorsViewModel[nameof(Model.Town)])
+                                <input class="govuk-input govuk-!-width-two-thirds @Html.Raw(errorsViewModel.HasErrorKey(nameof(Model.Town)) ? errorClass : "")"
+                                       type="text"
+                                       gov-for="Town"
+                                       gov-value="@Model.Town">
+                            </div>
+
+                            <div class="govuk-form-group@(errorsViewModel.HasErrorKey(nameof(Model.County)) ? " govuk-form-group--error" : "")">
+                                <label gov-for="County" class="govuk-label">@Localizer["BusinessAddress.CountyLabel"]</label>
+                                @await Html.PartialAsync("Partials/Govuk/_FormItemError", errorsViewModel[nameof(Model.County)])
+                                <input class="govuk-input govuk-!-width-two-thirds @Html.Raw(errorsViewModel.HasErrorKey(nameof(Model.County)) ? errorClass : "")"
+                                       type="text"
+                                       gov-for="County"
+                                       gov-value="@Model.County">
+                            </div>
+
+                            <div class="govuk-form-group@(errorsViewModel.HasErrorKey(nameof(Model.Postcode)) ? " govuk-form-group--error" : "")">
+                                <label gov-for="Postcode" class="govuk-label">@Localizer["BusinessAddress.PostcodeLabel"]</label>
+                                @await Html.PartialAsync("Partials/Govuk/_FormItemError", errorsViewModel[nameof(Model.Postcode)])
+                                <input class="govuk-input govuk-input--width-10 @Html.Raw(errorsViewModel.HasErrorKey(nameof(Model.Postcode)) ? errorClass : "")"
+                                       type="text"
+                                       gov-for="Postcode"
+                                       gov-value="@Model.Postcode">
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <button class="govuk-button" data-module="govuk-button" aria-label="@SharedLocalizer["Continue"]">
+                        @SharedLocalizer["Continue"]
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
