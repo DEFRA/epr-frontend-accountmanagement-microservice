@@ -120,7 +120,7 @@ public class AccountManagementController : Controller
             model.UserName = string.Format("{0} {1}", userAccount.FirstName, userAccount.LastName);
             model.Telephone = userAccount.Telephone;
             var userOrg = userAccount.Organisations?.FirstOrDefault();
-            session.AccountManagementSession.OrganisationName = userOrg?.TradingName;
+            session.AccountManagementSession.OrganisationName = userOrg?.Name; //userOrg?.TradingName;
             session.AccountManagementSession.OrganisationId = userOrg?.Id;
             session.AccountManagementSession.OrganisationType = userOrg?.OrganisationType;
             model.JobTitle = userAccount.JobTitle;
@@ -1034,7 +1034,7 @@ public class AccountManagementController : Controller
 
         if (session.AccountManagementSession.IsUpdateCompanyName)
         {
-            return await SaveSessionAndRedirect(session, nameof(CompanyName), PagePath.CompanyName, PagePath.UpdateBusinessAddress);
+            return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.CompanyName, PagePath.UpdateBusinessAddress);
         }
         else
         {
