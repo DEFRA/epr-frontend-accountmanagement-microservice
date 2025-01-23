@@ -1,3 +1,4 @@
+using FrontendAccountManagement.Core.Addresses;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.MockedData;
 using FrontendAccountManagement.Core.Models;
@@ -152,5 +153,10 @@ public class MockedFacadeService : IFacadeService
             HasTelephoneOnlyUpdated = false
         };
         return await Task.FromResult(stubResponse);
+    }
+
+    public Task<AddressList?> GetAddressListByPostcodeAsync(string postcode)
+    {
+        throw new NotImplementedException();  // PAUL TO DO
     }
 }

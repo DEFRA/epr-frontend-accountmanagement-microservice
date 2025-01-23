@@ -1,6 +1,7 @@
-﻿namespace FrontendAccountManagement.Core.Services.Dto.Address;
-
-public class AddressLookupResponseResult
+﻿namespace FrontendAccountManagement.Core.Services.Dto.Address
 {
-    public AddressLookupResponseAddress Address { get; set; } = default!;
+    public class AddressLookupResponseResult
+    {
+        public AddressLookupResponseAddress Address { get; set; } = default!;
+    }
 }

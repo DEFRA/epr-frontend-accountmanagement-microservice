@@ -2,20 +2,22 @@ using FrontendAccountManagement.Core.Services.Dto.Address;
 
 namespace FrontendAccountManagement.Core.Addresses;
 
-public class AddressList
+namespace FrontendAccountManagement.Core.Addresses
 {
-    public AddressList()
+    public class AddressList
     {
-    }
-
-    public AddressList(AddressLookupResponse? addressLookupResponse) : this()
-    {
-        if (addressLookupResponse == null)
+        public AddressList()
         {
-            throw new ArgumentException("addressLookupResponse cannot be null.");
         }
 
-        Addresses = addressLookupResponse.Results.Select(item => new Address()
+        public AddressList(AddressLookupResponse? addressLookupResponse) : this()
+        {
+            if (addressLookupResponse == null)
+            {
+                throw new ArgumentException("addressLookupResponse cannot be null.");
+            }
+
+            Addresses = addressLookupResponse.Results.Select(item => new Address()
             {
                 AddressSingleLine = item.Address.AddressLine,
                 SubBuildingName = item.Address.SubBuildingName,
@@ -29,7 +31,8 @@ public class AddressList
                 DependentLocality = item.Address.DependentLocality,
                 IsManualAddress = false
             }).ToList();
-    }
+        }
 
-    public IList<Address>? Addresses { get; set; }
+        public IList<Address>? Addresses { get; set; }
+    }
 }
