@@ -835,7 +835,6 @@ public class AccountManagementTests : AccountManagementTestBase
         SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Never);
     }
 
-    
     private UserData SetupUserData(
         string serviceRole)
     {
