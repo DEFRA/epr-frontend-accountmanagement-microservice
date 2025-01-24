@@ -1258,10 +1258,18 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
+        if (session == null)
+        {
+            TempData[PostcodeLookupFailedKey] = true;
+            _logger.LogWarning("Session is null, redirecting to BusinessAddress page.");
+            return RedirectToAction(nameof(BusinessAddress));
+        }
+
         var viewModel = new SelectBusinessAddressViewModel()
         {
             Postcode = session?.AccountManagementSession?.BusinessAddress?.Postcode,
         };
+
         SetBackLink(session, PagePath.SelectBusinessAddress);
         await _sessionManager.SaveSessionAsync(HttpContext.Session, session);
 
@@ -1270,31 +1278,35 @@ public class AccountManagementController : Controller
 
         try
         {
-            if (session == null)
+            if (string.IsNullOrWhiteSpace(session.AccountManagementSession?.BusinessAddress?.Postcode))
             {
+                _logger.LogWarning("Postcode is missing in session, redirecting to BusinessAddress page.");
                 addressLookupFailed = true;
             }
             else
             {
                 addressList = await _facadeService.GetAddressListByPostcodeAsync(session.AccountManagementSession.BusinessAddress.Postcode);
-                if (addressList == null)
+
+                if (addressList == null || !addressList.Addresses.Any())
                 {
+                    _logger.LogWarning("No addresses found for postcode: {Postcode}", session.AccountManagementSession.BusinessAddress.Postcode);
                     addressLookupFailed = true;
                 }
             }
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "Failed to retrieve addresses for postcode: {BusinessAddressPostcode}", session.AccountManagementSession.BusinessAddress.Postcode);
+            _logger.LogError(exception, "Failed to retrieve addresses for postcode: {Postcode}",
+                             session?.AccountManagementSession?.BusinessAddress?.Postcode);
             addressLookupFailed = true;
         }
 
         if (addressLookupFailed)
         {
-            await _sessionManager.SaveSessionAsync(HttpContext.Session, session);
             TempData[PostcodeLookupFailedKey] = true;
-            //return RedirectToAction(nameof(BusinessAddress)); // PAUL add when previous action is created
+            return RedirectToAction(nameof(BusinessAddress));
         }
+
         viewModel.SetAddressItems(addressList.Addresses, viewModel.SelectedListIndex!);
         session.AccountManagementSession?.AddressesForPostcode.Clear();
         session.AccountManagementSession?.AddressesForPostcode.AddRange(addressList.Addresses);
@@ -1320,30 +1332,31 @@ public class AccountManagementController : Controller
 
         if (!ModelState.IsValid || session == null)
         {
+            if (session == null)
+            {
+                TempData[PostcodeLookupFailedKey] = true;
+                return RedirectToAction(nameof(BusinessAddress));
+            }
+
             SetBackLink(session, PagePath.SelectBusinessAddress);
-            model.Postcode = session?.AccountManagementSession?.BusinessAddress?.Postcode;
+            model.Postcode = session.AccountManagementSession?.BusinessAddress?.Postcode;
 
             AddressList? addressList = null;
             var addressLookupFailed = false;
 
             try
             {
-                if (session == null)
+                addressList = await _facadeService.GetAddressListByPostcodeAsync(session.AccountManagementSession.BusinessAddress.Postcode);
+
+                if (addressList == null || !addressList.Addresses.Any())
                 {
                     addressLookupFailed = true;
-                }
-                else
-                {
-                    addressList = await _facadeService.GetAddressListByPostcodeAsync(session.AccountManagementSession.BusinessAddress.Postcode);
-                    if (addressList == null)
-                    {
-                        addressLookupFailed = true;
-                    }
                 }
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Failed to retrieve addresses for postcode: {BusinessAddressPostcode}", session.AccountManagementSession.BusinessAddress.Postcode);
+                _logger.LogError(exception, "Failed to retrieve addresses for postcode: {BusinessAddressPostcode}",
+                                 session?.AccountManagementSession?.BusinessAddress?.Postcode);
                 addressLookupFailed = true;
             }
 
@@ -1351,17 +1364,18 @@ public class AccountManagementController : Controller
             {
                 await SaveSession(session);
                 TempData[PostcodeLookupFailedKey] = true;
-                //return RedirectToAction(nameof(BusinessAddress)); // PAUL add when previous action is created
+                return RedirectToAction(nameof(BusinessAddress));
             }
-            model.SetAddressItems(addressList.Addresses, model.SelectedListIndex);
 
+            model.SetAddressItems(addressList.Addresses, model.SelectedListIndex);
             return View(model);
         }
+
         model.SetAddressItems(session.AccountManagementSession?.AddressesForPostcode, model.SelectedListIndex!);
         session.AccountManagementSession ??= new AccountManagementSession();
         session.AccountManagementSession.BusinessAddress = session.AccountManagementSession?.AddressesForPostcode[index];
 
-        return await SaveSessionAndRedirect(session, nameof(UkNation), PagePath.SelectBusinessAddress, PagePath.BusinessAddress);
+        return await SaveSessionAndRedirect(session, nameof(UkNation), PagePath.SelectBusinessAddress, PagePath.BusinessAddress); //PAUL - this will need changing when page 7 is complete in the journey
     }
 
     private bool IsCompaniesHouseUser()
