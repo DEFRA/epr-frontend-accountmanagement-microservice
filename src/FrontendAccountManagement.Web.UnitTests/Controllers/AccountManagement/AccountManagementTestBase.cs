@@ -83,9 +83,6 @@ public abstract class AccountManagementTestBase
 
         SystemUnderTest.ControllerContext.HttpContext = HttpContextMock.Object;
         SystemUnderTest.TempData = this.TempDataDictionary;
-
-        TempDataDictionaryMock = new Mock<ITempDataDictionary>();
-        SystemUnderTest.TempData = TempDataDictionaryMock.Object;
     }
 
     private void SetUpUserData(UserData userData)

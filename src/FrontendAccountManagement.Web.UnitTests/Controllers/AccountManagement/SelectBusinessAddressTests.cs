@@ -6,6 +6,7 @@ using FrontendAccountManagement.Web.Controllers.AccountManagement;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
@@ -31,6 +32,10 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         public void Setup()
         {
             SetupBase();
+
+            TempDataDictionaryMock = new Mock<ITempDataDictionary>();
+            SystemUnderTest.TempData = TempDataDictionaryMock.Object;
+
             JourneySessionMock = new JourneySession
             {
                 AccountManagementSession = new AccountManagementSession
