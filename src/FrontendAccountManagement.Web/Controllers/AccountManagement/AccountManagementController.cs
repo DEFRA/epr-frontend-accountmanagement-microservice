@@ -13,7 +13,6 @@ using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
-using FrontendAccountManagement.Web.Controllers.Attributes;
 using FrontendAccountManagement.Web.Controllers.Errors;
 using FrontendAccountManagement.Web.Extensions;
 using FrontendAccountManagement.Web.Profiles;
@@ -28,7 +27,6 @@ using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
 using System;
 using System.Net;
-using System.Reflection;
 using System.Text.Json;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
@@ -124,6 +122,7 @@ public class AccountManagementController : Controller
             model.Telephone = userAccount.Telephone;
             var userOrg = userAccount.Organisations?.FirstOrDefault();
             session.AccountManagementSession.OrganisationType = userOrg?.OrganisationType;
+            session.AccountManagementSession.BusinessAddress = new Address { Postcode = userOrg?.Postcode };
             model.JobTitle = userAccount.JobTitle;
             model.CompanyName = userOrg?.Name;
             model.OrganisationAddress = string.Join(", ", new[] {
@@ -1134,7 +1133,7 @@ public class AccountManagementController : Controller
         }
         else
         {
-            return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.CompanyName, PagePath.UpdateCompanyAddress);
+            return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.UpdateCompanyName, PagePath.UpdateCompanyAddress);
         }
     }
 
@@ -1191,6 +1190,66 @@ public class AccountManagementController : Controller
                 return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.UpdateCompanyAddress, string.Empty);
             }
         }
+    }
+
+    [HttpGet]
+    [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
+    [Route(PagePath.BusinessAddressPostcode)]
+    public async Task<IActionResult> BusinessAddressPostcode()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        if (session != null)
+        {
+            if (session.AccountManagementSession?.OrganisationType == OrganisationType.CompaniesHouseCompany)
+            {
+                return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+                {
+                    statusCode = (int)HttpStatusCode.Forbidden
+                });
+            }
+            SetBackLink(session, PagePath.BusinessAddressPostcode);
+        }
+
+        var viewModel = new BusinessAddressPostcodeViewModel()
+        {
+            Postcode = session?.AccountManagementSession?.BusinessAddress?.Postcode,
+        };
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [Route(PagePath.BusinessAddressPostcode)]
+    public async Task<IActionResult> BusinessAddressPostcode(BusinessAddressPostcodeViewModel model)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        if (!ModelState.IsValid)
+        {
+            SetBackLink(session, PagePath.BusinessAddressPostcode);
+
+            return View(model);
+        }
+
+        session.AccountManagementSession.BusinessAddress = new Address { Postcode = model.Postcode };
+
+        AddressList? addressList = null;
+
+        try
+        {
+            addressList = await _facadeService.GetAddressListByPostcodeAsync(session.AccountManagementSession.BusinessAddress.Postcode);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Failed to retrieve addresses for postcode: {BusinessAddressPostcode}", session.AccountManagementSession.BusinessAddress.Postcode);
+        }
+
+        if (addressList == null)
+        {
+            return await SaveSessionAndRedirect(session, nameof(BusinessAddress), PagePath.BusinessAddressPostcode, PagePath.BusinessAddress);
+        }
+
+        return await SaveSessionAndRedirect(session, nameof(SelectBusinessAddress), PagePath.BusinessAddressPostcode, PagePath.SelectBusinessAddress);
     }
 
     [HttpGet]

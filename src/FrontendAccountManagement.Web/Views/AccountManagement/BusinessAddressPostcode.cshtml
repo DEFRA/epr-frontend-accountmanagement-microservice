@@ -1,0 +1,50 @@
+﻿@using FrontendAccountManagement.Web.Extensions
+@using FrontendAccountManagement.Web.ViewModels.AccountManagement
+@using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
+
+@model BusinessAddressPostcodeViewModel
+
+@{
+    ViewData["Title"] = Localizer["BusinessAddressPostcode.Title"];
+    var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer);
+}
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                @await Html.PartialAsync("Partials/Govuk/_ErrorSummary", errorsViewModel)
+
+                <form asp-controller="AccountCreation" asp-action="BusinessAddressPostcode" method="post">
+                    <div class="govuk-form-group">
+                        <h1 class="govuk-heading-l govuk-!-margin-bottom-4">
+                            @Localizer["BusinessAddressPostcode.Question"]
+                        </h1>
+
+                        <p class="govuk-body">This is the address of your head office or principal place of business in the UK</p>
+
+                        <div class="govuk-body@(!ViewData.ModelState.IsValid ? " govuk-form-group--error" : "")">
+                            <label class="govuk-label govuk-!-font-weight-bold" for="@nameof(Model.Postcode)">
+                                @Localizer["BusinessAddressPostcode.Postcode"]
+                            </label>
+
+                            @await Html.PartialAsync("Partials/Govuk/_ErrorList", errorsViewModel)
+
+                            <div class="govuk-form-group">
+                                <input class="govuk-input govuk-input--width-10 @Html.Raw(ViewData.ModelState.Count > 0 ? "govuk-input--error" : "")"
+                                       type="text"
+                                       gov-for="Postcode"
+                                       maxlength="15"
+                                       gov-value="@Model.Postcode">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="govuk-button" data-module="govuk-button">
+                        Find address
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
