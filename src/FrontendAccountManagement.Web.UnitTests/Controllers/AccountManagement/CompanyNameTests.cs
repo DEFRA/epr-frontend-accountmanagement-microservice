@@ -190,19 +190,23 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 }
                 }
             };
+            var viewModel = new OrganisationNameViewModel
+            {
+                OrganisationName = "Company Name"
+            };
 
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
             // Act
-            var result = await SystemUnderTest.CompanyName();
+            var result = await SystemUnderTest.CompanyName(viewModel);
 
 
             // Assert
             using (new AssertionScope())
             {
-                result.Should().BeOfType<RedirectToActionResult>();
-                var redirectResult = result as RedirectToActionResult;
-                redirectResult.ActionName.Should().Be(nameof(AccountManagementController.CompanyName));
+                result.Should().BeOfType<RedirectToActionResult>()
+                .Which.ActionName.Should().Be(nameof(AccountManagementController.CompanyName));
             }
+           
         }
 
     }
