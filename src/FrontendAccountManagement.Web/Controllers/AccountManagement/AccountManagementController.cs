@@ -1398,23 +1398,34 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
             return organisationData.CompaniesHouseNumber != null;
         }
         [HttpGet]
+        [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
         [Route(PagePath.CompanyName)]
         public async Task<IActionResult> CompanyName()
         {
             var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
             if (session != null)
             {
-                session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ManageAccount);
+                if (session.UserData?.Organisations[0].OrganisationType == OrganisationType.CompaniesHouseCompany)
+                {
+                    return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+                    {
+                        statusCode = (int)HttpStatusCode.Forbidden
+                    });
+                }
+                else
+                {
+                    session.AccountManagementSession.Journey.AddIfNotExists(PagePath.UpdateCompanyName);
 
-                await SaveSessionAndJourney(session, PagePath.UpdateCompanyName, PagePath.CompanyName);
-                SetBackLink(session, PagePath.CompanyName);
+                    await SaveSessionAndJourney(session, PagePath.UpdateCompanyName, PagePath.CompanyName);
 
-                SetBackLink(session, PagePath.UpdateCompanyName);
+                    SetBackLink(session, PagePath.CompanyName, LocalizerName.CompanyNameBackAriaLabel);
+                }
             }
             var viewModel = new OrganisationNameViewModel()
             {
-                OrganisationName = session?.AccountManagementSession?.OrganisationName,
+                OrganisationName = session?.AccountManagementSession?.OrganisationName?? session?.UserData?.Organisations[0].Name,
             };
+
             return View(viewModel);
         }
         [HttpPost]
@@ -1427,17 +1438,10 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
             {
                 return View(model);
             }
-
-            session.AccountManagementSession.IsUpdateCompanyName = session.AccountManagementSession.OrganisationName != model.OrganisationName;
-
-
-            if (session.AccountManagementSession.IsUpdateCompanyName)
-            {
-                return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.CompanyName, PagePath.UpdateCompanyAddress);
-            }
             else
             {
-                return await SaveSessionAndRedirect(session, nameof(CompanyName), PagePath.CompanyName, string.Empty);
+
+                return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.CompanyName, PagePath.UpdateCompanyAddress);
             }
 
         }

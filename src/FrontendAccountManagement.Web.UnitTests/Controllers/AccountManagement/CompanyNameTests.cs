@@ -13,6 +13,7 @@ using Moq;
 using AutoFixture;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
+
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 {
     [TestClass]
@@ -42,76 +43,167 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 .Returns(Task.FromResult(_journeySession));
         }
 
+
+
         [TestMethod]
-        public async Task GivenCompanyName_WhenCompanyNameHttpPostCalled_ThenRedirectToUpdateBusinessAddress_AndUpdateSession()
+        public async Task NextPage_ShouldNotRedirectTo_UpdateCompanyAddress_WhenOrganisationNameBlank()
         {
             // Arrange
-            var request = new OrganisationNameViewModel { OrganisationName = "Test For company name change" };
-
-            var Sessions = new JourneySession
+            var viewModel = new OrganisationNameViewModel
             {
-                AccountManagementSession = new AccountManagementSession
-                {
-                    OrganisationName = request.OrganisationName
-                }
+                OrganisationName = ""
             };
-            SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(Sessions);
+            var session = new JourneySession
+            {
+             AccountManagementSession = new AccountManagementSession
+             {
+                 Journey = new List<string> { PagePath.UpdateCompanyName, PagePath.UpdateCompanyAddress },
+
+             }
+           };
+            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+
+            SystemUnderTest.ModelState.AddModelError(nameof(OrganisationNameViewModel.OrganisationName), "Enter an organisation name");
+
 
             // Act
-            var result = await SystemUnderTest.CompanyName(request);
-
-            // Assert
-            result.Should().BeOfType<RedirectToActionResult>();
-
-            ((RedirectToActionResult)result).ActionName.Should().Be(nameof(AccountManagementController.UpdateCompanyAddress));
-           
-        }
-
-        [TestMethod]
-        public async Task GivenNoCompanyName_WhenCompanyNameHttpPostCalled_ThenReturnViewWithErrorAndCorrectBackLink()
-        {
-            // Arrange
-            SystemUnderTest.ModelState.AddModelError(nameof(OrganisationNameViewModel.OrganisationName), "company name field is required");
-
-            // Act
-            var result = await SystemUnderTest.CompanyName(new OrganisationNameViewModel());
+            var result = await SystemUnderTest.CompanyName(viewModel);
 
             // Assert
             result.Should().BeOfType<ViewResult>();
-
             var viewResult = (ViewResult)result;
-
             viewResult.Model.Should().BeOfType<OrganisationNameViewModel>();
 
-            
-            AssertBackLink(viewResult, PagePath.CompanyName);
+            SessionManagerMock.Verify(x => x.UpdateSessionAsync(It.IsAny<ISession>(), It.IsAny<Action<JourneySession>>()), Times.Never);
+
+
         }
-
-        // This test case not executed currently due to back page not available "updatecompanyName" 
-
         [TestMethod]
-        public async Task UserNavigatesToCompanyNamePage_FromUpdateCompanyNamePage_BackLinkShouldBeUpdateCompanyName()
+        public async Task NextPage_ShouldNotRedirectTo_UpdateCompanyAddress_WhenOrganisationNameMoreThen170character()
         {
-            //Arrange
+            // Arrange
+            var viewModel = new OrganisationNameViewModel
+            {
+                OrganisationName = new string('A', 171)
+            };
             var session = new JourneySession
             {
                 AccountManagementSession = new AccountManagementSession
                 {
-                    OrganisationName = "Company Name"
+                    Journey = new List<string> { PagePath.UpdateCompanyName, PagePath.UpdateCompanyAddress },
+
+                }
+            };
+            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+
+            SystemUnderTest.ModelState.AddModelError(nameof(OrganisationNameViewModel.OrganisationName), "Organisation name must be 170 characters or less");
+
+            // Act
+            var result = await SystemUnderTest.CompanyName(viewModel);
+
+            // Assert
+           
+            result.Should().BeOfType<ViewResult>();
+            var viewResult = (ViewResult)result;
+            viewResult.Model.Should().BeOfType<OrganisationNameViewModel>();
+
+
+
+            SessionManagerMock.Verify(x => x.UpdateSessionAsync(It.IsAny<ISession>(), It.IsAny<Action<JourneySession>>()), Times.Never);
+
+
+        }
+
+
+        [TestMethod]
+        public async Task UserNavigatesToCompanyNamePage_FromUpdateCompanyNamePage_BackLinkShouldBeUpdateCompanyName()
+        {
+            // Arrange
+            var session = new JourneySession
+            {
+                AccountManagementSession = new AccountManagementSession
+                {
+                    Journey = new List<string> { PagePath.UpdateCompanyName, PagePath.UpdateCompanyAddress }
+
                 }
             };
 
             SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
-            //Act
+
+            // Act
             var result = await SystemUnderTest.CompanyName();
 
-            //Assert
+            // Assert
             result.Should().NotBeNull();
             result.Should().BeOfType<ViewResult>();
             var viewResult = (ViewResult)result;
             viewResult.Model.Should().BeOfType<OrganisationNameViewModel>();
+
+            // Check that the back link redirects to UpdateCompanyName page
             AssertBackLink(viewResult, PagePath.UpdateCompanyName);
+        }
+        [TestMethod]
+        public async Task ShouldRedirectToError_AccessingOutside_WhenUserCompanieshouse()
+        {
+            // Arrange
+
+            var session = new JourneySession
+            {
+                UserData = new UserData
+                {
+                    Organisations = new List<Organisation>
+                {
+                    new Organisation { OrganisationType = OrganisationType.CompaniesHouseCompany }
+                }
+                }
+            };
+           
+            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+            // Act
+            var result = await SystemUnderTest.CompanyName();
+
+
+            // Assert
+
+            result.Should().BeOfType<RedirectToActionResult>();
+            var redirectResult = (RedirectToActionResult)result;
+
+            redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+            redirectResult.ActionName.Should().Be(PagePath.Error);
+            redirectResult.RouteValues.Should().ContainKey("statusCode");
+            redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
 
         }
+
+        [TestMethod]
+        public async Task ShouldRedirectToCompanyPage_AccessingOutside_WhenUserNonCompanieshouse()
+        {
+            // Arrange
+
+            var session = new JourneySession
+            {
+                UserData = new UserData
+                {
+                    Organisations = new List<Organisation>
+                {
+                    new Organisation { OrganisationType = OrganisationType.NonCompaniesHouseCompany,Name="Company Name" }
+                }
+                }
+            };
+
+            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+            // Act
+            var result = await SystemUnderTest.CompanyName();
+
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+                var redirectResult = result as RedirectToActionResult;
+                redirectResult.ActionName.Should().Be(nameof(AccountManagementController.CompanyName));
+            }
+        }
+
     }
 }
