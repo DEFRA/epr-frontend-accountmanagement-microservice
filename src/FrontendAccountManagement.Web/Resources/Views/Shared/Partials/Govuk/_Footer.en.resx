@@ -162,4 +162,13 @@
   <data name="Footer.LicenceDescription3" xml:space="preserve">
     <value>, except where otherwise stated</value>
   </data>
+  <data name="Footer.AccessibilityAriaLabel" xml:space="preserve">
+    <value>Click on this link if you wish to go to the Accessibility statement</value>
+  </data>
+  <data name="Footer.PrivacyAriaLabel" xml:space="preserve">
+    <value>Click on this link if you wish to go to the Privacy notice</value>
+  </data>
+  <data name="Footer.CookiesAriaLabel" xml:space="preserve">
+    <value>Click on this link if you wish to go to the cookies page</value>
+  </data>
 </root>

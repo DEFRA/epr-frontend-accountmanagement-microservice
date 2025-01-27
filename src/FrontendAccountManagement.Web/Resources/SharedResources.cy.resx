@@ -189,4 +189,13 @@
   <data name="SaveAndContinue" xml:space="preserve">
     <value>Cadw a pharhau</value>
   </data>
+	<data name="UpdateOrgNameBackAriaLabel" xml:space="preserve">
+    <value>Click on this link if you wish to go back to the manage account page</value>
+  </data>
+	<data name="UpdateOrgAddressBackAriaLabel" xml:space="preserve">
+    <value>Click on this link if you wish to go back to the previous page</value>
+  </data>
+	<data name="BusinessPostcodeBackAriaLabel" xml:space="preserve">
+    <value>Click on this link if you wish to go back to the Do you want to update your business address page</value>
+  </data>
 </root>

@@ -33,4 +33,13 @@
     <data name="PrimaryNavigation.Menu" xml:space="preserve">
         <value>Menu</value>
     </data>
+	<data name="PrimaryNavigation.SignOutAriaLabel" xml:space="preserve">
+        <value>Click on this link if you wish to go to Sign Out page</value>
+    </data>
+	<data name="PrimaryNavigation.ManageAccountAriaLabel" xml:space="preserve">
+        <value>Click on this link if you wish to go to Manage Account page</value>
+    </data>
+	<data name="PrimaryNavigation.HomeAriaLabel" xml:space="preserve">
+        <value>Click on this link if you wish to go to the Home page</value>
+    </data>
 </root>

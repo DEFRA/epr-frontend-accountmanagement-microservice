@@ -1097,7 +1097,7 @@ public class AccountManagementController : Controller
             session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ManageAccount);
 
             await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.UpdateCompanyName);
-            SetBackLink(session, PagePath.UpdateCompanyName);
+            SetBackLink(session, PagePath.UpdateCompanyName, LocalizerName.UpdateOrgNameBackAriaLabel);
 
             if (session.AccountManagementSession?.OrganisationType == OrganisationType.CompaniesHouseCompany)
             {
@@ -1153,7 +1153,7 @@ public class AccountManagementController : Controller
                 });
             }
 
-            SetBackLink(session, PagePath.UpdateCompanyAddress);
+            SetBackLink(session, PagePath.UpdateCompanyAddress, LocalizerName.UpdateOrgAddressBackAriaLabel);
         }
 
         return View(new UpdateCompanyAddressViewModel
@@ -1208,7 +1208,7 @@ public class AccountManagementController : Controller
                     statusCode = (int)HttpStatusCode.Forbidden
                 });
             }
-            SetBackLink(session, PagePath.BusinessAddressPostcode);
+            SetBackLink(session, PagePath.BusinessAddressPostcode, LocalizerName.BusinessPostcodeBackAriaLabel);
         }
 
         var viewModel = new BusinessAddressPostcodeViewModel()
@@ -1493,6 +1493,13 @@ public class AccountManagementController : Controller
     private void SetBackLink(JourneySession session, string currentPagePath)
     {
         ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
+
+    }
+
+    private void SetBackLink(JourneySession session, string currentPagePath, string backAriaLocalizerName)
+    {
+        ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
+        ViewBag.BackAriaLocalizerName = backAriaLocalizerName;
     }
 
     private void SetCustomBackLink(string pagePath, bool showCustomBackLabel = true)
