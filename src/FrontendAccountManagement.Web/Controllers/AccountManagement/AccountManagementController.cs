@@ -13,7 +13,6 @@ using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
-using FrontendAccountManagement.Web.Controllers.Attributes;
 using FrontendAccountManagement.Web.Controllers.Errors;
 using FrontendAccountManagement.Web.Extensions;
 using FrontendAccountManagement.Web.Controllers.Errors;
@@ -29,7 +28,6 @@ using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
 using System;
 using System.Net;
-using System.Reflection;
 using System.Text.Json;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
@@ -126,7 +124,8 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
                 model.Telephone = userAccount.Telephone;
                 var userOrg = userAccount.Organisations?.FirstOrDefault();
                 session.AccountManagementSession.OrganisationType = userOrg?.OrganisationType;
-                session.AccountManagementSession.OrganisationName = userOrg?.Name; //userOrg?.TradingName;
+            session.AccountManagementSession.BusinessAddress = new Address { Postcode = userOrg?.Postcode };
+            session.AccountManagementSession.OrganisationName = userOrg?.Name;
                 model.JobTitle = userAccount.JobTitle;
                 model.CompanyName = userOrg?.Name;
                 model.OrganisationAddress = string.Join(", ", new[] {
@@ -1103,7 +1102,7 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
                 session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ManageAccount);
 
                 await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.UpdateCompanyName);
-                SetBackLink(session, PagePath.UpdateCompanyName);
+            SetBackLink(session, PagePath.UpdateCompanyName, LocalizerName.UpdateOrgNameBackAriaLabel);
 
                 if (session.AccountManagementSession?.OrganisationType == OrganisationType.CompaniesHouseCompany)
                 {
@@ -1139,7 +1138,7 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
             }
             else
             {
-                return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.CompanyName, PagePath.UpdateCompanyAddress);
+            return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.UpdateCompanyName, PagePath.UpdateCompanyAddress);
             }
         }
 
@@ -1159,7 +1158,7 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
                     });
                 }
 
-                SetBackLink(session, PagePath.UpdateCompanyAddress);
+            SetBackLink(session, PagePath.UpdateCompanyAddress, LocalizerName.UpdateOrgAddressBackAriaLabel);
             }
 
             return View(new UpdateCompanyAddressViewModel
@@ -1199,15 +1198,83 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
         }
 
         [HttpGet]
+    [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
+    [Route(PagePath.BusinessAddressPostcode)]
+    public async Task<IActionResult> BusinessAddressPostcode()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        if (session != null)
+        {
+            if (session.AccountManagementSession?.OrganisationType == OrganisationType.CompaniesHouseCompany)
+            {
+                return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+                {
+                    statusCode = (int)HttpStatusCode.Forbidden
+                });
+            }
+            SetBackLink(session, PagePath.BusinessAddressPostcode, LocalizerName.BusinessPostcodeBackAriaLabel);
+        }
+
+        var viewModel = new BusinessAddressPostcodeViewModel()
+        {
+            Postcode = session?.AccountManagementSession?.BusinessAddress?.Postcode,
+        };
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [Route(PagePath.BusinessAddressPostcode)]
+    public async Task<IActionResult> BusinessAddressPostcode(BusinessAddressPostcodeViewModel model)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        if (!ModelState.IsValid)
+        {
+            SetBackLink(session, PagePath.BusinessAddressPostcode);
+
+            return View(model);
+        }
+
+        session.AccountManagementSession.BusinessAddress = new Address { Postcode = model.Postcode };
+
+        AddressList? addressList = null;
+
+        try
+        {
+            addressList = await _facadeService.GetAddressListByPostcodeAsync(session.AccountManagementSession.BusinessAddress.Postcode);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Failed to retrieve addresses for postcode: {BusinessAddressPostcode}", session.AccountManagementSession.BusinessAddress.Postcode);
+        }
+
+        if (addressList == null)
+        {
+            return await SaveSessionAndRedirect(session, nameof(BusinessAddress), PagePath.BusinessAddressPostcode, PagePath.BusinessAddress);
+        }
+
+        return await SaveSessionAndRedirect(session, nameof(SelectBusinessAddress), PagePath.BusinessAddressPostcode, PagePath.SelectBusinessAddress);
+    }
+
+    [HttpGet]
         [Route(PagePath.SelectBusinessAddress)]
         public async Task<IActionResult> SelectBusinessAddress()
         {
             var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
+        if (session == null)
+        {
+            TempData[PostcodeLookupFailedKey] = true;
+            _logger.LogWarning("Session is null, redirecting to BusinessAddress page.");
+            return RedirectToAction(nameof(BusinessAddress));
+        }
+
             var viewModel = new SelectBusinessAddressViewModel()
             {
                 Postcode = session?.AccountManagementSession?.BusinessAddress?.Postcode,
             };
+
             SetBackLink(session, PagePath.SelectBusinessAddress);
             await _sessionManager.SaveSessionAsync(HttpContext.Session, session);
 
@@ -1216,31 +1283,35 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
 
             try
             {
-                if (session == null)
+            if (string.IsNullOrWhiteSpace(session.AccountManagementSession?.BusinessAddress?.Postcode))
                 {
+                _logger.LogWarning("Postcode is missing in session, redirecting to BusinessAddress page.");
                     addressLookupFailed = true;
                 }
                 else
                 {
                     addressList = await _facadeService.GetAddressListByPostcodeAsync(session.AccountManagementSession.BusinessAddress.Postcode);
-                    if (addressList == null)
+
+                if (addressList == null || !addressList.Addresses.Any())
                     {
+                    _logger.LogWarning("No addresses found for postcode: {Postcode}", session.AccountManagementSession.BusinessAddress.Postcode);
                         addressLookupFailed = true;
                     }
                 }
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Failed to retrieve addresses for postcode: {BusinessAddressPostcode}", session.AccountManagementSession.BusinessAddress.Postcode);
+            _logger.LogError(exception, "Failed to retrieve addresses for postcode: {Postcode}",
+                             session?.AccountManagementSession?.BusinessAddress?.Postcode);
                 addressLookupFailed = true;
             }
 
             if (addressLookupFailed)
             {
-                await _sessionManager.SaveSessionAsync(HttpContext.Session, session);
                 TempData[PostcodeLookupFailedKey] = true;
-                //return RedirectToAction(nameof(BusinessAddress)); // PAUL add when previous action is created
+            return RedirectToAction(nameof(BusinessAddress));
             }
+
             viewModel.SetAddressItems(addressList.Addresses, viewModel.SelectedListIndex!);
             session.AccountManagementSession?.AddressesForPostcode.Clear();
             session.AccountManagementSession?.AddressesForPostcode.AddRange(addressList.Addresses);
@@ -1266,30 +1337,31 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
 
             if (!ModelState.IsValid || session == null)
             {
+            if (session == null)
+            {
+                TempData[PostcodeLookupFailedKey] = true;
+                return RedirectToAction(nameof(BusinessAddress));
+            }
+
                 SetBackLink(session, PagePath.SelectBusinessAddress);
-                model.Postcode = session?.AccountManagementSession?.BusinessAddress?.Postcode;
+            model.Postcode = session.AccountManagementSession?.BusinessAddress?.Postcode;
 
                 AddressList? addressList = null;
                 var addressLookupFailed = false;
 
                 try
                 {
-                    if (session == null)
-                    {
-                        addressLookupFailed = true;
-                    }
-                    else
-                    {
-                        addressList = await _facadeService.GetAddressListByPostcodeAsync(session.AccountManagementSession.BusinessAddress.Postcode);
-                        if (addressList == null)
-                        {
-                            addressLookupFailed = true;
-                        }
-                    }
+                addressList = await _facadeService.GetAddressListByPostcodeAsync(session.AccountManagementSession.BusinessAddress.Postcode);
+
+                if (addressList == null || !addressList.Addresses.Any())
+                {
+                    addressLookupFailed = true;
                 }
+            }
                 catch (Exception exception)
                 {
-                    _logger.LogError(exception, "Failed to retrieve addresses for postcode: {BusinessAddressPostcode}", session.AccountManagementSession.BusinessAddress.Postcode);
+                _logger.LogError(exception, "Failed to retrieve addresses for postcode: {BusinessAddressPostcode}",
+                                 session?.AccountManagementSession?.BusinessAddress?.Postcode);
                     addressLookupFailed = true;
                 }
 
@@ -1297,17 +1369,18 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
                 {
                     await SaveSession(session);
                     TempData[PostcodeLookupFailedKey] = true;
-                    //return RedirectToAction(nameof(BusinessAddress)); // PAUL add when previous action is created
+                return RedirectToAction(nameof(BusinessAddress));
                 }
-                model.SetAddressItems(addressList.Addresses, model.SelectedListIndex);
 
+            model.SetAddressItems(addressList.Addresses, model.SelectedListIndex);
                 return View(model);
             }
+
             model.SetAddressItems(session.AccountManagementSession?.AddressesForPostcode, model.SelectedListIndex!);
             session.AccountManagementSession ??= new AccountManagementSession();
             session.AccountManagementSession.BusinessAddress = session.AccountManagementSession?.AddressesForPostcode[index];
 
-            return await SaveSessionAndRedirect(session, nameof(UkNation), PagePath.SelectBusinessAddress, PagePath.BusinessAddress);
+        return await SaveSessionAndRedirect(session, nameof(UkNation), PagePath.SelectBusinessAddress, PagePath.BusinessAddress); //PAUL - this will need changing when page 7 is complete in the journey
         }
 
 
@@ -1470,6 +1543,13 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
         private void SetBackLink(JourneySession session, string currentPagePath)
         {
             ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
+
+    }
+
+    private void SetBackLink(JourneySession session, string currentPagePath, string backAriaLocalizerName)
+    {
+        ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
+        ViewBag.BackAriaLocalizerName = backAriaLocalizerName;
         }
 
         private void SetCustomBackLink(string pagePath, bool showCustomBackLabel = true)
