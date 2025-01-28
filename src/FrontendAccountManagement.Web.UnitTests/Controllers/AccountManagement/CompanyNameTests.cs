@@ -23,7 +23,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         private UserData _userData;
         private JourneySession _journeySession;
         private Fixture _fixture = new Fixture();
-        
+
 
         [TestInitialize]
         public void Setup()
@@ -55,12 +55,12 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             };
             var session = new JourneySession
             {
-             AccountManagementSession = new AccountManagementSession
-             {
-                 Journey = new List<string> { PagePath.UpdateCompanyName, PagePath.UpdateCompanyAddress },
+                AccountManagementSession = new AccountManagementSession
+                {
+                    Journey = new List<string> { PagePath.UpdateCompanyName, PagePath.UpdateCompanyAddress },
 
-             }
-           };
+                }
+            };
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
 
             SystemUnderTest.ModelState.AddModelError(nameof(OrganisationNameViewModel.OrganisationName), "Enter an organisation name");
@@ -102,7 +102,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             var result = await SystemUnderTest.CompanyName(viewModel);
 
             // Assert
-           
+
             result.Should().BeOfType<ViewResult>();
             var viewResult = (ViewResult)result;
             viewResult.Model.Should().BeOfType<OrganisationNameViewModel>();
@@ -164,7 +164,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 }
                 }
             };
-           
+
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
             // Act
             var result = await SystemUnderTest.CompanyName();
@@ -211,10 +211,57 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                   .Which.OrganisationName.Should().Be("Company Name");
 
                 var viewResult = result.As<ViewResult>();
-                viewResult.ViewName.Should().BeNull(); 
+                viewResult.ViewName.Should().BeNull();
             }
-           
+
         }
 
+        [TestMethod]
+        public async Task RedirectToNextPage_UpdatedOrganisationName_AssigninBackToSession()
+        {
+            var initialOrganisationName = "Initial Company Name";
+            var updatedOrganisationName = "Updated Company Name";
+
+            // Setting up the initial session with a dummy organisation name
+            var session = new JourneySession
+            {
+                AccountManagementSession = new AccountManagementSession
+                {
+                    OrganisationName = initialOrganisationName
+                },
+                UserData = new UserData
+                {
+                    Organisations = new List<Organisation>
+                     {
+                         new Organisation { OrganisationType = OrganisationType.NonCompaniesHouseCompany, Name = initialOrganisationName }
+                    }
+                }
+            };
+
+            // Create a view model with the updated organisation name
+            var viewModel = new OrganisationNameViewModel
+            {
+                OrganisationName = updatedOrganisationName
+            };
+
+            // Mock the session manager to return the initial session
+            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+
+
+
+            // Act
+            var result = await SystemUnderTest.CompanyName(viewModel);
+            var redirectToActionResult = (RedirectToActionResult)result;
+
+            // Assert
+            // Verify that the session's OrganisationName has been updated
+            using (new AssertionScope())
+            {
+                session.AccountManagementSession.OrganisationName.Should().Be(updatedOrganisationName);
+                redirectToActionResult.ActionName.Should().Be("UpdateCompanyAddress");
+            }
+
+
+        }
     }
 }
