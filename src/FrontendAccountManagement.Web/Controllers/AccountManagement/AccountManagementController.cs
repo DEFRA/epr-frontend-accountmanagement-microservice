@@ -1486,15 +1486,6 @@ public class AccountManagementController : Controller
             }
         }
 
-        //if (!(session.AccountManagementSession.Journey.Contains(PagePath.NonCompaniesHouseUkNation)
-        //    || session.AccountManagementSession.Journey.Contains(PagePath.UpdateCompanyAddress)))
-        //{
-        //    return RedirectToAction(nameof(ErrorController.Error), nameof(ErrorController), new
-        //    {
-        //        statusCode = (int)HttpStatusCode.Forbidden
-        //    });
-        //}
-
         var lastJourneyPage = session.AccountManagementSession.Journey[session.AccountManagementSession.Journey.Count - 1];
 
         if (lastJourneyPage == PagePath.UpdateCompanyAddress)
@@ -1532,14 +1523,6 @@ public class AccountManagementController : Controller
         }
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-
-        //if (!ModelState.IsValid)
-        //{
-        //    SetCustomBackLink(PagePath.BusinessAddressPostcode, false);
-
-
-        //    return View(model);
-        //}
 
         var userData = User.GetUserData();
 
