@@ -198,4 +198,7 @@
 	<data name="BusinessPostcodeBackAriaLabel" xml:space="preserve">
     <value>Click on this link if you wish to go back to the Do you want to update your business address page</value>
   </data>
+	<data name="CompanyNameBackAriaLabel" xml:space="preserve">
+    <value>Click on this link if you wish to go back to the Do you want to update your organisation name page</value>
+  </data>
 </root>
