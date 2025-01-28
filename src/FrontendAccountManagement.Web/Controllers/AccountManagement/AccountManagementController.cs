@@ -857,7 +857,7 @@ public class AccountManagementController : Controller
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.BusinessAddressPostcode);
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.BusinessAddress);
         session.AccountManagementSession.Journey.RemoveAll(x => x == PagePath.SelectBusinessAddress);
-        SetBackLink(session, PagePath.BusinessAddress);
+        SetBackLink(session, PagePath.BusinessAddress, LocalizerName.UpdateBusinessAddressBackAriaLabel);
 
         var model = new BusinessAddressViewModel
         {
