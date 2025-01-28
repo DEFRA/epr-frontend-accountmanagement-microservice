@@ -29,6 +29,7 @@ public static class PagePath
     public const string UpdateCompanyAddress = "update-company-address";
     public const string BusinessAddressPostcode = "business-address-postcode";
     public const string CheckYourCompanyDetails = "check-your-company-details";
+    public const string CheckCompanyDetails = "check-company-details";
 
     // Change role journey paths
     public const string ChangeAccountPermissions = "change-account-permissions";
