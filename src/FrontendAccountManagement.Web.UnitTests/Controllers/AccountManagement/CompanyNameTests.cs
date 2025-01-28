@@ -121,6 +121,13 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             // Arrange
             var session = new JourneySession
             {
+                UserData = new UserData
+                {
+                    Organisations = new List<Organisation>
+                {
+                    new Organisation { OrganisationType = OrganisationType.NonCompaniesHouseCompany,Name="Company Name"}
+                }
+                },
                 AccountManagementSession = new AccountManagementSession
                 {
                     Journey = new List<string> { PagePath.UpdateCompanyName, PagePath.UpdateCompanyAddress }
@@ -190,21 +197,21 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 }
                 }
             };
-            var viewModel = new OrganisationNameViewModel
-            {
-                OrganisationName = "Company Name"
-            };
 
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
             // Act
-            var result = await SystemUnderTest.CompanyName(viewModel);
+            var result = await SystemUnderTest.CompanyName();
 
 
             // Assert
             using (new AssertionScope())
             {
-                result.Should().BeOfType<RedirectToActionResult>()
-                .Which.ActionName.Should().Be(nameof(AccountManagementController.CompanyName));
+                result.Should().BeOfType<ViewResult>()
+                  .Which.Model.Should().BeOfType<OrganisationNameViewModel>()
+                  .Which.OrganisationName.Should().Be("Company Name");
+
+                var viewResult = result.As<ViewResult>();
+                viewResult.ViewName.Should().BeNull(); 
             }
            
         }
