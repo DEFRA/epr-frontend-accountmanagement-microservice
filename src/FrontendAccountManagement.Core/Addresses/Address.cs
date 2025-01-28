@@ -1,5 +1,7 @@
 
+using EPR.Common.Authorization.Models;
 using System;
+using System.Reflection;
 
 namespace FrontendAccountManagement.Core.Addresses
 {
@@ -26,7 +28,16 @@ namespace FrontendAccountManagement.Core.Addresses
         public string? Locality { get; init; }
 
         public string? DependentLocality { get; init; }
-
         public bool IsManualAddress { get; set; }
+
+        public string? SingleLineAddress =>  string.Join(", ", new[] {
+                SubBuildingName,
+                BuildingNumber,
+                BuildingName,
+                Street,
+                Town,
+                County,
+                Postcode,
+            }.Where(s => !string.IsNullOrWhiteSpace(s)));
     }
 }

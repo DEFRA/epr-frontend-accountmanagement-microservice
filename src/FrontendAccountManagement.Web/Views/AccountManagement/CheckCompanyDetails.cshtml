@@ -1,0 +1,104 @@
+﻿@using FrontendAccountManagement.Web.Constants
+@using FrontendAccountManagement.Web.ViewModels.AccountManagement
+@using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
+@using FrontendAccountManagement.Web.Extensions
+
+@model CheckCompanyDetailsViewModel
+
+@{
+    ViewData["Title"] = Localizer["CheckCompanyDetails.Title"];
+
+    // var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer,
+    // nameof(Model.SubBuildingName), nameof(Model.BuildingNumber), nameof(Model.BuildingName),
+    //     nameof(Model.Street), nameof(Model.Town), nameof(Model.County), nameof(Model.Postcode));
+
+    // const string errorClass = "govuk-input--error";
+}
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-l govuk-!-margin-bottom-8">
+                    @Localizer["CheckYourDetails"]
+                </h1>
+                @if (!string.IsNullOrEmpty(@Model.Name))
+                {
+                <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+                    <div class="govuk-summary-list__row">
+                        <div class="govuk-!-margin-right-3">
+                            <dt class="govuk-summary-list__value">
+                                <h2 class="govuk-heading-m govuk-!-margin-bottom-4">
+                                    @Localizer["Name"]
+                                </h2>
+                            </dt>
+                        </div>
+                        <dd class="govuk-summary-list__value">
+                            @Model.Name
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a href="~/@PagePath.CompanyName" class="govuk-link govuk-link--no-visited-state">
+                                    @SharedLocalizer["Change"]
+                                <span class="govuk-visually-hidden"></span>
+                            </a>
+                        </dd>
+                    </div>
+                </dl>
+                }
+                @if (!string.IsNullOrEmpty(@Model.Address))
+                {
+                <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+                    <div class="govuk-summary-list__row">
+                        <div class="govuk-!-margin-right-3">
+                            <dt class="govuk-summary-list__value">
+                                <h2 class="govuk-heading-m govuk-!-margin-bottom-4">
+                                    @Localizer["Address"]
+                                </h2>
+                            </dt>
+                        </div>
+                        <dd class="govuk-summary-list__value">
+                            @Model.Address
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a href="~/@PagePath.BusinessAddressPostcode" class="govuk-link govuk-link--no-visited-state">
+                                    @SharedLocalizer["Change"]
+                                <span class="govuk-visually-hidden"></span>
+                            </a>
+                        </dd>
+                    </div>
+                </dl>
+                }
+                @if (!string.IsNullOrEmpty(@Model.UKNation))
+                {
+                <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+                    <div class="govuk-summary-list__row">
+                        <div class="govuk-!-margin-right-3">
+                            <dt class="govuk-summary-list__value">
+                                <h2 class="govuk-heading-m govuk-!-margin-bottom-4">
+                                    @Localizer["UKNation"]
+                                </h2>
+                            </dt>
+                        </div>
+                        <dd class="govuk-summary-list__value">
+                            @Model.UKNation
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a href="~/@PagePath.NonCompaniesHouseUkNation" class="govuk-link govuk-link--no-visited-state">
+                                @SharedLocalizer["Change"]
+                                <span class="govuk-visually-hidden"></span>
+                            </a>
+                        </dd>
+                    </div>
+                </dl>
+                }
+
+                <br />
+                <form asp-controller="AccountManagement" asp-action="CheckCompanyDetailsPost" method="post">
+                    <button class="govuk-button" data-module="govuk-button" aria-label="@SharedLocalizer["Continue"]">
+                        @SharedLocalizer["SaveAndContinue"]
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
