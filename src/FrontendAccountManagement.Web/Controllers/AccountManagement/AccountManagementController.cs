@@ -1417,12 +1417,15 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
 
+       
+
         if (!ModelState.IsValid)
         {
             return View(model);
         }
         else
         {
+            session.AccountManagementSession.OrganisationName = model.OrganisationName;
 
             return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.CompanyName, PagePath.UpdateCompanyAddress);
         }
