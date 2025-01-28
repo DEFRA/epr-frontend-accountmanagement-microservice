@@ -1,21 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
 using EPR.Common.Authorization.Models;
-using FrontendAccountManagement.Core.Enums;
-using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Constants.Enums;
 using FrontendAccountManagement.Web.Controllers.Errors;
-using FrontendAccountManagement.Web.Resources.Views.AccountManagement;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
@@ -76,12 +69,13 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             // Act
             var result = await SystemUnderTest.NonCompaniesHouseUkNation(request);
-
+      
             // Assert
             result.Should().BeOfType<RedirectToActionResult>();
 
             ((RedirectToActionResult)result).ActionName.Should().Be("check-company-details");
 
+            Assert.AreEqual(Core.Enums.Nation.England, _journeySession.AccountManagementSession.UkNation);
             SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
         }
 
@@ -94,7 +88,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             // Act
             var result = await SystemUnderTest.NonCompaniesHouseUkNation();
-
+            
             // Assert
             result.Should().BeOfType<RedirectToActionResult>();
 
