@@ -1,4 +1,5 @@
 ﻿using FrontendAccountManagement.Core.Addresses;
+using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Sessions;
 
@@ -20,6 +21,6 @@ public class AccountManagementSession
     public bool IsUpdateCompanyName { get; set; }
     public Address? BusinessAddress { get; set; }
     public List<Address?> AddressesForPostcode { get; set; } = new();
-    public Nation? UkNation { get; set; }
+    public FrontendAccountManagement.Core.Enums.Nation? UkNation { get; set; } = new();
 
 }

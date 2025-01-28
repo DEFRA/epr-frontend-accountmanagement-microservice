@@ -919,7 +919,46 @@ public class AccountManagementController : Controller
         };
         TempData.Remove(PostcodeLookupFailedKey);
 
-        return await SaveSessionAndRedirect(session, "non-companies-house-uk-nation", PagePath.BusinessAddress, PagePath.NonCompaniesHouseUkNation);
+        return await SaveSessionAndRedirect(session, nameof(NonCompaniesHouseUkNation), PagePath.BusinessAddress, PagePath.NonCompaniesHouseUkNation);
+    }
+
+    [HttpGet]
+    [Route(PagePath.NonCompaniesHouseUkNation)]
+    public async Task<IActionResult> NonCompaniesHouseUkNation()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        if (IsCompaniesHouseUser())
+        {
+            return RedirectToAction(nameof(ErrorController.Error), nameof(ErrorController), new
+            {
+                statusCode = (int)HttpStatusCode.Forbidden
+            });
+        }
+
+        SetBackLink(session, PagePath.NonCompaniesHouseUkNation);
+
+        var viewModel = new UkNationViewModel();
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [Route(PagePath.NonCompaniesHouseUkNation)]
+    public async Task<IActionResult> NonCompaniesHouseUkNation(UkNationViewModel model)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        SetCustomBackLink(PagePath.BusinessAddress, false);
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+        
+        session.AccountManagementSession.UkNation = (Core.Enums.Nation)model.UkNation;
+
+        return await SaveSessionAndRedirect(session, "check-company-details", PagePath.NonCompaniesHouseUkNation, PagePath.CheckCompanyDetails);
     }
 
     /// <summary>
@@ -1437,9 +1476,18 @@ public class AccountManagementController : Controller
     public async Task<IActionResult> CheckCompanyDetails()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        if (!(session.AccountManagementSession.Journey.Count() <= 2))
+        {
+            {
+                return RedirectToAction(nameof(ErrorController.Error), nameof(ErrorController), new
+                {
+                    statusCode = (int)HttpStatusCode.Forbidden
+                });
+            }
+        }
 
-        var lastJourneyPage = session.AccountManagementSession.Journey[session.AccountManagementSession.Journey.Count - 1];
-        //if (lastJourneyPage != PagePath.NonCompaniesHouseUkNation && lastJourneyPage != PagePath.UpdateCompanyAddress)
+        //if (!(session.AccountManagementSession.Journey.Contains(PagePath.NonCompaniesHouseUkNation)
+        //    || session.AccountManagementSession.Journey.Contains(PagePath.UpdateCompanyAddress)))
         //{
         //    return RedirectToAction(nameof(ErrorController.Error), nameof(ErrorController), new
         //    {
@@ -1447,15 +1495,17 @@ public class AccountManagementController : Controller
         //    });
         //}
 
-        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CheckCompanyDetails);
+        var lastJourneyPage = session.AccountManagementSession.Journey[session.AccountManagementSession.Journey.Count - 1];
 
         if (lastJourneyPage == PagePath.UpdateCompanyAddress)
         {
+            session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CheckCompanyDetails);
             SetBackLink(session, PagePath.CheckCompanyDetails);
         }
 
         if (lastJourneyPage == PagePath.NonCompaniesHouseUkNation)
         {
+            session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CheckCompanyDetails);
             SetBackLink(session, PagePath.CheckCompanyDetails);
         }
 

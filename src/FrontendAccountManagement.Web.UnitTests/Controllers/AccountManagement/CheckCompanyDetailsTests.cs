@@ -39,7 +39,7 @@ public class CheckCompanyDetailsTests : AccountManagementTestBase
             AccountManagementSession = new AccountManagementSession()
             {
                 Journey = new List<string> {
-                PagePath.NonCompaniesHouseUkNation, PagePath.CheckCompanyDetails
+                PagePath.UpdateCompanyAddress, PagePath.CheckCompanyDetails
             },
                 BusinessAddress = new FrontendAccountManagement.Core.Addresses.Address()
             }            
@@ -137,7 +137,7 @@ public class CheckCompanyDetailsTests : AccountManagementTestBase
     //}
 
     [TestMethod]
-    public async Task GivenFinishedPreviousPage_WhenCheckCompanyDetailsCalled_ThenCheckCompanyDetailsPageReturned_WithNonCompaniesHouseUkNationAsTheBackLink()
+    public async Task GivenFinishedPreviousPage_WhenCheckCompanyDetailsCalled_ThenCheckCompanyDetailsPageReturned_WithUpdateCompanyAddressAsTheBackLink()
     {
         //Arrange
 
@@ -152,11 +152,11 @@ public class CheckCompanyDetailsTests : AccountManagementTestBase
 
         viewResult.Model.Should().BeOfType<CheckCompanyDetailsViewModel>();
 
-        AssertBackLink(viewResult, PagePath.NonCompaniesHouseUkNation);
+        AssertBackLink(viewResult, PagePath.UpdateCompanyAddress);
     }
 
     [TestMethod]
-    public async Task GivenNoPreviousPage_WhenCheckCompanyDetailsCalled_ThenCheckCompanyDetailsPageReturned_WithNonCompaniesHouseUkNationAsTheBackLink()
+    public async Task GivenNoPreviousPage_WhenCheckCompanyDetailsCalled_ThenCheckCompanyDetailsPageReturned_WithUpdateCompanyAddressAsTheBackLink()
     {
         //Arrange
         _journeySession.AccountManagementSession.Journey = new List<string>();
@@ -171,7 +171,7 @@ public class CheckCompanyDetailsTests : AccountManagementTestBase
 
         viewResult.Model.Should().BeOfType<CheckCompanyDetailsViewModel>();
 
-        AssertBackLink(viewResult, PagePath.NonCompaniesHouseUkNation);
+        AssertBackLink(viewResult, PagePath.UpdateCompanyAddress);
     }
 
 
