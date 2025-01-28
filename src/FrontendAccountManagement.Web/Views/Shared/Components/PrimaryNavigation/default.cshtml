@@ -9,20 +9,20 @@
             @if (item.IsActive)
             {
                 <li class="govuk-header__navigation-item govuk-header__navigation-item--active">
-                    <a class="govuk-header__link" href="@item.LinkValue">@Localizer[item.LocalizerKey]</a>
+                    <a class="govuk-header__link" href="@item.LinkValue" aria-label="@Localizer[item.LocalizerKey + "AriaLabel"]">@Localizer[item.LocalizerKey]</a>
                 </li>
             }
             else
             {
                 <li class="govuk-header__navigation-item">
-                    <a class="govuk-header__link" href="@item.LinkValue">@Localizer[item.LocalizerKey]</a>
+                    <a class="govuk-header__link" href="@item.LinkValue" aria-label="@Localizer[item.LocalizerKey + "AriaLabel"]">@Localizer[item.LocalizerKey]</a>
                 </li>
             }
         }
         @if (User.Identity?.IsAuthenticated == true)
         {
             <li class="govuk-header__navigation-item">
-                <a class="govuk-header__link" asp-controller="Account" asp-action="SignOut">@Localizer["PrimaryNavigation.SignOut"]</a>
+                <a class="govuk-header__link" asp-controller="Account" asp-action="SignOut" aria-label="@Localizer["PrimaryNavigation.SignOutAriaLabel"]">@Localizer["PrimaryNavigation.SignOut"]</a>
             </li>
         }
         else

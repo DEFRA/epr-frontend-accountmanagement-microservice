@@ -1097,7 +1097,7 @@ public class AccountManagementController : Controller
             session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ManageAccount);
 
             await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.UpdateCompanyName);
-            SetBackLink(session, PagePath.UpdateCompanyName);
+            SetBackLink(session, PagePath.UpdateCompanyName, LocalizerName.UpdateOrgNameBackAriaLabel);
 
             if (session.AccountManagementSession?.OrganisationType == OrganisationType.CompaniesHouseCompany)
             {
@@ -1153,7 +1153,7 @@ public class AccountManagementController : Controller
                 });
             }
 
-            SetBackLink(session, PagePath.UpdateCompanyAddress);
+            SetBackLink(session, PagePath.UpdateCompanyAddress, LocalizerName.UpdateOrgAddressBackAriaLabel);
         }
 
         return View(new UpdateCompanyAddressViewModel
@@ -1183,7 +1183,7 @@ public class AccountManagementController : Controller
         {
             if (session.AccountManagementSession.IsUpdateCompanyName)
             {
-                return await SaveSessionAndRedirect(session, "CheckYourCompanyDetails", PagePath.UpdateCompanyAddress, PagePath.CheckCompanyDetails);
+                return await SaveSessionAndRedirect(session, "CheckCompanyDetails", PagePath.UpdateCompanyAddress, PagePath.CheckCompanyDetails);
             }
             else
             {
@@ -1208,7 +1208,7 @@ public class AccountManagementController : Controller
                     statusCode = (int)HttpStatusCode.Forbidden
                 });
             }
-            SetBackLink(session, PagePath.BusinessAddressPostcode);
+            SetBackLink(session, PagePath.BusinessAddressPostcode, LocalizerName.BusinessPostcodeBackAriaLabel);
         }
 
         var viewModel = new BusinessAddressPostcodeViewModel()
@@ -1258,10 +1258,18 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
+        if (session == null)
+        {
+            TempData[PostcodeLookupFailedKey] = true;
+            _logger.LogWarning("Session is null, redirecting to BusinessAddress page.");
+            return RedirectToAction(nameof(BusinessAddress));
+        }
+
         var viewModel = new SelectBusinessAddressViewModel()
         {
             Postcode = session?.AccountManagementSession?.BusinessAddress?.Postcode,
         };
+
         SetBackLink(session, PagePath.SelectBusinessAddress);
         await _sessionManager.SaveSessionAsync(HttpContext.Session, session);
 
@@ -1270,31 +1278,35 @@ public class AccountManagementController : Controller
 
         try
         {
-            if (session == null)
+            if (string.IsNullOrWhiteSpace(session.AccountManagementSession?.BusinessAddress?.Postcode))
             {
+                _logger.LogWarning("Postcode is missing in session, redirecting to BusinessAddress page.");
                 addressLookupFailed = true;
             }
             else
             {
                 addressList = await _facadeService.GetAddressListByPostcodeAsync(session.AccountManagementSession.BusinessAddress.Postcode);
-                if (addressList == null)
+
+                if (addressList == null || !addressList.Addresses.Any())
                 {
+                    _logger.LogWarning("No addresses found for postcode: {Postcode}", session.AccountManagementSession.BusinessAddress.Postcode);
                     addressLookupFailed = true;
                 }
             }
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "Failed to retrieve addresses for postcode: {BusinessAddressPostcode}", session.AccountManagementSession.BusinessAddress.Postcode);
+            _logger.LogError(exception, "Failed to retrieve addresses for postcode: {Postcode}",
+                             session?.AccountManagementSession?.BusinessAddress?.Postcode);
             addressLookupFailed = true;
         }
 
         if (addressLookupFailed)
         {
-            await _sessionManager.SaveSessionAsync(HttpContext.Session, session);
             TempData[PostcodeLookupFailedKey] = true;
-            //return RedirectToAction(nameof(BusinessAddress)); // PAUL add when previous action is created
+            return RedirectToAction(nameof(BusinessAddress));
         }
+
         viewModel.SetAddressItems(addressList.Addresses, viewModel.SelectedListIndex!);
         session.AccountManagementSession?.AddressesForPostcode.Clear();
         session.AccountManagementSession?.AddressesForPostcode.AddRange(addressList.Addresses);
@@ -1320,30 +1332,31 @@ public class AccountManagementController : Controller
 
         if (!ModelState.IsValid || session == null)
         {
+            if (session == null)
+            {
+                TempData[PostcodeLookupFailedKey] = true;
+                return RedirectToAction(nameof(BusinessAddress));
+            }
+
             SetBackLink(session, PagePath.SelectBusinessAddress);
-            model.Postcode = session?.AccountManagementSession?.BusinessAddress?.Postcode;
+            model.Postcode = session.AccountManagementSession?.BusinessAddress?.Postcode;
 
             AddressList? addressList = null;
             var addressLookupFailed = false;
 
             try
             {
-                if (session == null)
+                addressList = await _facadeService.GetAddressListByPostcodeAsync(session.AccountManagementSession.BusinessAddress.Postcode);
+
+                if (addressList == null || !addressList.Addresses.Any())
                 {
                     addressLookupFailed = true;
-                }
-                else
-                {
-                    addressList = await _facadeService.GetAddressListByPostcodeAsync(session.AccountManagementSession.BusinessAddress.Postcode);
-                    if (addressList == null)
-                    {
-                        addressLookupFailed = true;
-                    }
                 }
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Failed to retrieve addresses for postcode: {BusinessAddressPostcode}", session.AccountManagementSession.BusinessAddress.Postcode);
+                _logger.LogError(exception, "Failed to retrieve addresses for postcode: {BusinessAddressPostcode}",
+                                 session?.AccountManagementSession?.BusinessAddress?.Postcode);
                 addressLookupFailed = true;
             }
 
@@ -1351,17 +1364,72 @@ public class AccountManagementController : Controller
             {
                 await SaveSession(session);
                 TempData[PostcodeLookupFailedKey] = true;
-                //return RedirectToAction(nameof(BusinessAddress)); // PAUL add when previous action is created
+                return RedirectToAction(nameof(BusinessAddress));
             }
-            model.SetAddressItems(addressList.Addresses, model.SelectedListIndex);
 
+            model.SetAddressItems(addressList.Addresses, model.SelectedListIndex);
             return View(model);
         }
+
         model.SetAddressItems(session.AccountManagementSession?.AddressesForPostcode, model.SelectedListIndex!);
         session.AccountManagementSession ??= new AccountManagementSession();
         session.AccountManagementSession.BusinessAddress = session.AccountManagementSession?.AddressesForPostcode[index];
 
-        return await SaveSessionAndRedirect(session, nameof(UkNation), PagePath.SelectBusinessAddress, PagePath.BusinessAddress);
+        return await SaveSessionAndRedirect(session, nameof(UkNation), PagePath.SelectBusinessAddress, PagePath.BusinessAddress); //PAUL - this will need changing when page 7 is complete in the journey
+    }
+
+    [HttpGet]
+    [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
+    [Route(PagePath.CompanyName)]
+    public async Task<IActionResult> CompanyName()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        if (session != null)
+        {
+            if (session.UserData?.Organisations[0].OrganisationType == OrganisationType.CompaniesHouseCompany)
+            {
+                return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+                {
+                    statusCode = (int)HttpStatusCode.Forbidden
+                });
+            }
+            else
+            {
+                session.AccountManagementSession.Journey.AddIfNotExists(PagePath.UpdateCompanyName);
+
+                await SaveSessionAndJourney(session, PagePath.UpdateCompanyName, PagePath.CompanyName);
+
+                SetBackLink(session, PagePath.CompanyName, LocalizerName.CompanyNameBackAriaLabel);
+            }
+        }
+        var viewModel = new OrganisationNameViewModel()
+        {
+            OrganisationName = session?.AccountManagementSession?.OrganisationName ?? session?.UserData?.Organisations[0].Name,
+        };
+
+        return View(viewModel);
+    }
+    
+    [HttpPost]
+    [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
+    [Route(PagePath.CompanyName)]
+    public async Task<IActionResult> CompanyName(OrganisationNameViewModel model)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
+
+       
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+        else
+        {
+            session.AccountManagementSession.OrganisationName = model.OrganisationName;
+
+            return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.CompanyName, PagePath.UpdateCompanyAddress);
+        }
+
     }
 
     [HttpGet]
@@ -1434,16 +1502,16 @@ public class AccountManagementController : Controller
 
         var organisation = new OrganisationUpdateDto { 
             Name = session.AccountManagementSession.OrganisationName?? organisationData.Name,
-            BuildingName = session.AccountManagementSession.BusinessAddress.BuildingName,
-            BuildingNumber = session.AccountManagementSession.BusinessAddress.BuildingNumber,
-            Country = session.AccountManagementSession.BusinessAddress.Country,
-            County = session.AccountManagementSession.BusinessAddress.County,
-            DependentLocality = session.AccountManagementSession.BusinessAddress.DependentLocality,
-            Locality = session.AccountManagementSession.BusinessAddress.Locality,
-            Postcode = session.AccountManagementSession.BusinessAddress.Postcode,
-            Street = session.AccountManagementSession.BusinessAddress.Street,
-            SubBuildingName = session.AccountManagementSession.BusinessAddress.SubBuildingName,
-            Town = session.AccountManagementSession.BusinessAddress.Town,
+            BuildingName = session.AccountManagementSession.BusinessAddress.BuildingName ?? organisationData.BuildingName,
+            BuildingNumber = session.AccountManagementSession.BusinessAddress.BuildingNumber ?? organisationData.BuildingNumber,
+            Country = session.AccountManagementSession.BusinessAddress.BuildingNumber ?? organisationData.BuildingNumber,
+            County = session.AccountManagementSession.BusinessAddress.County ?? organisationData.County,
+            DependentLocality = session.AccountManagementSession.BusinessAddress.DependentLocality ?? organisationData.DependentLocality,
+            Locality = session.AccountManagementSession.BusinessAddress.Locality ?? organisationData.Locality,
+            Postcode = session.AccountManagementSession.BusinessAddress.Postcode ?? organisationData.Postcode,
+            Street = session.AccountManagementSession.BusinessAddress.Street ?? organisationData.Street,
+            SubBuildingName = session.AccountManagementSession.BusinessAddress.SubBuildingName ?? organisationData.SubBuildingName,
+            Town = session.AccountManagementSession.BusinessAddress.Town ?? organisationData.Town,
             NationId = (int?)session.AccountManagementSession.UkNation??organisationData.NationId.Value
         };
 
@@ -1580,6 +1648,13 @@ public class AccountManagementController : Controller
     private void SetBackLink(JourneySession session, string currentPagePath)
     {
         ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
+
+    }
+
+    private void SetBackLink(JourneySession session, string currentPagePath, string backAriaLocalizerName)
+    {
+        ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
+        ViewBag.BackAriaLocalizerName = backAriaLocalizerName;
     }
 
     private void SetCustomBackLink(string pagePath, bool showCustomBackLabel = true)
