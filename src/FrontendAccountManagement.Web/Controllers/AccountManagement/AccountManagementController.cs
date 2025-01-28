@@ -1417,6 +1417,60 @@ public class AccountManagementController : Controller
         return await SaveSessionAndRedirect(session, nameof(UkNation), PagePath.SelectBusinessAddress, PagePath.BusinessAddress); //PAUL - this will need changing when page 7 is complete in the journey
     }
 
+    [HttpGet]
+    [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
+    [Route(PagePath.CompanyName)]
+    public async Task<IActionResult> CompanyName()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        if (session != null)
+        {
+            if (session.UserData?.Organisations[0].OrganisationType == OrganisationType.CompaniesHouseCompany)
+            {
+                return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+                {
+                    statusCode = (int)HttpStatusCode.Forbidden
+                });
+            }
+            else
+            {
+                session.AccountManagementSession.Journey.AddIfNotExists(PagePath.UpdateCompanyName);
+
+                await SaveSessionAndJourney(session, PagePath.UpdateCompanyName, PagePath.CompanyName);
+
+                SetBackLink(session, PagePath.CompanyName, LocalizerName.CompanyNameBackAriaLabel);
+            }
+        }
+        var viewModel = new OrganisationNameViewModel()
+        {
+            OrganisationName = session?.AccountManagementSession?.OrganisationName ?? session?.UserData?.Organisations[0].Name,
+        };
+
+        return View(viewModel);
+    }
+    
+    [HttpPost]
+    [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
+    [Route(PagePath.CompanyName)]
+    public async Task<IActionResult> CompanyName(OrganisationNameViewModel model)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
+
+       
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+        else
+        {
+            session.AccountManagementSession.OrganisationName = model.OrganisationName;
+
+            return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.CompanyName, PagePath.UpdateCompanyAddress);
+        }
+
+    }
+
     private bool IsCompaniesHouseUser()
     {
         var userData = User.GetUserData();

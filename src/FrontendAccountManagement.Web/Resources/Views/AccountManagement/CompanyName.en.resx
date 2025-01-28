@@ -117,88 +117,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Back" xml:space="preserve">
-    <value>Back</value>
+  <data name="CompanyName.Header" xml:space="preserve">
+    <value>What is your organisation Name ?</value>
   </data>
-  <data name="Continue" xml:space="preserve">
-    <value>Continue</value>
+  <data name="CompanyName.Hint" xml:space="preserve">
+    <value>You may trade under your own name you have given your business</value>
   </data>
-  <data name="SkipToMainContent" xml:space="preserve">
-    <value>Skip to main content</value>
+  <data name="CompanyName.NameErrorMessage" xml:space="preserve">
+    <value>Enter an organisation name</value>
   </data>
-  <data name="ApplicationTitle" xml:space="preserve">
-    <value>Report packaging data</value>
+  <data name="CompanyName.NameLengthErrorMessage" xml:space="preserve">
+    <value>Organisation name must be 170 characters or less</value>
   </data>
-  <data name="No" xml:space="preserve">
-    <value>No</value>
-  </data>
-  <data name="Yes" xml:space="preserve">
-    <value>Yes</value>
-  </data>
-  <data name="Change" xml:space="preserve">
-    <value>Change</value>
-  </data>
-  <data name="Or" xml:space="preserve">
-    <value>or</value>
-  </data>
-  <data name="Success" xml:space="preserve">
-    <value>Success</value>
-  </data>
-  <data name="Error" xml:space="preserve">
-    <value>Error</value>
-  </data>
-  <data name="ThereIsAProblem" xml:space="preserve">
-    <value>There is a problem</value>
-  </data>
-  <data name="Remove" xml:space="preserve">
-    <value>Remove</value>
-  </data>
-  <data name="Approved.Admin" xml:space="preserve">
-    <value>Manage team, upload data and submit data</value>
-  </data>
-  <data name="Delegated.Admin" xml:space="preserve">
-    <value>Manage team, upload data and submit data</value>
-  </data>
-  <data name="Basic.Admin" xml:space="preserve">
-    <value>Manage team and upload data</value>
-  </data>
-  <data name="Basic.Employee" xml:space="preserve">
-    <value>Upload data only</value>
-  </data>
-  <data name="Custom.BackToHome" xml:space="preserve">
-    <value>Back to home</value>
-  </data>
-  <data name="English" xml:space="preserve">
-    <value>English</value>
-  </data>
-  <data name="Cymraeg" xml:space="preserve">
-    <value>Cymraeg</value>
-  </data>
-  <data name="Welsh" xml:space="preserve">
-    <value>Cymraeg</value>
-  </data>
-  <data name="ErrorHidden" xml:space="preserve">
-    <value>Error:</value>
-  </data>
-  <data name="GovUKTitle" xml:space="preserve">
-    <value>GOV.UK</value>
-  </data>
-  <data name="Cancel" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
-  <data name="SaveAndContinue" xml:space="preserve">
-    <value>Save and continue</value>
-  </data>
-  <data name="UpdateOrgNameBackAriaLabel" xml:space="preserve">
-    <value>Click on this link if you wish to go back to the manage account page</value>
-  </data>
-  <data name="UpdateOrgAddressBackAriaLabel" xml:space="preserve">
-    <value>Click on this link if you wish to go back to the previous page</value>
-  </data>
-  <data name="BusinessPostcodeBackAriaLabel" xml:space="preserve">
-    <value>Click on this link if you wish to go back to the Do you want to update your business address page</value>
-  </data>
-	<data name="CompanyNameBackAriaLabel" xml:space="preserve">
-    <value>Click on this link if you wish to go back to the Do you want to update your organisation name page</value>
+  <data name="Title" xml:space="preserve">
+    <value>Change organisation Name</value>
   </data>
 </root>
