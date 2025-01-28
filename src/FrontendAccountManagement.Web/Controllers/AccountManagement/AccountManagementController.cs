@@ -1222,7 +1222,7 @@ public class AccountManagementController : Controller
         {
             if (session.AccountManagementSession.IsUpdateCompanyName)
             {
-                return await SaveSessionAndRedirect(session, "CheckYourCompanyDetails", PagePath.UpdateCompanyAddress, PagePath.CheckYourCompanyDetails);
+                return await SaveSessionAndRedirect(session, "CheckCompanyDetails", PagePath.UpdateCompanyAddress, PagePath.CheckCompanyDetails);
             }
             else
             {
@@ -1469,6 +1469,101 @@ public class AccountManagementController : Controller
             return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.CompanyName, PagePath.UpdateCompanyAddress);
         }
 
+    }
+
+    [HttpGet]
+    [Route(PagePath.CheckCompanyDetails)]
+    public async Task<IActionResult> CheckCompanyDetails()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        if (!(session.AccountManagementSession.Journey.Count() <= 2))
+        {
+            {
+                return RedirectToAction(nameof(ErrorController.Error), nameof(ErrorController), new
+                {
+                    statusCode = (int)HttpStatusCode.Forbidden
+                });
+            }
+        }
+
+        var lastJourneyPage = session.AccountManagementSession.Journey[session.AccountManagementSession.Journey.Count - 1];
+
+        if (lastJourneyPage == PagePath.UpdateCompanyAddress)
+        {
+            session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CheckCompanyDetails);
+            SetBackLink(session, PagePath.CheckCompanyDetails);
+        }
+
+        if (lastJourneyPage == PagePath.NonCompaniesHouseUkNation)
+        {
+            session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CheckCompanyDetails);
+            SetBackLink(session, PagePath.CheckCompanyDetails);
+        }
+
+        var model = new CheckCompanyDetailsViewModel
+        {
+            Name = session.AccountManagementSession.OrganisationName,
+            Address = session.AccountManagementSession.BusinessAddress?.SingleLineAddress,
+            UKNation = session.AccountManagementSession.UkNation.ToString()
+        };
+
+        return View(nameof(CheckCompanyDetails), model);
+    }
+
+    [HttpPost]
+    [Route(PagePath.CheckCompanyDetails)]
+    public async Task<IActionResult> CheckCompanyDetailsPost()
+    {
+        if (IsCompaniesHouseUser())
+        {
+            return RedirectToAction(nameof(ErrorController.Error), nameof(ErrorController), new
+            {
+                statusCode = (int)HttpStatusCode.Forbidden
+            });
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        var userData = User.GetUserData();
+
+        var organisationData = userData.Organisations.FirstOrDefault();
+
+        if (organisationData == null)
+        {
+            throw new InvalidOperationException(nameof(organisationData));
+        }
+
+        var organisation = new OrganisationUpdateDto { 
+            Name = session.AccountManagementSession.OrganisationName?? organisationData.Name,
+            BuildingName = session.AccountManagementSession.BusinessAddress.BuildingName ?? organisationData.BuildingName,
+            BuildingNumber = session.AccountManagementSession.BusinessAddress.BuildingNumber ?? organisationData.BuildingNumber,
+            Country = session.AccountManagementSession.BusinessAddress.BuildingNumber ?? organisationData.BuildingNumber,
+            County = session.AccountManagementSession.BusinessAddress.County ?? organisationData.County,
+            DependentLocality = session.AccountManagementSession.BusinessAddress.DependentLocality ?? organisationData.DependentLocality,
+            Locality = session.AccountManagementSession.BusinessAddress.Locality ?? organisationData.Locality,
+            Postcode = session.AccountManagementSession.BusinessAddress.Postcode ?? organisationData.Postcode,
+            Street = session.AccountManagementSession.BusinessAddress.Street ?? organisationData.Street,
+            SubBuildingName = session.AccountManagementSession.BusinessAddress.SubBuildingName ?? organisationData.SubBuildingName,
+            Town = session.AccountManagementSession.BusinessAddress.Town ?? organisationData.Town,
+            NationId = (int?)session.AccountManagementSession.UkNation??organisationData.NationId.Value
+        };
+
+        await _facadeService.UpdateOrganisationDetails(organisationData.Id.Value, organisation);
+
+        TempData.Remove(CheckYourOrganisationDetailsKey);
+
+        // refresh the user data from the database
+        var userAccount = await _facadeService.GetUserAccount();
+        session.UserData = userAccount.User;
+
+        // need to do this so that the cookie updates with the latest data
+        await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
+
+        // save the date/time that the update was performed for the next page
+        var changedDateAt = DateTime.UtcNow;
+        TempData[OrganisationDetailsUpdatedTimeKey] = changedDateAt.UtcToGmt();
+
+        return await SaveSessionAndRedirect(session, nameof(CompanyDetailsUpdated), PagePath.CheckCompanyDetails, PagePath.CompanyDetailsUpdated);
     }
 
     private bool IsCompaniesHouseUser()
