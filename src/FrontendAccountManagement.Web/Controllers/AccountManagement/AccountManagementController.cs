@@ -1370,7 +1370,7 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        //var lastJourneyPage = session.AccountManagementSession.Journey[session.AccountManagementSession.Journey.Count - 1];
+        var lastJourneyPage = session.AccountManagementSession.Journey[session.AccountManagementSession.Journey.Count - 1];
         //if (lastJourneyPage != PagePath.NonCompaniesHouseUkNation && lastJourneyPage != PagePath.UpdateCompanyAddress)
         //{
         //    return RedirectToAction(nameof(ErrorController.Error), nameof(ErrorController), new
@@ -1379,14 +1379,17 @@ public class AccountManagementController : Controller
         //    });
         //}
 
-
-        //Organisation name change only	/manage-account/update-business-address
-        //Business address change only    / manage - account / non - companies - house - uk - nation
-        //Organisation name and business address change   / manage - account / non - companies - house - uk - nation
-
-        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.NonCompaniesHouseUkNation);
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.CheckCompanyDetails);
-        SetBackLink(session, PagePath.CheckCompanyDetails);
+
+        if (lastJourneyPage == PagePath.UpdateCompanyAddress)
+        {
+            SetBackLink(session, PagePath.CheckCompanyDetails);
+        }
+
+        if (lastJourneyPage == PagePath.NonCompaniesHouseUkNation)
+        {
+            SetBackLink(session, PagePath.CheckCompanyDetails);
+        }
 
         var model = new CheckCompanyDetailsViewModel
         {
@@ -1428,10 +1431,6 @@ public class AccountManagementController : Controller
         {
             throw new InvalidOperationException(nameof(organisationData));
         }
-        //    var organisation = _mapper.Map<OrganisationUpdateDto>(
-        //session.CompaniesHouseSession.CompaniesHouseData.Organisation,
-        //options =>
-        //    options.Items[CompaniesHouseResponseProfile.NationIdKey] = 3);
 
         var organisation = new OrganisationUpdateDto { 
             Name = session.AccountManagementSession.OrganisationName?? organisationData.Name,
@@ -1448,14 +1447,13 @@ public class AccountManagementController : Controller
             NationId = (int?)session.AccountManagementSession.UkNation??organisationData.NationId.Value
         };
 
-        await _facadeService.UpdateOrganisationDetails(organisationData.Id.Value, organisation);// session.AccountManagementSession.OrganisationName, BuildingName =  });
+        await _facadeService.UpdateOrganisationDetails(organisationData.Id.Value, organisation);
 
         TempData.Remove(CheckYourOrganisationDetailsKey);
 
         // refresh the user data from the database
         var userAccount = await _facadeService.GetUserAccount();
         session.UserData = userAccount.User;
-        await SaveSession(session);
 
         // need to do this so that the cookie updates with the latest data
         await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
@@ -1464,7 +1462,7 @@ public class AccountManagementController : Controller
         var changedDateAt = DateTime.UtcNow;
         TempData[OrganisationDetailsUpdatedTimeKey] = changedDateAt.UtcToGmt();
 
-        return await SaveSessionAndRedirect(session, nameof(CompanyDetailsUpdated), PagePath.BusinessAddress, PagePath.NonCompaniesHouseUkNation);
+        return await SaveSessionAndRedirect(session, nameof(CompanyDetailsUpdated), PagePath.CheckCompanyDetails, PagePath.CompanyDetailsUpdated);
     }
 
     private bool IsCompaniesHouseUser()
