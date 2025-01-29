@@ -3,4 +3,4 @@ variables:
   docker.imageName: 'frontendaccountmanagementregistry'
   acr.azureContainerRegistryName: 'devrwdinfac1401'
   acr.repositoryName: 'frontendaccountmanagementregistry'
-  # serviceName: '' -- Not available
+  serviceName: 'DEVRWDWEBWAA412'
