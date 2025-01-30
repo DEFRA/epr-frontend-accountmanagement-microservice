@@ -201,7 +201,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             {
                 result.Should().BeOfType<RedirectToActionResult>();
                 var redirectResult = result as RedirectToActionResult;
-                redirectResult.ActionName.Should().Be("CheckYourCompanyDetails");
+                redirectResult.ActionName.Should().Be("CheckCompanyDetails");
             }
         }
 

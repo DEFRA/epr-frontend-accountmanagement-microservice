@@ -117,91 +117,40 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Back" xml:space="preserve">
-    <value>Yn ôl</value>
+  <data name="NonCompaniesHouseUkNation.ErrorMessage" xml:space="preserve">
+    <value>Select where in the UK your organisation is based</value>
   </data>
-  <data name="Continue" xml:space="preserve">
-    <value>Parhau</value>
+  <data name="NonCompaniesHouseUkNation.ForNonUkOrganisations" xml:space="preserve">
+    <value>For non-UK organisations this should be one of the following:</value>
   </data>
-  <data name="SkipToMainContent" xml:space="preserve">
-    <value>Neidio i’r prif gynnwys</value>
+  <data name="NonCompaniesHouseUkNation.ForUkOrganisations" xml:space="preserve">
+    <value>For UK organisations this should be:</value>
   </data>
-  <data name="ApplicationTitle" xml:space="preserve">
-    <value>Rhoi gwybod am ddata pecynwaith</value>
+  <data name="NonCompaniesHouseUkNation.PrincipalPlaceOfBusiness" xml:space="preserve">
+    <value>Your principal place of business</value>
   </data>
-  <data name="No" xml:space="preserve">
-    <value>Na</value>
+  <data name="NonCompaniesHouseUkNation.PrincipalPlaceOfBusinessIfNotRegistered" xml:space="preserve">
+    <value>Your principal place of business (if you’re not registered)</value>
   </data>
-  <data name="Yes" xml:space="preserve">
-    <value>Ie</value>
+  <data name="NonCompaniesHouseUkNation.Title" xml:space="preserve">
+    <value>Your UK nation</value>
   </data>
-  <data name="Change" xml:space="preserve">
-    <value>Newid</value>
+  <data name="NonCompaniesHouseUkNation.WeNeedToKnow" xml:space="preserve">
+    <value>We need to know which UK nation you’re based in.</value>
   </data>
-  <data name="Or" xml:space="preserve">
-    <value>neu</value>
+  <data name="NonCompaniesHouseUkNation.WhereInTheIsYourUKBusinessBased" xml:space="preserve">
+    <value>Where in the UK is your business based?</value>
   </data>
-  <data name="Success" xml:space="preserve">
-    <value>Llwyddiant</value>
+  <data name="NonCompaniesHouseUkNation.WhereYourHeadOfficeIs" xml:space="preserve">
+    <value>Where your head office is</value>
   </data>
-  <data name="Error" xml:space="preserve">
-    <value>Gwall</value>
+  <data name="NonCompaniesHouseUkNation.WhereYourOrganisationIsRegistered" xml:space="preserve">
+    <value>Where your organisation is registered</value>
   </data>
-  <data name="ThereIsAProblem" xml:space="preserve">
-    <value>Mae yna broblem</value>
+  <data name="NonCompaniesHouseUkNation.WhereYourUKBranchIs" xml:space="preserve">
+    <value>Where your UK branch or UK postal address is</value>
   </data>
-  <data name="Remove" xml:space="preserve">
-    <value>Tynnu</value>
-  </data>
-  <data name="Approved.Admin" xml:space="preserve">
-    <value>Rheoli’r tîm a llwytho data</value>
-  </data>
-  <data name="Delegated.Admin" xml:space="preserve">
-    <value>Rheoli’r tîm a llwytho data</value>
-  </data>
-  <data name="Basic.Admin" xml:space="preserve">
-    <value>Rheoli’r tîm a llwytho data</value>
-  </data>
-  <data name="Basic.Employee" xml:space="preserve">
-    <value>Uwchlwytho data yn unig</value>
-  </data>
-  <data name="Custom.BackToHome" xml:space="preserve">
-    <value>Yn ôl i’r hafan </value>
-  </data>
-  <data name="English" xml:space="preserve">
-    <value>English</value>
-  </data>
-  <data name="Cymraeg" xml:space="preserve">
-    <value>Cymraeg</value>
-  </data>
-  <data name="Welsh" xml:space="preserve">
-    <value>Cymraeg</value>
-  </data>
-  <data name="ErrorHidden" xml:space="preserve">
-    <value>WError:</value>
-  </data>
-  <data name="GovUKTitle" xml:space="preserve">
-    <value>GOV.UK</value>
-  </data>
-  <data name="Cancel" xml:space="preserve">
-    <value>Canslo</value>
-  </data>
-  <data name="SaveAndContinue" xml:space="preserve">
-    <value>Cadw a pharhau</value>
-  </data>
-  <data name="UpdateOrgNameBackAriaLabel" xml:space="preserve">
-    <value>Click on this link if you wish to go back to the manage account page</value>
-  </data>
-  <data name="UpdateOrgAddressBackAriaLabel" xml:space="preserve">
-    <value>Click on this link if you wish to go back to the previous page</value>
-  </data>
-  <data name="BusinessPostcodeBackAriaLabel" xml:space="preserve">
-    <value>Click on this link if you wish to go back to the Do you want to update your business address page</value>
-  </data>
-	<data name="CompanyNameBackAriaLabel" xml:space="preserve">
-    <value>Click on this link if you wish to go back to the Do you want to update your organisation name page</value>
-  </data>
-  <data name="BusinessAddressBackAriaLabel" xml:space="preserve">
-    <value>Click here if you wish to go to the Do you want to update your organisation’s business address page</value>
+  <data name="NonCompaniesHouseUkNation.YourUKNation" xml:space="preserve">
+    <value>Your UK nation</value>
   </data>
 </root>
