@@ -1493,7 +1493,7 @@ public class AccountManagementController : Controller
         {
             case PagePath.UpdateCompanyAddress:
             case PagePath.NonCompaniesHouseUkNation:
-                SetBackLink(session, PagePath.CheckCompanyDetails);
+                SetBackLink(session, PagePath.CheckCompanyDetails, "Back");
                 break;
             default:
                 return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
