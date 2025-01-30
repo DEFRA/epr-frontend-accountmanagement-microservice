@@ -6,13 +6,7 @@
 @model CheckCompanyDetailsViewModel
 
 @{
-    ViewData["Title"] = Localizer["CheckCompanyDetails.Title"];
-
-    // var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer,
-    // nameof(Model.SubBuildingName), nameof(Model.BuildingNumber), nameof(Model.BuildingName),
-    //     nameof(Model.Street), nameof(Model.Town), nameof(Model.County), nameof(Model.Postcode));
-
-    // const string errorClass = "govuk-input--error";
+    ViewData["Title"] = Localizer["CheckYourDetails"];
 }
 
 <div class="govuk-width-container">
@@ -22,7 +16,7 @@
                 <h1 class="govuk-heading-l govuk-!-margin-bottom-8">
                     @Localizer["CheckYourDetails"]
                 </h1>
-                @if (!string.IsNullOrEmpty(@Model.Name))
+                @if (Model.IsUpdateCompanyName)
                 {
                 <dl class="govuk-summary-list govuk-!-margin-bottom-0">
                     <div class="govuk-summary-list__row">
@@ -45,7 +39,7 @@
                     </div>
                 </dl>
                 }
-                @if (!string.IsNullOrEmpty(@Model.Address))
+                @if (Model.IsUpdateCompanyAddress)
                 {
                 <dl class="govuk-summary-list govuk-!-margin-bottom-0">
                     <div class="govuk-summary-list__row">
@@ -67,9 +61,7 @@
                         </dd>
                     </div>
                 </dl>
-                }
-                @if (!string.IsNullOrEmpty(@Model.UKNation))
-                {
+
                 <dl class="govuk-summary-list govuk-!-margin-bottom-0">
                     <div class="govuk-summary-list__row">
                         <div class="govuk-!-margin-right-3">
