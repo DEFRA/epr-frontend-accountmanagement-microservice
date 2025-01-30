@@ -958,7 +958,7 @@ public class AccountManagementController : Controller
         {
             return View(model);
         }
-        
+
         session.AccountManagementSession.UkNation = (Core.Enums.Nation)model.UkNation;
 
         return await SaveSessionAndRedirect(session, nameof(CheckCompanyDetails), PagePath.NonCompaniesHouseUkNation, PagePath.CheckCompanyDetails);
@@ -1417,7 +1417,7 @@ public class AccountManagementController : Controller
         session.AccountManagementSession ??= new AccountManagementSession();
         session.AccountManagementSession.BusinessAddress = session.AccountManagementSession?.AddressesForPostcode[index];
 
-        return await SaveSessionAndRedirect(session, nameof(NonCompaniesHouseUkNation), PagePath.SelectBusinessAddress, PagePath.NonCompaniesHouseUkNation); //PAUL - this will need changing when page 7 is complete in the journey
+        return await SaveSessionAndRedirect(session, nameof(NonCompaniesHouseUkNation), PagePath.SelectBusinessAddress, PagePath.NonCompaniesHouseUkNation);
     }
 
     [HttpGet]
@@ -1451,7 +1451,7 @@ public class AccountManagementController : Controller
 
         return View(viewModel);
     }
-    
+
     [HttpPost]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     [Route(PagePath.CompanyName)]
@@ -1587,7 +1587,6 @@ public class AccountManagementController : Controller
                 organisation = new OrganisationUpdateDto
                 {
                     Name = userData.Organisations[0].Name,
-
                     BuildingName = session.AccountManagementSession.BusinessAddress.BuildingName,
                     BuildingNumber = session.AccountManagementSession.BusinessAddress.BuildingNumber,
                     Country = session.AccountManagementSession.BusinessAddress.BuildingNumber,
