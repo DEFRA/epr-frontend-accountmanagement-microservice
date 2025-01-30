@@ -955,7 +955,7 @@ public class AccountManagementController : Controller
         {
             return View(model);
         }
-        
+
         session.AccountManagementSession.UkNation = (Core.Enums.Nation)model.UkNation;
 
         return await SaveSessionAndRedirect(session, "check-company-details", PagePath.NonCompaniesHouseUkNation, PagePath.CheckCompanyDetails);
@@ -1414,7 +1414,7 @@ public class AccountManagementController : Controller
         session.AccountManagementSession ??= new AccountManagementSession();
         session.AccountManagementSession.BusinessAddress = session.AccountManagementSession?.AddressesForPostcode[index];
 
-        return await SaveSessionAndRedirect(session, nameof(UkNation), PagePath.SelectBusinessAddress, PagePath.BusinessAddress); //PAUL - this will need changing when page 7 is complete in the journey
+        return await SaveSessionAndRedirect(session, nameof(NonCompaniesHouseUkNation), PagePath.SelectBusinessAddress, PagePath.BusinessAddress);
     }
 
     [HttpGet]
@@ -1448,7 +1448,7 @@ public class AccountManagementController : Controller
 
         return View(viewModel);
     }
-    
+
     [HttpPost]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     [Route(PagePath.CompanyName)]
@@ -1456,7 +1456,7 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
 
-       
+
 
         if (!ModelState.IsValid)
         {
@@ -1533,8 +1533,9 @@ public class AccountManagementController : Controller
             throw new InvalidOperationException(nameof(organisationData));
         }
 
-        var organisation = new OrganisationUpdateDto { 
-            Name = session.AccountManagementSession.OrganisationName?? organisationData.Name,
+        var organisation = new OrganisationUpdateDto
+        {
+            Name = session.AccountManagementSession.OrganisationName ?? organisationData.Name,
             BuildingName = session.AccountManagementSession.BusinessAddress.BuildingName ?? organisationData.BuildingName,
             BuildingNumber = session.AccountManagementSession.BusinessAddress.BuildingNumber ?? organisationData.BuildingNumber,
             Country = session.AccountManagementSession.BusinessAddress.BuildingNumber ?? organisationData.BuildingNumber,
@@ -1545,7 +1546,7 @@ public class AccountManagementController : Controller
             Street = session.AccountManagementSession.BusinessAddress.Street ?? organisationData.Street,
             SubBuildingName = session.AccountManagementSession.BusinessAddress.SubBuildingName ?? organisationData.SubBuildingName,
             Town = session.AccountManagementSession.BusinessAddress.Town ?? organisationData.Town,
-            NationId = (int?)session.AccountManagementSession.UkNation??organisationData.NationId.Value
+            NationId = (int?)session.AccountManagementSession.UkNation ?? organisationData.NationId.Value
         };
 
         await _facadeService.UpdateOrganisationDetails(organisationData.Id.Value, organisation);
