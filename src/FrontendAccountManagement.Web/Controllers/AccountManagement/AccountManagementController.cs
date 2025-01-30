@@ -1309,7 +1309,7 @@ public class AccountManagementController : Controller
             Postcode = session?.AccountManagementSession?.BusinessAddress?.Postcode,
         };
 
-        SetBackLink(session, PagePath.SelectBusinessAddress);
+        SetBackLink(session, PagePath.SelectBusinessAddress, LocalizerName.BusinessAddressBackAriaLabel);
         await _sessionManager.SaveSessionAsync(HttpContext.Session, session);
 
         AddressList? addressList = null;
