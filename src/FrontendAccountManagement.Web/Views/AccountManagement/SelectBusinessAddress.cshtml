@@ -27,7 +27,7 @@
                             <p class="govuk-body govuk-!-margin-bottom-0">@Localizer["SelectBusinessAddress.Hint"]</p>
                             <span>
                                 <span class="govuk-body govuk-!-font-weight-bold govuk-!-padding-right-3">@Model?.Postcode?.ToUpper()</span>
-                                <a href="~/business-address-postcode" class="govuk-link govuk-link--no-visited-state">@SharedLocalizer["Change"]</a>
+                                <a href="~/business-address-postcode" class="govuk-link govuk-link--no-visited-state" aria-label="@SharedLocalizer["Change"]">@SharedLocalizer["Change"]</a>
                             </span>
                         </div>
 
@@ -55,7 +55,7 @@
                             </div>
                         </div>
                         <div class="govuk-body">                            
-                            <a asp-controller="AccountManagement" asp-action="BusinessAddress" class="govuk-link">@Localizer["SelectBusinessAddress.AddressNotFoundLink"]</a>
+                            <a asp-controller="AccountManagement" asp-action="BusinessAddress" class="govuk-link" aria-label="@Localizer["SelectBusinessAddress.AddressNotFoundLink"]">@Localizer["SelectBusinessAddress.AddressNotFoundLink"]</a>
                         </div>
                     </div>
 
