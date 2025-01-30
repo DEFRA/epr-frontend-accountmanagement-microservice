@@ -40,6 +40,8 @@ public class AccountManagementController : Controller
     private const string AmendedUserDetailsKey = "AmendedUserDetails";
     private const string NewUserDetailsKey = "NewUserDetails";
     private const string ServiceKey = "Packaging";
+    private const string ApprovedPersonNameChangeKey = "ApprovedPersonNameChange";
+
     private readonly ISessionManager<JourneySession> _sessionManager;
     private readonly IFacadeService _facadeService;
     private readonly ILogger<AccountManagementController> _logger;
@@ -997,6 +999,70 @@ public class AccountManagementController : Controller
         SetCustomBackLink(PagePath.ManageAccount, false);
         return View();
     }
+
+
+    [HttpGet]
+    [Route(PagePath.ApprovedPersonNameChange)]
+    public async Task<IActionResult> ApprovedPersonNameChange()
+    {
+        var editDetailsViewModel = new EditUserDetailsViewModel();
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var userData = User.GetUserData();
+
+        if (userData.IsChangeRequestPending)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.Forbidden
+            });
+        }
+
+        if (TempData[AmendedUserDetailsKey] != null)
+        {
+            try
+            {
+                editDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Deserialising NewUserDetails Failed.");
+            }
+        }
+
+        var model = new ApprovedPersonNameChangeViewModel()
+        {
+            FirstName = editDetailsViewModel.FirstName ?? userData.FirstName,
+            LastName = editDetailsViewModel.LastName ?? userData.LastName,
+        };
+
+        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonNameChange);
+
+        SetBackLink(PagePath.ApprovedPersonNameChange);
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [Route(PagePath.ApprovedPersonNameChange)]
+    public async Task<IActionResult> ApprovedPersonNameChange(ApprovedPersonNameChangeViewModel model)
+    {
+        SetCustomBackLink(PagePath.ManageAccount, false);
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        if (!TempData.TryAdd(ApprovedPersonNameChangeKey, JsonSerializer.Serialize(model)))
+        {
+            TempData[ApprovedPersonNameChangeKey] = JsonSerializer.Serialize(model);
+        }
+
+        //Change to the next page in the jorney
+        //return RedirectToAction("approved-person-role-change");
+        return View(model);
+    }
+
 
     private async Task<bool> CompareDataAsync(JourneySession session)
     {

@@ -21,8 +21,16 @@
     <Exec Command="npm run build-frontend" />
   </Target>
 
+  <ItemGroup>
+    <Content Remove="appsettings.development.json" />
+  </ItemGroup>
+
     <ItemGroup>
       <Folder Include="assets\js" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="appsettings.development.json" />
     </ItemGroup>
   
     <ItemGroup>
@@ -56,6 +64,10 @@
         <SubType>Designer</SubType>
         <Generator>PublicResXFileCodeGenerator</Generator>
         <LastGenOutput>UkNationResource.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\AccountManagement\ApprovedPersonNameChange.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>ApprovedPersonNameChange.Designer.cs</LastGenOutput>
       </EmbeddedResource>
       <EmbeddedResource Update="Resources\Views\AccountManagement\EditUserDetails.resx">
         <Generator>ResXFileCodeGenerator</Generator>
@@ -164,6 +176,11 @@
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>
         <DependentUpon>UkNationResource.resx</DependentUpon>
+      </Compile>
+      <Compile Update="Resources\Views\AccountManagement\ApprovedPersonNameChange.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>ApprovedPersonNameChange.resx</DependentUpon>
       </Compile>
       <Compile Update="Resources\Views\AccountManagement\EditUserDetails.Designer.cs">
         <DesignTime>True</DesignTime>
