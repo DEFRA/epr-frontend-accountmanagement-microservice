@@ -860,7 +860,7 @@ public class AccountManagementController : Controller
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.BusinessAddressPostcode);
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.BusinessAddress);
         session.AccountManagementSession.Journey.RemoveAll(x => x == PagePath.SelectBusinessAddress);
-        SetBackLink(session, PagePath.BusinessAddress);
+        SetBackLink(session, PagePath.BusinessAddress, LocalizerName.UpdateBusinessAddressBackAriaLabel);
 
         var model = new BusinessAddressViewModel
         {
@@ -1312,7 +1312,7 @@ public class AccountManagementController : Controller
             Postcode = session?.AccountManagementSession?.BusinessAddress?.Postcode,
         };
 
-        SetBackLink(session, PagePath.SelectBusinessAddress);
+        SetBackLink(session, PagePath.SelectBusinessAddress, LocalizerName.BusinessAddressBackAriaLabel);
         await _sessionManager.SaveSessionAsync(HttpContext.Session, session);
 
         AddressList? addressList = null;
