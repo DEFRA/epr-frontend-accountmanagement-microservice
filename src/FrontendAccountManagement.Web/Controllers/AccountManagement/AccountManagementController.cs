@@ -1479,7 +1479,7 @@ public class AccountManagementController : Controller
     public async Task<IActionResult> CheckCompanyDetails()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        if (session?.AccountManagementSession == null || session.AccountManagementSession.Journey.Count() < 2)
+        if (session?.AccountManagementSession == null || !session.AccountManagementSession.Journey.Any())
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
             {
