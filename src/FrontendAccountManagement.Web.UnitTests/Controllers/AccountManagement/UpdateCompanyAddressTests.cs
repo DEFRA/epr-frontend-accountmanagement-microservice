@@ -147,7 +147,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             {
                 result.Should().BeOfType<RedirectToActionResult>();
                 var redirectResult = result as RedirectToActionResult;
-                redirectResult.ActionName.Should().Be("BusinessAddressPostcode");
+                redirectResult.ActionName.Should().Be(nameof(SystemUnderTest.BusinessAddressPostcode));
             }
         }
 
@@ -170,7 +170,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             {
                 result.Should().BeOfType<RedirectToActionResult>();
                 var redirectResult = result as RedirectToActionResult;
-                redirectResult.ActionName.Should().Be("BusinessAddressPostcode");
+                redirectResult.ActionName.Should().Be(nameof(SystemUnderTest.BusinessAddressPostcode));
             }
         }
 
@@ -201,7 +201,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             {
                 result.Should().BeOfType<RedirectToActionResult>();
                 var redirectResult = result as RedirectToActionResult;
-                redirectResult.ActionName.Should().Be("CheckCompanyDetails");
+                redirectResult.ActionName.Should().Be(nameof(SystemUnderTest.CheckCompanyDetails));
             }
         }
 
