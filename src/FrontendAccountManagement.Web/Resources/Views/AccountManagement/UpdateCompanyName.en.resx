@@ -104,4 +104,7 @@
 	<data name="UpdateCompanyName.SelectionError" xml:space="preserve">
 		<value>Select an option</value>
 	</data>
+	<data name="UpdateCompanyName.Title" xml:space="preserve">
+		<value>Do you want to update your organisation's name?</value>
+	</data>
 </root>

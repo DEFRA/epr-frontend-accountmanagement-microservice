@@ -1216,13 +1216,13 @@ public class AccountManagementController : Controller
 
         if (session.AccountManagementSession.IsUpdateCompanyAddress)
         {
-            return await SaveSessionAndRedirect(session, "BusinessAddressPostcode", PagePath.UpdateCompanyAddress, PagePath.BusinessAddressPostcode);
+            return await SaveSessionAndRedirect(session, nameof(BusinessAddressPostcode), PagePath.UpdateCompanyAddress, PagePath.BusinessAddressPostcode);
         }
         else
         {
             if (session.AccountManagementSession.IsUpdateCompanyName)
             {
-                return await SaveSessionAndRedirect(session, "CheckCompanyDetails", PagePath.UpdateCompanyAddress, PagePath.CheckCompanyDetails);
+                return await SaveSessionAndRedirect(session, nameof(CheckCompanyDetails), PagePath.UpdateCompanyAddress, PagePath.CheckCompanyDetails);
             }
             else
             {
