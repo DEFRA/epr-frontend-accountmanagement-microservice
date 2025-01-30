@@ -550,6 +550,11 @@ public class AccountManagementController : Controller
             });
         }
 
+        if (IsApprovedOrDelegatedUser(userData))
+        {
+            return RedirectToAction(nameof(ApprovedPersonNameChange));
+        }
+
         if (TempData[AmendedUserDetailsKey] != null)
         {
             try
