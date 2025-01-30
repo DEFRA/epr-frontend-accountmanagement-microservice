@@ -126,7 +126,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             using (new AssertionScope())
             {
                 result.Should().BeOfType<RedirectToActionResult>();
-                ((RedirectToActionResult)result).ActionName.Should().Be(nameof(AccountManagementController.UkNation));
+                ((RedirectToActionResult)result).ActionName.Should().Be(nameof(AccountManagementController.NonCompaniesHouseUkNation));
                 SessionManagerMock.Verify(sessionManager => sessionManager
                     .SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
             }
@@ -235,7 +235,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             using (new AssertionScope())
             {
                 result.Should().BeOfType<RedirectToActionResult>()
-                .Which.ActionName.Should().Be(nameof(AccountManagementController.UkNation));
+                .Which.ActionName.Should().Be(nameof(AccountManagementController.NonCompaniesHouseUkNation));
             }
         }
 

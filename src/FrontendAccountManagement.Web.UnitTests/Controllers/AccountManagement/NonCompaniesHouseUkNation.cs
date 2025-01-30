@@ -5,6 +5,7 @@ using EPR.Common.Authorization.Models;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Constants.Enums;
+using FrontendAccountManagement.Web.Controllers.AccountManagement;
 using FrontendAccountManagement.Web.Controllers.Errors;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Http;
@@ -73,7 +74,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             // Assert
             result.Should().BeOfType<RedirectToActionResult>();
 
-            ((RedirectToActionResult)result).ActionName.Should().Be("check-company-details");
+            ((RedirectToActionResult)result).ActionName.Should().Be(nameof(AccountManagementController.CheckCompanyDetails));
 
             Assert.AreEqual(Core.Enums.Nation.England, _journeySession.AccountManagementSession.UkNation);
             SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
