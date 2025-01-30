@@ -31,7 +31,7 @@
                             @Model.Name
                         </dd>
                         <dd class="govuk-summary-list__actions">
-                            <a href="~/@PagePath.CompanyName" class="govuk-link govuk-link--no-visited-state">
+                                <a href="~/@PagePath.CompanyName" class="govuk-link govuk-link--no-visited-state" aria-label="@SharedLocalizer["Change"]">
                                     @SharedLocalizer["Change"]
                                 <span class="govuk-visually-hidden"></span>
                             </a>
@@ -54,7 +54,7 @@
                             @Model.Address
                         </dd>
                         <dd class="govuk-summary-list__actions">
-                            <a href="~/@PagePath.BusinessAddressPostcode" class="govuk-link govuk-link--no-visited-state">
+                                <a href="~/@PagePath.BusinessAddressPostcode" class="govuk-link govuk-link--no-visited-state" aria-label="@SharedLocalizer["Change"]">
                                     @SharedLocalizer["Change"]
                                 <span class="govuk-visually-hidden"></span>
                             </a>
@@ -75,7 +75,7 @@
                             @Model.UKNation
                         </dd>
                         <dd class="govuk-summary-list__actions">
-                            <a href="~/@PagePath.NonCompaniesHouseUkNation" class="govuk-link govuk-link--no-visited-state">
+                                <a href="~/@PagePath.NonCompaniesHouseUkNation" class="govuk-link govuk-link--no-visited-state" aria-label="@SharedLocalizer["Change"]">
                                 @SharedLocalizer["Change"]
                                 <span class="govuk-visually-hidden"></span>
                             </a>
@@ -86,7 +86,7 @@
 
                 <br />
                 <form asp-controller="AccountManagement" asp-action="CheckCompanyDetailsPost" method="post">
-                    <button class="govuk-button" data-module="govuk-button" aria-label="@SharedLocalizer["Continue"]">
+                    <button class="govuk-button" data-module="govuk-button" aria-label="@SharedLocalizer["SaveAndContinue"]">
                         @SharedLocalizer["SaveAndContinue"]
                     </button>
                 </form>
