@@ -1,4 +1,5 @@
 ﻿using EPR.Common.Authorization.Models;
+using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.Errors;
@@ -36,7 +37,9 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 FirstName = FirstName,
                 LastName = LastName,
                 IsChangeRequestPending = false,
-                Organisations = new List<Organisation>()
+                Organisations = new List<Organisation>() { new Organisation { Id = Guid.NewGuid(), OrganisationType = "Companies House Company" } },
+                RoleInOrganisation = PersonRole.Admin.ToString(),
+                ServiceRoleId = (int)Core.Enums.ServiceRole.Approved
             };
 
             var expectedModel = new EditUserDetailsViewModel
@@ -108,7 +111,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task TempDataHasValidAmendedUserDetails_DeserializesAndReturnsViewWithModel()
+        public async Task ShouldReturnForbidden_WhenUserIsNotApprovedCompany()
         {
             // Arrange
             var mockUserData = new UserData
@@ -117,6 +120,51 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 LastName = LastName,
                 IsChangeRequestPending = false,
                 Organisations = new List<Organisation>()
+            };
+
+            var expectedModel = new EditUserDetailsViewModel
+            {
+                FirstName = FirstName,
+                LastName = LastName
+            };
+
+            AutoMapperMock.Setup(m =>
+                m.Map<EditUserDetailsViewModel>(mockUserData))
+                .Returns(expectedModel);
+
+            SetupBase(mockUserData);
+
+            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+                .ReturnsAsync(new JourneySession
+                {
+                    UserData = mockUserData
+                });
+
+            // Act
+            var result = await SystemUnderTest.ApprovedPersonNameChange();
+
+            // Assert
+            result.Should().BeOfType<RedirectToActionResult>();
+            var redirectResult = (RedirectToActionResult)result;
+
+            redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+            redirectResult.ActionName.Should().Be(PagePath.Error);
+            redirectResult.RouteValues.Should().ContainKey("statusCode");
+            redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
+        }
+
+        [TestMethod]
+        public async Task TempDataHasValidAmendedUserDetails_DeserializesAndReturnsViewWithModel()
+        {
+            // Arrange
+            var mockUserData = new UserData
+            {
+                FirstName = FirstName,
+                LastName = LastName,
+                IsChangeRequestPending = false,
+                Organisations = new List<Organisation>() { new Organisation { Id = Guid.NewGuid(), OrganisationType = "Companies House Company" } },
+                RoleInOrganisation = PersonRole.Admin.ToString(),
+                ServiceRoleId = (int)Core.Enums.ServiceRole.Approved
             };
 
             var expectedModel = new EditUserDetailsViewModel

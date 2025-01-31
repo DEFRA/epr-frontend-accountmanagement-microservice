@@ -1014,7 +1014,7 @@ public class AccountManagementController : Controller
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
 
-        if (userData.IsChangeRequestPending)
+         if (userData.IsChangeRequestPending || !IsApprovedOrDelegatedCompaniesHouseUser(userData))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
             {
