@@ -21,16 +21,8 @@
     <Exec Command="npm run build-frontend" />
   </Target>
 
-  <ItemGroup>
-    <Content Remove="appsettings.development.json" />
-  </ItemGroup>
-
     <ItemGroup>
       <Folder Include="assets\js" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Include="appsettings.development.json" />
     </ItemGroup>
   
     <ItemGroup>
