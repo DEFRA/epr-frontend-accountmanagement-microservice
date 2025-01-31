@@ -110,10 +110,18 @@
                         }
                         else
                         {
-                            <a href="~/@PagePath.WhatAreYourDetails" class="govuk-link govuk-link--no-visited-state">
-                                @SharedLocalizer["Change"]
-                                <span class="govuk-visually-hidden"></span>
-                            </a>
+                            if (Model.IsApprovedOrDelegatedCompaniesHouseUser == true){
+                                    <a href="~/@PagePath.ApprovedPersonNameChange" class="govuk-link govuk-link--no-visited-state">
+                                        @SharedLocalizer["Change"]
+                                        <span class="govuk-visually-hidden"></span>
+                                    </a>
+                            }
+                            else{
+                                    <a href="~/@PagePath.WhatAreYourDetails" class="govuk-link govuk-link--no-visited-state">
+                                        @SharedLocalizer["Change"]
+                                        <span class="govuk-visually-hidden"></span>
+                                    </a>
+                            }
                         }
                     </dd>
                 </dl>

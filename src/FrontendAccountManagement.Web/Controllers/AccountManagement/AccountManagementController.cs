@@ -146,6 +146,7 @@ public class AccountManagementController : Controller
             model.IsChangeRequestPending = userAccount.IsChangeRequestPending;
             model.IsAdmin = userAccount.RoleInOrganisation == PersonRole.Admin.ToString();
             model.ShowManageUserDetailChanges = await _featureManager.IsEnabledAsync(FeatureFlags.ManageUserDetailChanges);
+            model.IsApprovedOrDelegatedCompaniesHouseUser = IsApprovedOrDelegatedCompaniesHouseUser(userAccount);
         }
         return View(nameof(ManageAccount), model);
     }
@@ -548,11 +549,6 @@ public class AccountManagementController : Controller
             {
                 statusCode = (int)HttpStatusCode.Forbidden
             });
-        }
-
-        if (IsApprovedOrDelegatedCompaniesHouseUser(userData))
-        {
-            return RedirectToAction(nameof(ApprovedPersonNameChange));
         }
 
         if (TempData[AmendedUserDetailsKey] != null)

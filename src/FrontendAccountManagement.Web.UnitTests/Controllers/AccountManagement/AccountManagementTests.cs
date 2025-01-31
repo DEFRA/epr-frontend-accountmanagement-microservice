@@ -1164,38 +1164,6 @@ public class AccountManagementTests : AccountManagementTestBase
     }
 
     [TestMethod]
-    public async Task EditUserDetails_ApprovedCompanyUser_ShouldRedirectTo_ApprovedUserNameChnage()
-    {
-        // Arrange
-        var mockUserData = new UserData
-        {
-            FirstName = FirstName,
-            LastName = LastName,
-            Telephone = Telephone,
-            IsChangeRequestPending = false,
-            Organisations = new List<Organisation>() { new Organisation { Id = Guid.NewGuid(), OrganisationType = "Companies House Company" } },
-            RoleInOrganisation = PersonRole.Admin.ToString(),
-            ServiceRoleId = (int)Core.Enums.ServiceRole.Approved
-        };
-        SetupBase(mockUserData);
-
-        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-            .ReturnsAsync(new JourneySession
-            {
-                UserData = mockUserData
-            });
-
-        // Act
-        var result = await SystemUnderTest.EditUserDetails();
-
-        // Assert
-        var redirectToActionResult = result as RedirectToActionResult;
-        Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
-        Assert.IsNotNull(redirectToActionResult);
-        Assert.AreEqual(nameof(SystemUnderTest.ApprovedPersonNameChange), redirectToActionResult.ActionName);
-    }
-
-    [TestMethod]
     public async Task ConfirmDetailsOfTheCompany_ShouldRedirectToUkNation()
     {
         // Act
