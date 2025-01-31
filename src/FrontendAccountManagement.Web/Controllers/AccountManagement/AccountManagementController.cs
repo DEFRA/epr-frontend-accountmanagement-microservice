@@ -550,7 +550,7 @@ public class AccountManagementController : Controller
             });
         }
 
-        if (IsApprovedOrDelegatedUser(userData))
+        if (IsApprovedOrDelegatedCompaniesHouseUser(userData))
         {
             return RedirectToAction(nameof(ApprovedPersonNameChange));
         }
@@ -1064,7 +1064,6 @@ public class AccountManagementController : Controller
         }
 
         //Change to the next page in the jorney
-        //return RedirectToAction("approved-person-role-change");
         return View(model);
     }
 
@@ -1282,4 +1281,11 @@ public class AccountManagementController : Controller
         return roleInOrganisation == PersonRole.Admin.ToString() &&
             serviceRoleId == (int)ServiceRole.Basic;
     }
+
+    private static bool IsApprovedOrDelegatedCompaniesHouseUser(UserData userData) =>
+        userData?
+            .Organisations?
+            .FirstOrDefault()?
+            .OrganisationType == OrganisationType.CompaniesHouseCompany
+&& IsApprovedOrDelegatedUser(userData);
 }

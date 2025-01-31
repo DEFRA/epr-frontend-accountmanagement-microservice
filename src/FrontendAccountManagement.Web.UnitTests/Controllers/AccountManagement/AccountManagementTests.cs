@@ -1173,7 +1173,7 @@ public class AccountManagementTests : AccountManagementTestBase
             LastName = LastName,
             Telephone = Telephone,
             IsChangeRequestPending = false,
-            Organisations = new List<Organisation>(),
+            Organisations = new List<Organisation>() { new Organisation { Id = Guid.NewGuid(), OrganisationType = "Companies House Company" } },
             RoleInOrganisation = PersonRole.Admin.ToString(),
             ServiceRoleId = (int)Core.Enums.ServiceRole.Approved
         };
