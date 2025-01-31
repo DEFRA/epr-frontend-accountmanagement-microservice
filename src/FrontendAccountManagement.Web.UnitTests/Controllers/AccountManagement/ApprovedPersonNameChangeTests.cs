@@ -19,7 +19,6 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
     {
         private const string FirstName = "Test First Name";
         private const string LastName = "Test Last Name";
-        private const string Telephone = "07545822431";
         private const string AmendedUserDetailsKey = "AmendedUserDetails";
 
         [TestInitialize]
@@ -36,7 +35,6 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             {
                 FirstName = FirstName,
                 LastName = LastName,
-                Telephone = Telephone,
                 IsChangeRequestPending = false,
                 Organisations = new List<Organisation>()
             };
@@ -74,7 +72,6 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             {
                 FirstName = FirstName,
                 LastName = LastName,
-                Telephone = Telephone,
                 IsChangeRequestPending = true,
                 Organisations = new List<Organisation>()
             };
@@ -82,8 +79,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             var expectedModel = new EditUserDetailsViewModel
             {
                 FirstName = FirstName,
-                LastName = LastName,
-                Telephone = Telephone
+                LastName = LastName
             };
 
             AutoMapperMock.Setup(m =>
@@ -119,7 +115,6 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             {
                 FirstName = FirstName,
                 LastName = LastName,
-                Telephone = Telephone,
                 IsChangeRequestPending = false,
                 Organisations = new List<Organisation>()
             };
@@ -127,8 +122,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             var expectedModel = new EditUserDetailsViewModel
             {
                 FirstName = FirstName,
-                LastName = LastName,
-                Telephone = Telephone
+                LastName = LastName
             };
 
             var serializedModel = JsonSerializer.Serialize(expectedModel);
