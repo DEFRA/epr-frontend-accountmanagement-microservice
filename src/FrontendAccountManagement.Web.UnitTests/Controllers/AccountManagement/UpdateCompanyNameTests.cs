@@ -107,7 +107,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             {
                 result.Should().BeOfType<RedirectToActionResult>();
                 var redirectResult = result as RedirectToActionResult;
-                redirectResult.ActionName.Should().Be("CompanyName");
+                redirectResult.ActionName.Should().Be(nameof(SystemUnderTest.CompanyName));
             }
         }
 

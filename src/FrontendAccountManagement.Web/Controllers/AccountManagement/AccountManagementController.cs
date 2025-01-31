@@ -1171,7 +1171,7 @@ public class AccountManagementController : Controller
 
         if (session.AccountManagementSession.IsUpdateCompanyName)
         {
-            return await SaveSessionAndRedirect(session, "CompanyName", PagePath.UpdateCompanyName, PagePath.CompanyName);
+            return await SaveSessionAndRedirect(session, nameof(CompanyName), PagePath.UpdateCompanyName, PagePath.CompanyName);
         }
         else
         {
