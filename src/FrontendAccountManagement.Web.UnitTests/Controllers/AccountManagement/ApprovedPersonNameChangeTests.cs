@@ -29,6 +29,44 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
+        public async Task ShouldReturnViewWithCorrectModel()
+        {
+            // Arrange
+            var mockUserData = new UserData
+            {
+                FirstName = FirstName,
+                LastName = LastName,
+                Telephone = Telephone,
+                IsChangeRequestPending = false,
+                Organisations = new List<Organisation>()
+            };
+
+            var expectedModel = new EditUserDetailsViewModel
+            {
+                FirstName = FirstName,
+                LastName = LastName
+            };
+
+            SetupBase(mockUserData);
+
+            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+                .ReturnsAsync(new JourneySession
+                {
+                    UserData = mockUserData
+                });
+
+            // Act
+            var result = await SystemUnderTest.ApprovedPersonNameChange();
+
+            // Assert
+            var viewResult = result as ViewResult;
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
+            Assert.IsNotNull(viewResult);
+            Assert.AreEqual(expectedModel.FirstName, ((ApprovedPersonNameChangeViewModel)viewResult.Model).FirstName);
+            Assert.AreEqual(expectedModel.LastName, ((ApprovedPersonNameChangeViewModel)viewResult.Model).LastName);
+        }
+
+        [TestMethod]
         public async Task ShouldReturnForbidden_WhenIsChangeRequestPendingIsTrue()
         {
             // Arrange
@@ -120,7 +158,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task Should_Overwrite_ApprovedPersonNameChange_When_TempData_Set()
+        public async Task Should_Overwrite_ApprovedPersonNameChange_TempData_When_Already_Set()
         {
             // Arrange
             var previousNewDetails = new ApprovedPersonNameChangeViewModel
