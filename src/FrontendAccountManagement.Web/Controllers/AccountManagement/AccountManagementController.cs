@@ -39,6 +39,7 @@ public class AccountManagementController : Controller
     private const string OrganisationDetailsUpdatedTimeKey = "OrganisationDetailsUpdatedTime";
     private const string AmendedUserDetailsKey = "AmendedUserDetails";
     private const string NewUserDetailsKey = "NewUserDetails";
+    private const string ApprovedPersonRoleChangeKey = "ApprovedPersonRoleChange";
     private const string ServiceKey = "Packaging";
     private readonly ISessionManager<JourneySession> _sessionManager;
     private readonly IFacadeService _facadeService;
@@ -600,7 +601,71 @@ public class AccountManagementController : Controller
             TempData[NewUserDetailsKey] = JsonSerializer.Serialize(editUserDetailsViewModel);
         }
 
-        return RedirectToAction(nameof(PagePath.CheckYourDetails));
+        return RedirectToAction(nameof(PagePath.ChangeCompanyRole));
+    }
+
+    [HttpGet]
+    [Route(PagePath.ChangeCompanyRole)]
+    public async Task<IActionResult> EditUserCompanyRoleDetails()
+    {
+        var editDetailsViewModel = new EditUserDetailsViewModel();
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var userData = User.GetUserData();
+ 
+        if (userData.IsChangeRequestPending)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.Forbidden
+            });
+        }
+
+        if (TempData[AmendedUserDetailsKey] != null)
+        {
+            try
+            {
+                editDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Deserialising NewUserDetails Failed.");
+            }
+        }
+
+        var model = new EditCompanyRoleDetailsViewModel
+        {
+            SelectedCompaniesHouseRole = editDetailsViewModel.OriginalJobTitle
+        };
+
+        SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.WhatAreYourDetails);
+        SetBackLink(session, PagePath.WhatAreYourDetails);
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [Route(PagePath.ChangeCompanyRole)]
+    public async Task<IActionResult> EditUserCompanyRoleDetails(EditCompanyRoleDetailsViewModel editCompanyRoleDetailsViewModel)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        SetCustomBackLink(PagePath.ManageAccount, false);
+
+        if (!ModelState.IsValid)
+        {
+            await SetBackLink(PagePath.WhatAreYourDetails);
+            return View(editCompanyRoleDetailsViewModel);
+        }
+
+        //tries to add new temp data and if its already exists replace it with the new one
+        if (!TempData.TryAdd(ApprovedPersonRoleChangeKey, JsonSerializer.Serialize(editCompanyRoleDetailsViewModel)))
+        {
+            TempData[ApprovedPersonRoleChangeKey] = JsonSerializer.Serialize(editCompanyRoleDetailsViewModel);
+        }
+
+        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ChangeCompanyRole);
+
+        return RedirectToAction(nameof(PagePath.ManageAccount));
     }
 
     [HttpGet]
