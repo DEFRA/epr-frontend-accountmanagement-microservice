@@ -25,6 +25,7 @@ using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
 using System;
 using System.Net;
+using System.Reflection;
 using System.Text.Json;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
@@ -69,8 +70,48 @@ public class AccountManagementController : Controller
         _featureManager = featureManager;
         _mapper = mapper;
     }
+    [HttpGet] 
+    [Route(PagePath.ManageAccountTelephone)]
+    public async Task<IActionResult> ManageAccountTelephone()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var userData = User.GetUserData();
 
-    [HttpGet]
+        if (userData.IsChangeRequestPending)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.Forbidden
+            });
+        }
+        bool isUpdatable = false;
+        var serviceRole = userData.ServiceRole ?? string.Empty;
+        var roleInOrganisation = userData.RoleInOrganisation ?? string.Empty;
+
+        var editUserDetailsViewModel = new EditUserDetailsViewModel();
+
+        if (TempData[NewUserDetailsKey] != null)
+        {
+            try
+            {
+                editUserDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[NewUserDetailsKey] as string);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogInformation(exception, "Deserialising NewUserDetails Failed.");
+            }
+        }
+         
+
+        var model = new ManageAccountTelephoneViewModel();
+
+        model.OriginalPhoneNumber = editUserDetailsViewModel.OriginalTelephone ?? string.Empty;
+        model.NewPhoneNumber = editUserDetailsViewModel.OriginalTelephone ?? string.Empty;
+         
+        return View(nameof(ManageAccountTelephone), model);
+    }
+
+        [HttpGet]
     [Route("")]
     [Route(PagePath.ManageAccount)]
     public async Task<IActionResult> ManageAccount(ManageAccountViewModel model)
