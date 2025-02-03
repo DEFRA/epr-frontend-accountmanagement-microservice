@@ -49,11 +49,12 @@
                                 @{ bool isFirstOption = true; }
                                 @foreach (var role in roles)
                                 {
+                                    string checkedAttribute = Model.SelectedCompaniesHouseRole == role.Value ? "checked" : "";
                                     <div class="govuk-radios__item">
                                         <input class="govuk-radios__input"
                                                name="SelectedCompaniesHouseRole"
                                                type="radio"
-                                               @(Model.SelectedCompaniesHouseRole == role.Value ? "checked" : "")
+                                               @checkedAttribute
                                                gov-for="SelectedCompaniesHouseRole"
                                                gov-first-option="@isFirstOption"
                                                gov-value="@role.Value" 
