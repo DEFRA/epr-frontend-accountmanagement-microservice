@@ -98,4 +98,25 @@
 	<resheader name="writer">
 		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
 	</resheader>
+  <data name="ApprovedPersonNameChangeTitle" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="FirstName" xml:space="preserve">
+    <value>Enw cyntaf</value>
+  </data>
+  <data name="FirstNameMaxLength" xml:space="preserve">
+    <value>Rhaid i'ch enw cyntaf fod yn 50 o gymeriadau neu lai</value>
+  </data>
+  <data name="FirstNameMissing" xml:space="preserve">
+    <value>Rhowch eich enw cyntaf</value>
+  </data>
+   <data name="LastName" xml:space="preserve">
+    <value>Enw olaf</value>
+  </data>
+  <data name="LastNameMaxLength" xml:space="preserve">
+    <value>Rhaid i'ch enw olaf fod yn 50 o gymeriadau neu lai</value>
+  </data>
+  <data name="LastNameMissing" xml:space="preserve">
+    <value>Rhowch eich enw olaf</value>
+  </data>
 </root>
