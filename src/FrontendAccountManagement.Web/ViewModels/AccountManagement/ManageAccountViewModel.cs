@@ -42,5 +42,7 @@ namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
         public bool? IsAdmin { get; set; }
 
         public bool ShowManageUserDetailChanges { get; set; }
+
+        public bool? IsApprovedOrDelegatedCompaniesHouseUser { get; set; }
     }
 }
