@@ -40,6 +40,8 @@ public class AccountManagementController : Controller
     private const string AmendedUserDetailsKey = "AmendedUserDetails";
     private const string NewUserDetailsKey = "NewUserDetails";
     private const string ServiceKey = "Packaging";
+    private const string ApprovedPersonNameChangeKey = "ApprovedPersonNameChange";
+
     private readonly ISessionManager<JourneySession> _sessionManager;
     private readonly IFacadeService _facadeService;
     private readonly ILogger<AccountManagementController> _logger;
@@ -144,6 +146,7 @@ public class AccountManagementController : Controller
             model.IsChangeRequestPending = userAccount.IsChangeRequestPending;
             model.IsAdmin = userAccount.RoleInOrganisation == PersonRole.Admin.ToString();
             model.ShowManageUserDetailChanges = await _featureManager.IsEnabledAsync(FeatureFlags.ManageUserDetailChanges);
+            model.IsApprovedOrDelegatedCompaniesHouseUser = IsApprovedOrDelegatedCompaniesHouseUser(userAccount);
         }
         return View(nameof(ManageAccount), model);
     }
@@ -607,7 +610,6 @@ public class AccountManagementController : Controller
     [Route(PagePath.CheckYourDetails)]
     public async Task<IActionResult> CheckYourDetails()
     {
-
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
 
@@ -998,6 +1000,73 @@ public class AccountManagementController : Controller
         return View();
     }
 
+
+    [HttpGet]
+    [Route(PagePath.ApprovedPersonNameChange)]
+    public async Task<IActionResult> ApprovedPersonNameChange()
+    {
+        var editDetailsViewModel = new EditUserDetailsViewModel();
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var userData = User.GetUserData();
+
+         if (userData.IsChangeRequestPending || !IsApprovedOrDelegatedCompaniesHouseUser(userData))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.Forbidden
+            });
+        }
+
+        if (TempData[AmendedUserDetailsKey] != null)
+        {
+            try
+            {
+                editDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Deserialising NewUserDetails Failed.");
+            }
+        }
+
+        var model = new ApprovedPersonNameChangeViewModel()
+        {
+            FirstName = editDetailsViewModel.FirstName ?? userData.FirstName,
+            LastName = editDetailsViewModel.LastName ?? userData.LastName,
+        };
+
+        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonNameChange);
+
+        SetBackLink(PagePath.ApprovedPersonNameChange);
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [Route(PagePath.ApprovedPersonNameChange)]
+    public async Task<IActionResult> ApprovedPersonNameChange(ApprovedPersonNameChangeViewModel model)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        SetCustomBackLink(PagePath.ManageAccount, false);
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        if (!TempData.TryAdd(ApprovedPersonNameChangeKey, JsonSerializer.Serialize(model)))
+        {
+            TempData[ApprovedPersonNameChangeKey] = JsonSerializer.Serialize(model);
+        }
+
+        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonNameChange);
+
+        //Change to the next page in the jorney
+        return View(model);
+    }
+
+
     private async Task<bool> CompareDataAsync(JourneySession session)
     {
         var userData = User.GetUserData();
@@ -1211,4 +1280,11 @@ public class AccountManagementController : Controller
         return roleInOrganisation == PersonRole.Admin.ToString() &&
             serviceRoleId == (int)ServiceRole.Basic;
     }
+
+    private static bool IsApprovedOrDelegatedCompaniesHouseUser(UserData userData) =>
+        userData?
+            .Organisations?
+            .FirstOrDefault()?
+            .OrganisationType == OrganisationType.CompaniesHouseCompany
+&& IsApprovedOrDelegatedUser(userData);
 }
