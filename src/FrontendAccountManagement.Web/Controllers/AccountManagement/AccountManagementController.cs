@@ -610,7 +610,6 @@ public class AccountManagementController : Controller
     [Route(PagePath.CheckYourDetails)]
     public async Task<IActionResult> CheckYourDetails()
     {
-
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
 
@@ -1047,6 +1046,8 @@ public class AccountManagementController : Controller
     [Route(PagePath.ApprovedPersonNameChange)]
     public async Task<IActionResult> ApprovedPersonNameChange(ApprovedPersonNameChangeViewModel model)
     {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
         SetCustomBackLink(PagePath.ManageAccount, false);
 
         if (!ModelState.IsValid)
@@ -1058,6 +1059,8 @@ public class AccountManagementController : Controller
         {
             TempData[ApprovedPersonNameChangeKey] = JsonSerializer.Serialize(model);
         }
+
+        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonNameChange);
 
         //Change to the next page in the jorney
         return View(model);
