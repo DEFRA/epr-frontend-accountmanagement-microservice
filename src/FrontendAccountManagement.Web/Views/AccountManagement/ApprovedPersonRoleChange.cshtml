@@ -4,7 +4,7 @@
 @using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
 @using FrontendAccountManagement.Web.Controllers.AccountManagement
 
-@model EditCompanyRoleDetailsViewModel
+@model ApprovedPersonRoleChangeViewModel
 
 @{
     ViewData["Title"] = Localizer["EditCompanyRoleDetailsTitle"];
@@ -12,7 +12,7 @@
     var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer); //, formFieldOrder);
 }
 
-@using (Html.BeginForm(nameof(PagePath.ChangeCompanyRole), "AccountManagement", FormMethod.Post))
+@using (Html.BeginForm(nameof(PagePath.ApprovedPersonRoleChange), "AccountManagement", FormMethod.Post))
 {
     @Html.AntiForgeryToken()
     <div class="govuk-width-container">

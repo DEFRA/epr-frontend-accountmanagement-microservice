@@ -22,14 +22,14 @@ namespace FrontendAccountManagement.Web.Resources.Views.AccountManagement {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class EditUserCompanyRoleDetails {
+    internal class ApprovedPersonNameChange {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal EditUserCompanyRoleDetails() {
+        internal ApprovedPersonNameChange() {
         }
         
         /// <summary>
@@ -39,8 +39,8 @@ namespace FrontendAccountManagement.Web.Resources.Views.AccountManagement {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("FrontendAccountManagement.Web.Resources.Views.AccountManagement.EditUserCompanyRo" +
-                            "leDetails", typeof(EditUserCompanyRoleDetails).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("FrontendAccountManagement.Web.Resources.Views.AccountManagement.ApprovedPersonNam" +
+                            "eChange", typeof(ApprovedPersonNameChange).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -62,65 +62,65 @@ namespace FrontendAccountManagement.Web.Resources.Views.AccountManagement {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Company Secretary.
+        ///   Looks up a localized string similar to What is your name, as shown on Companies House?.
         /// </summary>
-        internal static string CompanySecretaryCompanyRole {
+        internal static string ApprovedPersonNameChangeTitle {
             get {
-                return ResourceManager.GetString("CompanySecretaryCompanyRole", resourceCulture);
+                return ResourceManager.GetString("ApprovedPersonNameChangeTitle", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Director.
+        ///   Looks up a localized string similar to First name.
         /// </summary>
-        internal static string DirectorCompanyRole {
+        internal static string FirstName {
             get {
-                return ResourceManager.GetString("DirectorCompanyRole", resourceCulture);
+                return ResourceManager.GetString("FirstName", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Edit Company Role.
+        ///   Looks up a localized string similar to First name must be 50 characters or less.
         /// </summary>
-        internal static string EditCompanyRoleDetailsTitle {
+        internal static string FirstNameMaxLength {
             get {
-                return ResourceManager.GetString("EditCompanyRoleDetailsTitle", resourceCulture);
+                return ResourceManager.GetString("FirstNameMaxLength", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Select a role.
+        ///   Looks up a localized string similar to Enter your first name.
         /// </summary>
-        internal static string InvalidSelection {
+        internal static string FirstNameMissing {
             get {
-                return ResourceManager.GetString("InvalidSelection", resourceCulture);
+                return ResourceManager.GetString("FirstNameMissing", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Member of a limited liability partnership.
+        ///   Looks up a localized string similar to Last name.
         /// </summary>
-        internal static string MemberOfALimitedLiabilityPartnershipCompanyRole {
+        internal static string LastName {
             get {
-                return ResourceManager.GetString("MemberOfALimitedLiabilityPartnershipCompanyRole", resourceCulture);
+                return ResourceManager.GetString("LastName", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Partner.
+        ///   Looks up a localized string similar to Last name must be 50 characters or less.
         /// </summary>
-        internal static string PartnerCompanyRole {
+        internal static string LastNameMaxLength {
             get {
-                return ResourceManager.GetString("PartnerCompanyRole", resourceCulture);
+                return ResourceManager.GetString("LastNameMaxLength", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to What is your role in the organisation, as shown on Companies House?.
+        ///   Looks up a localized string similar to Enter your last name.
         /// </summary>
-        internal static string WhatIsYourRoleInCompaniesHouse {
+        internal static string LastNameMissing {
             get {
-                return ResourceManager.GetString("WhatIsYourRoleInCompaniesHouse", resourceCulture);
+                return ResourceManager.GetString("LastNameMissing", resourceCulture);
             }
         }
     }

@@ -15,13 +15,14 @@ public static class PagePath
     public const string Declaration = "declaration";
     public const string DetailsChangeRequestedNotification = "details-change-requested";
     public const string CheckYourDetails = "check-your-details";
-    public const string ChangeCompanyRole = "approved-person-role-change";
     public const string CheckCompaniesHouseDetails = "check-companies-house-details";
     public const string UkNation = "uk-nation";
     public const string CompanyDetailsUpdated = "company-details-updated";
     public const string CompanyDetailsHaveNotChanged = "company-details-have-not-changed";
     public const string UpdateDetailsConfirmation = "your-details-have-been-updated";
     public const string ChangeCompanyDetails = "change-company-details";
+    public const string ApprovedPersonNameChange = "approved-person-name-change";
+    public const string ApprovedPersonRoleChange = "approved-person-role-change";
 
     // Change role journey paths
     public const string ChangeAccountPermissions = "change-account-permissions";

@@ -41,6 +41,8 @@ public class AccountManagementController : Controller
     private const string NewUserDetailsKey = "NewUserDetails";
     private const string ApprovedPersonRoleChangeKey = "ApprovedPersonRoleChange";
     private const string ServiceKey = "Packaging";
+    private const string ApprovedPersonNameChangeKey = "ApprovedPersonNameChange";
+
     private readonly ISessionManager<JourneySession> _sessionManager;
     private readonly IFacadeService _facadeService;
     private readonly ILogger<AccountManagementController> _logger;
@@ -145,6 +147,7 @@ public class AccountManagementController : Controller
             model.IsChangeRequestPending = userAccount.IsChangeRequestPending;
             model.IsAdmin = userAccount.RoleInOrganisation == PersonRole.Admin.ToString();
             model.ShowManageUserDetailChanges = await _featureManager.IsEnabledAsync(FeatureFlags.ManageUserDetailChanges);
+            model.IsApprovedOrDelegatedCompaniesHouseUser = IsApprovedOrDelegatedCompaniesHouseUser(userAccount);
         }
         return View(nameof(ManageAccount), model);
     }
@@ -601,12 +604,12 @@ public class AccountManagementController : Controller
             TempData[NewUserDetailsKey] = JsonSerializer.Serialize(editUserDetailsViewModel);
         }
 
-        return RedirectToAction(nameof(PagePath.ChangeCompanyRole));
+        return RedirectToAction(nameof(PagePath.ApprovedPersonRoleChange));
     }
 
     [HttpGet]
-    [Route(PagePath.ChangeCompanyRole)]
-    public async Task<IActionResult> EditUserCompanyRoleDetails()
+    [Route(PagePath.ApprovedPersonRoleChange)]
+    public async Task<IActionResult> ApprovedPersonRoleChange()
     {
         var editDetailsViewModel = new EditUserDetailsViewModel();
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
@@ -632,24 +635,24 @@ public class AccountManagementController : Controller
             }
         }
 
-        var model = new EditCompanyRoleDetailsViewModel
+        var model = new ApprovedPersonRoleChangeViewModel
         {
-            SelectedCompaniesHouseRole = editDetailsViewModel.OriginalJobTitle
+            SelectedCompaniesHouseRole = editDetailsViewModel.OriginalJobTitle ?? userData.JobTitle
         };
 
-        SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.WhatAreYourDetails);
-        SetBackLink(session, PagePath.WhatAreYourDetails);
+        SaveSessionAndJourney(session, PagePath.ApprovedPersonNameChange, PagePath.ApprovedPersonRoleChange);
+        SetBackLink(session, PagePath.ApprovedPersonRoleChange);
 
         return View(model);
     }
 
     [HttpPost]
-    [Route(PagePath.ChangeCompanyRole)]
-    public async Task<IActionResult> EditUserCompanyRoleDetails(EditCompanyRoleDetailsViewModel editCompanyRoleDetailsViewModel)
+    [Route(PagePath.ApprovedPersonRoleChange)]
+    public async Task<IActionResult> ApprovedPersonRoleChange(ApprovedPersonRoleChangeViewModel editCompanyRoleDetailsViewModel)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        SetCustomBackLink(PagePath.ManageAccount, false);
+        SetCustomBackLink(PagePath.ApprovedPersonRoleChange, false);
 
         if (!ModelState.IsValid)
         {
@@ -663,8 +666,9 @@ public class AccountManagementController : Controller
             TempData[ApprovedPersonRoleChangeKey] = JsonSerializer.Serialize(editCompanyRoleDetailsViewModel);
         }
 
-        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ChangeCompanyRole);
+        await SaveSessionAndJourney(session, PagePath.ApprovedPersonNameChange, PagePath.ApprovedPersonRoleChange);
 
+        // Change this to the next page in the sequence:
         return RedirectToAction(nameof(PagePath.ManageAccount));
     }
 
@@ -672,7 +676,6 @@ public class AccountManagementController : Controller
     [Route(PagePath.CheckYourDetails)]
     public async Task<IActionResult> CheckYourDetails()
     {
-
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
 
@@ -1062,6 +1065,72 @@ public class AccountManagementController : Controller
         SetCustomBackLink(PagePath.ManageAccount, false);
         return View();
     }
+
+
+    [HttpGet]
+    [Route(PagePath.ApprovedPersonNameChange)]
+    public async Task<IActionResult> ApprovedPersonNameChange()
+    {
+        var editDetailsViewModel = new EditUserDetailsViewModel();
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var userData = User.GetUserData();
+
+         if (userData.IsChangeRequestPending || !IsApprovedOrDelegatedCompaniesHouseUser(userData))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.Forbidden
+            });
+        }
+
+        if (TempData[AmendedUserDetailsKey] != null)
+        {
+            try
+            {
+                editDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Deserialising NewUserDetails Failed.");
+            }
+        }
+
+        var model = new ApprovedPersonNameChangeViewModel()
+        {
+            FirstName = editDetailsViewModel.FirstName ?? userData.FirstName,
+            LastName = editDetailsViewModel.LastName ?? userData.LastName,
+        };
+
+        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonNameChange);
+
+        SetBackLink(PagePath.ApprovedPersonNameChange);
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [Route(PagePath.ApprovedPersonNameChange)]
+    public async Task<IActionResult> ApprovedPersonNameChange(ApprovedPersonNameChangeViewModel model)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        SetCustomBackLink(PagePath.ApprovedPersonNameChange, false);
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        if (!TempData.TryAdd(ApprovedPersonNameChangeKey, JsonSerializer.Serialize(model)))
+        {
+            TempData[ApprovedPersonNameChangeKey] = JsonSerializer.Serialize(model);
+        }
+
+        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonNameChange);
+
+        return RedirectToAction(nameof(PagePath.ApprovedPersonRoleChange));
+    }
+
 
     private async Task<bool> CompareDataAsync(JourneySession session)
     {
