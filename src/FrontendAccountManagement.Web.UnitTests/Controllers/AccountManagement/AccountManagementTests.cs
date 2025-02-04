@@ -235,6 +235,7 @@ public class AccountManagementTests : AccountManagementTestBase
         {
             FirstName = "FName",
             LastName = "LName",
+            JobTitle = "Director",
             Organisations = new List<Organisation>()
             {
                 new()
