@@ -9,11 +9,5 @@ public class ManageAccountTelephoneViewModel
      
 
     [TelephoneNumberValidation()]
-    public string NewPhoneNumber { get; set; }
-
-    public bool IsPhoneChangeOnly { get; set; } = false;
-
-    public bool IsPhoneChanged {
-        get {  return OriginalPhoneNumber == NewPhoneNumber; }  
-    }
+    public string NewPhoneNumber { get; set; } 
 }
