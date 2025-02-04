@@ -133,6 +133,7 @@ public class AccountManagementController : Controller
             TempData[ManageAccountTelephoneChangeKey] = JsonSerializer.Serialize(model);
         }
 
+        session.UserData.Telephone = model.NewPhoneNumber;
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccountTelephone);
 
         //Change to the next page in the jorney
