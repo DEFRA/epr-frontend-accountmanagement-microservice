@@ -99,7 +99,7 @@
 		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
 	</resheader>
   <data name="ApprovedPersonNameChangeTitle" xml:space="preserve">
-    <value>[Welsh]</value>
+    <value>[Welsh] What is your name, as shown on Companies House?</value>
   </data>
   <data name="FirstName" xml:space="preserve">
     <value>Enw cyntaf</value>
