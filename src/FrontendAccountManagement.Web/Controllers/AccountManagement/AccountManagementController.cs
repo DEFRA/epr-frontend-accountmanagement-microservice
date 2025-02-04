@@ -612,7 +612,7 @@ public class AccountManagementController : Controller
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
  
-        if (userData.IsChangeRequestPending)
+        if (userData.IsChangeRequestPending || !IsApprovedOrDelegatedCompaniesHouseUser(userData))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
             {
@@ -1276,4 +1276,10 @@ public class AccountManagementController : Controller
         return roleInOrganisation == PersonRole.Admin.ToString() &&
             serviceRoleId == (int)ServiceRole.Basic;
     }
+
+    private static bool IsApprovedOrDelegatedCompaniesHouseUser(UserData userData) =>
+        userData?
+            .Organisations?
+            .FirstOrDefault()?
+            .OrganisationType == OrganisationType.CompaniesHouseCompany && IsApprovedOrDelegatedUser(userData);
 }
