@@ -42,6 +42,7 @@ public class AccountManagementController : Controller
     private const string NewUserDetailsKey = "NewUserDetails";
     private const string ServiceKey = "Packaging";
     private const string ApprovedPersonNameChangeKey = "ApprovedPersonNameChange";
+    private const string ManageAccountTelephoneChangeKey = "ManageAccountTelephoneChange";
 
     private readonly ISessionManager<JourneySession> _sessionManager;
     private readonly IFacadeService _facadeService;
@@ -72,45 +73,70 @@ public class AccountManagementController : Controller
         _featureManager = featureManager;
         _mapper = mapper;
     }
+
     [HttpGet] 
     [Route(PagePath.ManageAccountTelephone)]
     public async Task<IActionResult> ManageAccountTelephone()
-    {
+    { 
+        var editDetailsViewModel = new EditUserDetailsViewModel();
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
 
-        if (userData.IsChangeRequestPending)
+        if (userData.IsChangeRequestPending || !IsApprovedOrDelegatedCompaniesHouseUser(userData))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
             {
                 statusCode = (int)HttpStatusCode.Forbidden
             });
         }
-        bool isUpdatable = false;
-        var serviceRole = userData.ServiceRole ?? string.Empty;
-        var roleInOrganisation = userData.RoleInOrganisation ?? string.Empty;
 
-        var editUserDetailsViewModel = new EditUserDetailsViewModel();
-
-        if (TempData[NewUserDetailsKey] != null)
+        if (TempData[AmendedUserDetailsKey] != null)
         {
             try
             {
-                editUserDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[NewUserDetailsKey] as string);
+                editDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
             }
             catch (Exception exception)
             {
-                _logger.LogInformation(exception, "Deserialising NewUserDetails Failed.");
+                _logger.LogError(exception, "Deserialising NewUserDetails Failed.");
             }
         }
-         
 
-        var model = new ManageAccountTelephoneViewModel();
+        var model = new ManageAccountTelephoneViewModel
+        {
+            OriginalPhoneNumber = userData.Telephone ?? string.Empty,
+            NewPhoneNumber = userData.Telephone ?? string.Empty
+        };
 
-        model.OriginalPhoneNumber = editUserDetailsViewModel.OriginalTelephone ?? string.Empty;
-        model.NewPhoneNumber = editUserDetailsViewModel.OriginalTelephone ?? string.Empty;
-         
+        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccountTelephone);
+
+        SetBackLink(PagePath.ManageAccountTelephone);
+
         return View(nameof(ManageAccountTelephone), model);
+    }
+
+    [HttpPost]
+    [Route(PagePath.ManageAccountTelephone)]
+    public async Task<IActionResult> ManageAccountTelephone(ManageAccountTelephoneViewModel model)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        SetCustomBackLink(PagePath.ManageAccount, false);
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        if (!TempData.TryAdd(ManageAccountTelephoneChangeKey, JsonSerializer.Serialize(model)))
+        {
+            TempData[ManageAccountTelephoneChangeKey] = JsonSerializer.Serialize(model);
+        }
+
+        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccountTelephone);
+
+        //Change to the next page in the jorney
+        return View(model);
     }
 
         [HttpGet]

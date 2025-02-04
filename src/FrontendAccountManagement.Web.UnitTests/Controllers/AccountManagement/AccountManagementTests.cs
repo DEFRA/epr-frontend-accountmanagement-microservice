@@ -297,7 +297,8 @@ public class AccountManagementTests : AccountManagementTestBase
                     Id = Guid.NewGuid()
                 }
             },
-            RoleInOrganisation = PersonRole.Employee.ToString()
+            RoleInOrganisation = PersonRole.Employee.ToString(),
+            Telephone = "123456"
         };
 
         SetupBase(userData);

@@ -7,7 +7,7 @@
 @model ManageAccountTelephoneViewModel
 
 @{
-    ViewData["Title"] = Localizer["ManageAccountTelephone"];
+    ViewData["Title"] = Localizer["ManageAccountTelephoneTitle"];
     var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer);
 }
 
@@ -19,13 +19,9 @@
                 @if (!ViewData.ModelState.IsValid)
                 {
                     @await Html.PartialAsync("Partials/Govuk/_ErrorSummary", errorsViewModel)
-                }
-                <h1 class="govuk-heading-l govuk-!-margin-bottom-8">
-                    @Localizer["ManageAccountTelephoneDetails"]
-                </h1>
-
+                }  
                 
-                <form asp-controller="AccountManagement" asp-action="PagePath.ApprovedPersonNameChange" method="post">
+                <form asp-controller="AccountManagement" asp-action="PagePath.ManageAccountTelephone" method="post">
                     <fieldset class="govuk-fieldset">
                         <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                             <h1 class="govuk-heading-l govuk-!-margin-bottom-4">
@@ -41,9 +37,8 @@
                             </p>
                             <label class="govuk-label" for="TelephoneNumber">
                                 @Localizer["TelephoneNumber"]
-                            </label>
-                            @* maxlength attribute empty so to override the attribute being added by StringLength *@
-                            <input class="govuk-input" asp-for="NewPhoneNumber" type="text" aria-describedby="TelephoneNumber">
+                            </label> 
+                            <input class="govuk-input " asp-for="NewPhoneNumber" type="text" aria-describedby="TelephoneNumber" maxlength>
                         </div>
 
                         <button class="govuk-button" data-module="govuk-button">
