@@ -22,6 +22,7 @@ public static class PagePath
     public const string UpdateDetailsConfirmation = "your-details-have-been-updated";
     public const string ChangeCompanyDetails = "change-company-details";
     public const string ApprovedPersonNameChange = "approved-person-name-change";
+    public const string ApprovedPersonRoleChange = "approved-person-role-change";
 
     // Change role journey paths
     public const string ChangeAccountPermissions = "change-account-permissions";

@@ -1,0 +1,89 @@
+﻿@using FrontendAccountManagement.Web.Constants
+@using FrontendAccountManagement.Web.Extensions
+@using FrontendAccountManagement.Web.ViewModels.AccountManagement
+@using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
+@using FrontendAccountManagement.Web.Controllers.AccountManagement
+
+@model ApprovedPersonRoleChangeViewModel
+
+@{
+    ViewData["Title"] = Localizer["EditCompanyRoleDetailsTitle"];
+    //var formFieldOrder = new[] { nameof(EditUserDetailsViewModel.FirstName), nameof(EditUserDetailsViewModel.LastName), nameof(EditUserDetailsViewModel.JobTitle), nameof(EditUserDetailsViewModel.Telephone) };
+    var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer); //, formFieldOrder);
+}
+
+@using (Html.BeginForm(nameof(PagePath.ApprovedPersonRoleChange), "AccountManagement", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <div class="govuk-width-container">
+        <main class="govuk-main-wrapper" id="main-content" role="main">
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    @await Html.PartialAsync("Partials/Govuk/_ErrorSummary", errorsViewModel)
+
+                    @{
+                        var roles = new[]
+                        {
+                            new { Value = "Director", LocalizationKey = "DirectorCompanyRole" },
+                            new { Value = "Company Secretary", LocalizationKey = "CompanySecretaryCompanyRole" },
+                            new { Value = "Partner", LocalizationKey = "PartnerCompanyRole" },
+                            new { Value = "Member of a limited liability partnership", LocalizationKey = "MemberOfALimitedLiabilityPartnershipCompanyRole" }
+                        };
+                    }
+
+                    <div class="govuk-form-group @(ViewData.ModelState.IsValid ? string.Empty : "govuk-form-group--error")">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                                <h1 class="govuk-fieldset__heading govuk-label--l">
+                                    @Localizer["WhatIsYourRoleInCompaniesHouse"]
+                                </h1>
+                            </legend>
+
+                            @if (!ViewData.ModelState.IsValid)
+                            {
+                                @await Html.PartialAsync("Partials/Govuk/_ErrorList", errorsViewModel)
+                                <br />
+                            }
+
+                            <div class="govuk-radios" data-module="govuk-radios">
+                                @{ bool isFirstOption = true; }
+                                @foreach (var role in roles)
+                                {
+                                    string checkedAttribute = Model.SelectedCompaniesHouseRole == role.Value ? "checked" : "";
+                                    <div class="govuk-radios__item">
+                                        <!input class="govuk-radios__input"
+                                               name="SelectedCompaniesHouseRole"
+                                               type="radio"
+                                               @checkedAttribute
+                                               gov-for="SelectedCompaniesHouseRole"
+                                               gov-first-option="@isFirstOption"
+                                               gov-value="@role.Value" 
+                                               value="@role.Value"
+                                               />
+
+                                        <label class="govuk-label govuk-radios__label"
+                                               gov-for="SelectedCompaniesHouseRole"
+                                               gov-value="@role.Value"
+                                               gov-first-option="@isFirstOption">
+                                            @Localizer[role.LocalizationKey]
+                                        </label>
+                                    </div>
+
+                                    isFirstOption = false;
+                                }
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    <button class="govuk-button" data-module="govuk-button">
+                        @SharedLocalizer["Continue"]
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+}

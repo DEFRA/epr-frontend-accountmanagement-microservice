@@ -39,6 +39,7 @@ public class AccountManagementController : Controller
     private const string OrganisationDetailsUpdatedTimeKey = "OrganisationDetailsUpdatedTime";
     private const string AmendedUserDetailsKey = "AmendedUserDetails";
     private const string NewUserDetailsKey = "NewUserDetails";
+    private const string ApprovedPersonRoleChangeKey = "ApprovedPersonRoleChange";
     private const string ServiceKey = "Packaging";
     private const string ApprovedPersonNameChangeKey = "ApprovedPersonNameChange";
 
@@ -603,7 +604,72 @@ public class AccountManagementController : Controller
             TempData[NewUserDetailsKey] = JsonSerializer.Serialize(editUserDetailsViewModel);
         }
 
-        return RedirectToAction(nameof(PagePath.CheckYourDetails));
+        return RedirectToAction(nameof(PagePath.ApprovedPersonRoleChange));
+    }
+
+    [HttpGet]
+    [Route(PagePath.ApprovedPersonRoleChange)]
+    public async Task<IActionResult> ApprovedPersonRoleChange()
+    {
+        var editDetailsViewModel = new EditUserDetailsViewModel();
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var userData = User.GetUserData();
+ 
+        if (userData.IsChangeRequestPending || !IsApprovedOrDelegatedCompaniesHouseUser(userData))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.Forbidden
+            });
+        }
+
+        if (TempData[AmendedUserDetailsKey] != null)
+        {
+            try
+            {
+                editDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Deserialising NewUserDetails Failed.");
+            }
+        }
+
+        var model = new ApprovedPersonRoleChangeViewModel
+        {
+            SelectedCompaniesHouseRole = editDetailsViewModel.OriginalJobTitle ?? userData.JobTitle
+        };
+
+        SaveSessionAndJourney(session, PagePath.ApprovedPersonNameChange, PagePath.ApprovedPersonRoleChange);
+        SetBackLink(session, PagePath.ApprovedPersonRoleChange);
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [Route(PagePath.ApprovedPersonRoleChange)]
+    public async Task<IActionResult> ApprovedPersonRoleChange(ApprovedPersonRoleChangeViewModel editCompanyRoleDetailsViewModel)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        SetCustomBackLink(PagePath.ApprovedPersonRoleChange, false);
+
+        if (!ModelState.IsValid)
+        {
+            await SetBackLink(PagePath.WhatAreYourDetails);
+            return View(editCompanyRoleDetailsViewModel);
+        }
+
+        //tries to add new temp data and if its already exists replace it with the new one
+        if (!TempData.TryAdd(ApprovedPersonRoleChangeKey, JsonSerializer.Serialize(editCompanyRoleDetailsViewModel)))
+        {
+            TempData[ApprovedPersonRoleChangeKey] = JsonSerializer.Serialize(editCompanyRoleDetailsViewModel);
+        }
+
+        await SaveSessionAndJourney(session, PagePath.ApprovedPersonNameChange, PagePath.ApprovedPersonRoleChange);
+
+        // Change this to the next page in the sequence:
+        return RedirectToAction(nameof(PagePath.ManageAccount));
     }
 
     [HttpGet]
@@ -1048,7 +1114,7 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        SetCustomBackLink(PagePath.ManageAccount, false);
+        SetCustomBackLink(PagePath.ApprovedPersonNameChange, false);
 
         if (!ModelState.IsValid)
         {
@@ -1062,8 +1128,7 @@ public class AccountManagementController : Controller
 
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonNameChange);
 
-        //Change to the next page in the jorney
-        return View(model);
+        return RedirectToAction(nameof(PagePath.ApprovedPersonRoleChange));
     }
 
 
@@ -1285,6 +1350,5 @@ public class AccountManagementController : Controller
         userData?
             .Organisations?
             .FirstOrDefault()?
-            .OrganisationType == OrganisationType.CompaniesHouseCompany
-&& IsApprovedOrDelegatedUser(userData);
+            .OrganisationType == OrganisationType.CompaniesHouseCompany && IsApprovedOrDelegatedUser(userData);
 }

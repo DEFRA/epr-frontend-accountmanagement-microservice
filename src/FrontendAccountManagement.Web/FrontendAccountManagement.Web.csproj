@@ -61,6 +61,10 @@
         <Generator>ResXFileCodeGenerator</Generator>
         <LastGenOutput>ApprovedPersonNameChange.Designer.cs</LastGenOutput>
       </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\AccountManagement\ApprovedPersonRoleChange.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>ApprovedPersonRoleChange.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
       <EmbeddedResource Update="Resources\Views\AccountManagement\EditUserDetails.resx">
         <Generator>ResXFileCodeGenerator</Generator>
         <LastGenOutput>EditUserDetails.Designer.cs</LastGenOutput>
@@ -173,6 +177,11 @@
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>
         <DependentUpon>ApprovedPersonNameChange.resx</DependentUpon>
+      </Compile>
+      <Compile Update="Resources\Views\AccountManagement\ApprovedPersonRoleChange.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>ApprovedPersonRoleChange.resx</DependentUpon>
       </Compile>
       <Compile Update="Resources\Views\AccountManagement\EditUserDetails.Designer.cs">
         <DesignTime>True</DesignTime>
