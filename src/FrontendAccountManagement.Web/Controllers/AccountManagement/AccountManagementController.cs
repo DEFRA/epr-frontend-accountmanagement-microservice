@@ -1288,6 +1288,7 @@ public class AccountManagementController : Controller
 
         if (addressList == null)
         {
+            TempData[PostcodeLookupFailedKey] = true;
             return await SaveSessionAndRedirect(session, nameof(BusinessAddress), PagePath.BusinessAddressPostcode, PagePath.BusinessAddress);
         }
 
