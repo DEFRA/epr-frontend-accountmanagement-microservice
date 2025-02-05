@@ -235,6 +235,7 @@ public class AccountManagementTests : AccountManagementTestBase
         {
             FirstName = "FName",
             LastName = "LName",
+            JobTitle = "Director",
             Organisations = new List<Organisation>()
             {
                 new()
@@ -286,7 +287,21 @@ public class AccountManagementTests : AccountManagementTestBase
     public async Task GivenOnEditUserDetailsPage_WhenRequested_TheShowUserDetails()
     {
         // Arrange
-        SetupUserData(string.Empty);
+        var userData = new UserData()
+        {
+            FirstName = "FName",
+            LastName = "LName",
+            Organisations = new List<Organisation>()
+            {
+                new()
+                {
+                    Id = Guid.NewGuid()
+                }
+            },
+            RoleInOrganisation = PersonRole.Employee.ToString()
+        };
+
+        SetupBase(userData);
 
         // Act
         var result = await SystemUnderTest.EditUserDetails();
