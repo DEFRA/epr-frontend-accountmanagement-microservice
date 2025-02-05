@@ -1300,8 +1300,7 @@ public class AccountManagementController : Controller
         userData?
             .Organisations?
             .FirstOrDefault()?
-            .OrganisationType == OrganisationType.CompaniesHouseCompany
-        && IsApprovedOrDelegatedUser(userData);
+            .OrganisationType == OrganisationType.CompaniesHouseCompany && IsApprovedOrDelegatedUser(userData);
 
     private static bool SetUpdatableValue(bool isUpdatable, string serviceRole, string roleInOrganisation, EditUserDetailsViewModel model)
     {
@@ -1354,10 +1353,4 @@ public class AccountManagementController : Controller
         return roleInOrganisation == PersonRole.Admin.ToString() &&
             serviceRoleId == (int)ServiceRole.Basic;
     }
-
-    private static bool IsApprovedOrDelegatedCompaniesHouseUser(UserData userData) =>
-        userData?
-            .Organisations?
-            .FirstOrDefault()?
-            .OrganisationType == OrganisationType.CompaniesHouseCompany && IsApprovedOrDelegatedUser(userData);
 }
