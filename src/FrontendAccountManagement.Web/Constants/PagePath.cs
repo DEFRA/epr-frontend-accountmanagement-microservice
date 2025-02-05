@@ -24,6 +24,9 @@ public static class PagePath
     public const string ApprovedPersonNameChange = "approved-person-name-change";
     public const string ApprovedPersonRoleChange = "approved-person-role-change";
 
+
+    public const string ManageAccountTelephone = "approved-person-telephone-change";
+
     // Change role journey paths
     public const string ChangeAccountPermissions = "change-account-permissions";
     public const string RelationshipWithOrganisation = "relationship-with-organisation";

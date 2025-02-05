@@ -1,0 +1,52 @@
+﻿@using FrontendAccountManagement.Web.Extensions
+@using FrontendAccountManagement.Web.ViewModels.AccountManagement
+@using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
+ 
+@addTagHelper *, Microsoft.FeatureManagement.AspNetCore
+
+@model ManageAccountTelephoneViewModel
+
+@{
+    ViewData["Title"] = Localizer["ManageAccountTelephoneTitle"];
+    var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer);
+}
+
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    @await Html.PartialAsync("Partials/Govuk/_ErrorSummary", errorsViewModel)
+                }  
+                
+                <form asp-controller="AccountManagement" asp-action="PagePath.ManageAccountTelephone" method="post">
+                    <fieldset class="govuk-fieldset">
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                            <h1 class="govuk-heading-l govuk-!-margin-bottom-4">
+                                <label>
+                                    @Localizer["TelephoneChangeTitle"]
+                                </label>
+                            </h1>
+                        </legend>
+
+                        <div class="govuk-form-group @((errorsViewModel.HasErrorKey(nameof(ManageAccountTelephoneViewModel.NewPhoneNumber))) ? "govuk-form-group--error" : string.Empty)">
+                            <p class="govuk-error-message">
+                                <span asp-validation-for="NewPhoneNumber"></span>
+                            </p>
+                            <label class="govuk-label" for="TelephoneNumber">
+                                @Localizer["TelephoneNumber"]
+                            </label> 
+                            <input class="govuk-input " asp-for="NewPhoneNumber" type="text" aria-describedby="TelephoneNumber" maxlength>
+                        </div>
+
+                        <button class="govuk-button" data-module="govuk-button">
+                            @SharedLocalizer["Continue"]
+                        </button>
+                        </fieldset>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
