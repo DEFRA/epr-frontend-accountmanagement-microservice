@@ -25,6 +25,7 @@ using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
 using System;
 using System.Net;
+using System.Reflection;
 using System.Text.Json;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
@@ -42,6 +43,7 @@ public class AccountManagementController : Controller
     private const string ApprovedPersonRoleChangeKey = "ApprovedPersonRoleChange";
     private const string ServiceKey = "Packaging";
     private const string ApprovedPersonNameChangeKey = "ApprovedPersonNameChange";
+    private const string ManageAccountTelephoneChangeKey = "ManageAccountTelephoneChange";
 
     private readonly ISessionManager<JourneySession> _sessionManager;
     private readonly IFacadeService _facadeService;
@@ -73,7 +75,73 @@ public class AccountManagementController : Controller
         _mapper = mapper;
     }
 
-    [HttpGet]
+    [HttpGet] 
+    [Route(PagePath.ManageAccountTelephone)]
+    public async Task<IActionResult> ManageAccountTelephone()
+    { 
+        var editDetailsViewModel = new EditUserDetailsViewModel();
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var userData = User.GetUserData();
+
+        if (userData.IsChangeRequestPending || !IsApprovedOrDelegatedCompaniesHouseUser(userData))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.Forbidden
+            });
+        }
+
+        if (TempData[AmendedUserDetailsKey] != null)
+        {
+            try
+            {
+                editDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Deserialising NewUserDetails Failed.");
+            }
+        }
+
+        var model = new ManageAccountTelephoneViewModel
+        {
+            OriginalPhoneNumber = userData.Telephone ?? string.Empty,
+            NewPhoneNumber = userData.Telephone ?? string.Empty
+        };
+
+        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccountTelephone);
+
+        SetBackLink(PagePath.ManageAccountTelephone);
+
+        return View(nameof(ManageAccountTelephone), model);
+    }
+
+    [HttpPost]
+    [Route(PagePath.ManageAccountTelephone)]
+    public async Task<IActionResult> ManageAccountTelephone(ManageAccountTelephoneViewModel model)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        SetCustomBackLink(PagePath.ManageAccount, false);
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        if (!TempData.TryAdd(ManageAccountTelephoneChangeKey, JsonSerializer.Serialize(model)))
+        {
+            TempData[ManageAccountTelephoneChangeKey] = JsonSerializer.Serialize(model);
+        }
+
+        session.UserData.Telephone = model.NewPhoneNumber;
+        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccountTelephone);
+
+        //Change to the next page in the jorney
+        return View(model);
+    }
+
+        [HttpGet]
     [Route("")]
     [Route(PagePath.ManageAccount)]
     public async Task<IActionResult> ManageAccount(ManageAccountViewModel model)
