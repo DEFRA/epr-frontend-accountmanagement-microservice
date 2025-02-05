@@ -76,7 +76,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet] 
-    [Route(PagePath.ManageAccountTelephone)]
+    [Route(PagePath.ApprovedPersonPhoneNumberChange)]
     public async Task<IActionResult> ManageAccountTelephone()
     { 
         var editDetailsViewModel = new EditUserDetailsViewModel();
@@ -109,25 +109,25 @@ public class AccountManagementController : Controller
             NewPhoneNumber = userData.Telephone ?? string.Empty
         };
 
-        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccountTelephone);
+        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonPhoneNumberChange);
 
-        SetBackLink(PagePath.ManageAccountTelephone);
+        SetBackLink(PagePath.ApprovedPersonPhoneNumberChange);
 
         return View(nameof(ManageAccountTelephone), model);
     }
 
     [HttpPost]
-    [Route(PagePath.ManageAccountTelephone)]
+    [Route(PagePath.ApprovedPersonPhoneNumberChange)]
     public async Task<IActionResult> ManageAccountTelephone(ManageAccountTelephoneViewModel model)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
         SetCustomBackLink(PagePath.ManageAccount, false);
 
-        if (!ModelState.IsValid)
-        {
-            return View(model);
-        }
+        //if (!ModelState.IsValid)
+        //{
+        //    return View(model);
+        //}
 
         if (!TempData.TryAdd(ManageAccountTelephoneChangeKey, JsonSerializer.Serialize(model)))
         {
@@ -135,10 +135,9 @@ public class AccountManagementController : Controller
         }
 
         session.UserData.Telephone = model.NewPhoneNumber;
-        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccountTelephone);
+        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonPhoneNumberChange);
 
-        //Change to the next page in the jorney
-        return View(model);
+        return RedirectToAction(nameof(CheckYourDetails));
     }
 
         [HttpGet]
@@ -736,8 +735,7 @@ public class AccountManagementController : Controller
 
         await SaveSessionAndJourney(session, PagePath.ApprovedPersonNameChange, PagePath.ApprovedPersonRoleChange);
 
-        // Change this to the next page in the sequence:
-        return RedirectToAction(nameof(PagePath.ManageAccount));
+        return RedirectToAction(nameof(ManageAccountTelephone));
     }
 
     [HttpGet]

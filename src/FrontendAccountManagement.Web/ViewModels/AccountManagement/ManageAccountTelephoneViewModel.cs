@@ -8,6 +8,6 @@ public class ManageAccountTelephoneViewModel
     public string OriginalPhoneNumber { get; set; }
      
 
-    [TelephoneNumberValidation()]
+    //[TelephoneNumberValidation()]
     public string NewPhoneNumber { get; set; } 
 }

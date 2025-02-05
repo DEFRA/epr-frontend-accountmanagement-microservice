@@ -25,10 +25,7 @@ public static class PagePath
     // Same path for both First name and Surname
     public const string ApprovedPersonNameChange = "approved-person-name-change";
     public const string ApprovedPersonRoleChange = "approved-person-role-change"; 
-    public const string ApprovedPersonPhoneChange = "approved-person-telephone-change";    
-
-
-    public const string ManageAccountTelephone = "approved-person-telephone-change";
+    public const string ApprovedPersonPhoneNumberChange = "approved-person-telephone-change";
 
     // Change role journey paths
     public const string ChangeAccountPermissions = "change-account-permissions";
