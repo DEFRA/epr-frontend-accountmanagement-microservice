@@ -21,6 +21,11 @@ public static class PagePath
     public const string CompanyDetailsHaveNotChanged = "company-details-have-not-changed";
     public const string UpdateDetailsConfirmation = "your-details-have-been-updated";
     public const string ChangeCompanyDetails = "change-company-details";
+    
+    // Same path for both First name and Surname
+    public const string ApprovedPersonNameChange = "approved-person-name-change";
+    public const string ApprovedPersonRoleChange = "approved-person-role-change"; 
+    public const string ApprovedPersonPhoneChange = "approved-person-telephone-change";    
 
     // Change role journey paths
     public const string ChangeAccountPermissions = "change-account-permissions";

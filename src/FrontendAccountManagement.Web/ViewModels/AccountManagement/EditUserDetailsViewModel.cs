@@ -29,5 +29,7 @@ namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
 
         [TelephoneNumberValidation()]
         public string? Telephone { get; set; }
+        
+	    public bool IsCompaniesHouseApprovedPerson { get; set; }   
     }
 }

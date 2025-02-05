@@ -646,7 +646,7 @@ public class AccountManagementController : Controller
             OriginalFirstName = editUserDetailsViewModel.OriginalFirstName ?? string.Empty,
             OriginalLastName = editUserDetailsViewModel.OriginalLastName ?? string.Empty,
             OriginalJobTitle = editUserDetailsViewModel.OriginalJobTitle ?? string.Empty,
-            OriginalTelephone = editUserDetailsViewModel.OriginalTelephone ?? string.Empty
+            OriginalTelephone = editUserDetailsViewModel.OriginalTelephone ?? string.Empty,
         };
 
         isUpdatable = SetUpdatableValue(isUpdatable, serviceRole, roleInOrganisation, model);
@@ -664,7 +664,9 @@ public class AccountManagementController : Controller
         TempData.Keep(AmendedUserDetailsKey);
         TempData.Keep(NewUserDetailsKey);
 
-        return View(model);
+        return IsApprovedOrDelegatedCompaniesHouseUser(userData) 
+            ? View("CheckYourDetailsApprovedUserCompaniesHouse", model) 
+            : View(model);
     }
 
     [HttpPost]
@@ -1159,6 +1161,13 @@ public class AccountManagementController : Controller
         }
         return false;
     }
+
+    private static bool IsApprovedOrDelegatedCompaniesHouseUser(UserData userData) =>
+        userData?
+            .Organisations?
+            .FirstOrDefault()?
+            .OrganisationType == OrganisationType.CompaniesHouseCompany
+        && IsApprovedOrDelegatedUser(userData);
 
     private static bool SetUpdatableValue(bool isUpdatable, string serviceRole, string roleInOrganisation, EditUserDetailsViewModel model)
     {
