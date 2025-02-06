@@ -118,15 +118,15 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ManageAccountTelephoneHead" xml:space="preserve">
-    <value>[Welsh] Manage Account Telephone</value>
+    <value>Rhowch rif ffôn dilys</value>
   </data>
   <data name="ManageAccountTelephoneDetails" xml:space="preserve">
-    <value>[Welsh] Manage Account Telephone</value>
+    <value>Rhowch rif ffôn dilys</value>
   </data>
   <data name="TelephoneChangeTitle" xml:space="preserve">
-    <value>[Welsh] What is your telephone number?</value>
+    <value>Beth yw'ch rhif ffôn chi?</value>
   </data>
   <data name="TelephoneNumber" xml:space="preserve">
-    <value>[Welsh] Telephone number</value>
+    <value>Rhif ffôn</value>
   </data>
 </root>
