@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Threading.Tasks;
+using FrontendAccountManagement.Web.Constants;
 using static FrontendAccountManagement.Core.Constants.ServiceRoles;
+using FrontendAccountManagement.Core.Enums;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 {
@@ -100,7 +102,10 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             AutoMapperMock.Setup(x => x.Map<UpdateUserDetailsRequest>(_viewModel)).Returns(_userDetailsDto);
 
             FacadeServiceMock.Setup(x => x.GetUserAccount()).ReturnsAsync(new UserAccountDto());
-
+            _updateUserDetailsResponse.HasApprovedOrDelegatedUserDetailsSentForApproval = false;
+            _updateUserDetailsResponse.HasTelephoneOnlyUpdated = false;            
+            _updateUserDetailsResponse.HasBasicUserDetailsUpdated = true;
+            
             FacadeServiceMock.Setup(x => x.UpdateUserDetailsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), "Packaging", _userDetailsDto))
                  .ReturnsAsync(_updateUserDetailsResponse);
 
@@ -140,6 +145,28 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             // Assert
             result.Should().NotBeNull();
             result.ActionName.Should().Be("UpdateDetailsConfirmation");
+        }
+
+        [TestMethod]
+        public async Task CheckYourDetails_ShouldReturnDefaultView_WhenUserIsNotApprovedOrDelegatedCompaniesHouseUser()
+        {
+            // Arrange
+            _userData.Organisations = new List<Organisation>
+            {
+                new Organisation
+                {
+                    OrganisationType = OrganisationType.NonCompaniesHouseCompany // Not CompaniesHouseCompany
+                }
+            };
+            SetupBase(_userData);
+            // Act
+            var result = await SystemUnderTest.CheckYourDetails();
+            // Assert
+            var viewResult = result as ViewResult;
+            viewResult.Should().NotBeNull();
+            viewResult.ViewName.Should().BeNull(); // Default view
+            var model = viewResult.Model as EditUserDetailsViewModel;
+            model.Should().NotBeNull();
         }
 
         #region Private
