@@ -109,9 +109,8 @@ public class AccountManagementController : Controller
             NewPhoneNumber = userData.Telephone ?? string.Empty
         };
 
-        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonPhoneNumberChange);
-
-        SetBackLink(PagePath.ApprovedPersonPhoneNumberChange);
+        await SaveSessionAndJourney(session, PagePath.ApprovedPersonRoleChange, PagePath.ApprovedPersonPhoneNumberChange);
+        SetBackLink(session, PagePath.ApprovedPersonPhoneNumberChange);
 
         return View(nameof(ManageAccountTelephone), model);
     }
@@ -122,12 +121,10 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        SetCustomBackLink(PagePath.ManageAccount, false);
-
-        //if (!ModelState.IsValid)
-        //{
-        //    return View(model);
-        //}
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
 
         if (!TempData.TryAdd(ManageAccountTelephoneChangeKey, JsonSerializer.Serialize(model)))
         {
@@ -136,7 +133,8 @@ public class AccountManagementController : Controller
 
         session.UserData.Telephone = model.NewPhoneNumber;
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonPhoneNumberChange);
-
+        SetBackLink(session, PagePath.ApprovedPersonPhoneNumberChange);
+        
         return RedirectToAction(nameof(CheckYourDetails));
     }
 
@@ -707,7 +705,7 @@ public class AccountManagementController : Controller
             SelectedCompaniesHouseRole = editDetailsViewModel.OriginalJobTitle ?? userData.JobTitle
         };
 
-        SaveSessionAndJourney(session, PagePath.ApprovedPersonNameChange, PagePath.ApprovedPersonRoleChange);
+        await SaveSessionAndJourney(session, PagePath.ApprovedPersonNameChange, PagePath.ApprovedPersonRoleChange);
         SetBackLink(session, PagePath.ApprovedPersonRoleChange);
 
         return View(model);
