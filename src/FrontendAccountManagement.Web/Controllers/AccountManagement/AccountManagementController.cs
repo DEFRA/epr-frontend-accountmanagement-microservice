@@ -79,7 +79,6 @@ public class AccountManagementController : Controller
     [Route(PagePath.ApprovedPersonPhoneNumberChange)]
     public async Task<IActionResult> ManageAccountTelephone()
     { 
-        var editDetailsViewModel = new EditUserDetailsViewModel();
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
 
@@ -91,21 +90,8 @@ public class AccountManagementController : Controller
             });
         }
 
-        if (TempData[AmendedUserDetailsKey] != null)
-        {
-            try
-            {
-                editDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "Deserialising NewUserDetails Failed.");
-            }
-        }
-
         var model = new ManageAccountTelephoneViewModel
-        {
-            OriginalPhoneNumber = userData.Telephone ?? string.Empty,
+        { 
             NewPhoneNumber = userData.Telephone ?? string.Empty
         };
 

@@ -63,7 +63,6 @@ public class AccountManagementTelephoneChangeTests : AccountManagementTestBase
         var viewResult = result as ViewResult;
         Assert.IsInstanceOfType(result, typeof(ViewResult));
         Assert.IsNotNull(viewResult);
-        Assert.AreEqual(expectedModel.Telephone, ((ManageAccountTelephoneViewModel)viewResult.Model).OriginalPhoneNumber);
         Assert.AreEqual(expectedModel.Telephone, ((ManageAccountTelephoneViewModel)viewResult.Model).NewPhoneNumber);
     }
 
@@ -193,7 +192,6 @@ public class AccountManagementTelephoneChangeTests : AccountManagementTestBase
         var viewResult = result as ViewResult;
         Assert.IsInstanceOfType(result, typeof(ViewResult));
         Assert.IsNotNull(viewResult);
-        Assert.AreEqual(expectedModel.Telephone, ((ManageAccountTelephoneViewModel)viewResult.Model).OriginalPhoneNumber);
         Assert.AreEqual(expectedModel.Telephone, ((ManageAccountTelephoneViewModel)viewResult.Model).NewPhoneNumber);
     }
 
@@ -203,14 +201,12 @@ public class AccountManagementTelephoneChangeTests : AccountManagementTestBase
         // Arrange
         var previousNewDetails = new ManageAccountTelephoneViewModel
         {
-            OriginalPhoneNumber = "123456",
             NewPhoneNumber = "12345",
         };
         SystemUnderTest.TempData.Add("ManageAccountTelephoneChange", JsonSerializer.Serialize(previousNewDetails));
 
         var newNewDetails = new ManageAccountTelephoneViewModel
         {
-            OriginalPhoneNumber = "123456",
             NewPhoneNumber = "9876543",
         };
 
