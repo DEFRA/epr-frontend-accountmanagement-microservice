@@ -76,10 +76,9 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet] 
-    [Route(PagePath.ManageAccountTelephone)]
+    [Route(PagePath.ApprovedPersonPhoneNumberChange)]
     public async Task<IActionResult> ManageAccountTelephone()
     { 
-        var editDetailsViewModel = new EditUserDetailsViewModel();
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
 
@@ -91,38 +90,22 @@ public class AccountManagementController : Controller
             });
         }
 
-        if (TempData[AmendedUserDetailsKey] != null)
-        {
-            try
-            {
-                editDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "Deserialising NewUserDetails Failed.");
-            }
-        }
-
         var model = new ManageAccountTelephoneViewModel
-        {
-            OriginalPhoneNumber = userData.Telephone ?? string.Empty,
+        { 
             NewPhoneNumber = userData.Telephone ?? string.Empty
         };
 
-        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccountTelephone);
-
-        SetBackLink(PagePath.ManageAccountTelephone);
+        await SaveSessionAndJourney(session, PagePath.ApprovedPersonRoleChange, PagePath.ApprovedPersonPhoneNumberChange);
+        SetBackLink(session, PagePath.ApprovedPersonPhoneNumberChange);
 
         return View(nameof(ManageAccountTelephone), model);
     }
 
     [HttpPost]
-    [Route(PagePath.ManageAccountTelephone)]
+    [Route(PagePath.ApprovedPersonPhoneNumberChange)]
     public async Task<IActionResult> ManageAccountTelephone(ManageAccountTelephoneViewModel model)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-
-        SetCustomBackLink(PagePath.ManageAccount, false);
 
         if (!ModelState.IsValid)
         {
@@ -135,10 +118,10 @@ public class AccountManagementController : Controller
         }
 
         session.UserData.Telephone = model.NewPhoneNumber;
-        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccountTelephone);
-
-        //Change to the next page in the jorney
-        return View(model);
+        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonPhoneNumberChange);
+        SetBackLink(session, PagePath.ApprovedPersonPhoneNumberChange);
+        
+        return RedirectToAction(nameof(CheckYourDetails));
     }
 
         [HttpGet]
@@ -708,7 +691,7 @@ public class AccountManagementController : Controller
             SelectedCompaniesHouseRole = editDetailsViewModel.OriginalJobTitle ?? userData.JobTitle
         };
 
-        SaveSessionAndJourney(session, PagePath.ApprovedPersonNameChange, PagePath.ApprovedPersonRoleChange);
+        await SaveSessionAndJourney(session, PagePath.ApprovedPersonNameChange, PagePath.ApprovedPersonRoleChange);
         SetBackLink(session, PagePath.ApprovedPersonRoleChange);
 
         return View(model);
@@ -736,8 +719,7 @@ public class AccountManagementController : Controller
 
         await SaveSessionAndJourney(session, PagePath.ApprovedPersonNameChange, PagePath.ApprovedPersonRoleChange);
 
-        // Change this to the next page in the sequence:
-        return RedirectToAction(nameof(PagePath.ManageAccount));
+        return RedirectToAction(nameof(ManageAccountTelephone));
     }
 
     [HttpGet]
@@ -782,12 +764,12 @@ public class AccountManagementController : Controller
             OriginalFirstName = editUserDetailsViewModel.OriginalFirstName ?? string.Empty,
             OriginalLastName = editUserDetailsViewModel.OriginalLastName ?? string.Empty,
             OriginalJobTitle = editUserDetailsViewModel.OriginalJobTitle ?? string.Empty,
-            OriginalTelephone = editUserDetailsViewModel.OriginalTelephone ?? string.Empty
+            OriginalTelephone = editUserDetailsViewModel.OriginalTelephone ?? string.Empty,
         };
 
         isUpdatable = SetUpdatableValue(isUpdatable, serviceRole, roleInOrganisation, model);
 
-        SaveSessionAndJourney(session, PagePath.WhatAreYourDetails, PagePath.CheckYourDetails);
+        SaveSessionAndJourney(session, PagePath.ApprovedPersonPhoneNumberChange, PagePath.CheckYourDetails);
         SetBackLink(PagePath.CheckYourDetails);
 
         if (TempData[AmendedUserDetailsKey] == null)
@@ -800,7 +782,9 @@ public class AccountManagementController : Controller
         TempData.Keep(AmendedUserDetailsKey);
         TempData.Keep(NewUserDetailsKey);
 
-        return View(model);
+        return IsApprovedOrDelegatedCompaniesHouseUser(userData) 
+            ? View("CheckYourDetailsApprovedUserCompaniesHouse", model) 
+            : View(model);
     }
 
     [HttpPost]
@@ -1362,6 +1346,12 @@ public class AccountManagementController : Controller
         return false;
     }
 
+    private static bool IsApprovedOrDelegatedCompaniesHouseUser(UserData userData) =>
+        userData?
+            .Organisations?
+            .FirstOrDefault()?
+            .OrganisationType == OrganisationType.CompaniesHouseCompany && IsApprovedOrDelegatedUser(userData);
+
     private static bool SetUpdatableValue(bool isUpdatable, string serviceRole, string roleInOrganisation, EditUserDetailsViewModel model)
     {
         if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower()
@@ -1413,10 +1403,4 @@ public class AccountManagementController : Controller
         return roleInOrganisation == PersonRole.Admin.ToString() &&
             serviceRoleId == (int)ServiceRole.Basic;
     }
-
-    private static bool IsApprovedOrDelegatedCompaniesHouseUser(UserData userData) =>
-        userData?
-            .Organisations?
-            .FirstOrDefault()?
-            .OrganisationType == OrganisationType.CompaniesHouseCompany && IsApprovedOrDelegatedUser(userData);
 }

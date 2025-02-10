@@ -16,12 +16,12 @@
     <main class="govuk-main-wrapper" id="main-content" role="main">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                @if (!ViewData.ModelState.IsValid)
-                {
-                    @await Html.PartialAsync("Partials/Govuk/_ErrorSummary", errorsViewModel)
-                }  
                 
-                <form asp-controller="AccountManagement" asp-action="PagePath.ManageAccountTelephone" method="post">
+                <form asp-controller="AccountManagement" asp-action="PagePath.ApprovedPersonPhoneNumberChange" method="post">
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        @await Html.PartialAsync("Partials/Govuk/_ErrorSummary", errorsViewModel)
+                    }
                     <fieldset class="govuk-fieldset">
                         <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                             <h1 class="govuk-heading-l govuk-!-margin-bottom-4">

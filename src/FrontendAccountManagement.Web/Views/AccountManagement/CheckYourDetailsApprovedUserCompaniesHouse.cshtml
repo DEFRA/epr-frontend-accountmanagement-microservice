@@ -36,27 +36,27 @@
                                 </dt>
                             </div>
                             <dd class="govuk-summary-list__value">
-	                            @Localizer[Model.FirstName].Value
-							</dd>
-							<dd class="govuk-summary-list__actions">
-								<a class="govuk-link govuk-link--no-visited-state" href="~/@PagePath.ApprovedPersonNameChange">
-									@SharedLocalizer["Change"] <span class="govuk-visually-hidden"></span>
-								</a>
-							</dd>
-						</div>
-                        <div class="govuk-summary-list__row">
-                            <div class="govuk-!-margin-right-3">
-	                            <dt class="govuk-summary-list__key">
-		                            @Localizer["LastName"]
-	                            </dt>
-                            </div>
-                            <dd class="govuk-summary-list__value">
-	                            @Localizer[Model.LastName].Value
+                                @Localizer[Model.FirstName].Value
                             </dd>
                             <dd class="govuk-summary-list__actions">
                                 <a class="govuk-link govuk-link--no-visited-state" href="~/@PagePath.ApprovedPersonNameChange">
-	                                @SharedLocalizer["Change"] <span class="govuk-visually-hidden"></span>
-	                            </a>
+                                    @SharedLocalizer["Change"] <span class="govuk-visually-hidden"></span>
+                                </a>
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <div class="govuk-!-margin-right-3">
+                                <dt class="govuk-summary-list__key">
+                                    @Localizer["LastName"]
+                                </dt>
+                            </div>
+                            <dd class="govuk-summary-list__value">
+                                @Localizer[Model.LastName].Value
+                            </dd>
+                            <dd class="govuk-summary-list__actions">
+                                <a class="govuk-link govuk-link--no-visited-state" href="~/@PagePath.ApprovedPersonNameChange">
+                                    @SharedLocalizer["Change"] <span class="govuk-visually-hidden"></span>
+                                </a>
                             </dd>
                         </div>
                         @if (!string.IsNullOrEmpty(Model.JobTitle))
@@ -68,12 +68,12 @@
                                     </dt>
                                 </div>
                                 <dd class="govuk-summary-list__value">
-	                                @Localizer[Model.JobTitle].Value
+                                    @Localizer[Model.JobTitle].Value
                                 </dd>
                                 <dd class="govuk-summary-list__actions">
                                     <a class="govuk-link govuk-link--no-visited-state" href="~/@PagePath.ApprovedPersonRoleChange">
-	                                    @SharedLocalizer["Change"] <span class="govuk-visually-hidden"></span>
-	                                </a>
+                                        @SharedLocalizer["Change"] <span class="govuk-visually-hidden"></span>
+                                    </a>
                                 </dd>
                             </div>
                         }
@@ -87,23 +87,23 @@
                                 </div>
 
                                 <dd class="govuk-summary-list__value">
-	                                @Localizer[Model.Telephone].Value
+                                    @Localizer[Model.Telephone].Value
                                 </dd>
                                 <dd class="govuk-summary-list__actions">
                                     <a class="govuk-link govuk-link--no-visited-state" href="~/@PagePath.ApprovedPersonPhoneNumberChange">
-	                                    @SharedLocalizer["Change"] <span class="govuk-visually-hidden"></span>
-	                                </a>
+                                        @SharedLocalizer["Change"] <span class="govuk-visually-hidden"></span>
+                                    </a>
                                 </dd>
                             </div>
                         }
                         <div class="govuk-!-margin-right-3">
-	                        <br />
-	                        <br />
-	                        <dt class="govuk-summary-list__value">
-		                        <button class="govuk-button" data-module="govuk-button" type="submit">
-			                        @(isUpdatable ? @Localizer["SaveAndContinue"] : @Localizer["Continue"])
-		                        </button>
-	                        </dt>
+                            <br />
+                            <br />
+                            <dt class="govuk-summary-list__value">
+                                <button class="govuk-button" data-module="govuk-button" type="submit">
+                                    @(isUpdatable ? @Localizer["SaveAndContinue"] : @Localizer["Continue"])
+                                </button>
+                            </dt>
                         </div>
                     </dl>
                     <br />
