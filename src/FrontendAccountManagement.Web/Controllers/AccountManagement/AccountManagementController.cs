@@ -142,6 +142,8 @@ public class AccountManagementController : Controller
             });
         }
 
+        RemoveTempDataSessionsChangeDetails();
+
         session.AccountManagementSession.AddUserJourney = null;
         if (session.AccountManagementSession.RemoveUserStatus != null)
         {
@@ -1403,5 +1405,13 @@ public class AccountManagementController : Controller
 
         return roleInOrganisation == PersonRole.Admin.ToString() &&
             serviceRoleId == (int)ServiceRole.Basic;
+    }
+
+    private void RemoveTempDataSessionsChangeDetails()
+    {
+        if (TempData[CheckYourOrganisationDetailsKey] != null)
+        {
+            TempData.Remove(CheckYourOrganisationDetailsKey);
+        }
     }
 }
