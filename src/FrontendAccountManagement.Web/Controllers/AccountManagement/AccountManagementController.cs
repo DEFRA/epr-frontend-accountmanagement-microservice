@@ -120,11 +120,11 @@ public class AccountManagementController : Controller
         session.UserData.Telephone = model.NewPhoneNumber;
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonPhoneNumberChange);
         SetBackLink(session, PagePath.ApprovedPersonPhoneNumberChange);
-        
-        return RedirectToAction(nameof(CheckYourDetails));
+
+        return Redirect($"/{PagePath.ApprovedPersonCheckYourDetails}");
     }
 
-        [HttpGet]
+    [HttpGet]
     [Route("")]
     [Route(PagePath.ManageAccount)]
     public async Task<IActionResult> ManageAccount(ManageAccountViewModel model)
@@ -724,6 +724,7 @@ public class AccountManagementController : Controller
 
     [HttpGet]
     [Route(PagePath.CheckYourDetails)]
+    [Route(PagePath.ApprovedPersonCheckYourDetails)]
     public async Task<IActionResult> CheckYourDetails()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
@@ -786,7 +787,7 @@ public class AccountManagementController : Controller
             ? View("CheckYourDetailsApprovedUserCompaniesHouse", model) 
             : View(model);
     }
-
+    
     [HttpPost]
     [Route(PagePath.CheckYourDetails)]
     public async Task<IActionResult> CheckYourDetails(EditUserDetailsViewModel model)
@@ -795,7 +796,7 @@ public class AccountManagementController : Controller
         var userData = User.GetUserData();
         var serviceRole = userData.ServiceRole ?? string.Empty;
         var roleInOrganisation = userData.RoleInOrganisation ?? string.Empty;
-        bool isUpdatable = false;
+        var isUpdatable = false;
         var userDetailsDto = _mapper.Map<UpdateUserDetailsRequest>(model);
         var userOrg = userData.Organisations?.FirstOrDefault();
 
@@ -806,13 +807,13 @@ public class AccountManagementController : Controller
             model.JobTitle == model.OriginalJobTitle &&
             model.Telephone != model.OriginalTelephone)
         {
-            var reponse = await _facadeService.UpdateUserDetailsAsync(
+            var response = await _facadeService.UpdateUserDetailsAsync(
                 userData.Id.Value,
                 userOrg?.Id.Value ?? Guid.Empty,
                 ServiceKey,
                 userDetailsDto);
 
-            if (reponse.HasTelephoneOnlyUpdated)
+            if (response.HasTelephoneOnlyUpdated)
             {
                 if (TempData[AmendedUserDetailsKey] != null) TempData.Remove(AmendedUserDetailsKey);
                 // refresh the user data from the database
