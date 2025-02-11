@@ -4,9 +4,8 @@ using System.ComponentModel.DataAnnotations;
 namespace FrontendAccountManagement.Web.ViewModels.AccountManagement;
 
 public class ManageAccountTelephoneViewModel
-{ 
-     
+{
 
     [TelephoneNumberValidation()]
-    public string NewPhoneNumber { get; set; } 
+    public string? Telephone { get; set; }
 }
