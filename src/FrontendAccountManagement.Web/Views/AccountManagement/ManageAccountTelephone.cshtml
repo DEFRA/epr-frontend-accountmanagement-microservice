@@ -31,14 +31,14 @@
                             </h1>
                         </legend>
 
-                        <div class="govuk-form-group @((errorsViewModel.HasErrorKey(nameof(ManageAccountTelephoneViewModel.NewPhoneNumber))) ? "govuk-form-group--error" : string.Empty)">
+                        <div class="govuk-form-group @((errorsViewModel.HasErrorKey(nameof(ManageAccountTelephoneViewModel.Telephone))) ? "govuk-form-group--error" : string.Empty)">
                             <p class="govuk-error-message">
-                                <span asp-validation-for="NewPhoneNumber"></span>
+                                <span asp-validation-for="Telephone"></span>
                             </p>
-                            <label class="govuk-label" for="TelephoneNumber">
+                            <label class="govuk-label" for="Telephone">
                                 @Localizer["TelephoneNumber"]
                             </label> 
-                            <input class="govuk-input " asp-for="NewPhoneNumber" type="text" aria-describedby="TelephoneNumber" maxlength>
+                            <input class="govuk-input " asp-for="Telephone" type="text" aria-describedby="TelephoneNumber" maxlength>
                         </div>
 
                         <button class="govuk-button" data-module="govuk-button">

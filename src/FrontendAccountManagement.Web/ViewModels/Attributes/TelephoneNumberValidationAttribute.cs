@@ -16,11 +16,11 @@ public class TelephoneNumberValidationAttribute : ValidationAttribute
         var phoneNumber = value?.ToString() ?? string.Empty;
 
         if(string.IsNullOrEmpty(phoneNumber))
-        {
+        { 
             return new ValidationResult(EditUserDetails.TelephoneNumberMissing);
         }
         if (!IsValid(phoneNumber))
-        {
+        { 
             return new ValidationResult(EditUserDetails.TelephoneNumberInvalid);
         }
 
