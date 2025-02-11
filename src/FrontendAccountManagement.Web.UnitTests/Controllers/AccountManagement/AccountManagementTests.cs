@@ -318,7 +318,7 @@ public class AccountManagementTests : AccountManagementTestBase
     }
 
     [TestMethod]
-    public async Task GivenOnManageAccountPage_WhenTempDataHasSession_CheckYourOrganisationDetails_ShouldRemoveAnyTempData()
+    public async Task GivenOnManageAccountPage_WhenTempDataHasSession_CheckYourOrganisationDetails_ShouldRemoveTempData()
     {
         const string checkYourOrganisationDetailsKey = "CheckYourOrganisationDetails";
         // Arrange
