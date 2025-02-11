@@ -9,9 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -63,7 +61,7 @@ public class AccountManagementTelephoneChangeTests : AccountManagementTestBase
         var viewResult = result as ViewResult;
         Assert.IsInstanceOfType(result, typeof(ViewResult));
         Assert.IsNotNull(viewResult);
-        Assert.AreEqual(expectedModel.Telephone, ((ManageAccountTelephoneViewModel)viewResult.Model).NewPhoneNumber);
+        Assert.AreEqual(expectedModel.Telephone, ((ManageAccountTelephoneViewModel)viewResult.Model).Telephone);
     }
 
     [TestMethod]
@@ -192,7 +190,7 @@ public class AccountManagementTelephoneChangeTests : AccountManagementTestBase
         var viewResult = result as ViewResult;
         Assert.IsInstanceOfType(result, typeof(ViewResult));
         Assert.IsNotNull(viewResult);
-        Assert.AreEqual(expectedModel.Telephone, ((ManageAccountTelephoneViewModel)viewResult.Model).NewPhoneNumber);
+        Assert.AreEqual(expectedModel.Telephone, ((ManageAccountTelephoneViewModel)viewResult.Model).Telephone);
     }
 
     [TestMethod]
@@ -201,13 +199,13 @@ public class AccountManagementTelephoneChangeTests : AccountManagementTestBase
         // Arrange
         var previousNewDetails = new ManageAccountTelephoneViewModel
         {
-            NewPhoneNumber = "12345",
+            Telephone = "12345",
         };
         SystemUnderTest.TempData.Add("ManageAccountTelephoneChange", JsonSerializer.Serialize(previousNewDetails));
 
         var newNewDetails = new ManageAccountTelephoneViewModel
         {
-            NewPhoneNumber = "9876543",
+            Telephone = "9876543",
         };
 
         var tempDataInitialState = DeserialiseUserDetailsJson(SystemUnderTest.TempData["ManageAccountTelephoneChange"]);
