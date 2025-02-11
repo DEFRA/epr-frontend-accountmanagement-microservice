@@ -1129,6 +1129,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = "IsEmployeeAndBasicAdmin")]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     [Route(PagePath.UpdateCompanyName)]
     public async Task<IActionResult> UpdateCompanyName()
