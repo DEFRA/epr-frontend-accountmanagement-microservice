@@ -1299,6 +1299,14 @@ public class AccountManagementController : Controller
     [Route(PagePath.SelectBusinessAddress)]
     public async Task<IActionResult> SelectBusinessAddress()
     {
+        if (IsCompaniesHouseUser())
+        {
+            return RedirectToAction(nameof(ErrorController.Error), nameof(ErrorController), new
+            {
+                statusCode = (int)HttpStatusCode.Forbidden
+            });
+        }
+
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
         if (session == null)
@@ -1364,6 +1372,14 @@ public class AccountManagementController : Controller
     [Route(PagePath.SelectBusinessAddress)]
     public async Task<IActionResult> SelectBusinessAddress(SelectBusinessAddressViewModel model)
     {
+        if (IsCompaniesHouseUser())
+        {
+            return RedirectToAction(nameof(ErrorController.Error), nameof(ErrorController), new
+            {
+                statusCode = (int)HttpStatusCode.Forbidden
+            });
+        }
+
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
         var indexParseResult = int.TryParse(model.SelectedListIndex, out var index);
@@ -1460,7 +1476,7 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
 
-       
+
 
         if (!ModelState.IsValid)
         {
