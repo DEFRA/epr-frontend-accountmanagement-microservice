@@ -782,7 +782,7 @@ public class AccountManagementController : Controller
 
         TempData.Keep(AmendedUserDetailsKey);
         TempData.Keep(NewUserDetailsKey);
-
+        
         return IsApprovedOrDelegatedCompaniesHouseUser(userData) 
             ? View("CheckYourDetailsApprovedUserCompaniesHouse", model) 
             : View(model);
