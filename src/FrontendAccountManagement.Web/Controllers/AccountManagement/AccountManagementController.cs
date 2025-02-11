@@ -769,7 +769,7 @@ public class AccountManagementController : Controller
 
         isUpdatable = SetUpdatableValue(isUpdatable, serviceRole, roleInOrganisation, model);
 
-        SaveSessionAndJourney(session, PagePath.WhatAreYourDetails, PagePath.CheckYourDetails);
+        SaveSessionAndJourney(session, PagePath.ApprovedPersonPhoneNumberChange, PagePath.CheckYourDetails);
         SetBackLink(PagePath.CheckYourDetails);
 
         if (TempData[AmendedUserDetailsKey] == null)
