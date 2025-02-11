@@ -15,6 +15,7 @@ public static class PagePath
     public const string Declaration = "declaration";
     public const string DetailsChangeRequestedNotification = "details-change-requested";
     public const string CheckYourDetails = "check-your-details";
+    public const string ApprovedPersonCheckYourDetails = "approved-person-check-your-details";    
     public const string CheckCompaniesHouseDetails = "check-companies-house-details";
     public const string UkNation = "uk-nation";
     public const string CompanyDetailsUpdated = "company-details-updated";
