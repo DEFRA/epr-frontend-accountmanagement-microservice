@@ -941,7 +941,10 @@ public class AccountManagementController : Controller
 
         SetBackLink(session, PagePath.NonCompaniesHouseUkNation);
 
-        var viewModel = new UkNationViewModel();
+        var viewModel = new UkNationViewModel
+        { 
+            UkNation = (Constants.Enums.UkNation?)session.AccountManagementSession.UkNation
+        };
 
         return View(viewModel);
     }
