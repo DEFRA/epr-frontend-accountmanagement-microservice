@@ -118,21 +118,21 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="BusinessAddressPostcode.Question" xml:space="preserve">
-    <value>What is your business address?</value>
+    <value />
   </data>
   <data name="BusinessAddressPostcode.Postcode" xml:space="preserve">
-    <value>Postcode</value>
+    <value />
   </data>
   <data name="BusinessAddressPostcode.EnterPostcodeError" xml:space="preserve">
-    <value>Enter a postcode, like AA1 1AA</value>
+    <value />
   </data>
   <data name="BusinessAddressPostcode.Title" xml:space="preserve">
-    <value>What is your business address?</value>
+    <value />
   </data>
   <data name="BusinessAddressPostcode.Hint" xml:space="preserve">
-    <value>This is the address of your head office or principal place of business in the UK.</value>
+    <value />
   </data>
   <data name="BusinessAddressPostcode.FindAddress" xml:space="preserve">
-    <value>Find address</value>
+    <value />
   </data>
 </root>
