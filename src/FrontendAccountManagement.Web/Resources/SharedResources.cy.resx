@@ -130,10 +130,10 @@
     <value>Rhoi gwybod am ddata pecynwaith</value>
   </data>
   <data name="No" xml:space="preserve">
-    <value>Na</value>
+    <value>Nac ydy</value>
   </data>
   <data name="Yes" xml:space="preserve">
-    <value>Ie</value>
+    <value>Ydy</value>
   </data>
   <data name="Change" xml:space="preserve">
     <value>Newid</value>
@@ -193,12 +193,12 @@
     <value>Click on this link if you wish to go back to the manage account page</value>
   </data>
   <data name="UpdateOrgAddressBackAriaLabel" xml:space="preserve">
-    <value>Click on this link if you wish to go back to the previous page</value>
+    <value>Cliciwch ar y ddolen yma os hoffech chi fynd yn ôl i'r tudalen blaenorol</value>
   </data>
   <data name="BusinessPostcodeBackAriaLabel" xml:space="preserve">
     <value>Click on this link if you wish to go back to the Do you want to update your business address page</value>
   </data>
-	<data name="CompanyNameBackAriaLabel" xml:space="preserve">
+  <data name="CompanyNameBackAriaLabel" xml:space="preserve">
     <value>Click on this link if you wish to go back to the Do you want to update your organisation name page</value>
   </data>
   <data name="BusinessAddressBackAriaLabel" xml:space="preserve">
