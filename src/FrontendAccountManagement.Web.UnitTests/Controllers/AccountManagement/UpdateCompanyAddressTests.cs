@@ -3,7 +3,6 @@ using FluentAssertions.Execution;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.AccountManagement;
-using FrontendAccountManagement.Web.Controllers.Errors;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using FrontendAccountManagement.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -41,27 +40,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task Get_UpdateCompanyAddress_When_SessionIsNull_ReturnsViewWithModel()
-        {
-            // Arrange
-            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync((JourneySession)null);
-
-            // Act
-            var result = await SystemUnderTest.UpdateCompanyAddress();
-
-            // Assert
-            using (new AssertionScope())
-            {
-                result.Should().BeOfType<ViewResult>();
-                var viewResult = result as ViewResult;
-                viewResult.Model.Should().BeOfType<UpdateCompanyAddressViewModel>();
-                var model = viewResult.Model as UpdateCompanyAddressViewModel;
-                model.IsUpdateCompanyAddress.Should().BeNull();
-            }
-        }
-
-        [TestMethod]
-        public async Task Get_UpdateCompanyAddress_When_OrganisationTypeIsCompaniesHouseCompany_ReturnsRedirect()
+        public async Task Get_UpdateCompanyAddress_ShouldRedirectIfOrganisationIsCompaniesHouseCompany()
         {
             // Arrange
             var session = new JourneySession
@@ -71,7 +50,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                     OrganisationType = OrganisationType.CompaniesHouseCompany
                 }
             };
-            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+            SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
 
             // Act
             var result = await SystemUnderTest.UpdateCompanyAddress();
@@ -81,29 +60,96 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             {
                 result.Should().BeOfType<RedirectToActionResult>();
                 var redirectResult = result as RedirectToActionResult;
-                redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                redirectResult.ControllerName.Should().Be("Error");
                 redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
             }
         }
 
         [TestMethod]
-        public async Task Get_UpdateCompanyAddress_When_SessionIsValid_ReturnsViewWithCorrectBackLink()
+        public async Task Get_UpdateCompanyAddress_ShouldReturnViewWithModelWhenSessionIsNotNullAndIsUpdateCompanyAddressTrue()
         {
             // Arrange
             var session = new JourneySession
             {
                 AccountManagementSession = new AccountManagementSession
                 {
-                    IsUpdateCompanyName = true
+                    OrganisationType = OrganisationType.NonCompaniesHouseCompany,
+                    IsUpdateCompanyAddress = true
                 }
             };
-            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+            SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
 
             // Act
             var result = await SystemUnderTest.UpdateCompanyAddress();
 
             // Assert
-            result.Should().BeOfType<ViewResult>();
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<ViewResult>();
+                var viewResult = result as ViewResult;
+                var model = viewResult.Model as UpdateCompanyAddressViewModel;
+
+                model.Should().NotBeNull();
+                model.IsUpdateCompanyAddress.Should().Be(YesNoAnswer.Yes);
+            }
+        }
+
+        [TestMethod]
+        public async Task Get_UpdateCompanyAddress_ShouldReturnViewWithModelWhenSessionIsNotNullAndIsUpdateCompanyAddressFalse()
+        {
+            // Arrange
+            var session = new JourneySession
+            {
+                AccountManagementSession = new AccountManagementSession
+                {
+                    OrganisationType = OrganisationType.NonCompaniesHouseCompany,
+                    IsUpdateCompanyAddress = false
+                }
+            };
+            SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+
+            // Act
+            var result = await SystemUnderTest.UpdateCompanyAddress();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<ViewResult>();
+                var viewResult = result as ViewResult;
+                var model = viewResult.Model as UpdateCompanyAddressViewModel;
+
+                model.Should().NotBeNull();
+                model.IsUpdateCompanyAddress.Should().Be(YesNoAnswer.No);
+            }
+        }
+
+        [TestMethod]
+        public async Task Get_UpdateCompanyAddress_ShouldReturnViewWithModelWhenIsUpdateCompanyAddressIsNull()
+        {
+            // Arrange
+            var session = new JourneySession
+            {
+                AccountManagementSession = new AccountManagementSession
+                {
+                    OrganisationType = OrganisationType.NonCompaniesHouseCompany,
+                    IsUpdateCompanyAddress = null
+                }
+            };
+            SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+
+            // Act
+            var result = await SystemUnderTest.UpdateCompanyAddress();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<ViewResult>();
+                var viewResult = result as ViewResult;
+                var model = viewResult.Model as UpdateCompanyAddressViewModel;
+
+                model.Should().NotBeNull();
+                model.IsUpdateCompanyAddress.Should().BeNull();
+            }
         }
 
         [TestMethod]
