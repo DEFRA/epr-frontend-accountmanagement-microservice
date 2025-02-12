@@ -1466,8 +1466,8 @@ public class AccountManagementController : Controller
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         if (session != null)
         {
-            session.UserData = User.GetUserData();
-            if (session.UserData?.Organisations.Count != 0 && session.UserData?.Organisations[0]?.OrganisationType == OrganisationType.CompaniesHouseCompany)
+            if (session.UserData?.Organisations.Count == 0) session.UserData = User.GetUserData();
+            if (session.UserData?.Organisations[0]?.OrganisationType == OrganisationType.CompaniesHouseCompany)
             {
                 return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
                 {
