@@ -70,11 +70,15 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             var result = await SystemUnderTest.CompanyName(viewModel);
 
             // Assert
-            result.Should().BeOfType<ViewResult>();
-            var viewResult = (ViewResult)result;
-            viewResult.Model.Should().BeOfType<OrganisationNameViewModel>();
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<ViewResult>();
+                var viewResult = (ViewResult)result;
+                viewResult.Model.Should().BeOfType<OrganisationNameViewModel>();
 
-            SessionManagerMock.Verify(x => x.UpdateSessionAsync(It.IsAny<ISession>(), It.IsAny<Action<JourneySession>>()), Times.Never);
+                SessionManagerMock.Verify(x => x.UpdateSessionAsync(It.IsAny<ISession>(), It.IsAny<Action<JourneySession>>()), Times.Never);
+            }
+                
 
 
         }
@@ -172,13 +176,17 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             var result = await SystemUnderTest.CompanyName();
 
             // Assert
-            result.Should().BeOfType<RedirectToActionResult>();
-            var redirectResult = result.As<RedirectToActionResult>();
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+                var redirectResult = result.As<RedirectToActionResult>();
 
-            redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
-            redirectResult.ActionName.Should().Be(PagePath.Error);
-            redirectResult.RouteValues.Should().ContainKey("statusCode");
-            redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
+                redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                redirectResult.ActionName.Should().Be(PagePath.Error);
+                redirectResult.RouteValues.Should().ContainKey("statusCode");
+                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
+            }
+                
         }
 
 
