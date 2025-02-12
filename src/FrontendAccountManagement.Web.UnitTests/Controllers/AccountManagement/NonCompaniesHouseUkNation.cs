@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using AutoFixture;
 using EPR.Common.Authorization.Models;
+using FluentAssertions.Execution;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Constants.Enums;
@@ -59,11 +60,14 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             var viewResult = (ViewResult)result;
 
-            viewResult.Model.Should().BeOfType<UkNationViewModel>();
+            using (new AssertionScope())
+            {
+                viewResult.Model.Should().BeOfType<UkNationViewModel>();
 
-            var model = (UkNationViewModel)viewResult.Model!;
+                var model = (UkNationViewModel)viewResult.Model!;
 
-            model.UkNation.Should().Be(UkNation.England);
+                model.UkNation.Should().Be(UkNation.England);
+            }     
         }
 
         [TestMethod]
