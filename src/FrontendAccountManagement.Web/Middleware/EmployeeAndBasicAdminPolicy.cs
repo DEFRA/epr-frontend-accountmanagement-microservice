@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Authorization;
 namespace FrontendAccountManagement.Web.Middleware
 {
     /// <summary>
-    /// if user is either (employee user - person role) or (basic - service role and admin - person role), deny access
+    /// if user is either (basic - service role and admin - person role) or (employee user - person role), deny access
+    /// 
+    /// ie: if user is not (basic - service role or admin - person role)  or  (not employee user - person role), allow access
     /// </summary>
     public class EmployeeOrBasicAdminHandler : AuthorizationHandler<EmployeeOrBasicAdminRequirement>
     {
@@ -16,8 +18,8 @@ namespace FrontendAccountManagement.Web.Middleware
         {
             var userData = context.User.GetUserData();
 
-            if (!(requirement.ServiceRoleId == ParseEnum<ServiceRole>(userData.ServiceRoleId.ToString()) 
-                && (requirement.RoleInOrganisationAdmin== ParseEnum<PersonRole>(userData.RoleInOrganisation.ToString())))//   PersonRole.Admin.ToString()))
+            if ((requirement.ServiceRoleId != ParseEnum<ServiceRole>(userData.ServiceRoleId.ToString()) 
+                || (requirement.RoleInOrganisationAdmin != ParseEnum<PersonRole>(userData.RoleInOrganisation.ToString())))
                 || (requirement.RoleInOrganisationEmployee != ParseEnum<PersonRole>(userData.RoleInOrganisation)))
             {
                 context.Succeed(requirement);

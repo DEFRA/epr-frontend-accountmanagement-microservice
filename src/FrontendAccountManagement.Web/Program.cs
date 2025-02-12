@@ -55,7 +55,7 @@ builder.Services.AddTransient<IClaimsExtensionsWrapper, ClaimsExtensionsWrapper>
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("IsEmployeeAndBasicAdmin", policy => 
+    options.AddPolicy("IsEmployeeOrBasicAdmin", policy => 
     policy.Requirements.Add(
         new EmployeeOrBasicAdminRequirement(
             ServiceRole.Basic,
