@@ -60,9 +60,10 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             var viewResult = (ViewResult)result;
 
             viewResult.Model.Should().BeOfType<UkNationViewModel>();
+
             var model = (UkNationViewModel)viewResult.Model!;
-            
-            Assert.AreEqual(UkNation.England, model.UkNation);
+
+            model.UkNation.Should().Be(UkNation.England);
         }
 
         [TestMethod]
