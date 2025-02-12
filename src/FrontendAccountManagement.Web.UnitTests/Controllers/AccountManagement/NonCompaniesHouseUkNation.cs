@@ -47,10 +47,10 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task NonCompaniesHouseUkNationGet_ShouldReturnView()
+        public async Task NonCompaniesHouseUkNationGet_ShouldReturnView_WithCorrectUkNation()
         {
             //Arrange
-
+            _journeySession.AccountManagementSession.UkNation = (Core.Enums.Nation?)UkNation.England;
             //Act
             var result = await SystemUnderTest.NonCompaniesHouseUkNation();
 
@@ -60,6 +60,9 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             var viewResult = (ViewResult)result;
 
             viewResult.Model.Should().BeOfType<UkNationViewModel>();
+            var model = (UkNationViewModel)viewResult.Model!;
+            
+            Assert.AreEqual(UkNation.England, model.UkNation);
         }
 
         [TestMethod]
