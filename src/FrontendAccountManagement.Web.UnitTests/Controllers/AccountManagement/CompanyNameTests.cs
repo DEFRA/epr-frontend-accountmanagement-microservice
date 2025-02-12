@@ -163,7 +163,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 new Organisation { OrganisationType = OrganisationType.CompaniesHouseCompany }
             }
                 },
-                AccountManagementSession = new AccountManagementSession() // Ensure this is initialized
+                AccountManagementSession = new AccountManagementSession()
             };
 
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
@@ -190,7 +190,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             {
                 AccountManagementSession = new AccountManagementSession
                 {
-                    OrganisationName = "Company Name" // Ensure this is correctly set
+                    OrganisationName = "Company Name"
                 },
                 UserData = new UserData
                 {
