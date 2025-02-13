@@ -98,7 +98,8 @@ public class AccountManagementController : Controller
         };
 
         await SaveSessionAndJourney(session, PagePath.ApprovedPersonRoleChange, PagePath.ApprovedPersonPhoneNumberChange);
-        SetBackLink(session, PagePath.ApprovedPersonPhoneNumberChange);
+         
+        SetCustomBackLink(PagePath.ApprovedPersonRoleChange, false);
 
         return View(nameof(ManageAccountTelephone), model);
     }
@@ -111,6 +112,7 @@ public class AccountManagementController : Controller
 
         if (!ModelState.IsValid)
         {
+            SetBackLink(session, PagePath.ApprovedPersonRoleChange);
             return View(model);
         }
         
@@ -142,6 +144,8 @@ public class AccountManagementController : Controller
                 statusCode = (int)HttpStatusCode.Forbidden
             });
         }
+
+        RemoveTempDataSessionsChangeDetails();
 
         session.AccountManagementSession.AddUserJourney = null;
         if (session.AccountManagementSession.RemoveUserStatus != null)
@@ -681,8 +685,8 @@ public class AccountManagementController : Controller
             SelectedCompaniesHouseRole = editDetailsViewModel.OriginalJobTitle
         };
 
-        await SaveSessionAndJourney(session, PagePath.ApprovedPersonNameChange, PagePath.ApprovedPersonRoleChange);
-        SetBackLink(session, PagePath.ApprovedPersonRoleChange);
+        await SaveSessionAndJourney(session, PagePath.ApprovedPersonNameChange, PagePath.ApprovedPersonRoleChange); 
+        SetCustomBackLink(PagePath.ApprovedPersonNameChange, false);
 
         return View(model);
     }
@@ -697,7 +701,7 @@ public class AccountManagementController : Controller
 
         if (!ModelState.IsValid)
         {
-            await SetBackLink(PagePath.WhatAreYourDetails);
+            SetBackLink(session, PagePath.WhatAreYourDetails);
             return View(editCompanyRoleDetailsViewModel);
         }
 
@@ -1165,8 +1169,8 @@ public class AccountManagementController : Controller
         UpdateTempDataWithEditUserDetails(editDetailsViewModel);
 
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonNameChange);
-
-        SetBackLink(PagePath.ApprovedPersonNameChange);
+         
+        SetCustomBackLink(PagePath.ManageAccount, false);
 
         return View(model);
     }
@@ -1180,7 +1184,7 @@ public class AccountManagementController : Controller
         SetCustomBackLink(PagePath.ApprovedPersonNameChange, false);
 
         if (!ModelState.IsValid)
-        {
+        { 
             return View(model);
         }
 
@@ -1451,5 +1455,13 @@ public class AccountManagementController : Controller
 
         return roleInOrganisation == PersonRole.Admin.ToString() &&
             serviceRoleId == (int)ServiceRole.Basic;
+    }
+
+    private void RemoveTempDataSessionsChangeDetails()
+    {
+        if (TempData[CheckYourOrganisationDetailsKey] != null)
+        {
+            TempData.Remove(CheckYourOrganisationDetailsKey);
+        }
     }
 }

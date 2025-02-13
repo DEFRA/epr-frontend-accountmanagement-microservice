@@ -127,6 +127,6 @@
     <value>[Welsh] What is your telephone number?</value>
   </data>
   <data name="TelephoneNumber" xml:space="preserve">
-    <value>[Welsh] Telephone number</value>
+    <value>Rhif ffôn</value>
   </data>
 </root>

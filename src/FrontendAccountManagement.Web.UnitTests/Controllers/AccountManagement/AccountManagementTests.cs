@@ -318,6 +318,35 @@ public class AccountManagementTests : AccountManagementTestBase
     }
 
     [TestMethod]
+    public async Task GivenOnManageAccountPage_WhenTempDataHasSession_CheckYourOrganisationDetails_ShouldRemoveTempData()
+    {
+        const string checkYourOrganisationDetailsKey = "CheckYourOrganisationDetails";
+        // Arrange
+        var checkYourOrganisationDetails = new CheckYourOrganisationDetailsViewModel
+        {
+            OrganisationId = Guid.NewGuid(),
+            UkNation = UkNation.England,
+        };
+
+        var userData = SetupUserData(string.Empty);
+
+        SetupBase(userData: userData);
+
+        SystemUnderTest.TempData.Add(checkYourOrganisationDetailsKey, JsonSerializer.Serialize(checkYourOrganisationDetails));
+
+        Assert.IsNotNull(SystemUnderTest.TempData[checkYourOrganisationDetailsKey]);
+
+        // Act
+        var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
+
+        // Assert
+        result.Should().BeOfType<ViewResult>();
+        result.ViewName.Should().Be(ViewName);
+        Assert.IsNull(SystemUnderTest.TempData[checkYourOrganisationDetailsKey]);
+    }
+
+
+    [TestMethod]
     public async Task GivenOnEditUserDetailsPage_WhenPageSubbmitedWithValidData_RedirectsToNextPage()
     {
         // Arrange
