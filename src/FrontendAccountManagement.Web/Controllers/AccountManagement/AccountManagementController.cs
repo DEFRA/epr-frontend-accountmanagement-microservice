@@ -40,10 +40,7 @@ public class AccountManagementController : Controller
     private const string OrganisationDetailsUpdatedTimeKey = "OrganisationDetailsUpdatedTime";
     private const string AmendedUserDetailsKey = "AmendedUserDetails";
     private const string NewUserDetailsKey = "NewUserDetails";
-    private const string ApprovedPersonRoleChangeKey = "ApprovedPersonRoleChange";
     private const string ServiceKey = "Packaging";
-    private const string ApprovedPersonNameChangeKey = "ApprovedPersonNameChange";
-    private const string ManageAccountTelephoneChangeKey = "ManageAccountTelephoneChange";
 
     private readonly ISessionManager<JourneySession> _sessionManager;
     private readonly IFacadeService _facadeService;
@@ -90,10 +87,14 @@ public class AccountManagementController : Controller
             });
         }
 
+        var editDetailsViewModel = GetEditUserDetailsVmFromTempData();
+
         var model = new ManageAccountTelephoneViewModel
-        {
-            Telephone = userData.Telephone ?? string.Empty
+        { 
+            Telephone = editDetailsViewModel.Telephone
         };
+
+        UpdateTempDataWithEditUserDetails(editDetailsViewModel);
 
         await SaveSessionAndJourney(session, PagePath.ApprovedPersonRoleChange, PagePath.ApprovedPersonPhoneNumberChange);
          
@@ -113,18 +114,15 @@ public class AccountManagementController : Controller
             SetBackLink(session, PagePath.ApprovedPersonRoleChange);
             return View(model);
         }
+        
+        var editDetailsViewModel = GetEditUserDetailsVmFromTempData();
+        editDetailsViewModel.Telephone = model.Telephone;
+        UpdateTempDataWithEditUserDetails(editDetailsViewModel);
 
-        if (!TempData.TryAdd(ManageAccountTelephoneChangeKey, JsonSerializer.Serialize(model)))
-        {
-            TempData[ManageAccountTelephoneChangeKey] = JsonSerializer.Serialize(model);
-        }
+        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonPhoneNumberChange);
+        SetBackLink(session, PagePath.ApprovedPersonPhoneNumberChange);
 
-        session.UserData.Telephone = model.Telephone;
-        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonPhoneNumberChange); 
-
-        //return Redirect($"/{PagePath.ApprovedPersonCheckYourDetails}");
-
-        return RedirectToAction(nameof(CheckYourDetails));
+        return RedirectToAction(nameof(CheckYourDetailsApprovedUserCompanyHouse));
     }
 
     [HttpGet]
@@ -667,7 +665,6 @@ public class AccountManagementController : Controller
     [Route(PagePath.ApprovedPersonRoleChange)]
     public async Task<IActionResult> ApprovedPersonRoleChange()
     {
-        var editDetailsViewModel = new EditUserDetailsViewModel();
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
  
@@ -679,22 +676,14 @@ public class AccountManagementController : Controller
             });
         }
 
-        if (TempData[AmendedUserDetailsKey] != null)
-        {
-            try
-            {
-                editDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "Deserialising NewUserDetails Failed.");
-            }
-        }
+        var editDetailsViewModel = GetEditUserDetailsVmFromTempData();
 
         var model = new ApprovedPersonRoleChangeViewModel
         {
-            SelectedCompaniesHouseRole = editDetailsViewModel.OriginalJobTitle ?? userData.JobTitle
+            SelectedCompaniesHouseRole = editDetailsViewModel.JobTitle
         };
+
+        UpdateTempDataWithEditUserDetails(editDetailsViewModel);
 
         await SaveSessionAndJourney(session, PagePath.ApprovedPersonNameChange, PagePath.ApprovedPersonRoleChange); 
         SetCustomBackLink(PagePath.ApprovedPersonNameChange, false);
@@ -716,12 +705,10 @@ public class AccountManagementController : Controller
             return View(editCompanyRoleDetailsViewModel);
         }
 
-        //tries to add new temp data and if its already exists replace it with the new one
-        if (!TempData.TryAdd(ApprovedPersonRoleChangeKey, JsonSerializer.Serialize(editCompanyRoleDetailsViewModel)))
-        {
-            TempData[ApprovedPersonRoleChangeKey] = JsonSerializer.Serialize(editCompanyRoleDetailsViewModel);
-        }
-
+        var editDetailsViewModel = GetEditUserDetailsVmFromTempData();
+        editDetailsViewModel.JobTitle = editCompanyRoleDetailsViewModel.SelectedCompaniesHouseRole;
+        UpdateTempDataWithEditUserDetails(editDetailsViewModel);
+        
         await SaveSessionAndJourney(session, PagePath.ApprovedPersonNameChange, PagePath.ApprovedPersonRoleChange);
 
         return RedirectToAction(nameof(ManageAccountTelephone));
@@ -729,7 +716,6 @@ public class AccountManagementController : Controller
 
     [HttpGet]
     [Route(PagePath.CheckYourDetails)]
-    [Route(PagePath.ApprovedPersonCheckYourDetails)]
     public async Task<IActionResult> CheckYourDetails()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
@@ -760,7 +746,7 @@ public class AccountManagementController : Controller
                 _logger.LogInformation(exception, "Deserialising NewUserDetails Failed.");
             }
         }
-
+        
         var model = new EditUserDetailsViewModel
         {
             FirstName = editUserDetailsViewModel.FirstName ?? userData.FirstName,
@@ -788,11 +774,42 @@ public class AccountManagementController : Controller
         TempData.Keep(AmendedUserDetailsKey);
         TempData.Keep(NewUserDetailsKey);
         
-        return IsApprovedOrDelegatedCompaniesHouseUser(userData) 
-            ? View("CheckYourDetailsApprovedUserCompaniesHouse", model) 
-            : View(model);
+        return View(model);
     }
-    
+
+    [HttpGet]
+    [Route(PagePath.ApprovedPersonCheckYourDetails)]
+    public async Task<IActionResult> CheckYourDetailsApprovedUserCompanyHouse()
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var userData = User.GetUserData();
+
+        if (userData.IsChangeRequestPending || !IsApprovedOrDelegatedCompaniesHouseUser(userData))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.Forbidden
+            });
+        }
+
+        var editUserDetailsViewModel = GetEditUserDetailsVmFromTempData();
+        var isUpdatable = SetUpdatableValue(
+            false,
+            userData.ServiceRole,
+            userData.RoleInOrganisation,
+            editUserDetailsViewModel
+        );
+
+        UpdateTempDataWithEditUserDetails(editUserDetailsViewModel);
+        
+        SaveSessionAndJourney(session, PagePath.ApprovedPersonPhoneNumberChange, PagePath.CheckYourDetails);
+        SetBackLink(PagePath.CheckYourDetails);
+
+        ViewBag.IsUpdatable = isUpdatable;
+
+        return View("CheckYourDetailsApprovedUserCompaniesHouse", editUserDetailsViewModel);
+    }
+
     [HttpPost]
     [Route(PagePath.CheckYourDetails)]
     public async Task<IActionResult> CheckYourDetails(EditUserDetailsViewModel model)
@@ -1129,7 +1146,6 @@ public class AccountManagementController : Controller
     [Route(PagePath.ApprovedPersonNameChange)]
     public async Task<IActionResult> ApprovedPersonNameChange()
     {
-        var editDetailsViewModel = new EditUserDetailsViewModel();
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
 
@@ -1141,23 +1157,15 @@ public class AccountManagementController : Controller
             });
         }
 
-        if (TempData[AmendedUserDetailsKey] != null)
-        {
-            try
-            {
-                editDetailsViewModel = JsonSerializer.Deserialize<EditUserDetailsViewModel>(TempData[AmendedUserDetailsKey] as string);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "Deserialising NewUserDetails Failed.");
-            }
-        }
+        var editDetailsViewModel = GetEditUserDetailsVmFromTempData();
 
         var model = new ApprovedPersonNameChangeViewModel()
         {
-            FirstName = editDetailsViewModel.FirstName ?? userData.FirstName,
-            LastName = editDetailsViewModel.LastName ?? userData.LastName,
+            FirstName = editDetailsViewModel.FirstName, // ?? userData.FirstName,
+            LastName = editDetailsViewModel.LastName // ?? userData.LastName,
         };
+
+        UpdateTempDataWithEditUserDetails(editDetailsViewModel);
 
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonNameChange);
          
@@ -1179,16 +1187,54 @@ public class AccountManagementController : Controller
             return View(model);
         }
 
-        if (!TempData.TryAdd(ApprovedPersonNameChangeKey, JsonSerializer.Serialize(model)))
-        {
-            TempData[ApprovedPersonNameChangeKey] = JsonSerializer.Serialize(model);
-        }
+        var editDetailsViewModel = GetEditUserDetailsVmFromTempData();
+
+        editDetailsViewModel.FirstName = model.FirstName;
+        editDetailsViewModel.LastName = model.LastName;
+
+        UpdateTempDataWithEditUserDetails(editDetailsViewModel);
 
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonNameChange);
 
         return RedirectToAction(nameof(PagePath.ApprovedPersonRoleChange));
     }
 
+    private void UpdateTempDataWithEditUserDetails(EditUserDetailsViewModel editDetailsViewModel)
+    {
+        TempData[AmendedUserDetailsKey] = JsonSerializer.Serialize(editDetailsViewModel);
+    }
+
+    private EditUserDetailsViewModel GetEditUserDetailsVmFromTempData()
+    {
+        if (TempData.TryGetValue(AmendedUserDetailsKey, out var amendedUserDetailsJson) 
+            && amendedUserDetailsJson is string jsonString)
+        {
+            try
+            {
+                return JsonSerializer.Deserialize<EditUserDetailsViewModel>(jsonString) ?? new EditUserDetailsViewModel();
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Deserializing AmendedUserDetails Failed. Returning default values.");
+            }
+        }
+        
+        // return default values, intentionally does not use automapper
+        var userData = User.GetUserData();
+        var editUserDetailsViewModel = new EditUserDetailsViewModel
+        {
+            FirstName = userData.FirstName,
+            LastName = userData.LastName,
+            Telephone = userData.Telephone,
+            JobTitle = userData.JobTitle,          
+            OriginalTelephone = userData.Telephone,
+            OriginalFirstName = userData.FirstName,
+            OriginalLastName = userData.LastName,
+            OriginalJobTitle = userData.JobTitle, 
+        };
+
+        return editUserDetailsViewModel;
+    }
 
     private async Task<bool> CompareDataAsync(JourneySession session)
     {

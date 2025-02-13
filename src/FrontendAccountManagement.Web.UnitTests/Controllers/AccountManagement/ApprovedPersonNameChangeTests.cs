@@ -7,11 +7,8 @@ using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 {
@@ -85,10 +82,6 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 LastName = LastName
             };
 
-            AutoMapperMock.Setup(m =>
-                m.Map<EditUserDetailsViewModel>(mockUserData))
-                .Returns(expectedModel);
-
             SetupBase(mockUserData);
 
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
@@ -128,9 +121,6 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 LastName = LastName
             };
 
-            AutoMapperMock.Setup(m =>
-                m.Map<EditUserDetailsViewModel>(mockUserData))
-                .Returns(expectedModel);
 
             SetupBase(mockUserData);
 
@@ -179,10 +169,6 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             TempDataDictionary[AmendedUserDetailsKey] = serializedModel;
 
-            AutoMapperMock.Setup(m =>
-                m.Map<EditUserDetailsViewModel>(mockUserData))
-                .Returns(expectedModel);
-
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
                 .ReturnsAsync(new JourneySession
                 {
@@ -203,42 +189,61 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         public async Task Should_Overwrite_ApprovedPersonNameChange_TempData_When_Already_Set()
         {
             // Arrange
-            var previousNewDetails = new ApprovedPersonNameChangeViewModel
+            var mockUserData = new UserData
+            {
+                Telephone = "020 665455",
+                IsChangeRequestPending = false,
+                Organisations = new List<Organisation>() { new Organisation { Id = Guid.NewGuid(), OrganisationType = "Companies House Company" } },
+                RoleInOrganisation = PersonRole.Admin.ToString(),
+                ServiceRoleId = (int)Core.Enums.ServiceRole.Approved
+            };
+
+            SetupBase(mockUserData);
+
+            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+                .ReturnsAsync(new JourneySession
+                {
+                    UserData = mockUserData
+                });
+
+            var previousNewDetails = new EditUserDetailsViewModel()
             {
                 FirstName = "Previous first name",
                 LastName = "Previous last name",
             };
-            SystemUnderTest.TempData.Add("ApprovedPersonNameChange", JsonSerializer.Serialize(previousNewDetails));
 
-            var newNewDetails = new ApprovedPersonNameChangeViewModel
+            SystemUnderTest.TempData.Add(AmendedUserDetailsKey, JsonSerializer.Serialize(previousNewDetails));
+            
+            var newNewDetails = new ApprovedPersonNameChangeViewModel()
             {
                 FirstName = "New first name",
                 LastName = "New last name",
             };
 
-            var tempDataInitialState = DeserialiseUserDetailsJson(SystemUnderTest.TempData["ApprovedPersonNameChange"]);
-            
+            var tempDataInitialState = DeserialiseEditUserDetailsJson(SystemUnderTest.TempData[AmendedUserDetailsKey]);
             tempDataInitialState.Should().BeEquivalentTo(previousNewDetails);
 
             // Act
             await SystemUnderTest.ApprovedPersonNameChange(newNewDetails);
 
-            var updatedTempDataInitialState = DeserialiseUserDetailsJson(SystemUnderTest.TempData["ApprovedPersonNameChange"]);
+            var updatedTempDataInitialState = DeserialiseEditUserDetailsJson(SystemUnderTest.TempData[AmendedUserDetailsKey]);
 
-            updatedTempDataInitialState.Should().BeEquivalentTo(newNewDetails);
+
+            updatedTempDataInitialState.FirstName.Should().BeEquivalentTo(newNewDetails.FirstName);
+            updatedTempDataInitialState.LastName.Should().BeEquivalentTo(newNewDetails.LastName);
         }
 
         /// <summary>
         /// Parses the user details from the temp data back to an object.
         /// </summary>
-        private ApprovedPersonNameChangeViewModel DeserialiseUserDetailsJson(object json)
+        private EditUserDetailsViewModel DeserialiseEditUserDetailsJson(object json)
         {
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
             writer.Write(json);
             writer.Flush();
             stream.Position = 0;
-            return (ApprovedPersonNameChangeViewModel)JsonSerializer.Deserialize(stream, typeof(ApprovedPersonNameChangeViewModel));
+            return (EditUserDetailsViewModel)JsonSerializer.Deserialize(stream, typeof(EditUserDetailsViewModel));
         }
     }
 }

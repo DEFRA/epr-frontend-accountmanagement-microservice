@@ -7,11 +7,9 @@ using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Text.Json;
-using System.Threading.Tasks;
+
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 
@@ -19,14 +17,13 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 public class AccountManagementTelephoneChangeTests : AccountManagementTestBase
 {
     private const string Telephone = "123456"; 
-    private const string ManageAccountTelephoneChangeKey = "ManageAccountTelephoneChange"; 
+    private const string AmendedUserDetailsKey = "AmendedUserDetails"; 
 
     [TestInitialize]
     public void Setup()
     {
         SetupBase();
     }
-
 
     [TestMethod]
     public async Task ShouldReturnViewWithCorrectModel()
@@ -82,10 +79,6 @@ public class AccountManagementTelephoneChangeTests : AccountManagementTestBase
             Telephone = Telephone
         };
 
-        AutoMapperMock.Setup(m =>
-            m.Map<EditUserDetailsViewModel>(mockUserData))
-            .Returns(expectedModel);
-
         SetupBase(mockUserData);
 
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
@@ -123,10 +116,6 @@ public class AccountManagementTelephoneChangeTests : AccountManagementTestBase
             Telephone = Telephone
         };
 
-        AutoMapperMock.Setup(m =>
-            m.Map<EditUserDetailsViewModel>(mockUserData))
-            .Returns(expectedModel);
-
         SetupBase(mockUserData);
 
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
@@ -161,7 +150,6 @@ public class AccountManagementTelephoneChangeTests : AccountManagementTestBase
             ServiceRoleId = (int)Core.Enums.ServiceRole.Approved
         };
 
-
         var expectedModel = new EditUserDetailsViewModel
         {
             Telephone = Telephone
@@ -171,11 +159,7 @@ public class AccountManagementTelephoneChangeTests : AccountManagementTestBase
 
         SetupBase(mockUserData);
 
-        TempDataDictionary[ManageAccountTelephoneChangeKey] = serializedModel;
-
-        AutoMapperMock.Setup(m =>
-            m.Map<EditUserDetailsViewModel>(mockUserData))
-            .Returns(expectedModel);
+        TempDataDictionary[AmendedUserDetailsKey] = serializedModel;
 
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
             .ReturnsAsync(new JourneySession
@@ -197,40 +181,57 @@ public class AccountManagementTelephoneChangeTests : AccountManagementTestBase
     public async Task Should_Overwrite_ManageAccountTelephone_TempData_When_Already_Set()
     {
         // Arrange
-        var previousNewDetails = new ManageAccountTelephoneViewModel
+        var mockUserData = new UserData
+        {
+            Telephone = Telephone,
+            IsChangeRequestPending = false,
+            Organisations = new List<Organisation>() { new Organisation { Id = Guid.NewGuid(), OrganisationType = "Companies House Company" } },
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+            ServiceRoleId = (int)Core.Enums.ServiceRole.Approved
+        };
+
+        SetupBase(mockUserData);
+
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .ReturnsAsync(new JourneySession
+            {
+                UserData = mockUserData
+            });
+
+        var previousEditDetails = new EditUserDetailsViewModel
         {
             Telephone = "12345",
         };
-        SystemUnderTest.TempData.Add("ManageAccountTelephoneChange", JsonSerializer.Serialize(previousNewDetails));
-
+        SystemUnderTest.TempData.Add(AmendedUserDetailsKey, JsonSerializer.Serialize(previousEditDetails));
         var newNewDetails = new ManageAccountTelephoneViewModel
         {
             Telephone = "9876543",
         };
 
-        var tempDataInitialState = DeserialiseUserDetailsJson(SystemUnderTest.TempData["ManageAccountTelephoneChange"]);
-
-        tempDataInitialState.Should().BeEquivalentTo(previousNewDetails);
-
+        var tempDataInitialState = DeserialiseEditUserDetailsJson(SystemUnderTest.TempData[AmendedUserDetailsKey]);
+        tempDataInitialState.Should().BeEquivalentTo(previousEditDetails);
         // Act
-        await SystemUnderTest.ManageAccountTelephone(newNewDetails);
-
-        var updatedTempDataInitialState = DeserialiseUserDetailsJson(SystemUnderTest.TempData["ManageAccountTelephoneChange"]);
-
-        updatedTempDataInitialState.Should().BeEquivalentTo(newNewDetails);
+        var result = await SystemUnderTest.ManageAccountTelephone(newNewDetails);
+        var updatedTempDataInitialState = DeserialiseEditUserDetailsJson(SystemUnderTest.TempData[AmendedUserDetailsKey]);
+        // Assert
+        updatedTempDataInitialState.Telephone.Should().Be(newNewDetails.Telephone);
+        result.Should().BeOfType<RedirectToActionResult>()
+            .Which.ActionName.Should().Be(nameof(SystemUnderTest.CheckYourDetailsApprovedUserCompanyHouse));
     }
 
 
     /// <summary>
     /// Parses the user details from the temp data back to an object.
     /// </summary>
-    private ManageAccountTelephoneViewModel DeserialiseUserDetailsJson(object json)
+
+    private EditUserDetailsViewModel DeserialiseEditUserDetailsJson(object json)
     {
         var stream = new MemoryStream();
         var writer = new StreamWriter(stream);
         writer.Write(json);
         writer.Flush();
         stream.Position = 0;
-        return (ManageAccountTelephoneViewModel)JsonSerializer.Deserialize(stream, typeof(ManageAccountTelephoneViewModel));
+        return (EditUserDetailsViewModel)JsonSerializer.Deserialize(stream, typeof(EditUserDetailsViewModel));
     }
+
 }
