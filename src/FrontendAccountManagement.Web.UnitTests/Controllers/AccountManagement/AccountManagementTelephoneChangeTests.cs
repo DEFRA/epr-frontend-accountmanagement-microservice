@@ -214,7 +214,7 @@ public class AccountManagementTelephoneChangeTests : AccountManagementTestBase
         var result = await SystemUnderTest.ManageAccountTelephone(newNewDetails);
         var updatedTempDataInitialState = DeserialiseEditUserDetailsJson(SystemUnderTest.TempData[AmendedUserDetailsKey]);
         // Assert
-        updatedTempDataInitialState.Telephone.Should().Be(newNewDetails.NewPhoneNumber);
+        updatedTempDataInitialState.Telephone.Should().Be(newNewDetails.Telephone);
         result.Should().BeOfType<RedirectToActionResult>()
             .Which.ActionName.Should().Be(nameof(SystemUnderTest.CheckYourDetailsApprovedUserCompanyHouse));
     }

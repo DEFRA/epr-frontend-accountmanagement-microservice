@@ -94,7 +94,7 @@ public class AccountManagementController : Controller
 
         var model = new ManageAccountTelephoneViewModel
         { 
-            NewPhoneNumber = editDetailsViewModel.Telephone
+            Telephone = editDetailsViewModel.Telephone
         };
 
         await SaveSessionAndJourney(session, PagePath.ApprovedPersonRoleChange, PagePath.ApprovedPersonPhoneNumberChange);
@@ -117,7 +117,7 @@ public class AccountManagementController : Controller
         }
         
         var editDetailsViewModel = GetEditUserDetailsVmFromTempData();
-        editDetailsViewModel.Telephone = model.NewPhoneNumber;
+        editDetailsViewModel.Telephone = model.Telephone;
         UpdateTempDataWithEditUserDetails(editDetailsViewModel);
         TempData.Keep(AmendedUserDetailsKey);
 
