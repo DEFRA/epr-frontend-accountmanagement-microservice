@@ -56,12 +56,11 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             var result = await SystemUnderTest.NonCompaniesHouseUkNation();
 
             //Assert
-            result.Should().BeOfType<ViewResult>();
-
-            var viewResult = (ViewResult)result;
-
             using (new AssertionScope())
             {
+                result.Should().BeOfType<ViewResult>();
+
+                var viewResult = (ViewResult)result;
                 viewResult.Model.Should().BeOfType<UkNationViewModel>();
 
                 var model = (UkNationViewModel)viewResult.Model!;
