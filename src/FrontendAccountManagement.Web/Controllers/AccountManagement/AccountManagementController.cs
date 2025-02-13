@@ -40,10 +40,7 @@ public class AccountManagementController : Controller
     private const string OrganisationDetailsUpdatedTimeKey = "OrganisationDetailsUpdatedTime";
     private const string AmendedUserDetailsKey = "AmendedUserDetails";
     private const string NewUserDetailsKey = "NewUserDetails";
-    private const string ApprovedPersonRoleChangeKey = "ApprovedPersonRoleChange";
     private const string ServiceKey = "Packaging";
-    private const string ApprovedPersonNameChangeKey = "ApprovedPersonNameChange";
-    private const string ManageAccountTelephoneChangeKey = "ManageAccountTelephoneChange";
 
     private readonly ISessionManager<JourneySession> _sessionManager;
     private readonly IFacadeService _facadeService;
@@ -97,6 +94,8 @@ public class AccountManagementController : Controller
             Telephone = editDetailsViewModel.Telephone
         };
 
+        UpdateTempDataWithEditUserDetails(editDetailsViewModel);
+
         await SaveSessionAndJourney(session, PagePath.ApprovedPersonRoleChange, PagePath.ApprovedPersonPhoneNumberChange);
          
         SetCustomBackLink(PagePath.ApprovedPersonRoleChange, false);
@@ -119,7 +118,7 @@ public class AccountManagementController : Controller
         var editDetailsViewModel = GetEditUserDetailsVmFromTempData();
         editDetailsViewModel.Telephone = model.Telephone;
         UpdateTempDataWithEditUserDetails(editDetailsViewModel);
-        TempData.Keep(AmendedUserDetailsKey);
+        //TempData.Keep(AmendedUserDetailsKey);
 
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonPhoneNumberChange);
         SetBackLink(session, PagePath.ApprovedPersonPhoneNumberChange);
@@ -682,8 +681,10 @@ public class AccountManagementController : Controller
 
         var model = new ApprovedPersonRoleChangeViewModel
         {
-            SelectedCompaniesHouseRole = editDetailsViewModel.OriginalJobTitle
+            SelectedCompaniesHouseRole = editDetailsViewModel.JobTitle
         };
+
+        UpdateTempDataWithEditUserDetails(editDetailsViewModel);
 
         await SaveSessionAndJourney(session, PagePath.ApprovedPersonNameChange, PagePath.ApprovedPersonRoleChange); 
         SetCustomBackLink(PagePath.ApprovedPersonNameChange, false);
