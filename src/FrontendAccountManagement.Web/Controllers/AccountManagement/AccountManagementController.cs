@@ -1216,9 +1216,21 @@ public class AccountManagementController : Controller
             }
         }
         
-        // return default values
+        // return default values, intentionally does not use automapper
         var userData = User.GetUserData();
-        return _mapper.Map<EditUserDetailsViewModel>(userData);
+        var editUserDetailsViewModel = new EditUserDetailsViewModel
+        {
+            FirstName = userData.FirstName,
+            LastName = userData.LastName,
+            Telephone = userData.Telephone,
+            JobTitle = userData.JobTitle,          
+            OriginalTelephone = userData.Telephone,
+            OriginalFirstName = userData.FirstName,
+            OriginalLastName = userData.LastName,
+            OriginalJobTitle = userData.JobTitle, 
+        };
+
+        return editUserDetailsViewModel;
     }
 
     private async Task<bool> CompareDataAsync(JourneySession session)

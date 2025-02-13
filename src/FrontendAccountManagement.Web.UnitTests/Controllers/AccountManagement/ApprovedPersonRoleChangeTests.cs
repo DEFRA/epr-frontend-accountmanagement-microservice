@@ -160,7 +160,8 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             var expectedModel = new EditUserDetailsViewModel
             {
-                JobTitle = _jobTitle
+                JobTitle = _jobTitle,
+                OriginalJobTitle = _jobTitle
             };
 
             var serializedModel = JsonSerializer.Serialize(expectedModel);
@@ -168,10 +169,6 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             SetupBase(mockUserData);
 
             TempDataDictionary[AmendedUserDetailsKey] = serializedModel;
-
-            AutoMapperMock.Setup(m =>
-                m.Map<EditUserDetailsViewModel>(mockUserData))
-                .Returns(expectedModel);
 
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
                 .ReturnsAsync(new JourneySession
@@ -193,40 +190,40 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         public async Task Should_Overwrite_ApprovedPersonRoleChange_TempData_When_Already_Set()
         {
             // Arrange
-            var previousNewDetails = new ApprovedPersonRoleChangeViewModel
+            var previousNewDetails = new EditUserDetailsViewModel
             {
-                SelectedCompaniesHouseRole = "Previous Role Name"
+                JobTitle = "Previous Role Name"
             };
-            SystemUnderTest.TempData.Add("ApprovedPersonRoleChange", JsonSerializer.Serialize(previousNewDetails));
+            SystemUnderTest.TempData.Add(AmendedUserDetailsKey, JsonSerializer.Serialize(previousNewDetails));
 
             var newNewDetails = new ApprovedPersonRoleChangeViewModel
             {
                 SelectedCompaniesHouseRole = "New Role Name"
             };
 
-            var tempDataInitialState = DeserialiseUserDetailsJson(SystemUnderTest.TempData["ApprovedPersonRoleChange"]);
+            var tempDataInitialState = DeserialiseEditUserDetailsJson(SystemUnderTest.TempData[AmendedUserDetailsKey]);
             
             tempDataInitialState.Should().BeEquivalentTo(previousNewDetails);
 
             // Act
             await SystemUnderTest.ApprovedPersonRoleChange(newNewDetails);
 
-            var updatedTempDataInitialState = DeserialiseUserDetailsJson(SystemUnderTest.TempData["ApprovedPersonRoleChange"]);
+            var updatedTempDataInitialState = DeserialiseEditUserDetailsJson(SystemUnderTest.TempData[AmendedUserDetailsKey]);
 
-            updatedTempDataInitialState.Should().BeEquivalentTo(newNewDetails);
+            updatedTempDataInitialState.JobTitle.Should().BeEquivalentTo(newNewDetails.SelectedCompaniesHouseRole);
         }
 
         /// <summary>
         /// Parses the user details from the temp data back to an object.
         /// </summary>
-        private ApprovedPersonRoleChangeViewModel DeserialiseUserDetailsJson(object json)
+        private EditUserDetailsViewModel DeserialiseEditUserDetailsJson(object json)
         {
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
             writer.Write(json);
             writer.Flush();
             stream.Position = 0;
-            return (ApprovedPersonRoleChangeViewModel)JsonSerializer.Deserialize(stream, typeof(ApprovedPersonRoleChangeViewModel));
+            return (EditUserDetailsViewModel)JsonSerializer.Deserialize(stream, typeof(EditUserDetailsViewModel));
         }
     }
 }
