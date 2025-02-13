@@ -901,7 +901,7 @@ public class AccountManagementController : Controller
 
         if (!ModelState.IsValid)
         {
-            SetCustomBackLink(PagePath.BusinessAddressPostcode, false);
+            SetBackLink(session, PagePath.BusinessAddress, LocalizerName.UpdateBusinessAddressBackAriaLabel);
 
             if (TempData.ContainsKey(PostcodeLookupFailedKey))
             {
@@ -1289,7 +1289,7 @@ public class AccountManagementController : Controller
 
         if (!ModelState.IsValid)
         {
-            SetBackLink(session, PagePath.BusinessAddressPostcode);
+            SetBackLink(session, PagePath.BusinessAddressPostcode, LocalizerName.BusinessPostcodeBackAriaLabel);
 
             return View(model);
         }
@@ -1418,7 +1418,7 @@ public class AccountManagementController : Controller
                 return RedirectToAction(nameof(BusinessAddress));
             }
 
-            SetBackLink(session, PagePath.SelectBusinessAddress);
+            SetBackLink(session, PagePath.SelectBusinessAddress, LocalizerName.BusinessAddressBackAriaLabel);
             model.Postcode = session.AccountManagementSession?.BusinessAddress?.Postcode;
 
             AddressList? addressList = null;
@@ -1803,6 +1803,20 @@ public class AccountManagementController : Controller
 
     private void SetCustomBackLink(string pagePath, bool showCustomBackLabel = true)
     {
+        if (showCustomBackLabel)
+        {
+            ViewBag.CustomBackLinkToDisplay = pagePath;
+        }
+        else
+        {
+            ViewBag.BackLinkToDisplay = pagePath;
+        }
+    }
+
+    private void SetCustomBackLink(string pagePath, string backAriaLocalizerName, bool showCustomBackLabel = true)
+    {
+        ViewBag.BackAriaLocalizerName = backAriaLocalizerName;
+
         if (showCustomBackLabel)
         {
             ViewBag.CustomBackLinkToDisplay = pagePath;

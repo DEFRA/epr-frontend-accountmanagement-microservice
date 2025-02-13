@@ -1,3 +1,6 @@
-@model string
+@using FrontendAccountManagement.Web.ViewModels.Shared
+@{
+    var backLinkModel = @Model as BackLinkModel;
+}
 
-<a href="@Model" class="govuk-back-link">@SharedLocalizer["Custom.BackToHome"]</a>
+<a href="@backLinkModel.PagePath" class="govuk-back-link" aria-label="@((backLinkModel.AriaLabelLocalizerName != null) ? @SharedLocalizer[@backLinkModel.AriaLabelLocalizerName] : null)">@SharedLocalizer["Custom.BackToHome"]</a>

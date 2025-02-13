@@ -83,7 +83,12 @@
                 }
                 @if (ViewBag.CustomBackLinkToDisplay != null)
                 {
-                    @await Html.PartialAsync("Partials/_CustomBackLink", (string)ViewBag.CustomBackLinkToDisplay)
+                    @await Html.PartialAsync("Partials/_CustomBackLink",
+                        new BackLinkModel
+                        {
+                            PagePath = (string)ViewBag.CustomBackLinkToDisplay,
+                            AriaLabelLocalizerName = (string)ViewBag.BackAriaLocalizerName
+                        })
                 }
             </div>
         </div>
