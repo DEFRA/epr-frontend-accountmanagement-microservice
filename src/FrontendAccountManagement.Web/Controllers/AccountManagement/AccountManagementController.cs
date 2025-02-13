@@ -118,7 +118,6 @@ public class AccountManagementController : Controller
         var editDetailsViewModel = GetEditUserDetailsVmFromTempData();
         editDetailsViewModel.Telephone = model.Telephone;
         UpdateTempDataWithEditUserDetails(editDetailsViewModel);
-        //TempData.Keep(AmendedUserDetailsKey);
 
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonPhoneNumberChange);
         SetBackLink(session, PagePath.ApprovedPersonPhoneNumberChange);
@@ -807,7 +806,6 @@ public class AccountManagementController : Controller
         SetBackLink(PagePath.CheckYourDetails);
 
         ViewBag.IsUpdatable = isUpdatable;
-
 
         return View("CheckYourDetailsApprovedUserCompaniesHouse", editUserDetailsViewModel);
     }
