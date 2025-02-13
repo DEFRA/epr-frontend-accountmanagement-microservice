@@ -70,11 +70,15 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             var result = await SystemUnderTest.CompanyName(viewModel);
 
             // Assert
-            result.Should().BeOfType<ViewResult>();
-            var viewResult = (ViewResult)result;
-            viewResult.Model.Should().BeOfType<OrganisationNameViewModel>();
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<ViewResult>();
+                var viewResult = (ViewResult)result;
+                viewResult.Model.Should().BeOfType<OrganisationNameViewModel>();
 
-            SessionManagerMock.Verify(x => x.UpdateSessionAsync(It.IsAny<ISession>(), It.IsAny<Action<JourneySession>>()), Times.Never);
+                SessionManagerMock.Verify(x => x.UpdateSessionAsync(It.IsAny<ISession>(), It.IsAny<Action<JourneySession>>()), Times.Never);
+            }
+                
 
 
         }
@@ -149,59 +153,70 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             // Check that the back link redirects to UpdateCompanyName page
             AssertBackLink(viewResult, PagePath.UpdateCompanyName);
         }
+
         [TestMethod]
         public async Task ShouldRedirectToError_AccessingOutside_WhenUserCompanieshouse()
         {
             // Arrange
-
             var session = new JourneySession
             {
                 UserData = new UserData
                 {
                     Organisations = new List<Organisation>
-                {
-                    new Organisation { OrganisationType = OrganisationType.CompaniesHouseCompany }
-                }
-                }
+            {
+                new Organisation { OrganisationType = OrganisationType.CompaniesHouseCompany }
+            }
+                },
+                AccountManagementSession = new AccountManagementSession()
             };
 
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+
             // Act
             var result = await SystemUnderTest.CompanyName();
 
-
             // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+                var redirectResult = result.As<RedirectToActionResult>();
 
-            result.Should().BeOfType<RedirectToActionResult>();
-            var redirectResult = (RedirectToActionResult)result;
-
-            redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
-            redirectResult.ActionName.Should().Be(PagePath.Error);
-            redirectResult.RouteValues.Should().ContainKey("statusCode");
-            redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
-
+                redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                redirectResult.ActionName.Should().Be(PagePath.Error);
+                redirectResult.RouteValues.Should().ContainKey("statusCode");
+                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
+            }
+                
         }
+
 
         [TestMethod]
         public async Task ShouldRedirectToCompanyPage_AccessingOutside_WhenUserNonCompanieshouse()
         {
             // Arrange
-
             var session = new JourneySession
             {
+                AccountManagementSession = new AccountManagementSession
+                {
+                    OrganisationName = "Company Name"
+                },
                 UserData = new UserData
                 {
                     Organisations = new List<Organisation>
+            {
+                new Organisation
                 {
-                    new Organisation { OrganisationType = OrganisationType.NonCompaniesHouseCompany,Name="Company Name" }
+                    OrganisationType = OrganisationType.NonCompaniesHouseCompany,
+                    Name = "Company Name"
                 }
+            }
                 }
             };
 
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+
             // Act
             var result = await SystemUnderTest.CompanyName();
-
 
             // Assert
             using (new AssertionScope())
@@ -213,8 +228,8 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 var viewResult = result.As<ViewResult>();
                 viewResult.ViewName.Should().BeNull();
             }
-
         }
+
 
         [TestMethod]
         public async Task RedirectToNextPage_UpdatedOrganisationName_AssigninBackToSession()
