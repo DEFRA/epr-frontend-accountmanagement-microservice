@@ -130,10 +130,10 @@
     <value>Rhoi gwybod am ddata pecynwaith</value>
   </data>
   <data name="No" xml:space="preserve">
-    <value>Na</value>
+    <value>Nac ydy</value>
   </data>
   <data name="Yes" xml:space="preserve">
-    <value>Ie</value>
+    <value>Ydy</value>
   </data>
   <data name="Change" xml:space="preserve">
     <value>Newid</value>
@@ -190,16 +190,16 @@
     <value>Cadw a pharhau</value>
   </data>
   <data name="UpdateOrgNameBackAriaLabel" xml:space="preserve">
-    <value>Click on this link if you wish to go back to the manage account page</value>
+    <value>Cliciwch ar y ddolen yma os hoffech chi fynd yn ôl i'r tudalen Rheoli Cyfrif</value>
   </data>
   <data name="UpdateOrgAddressBackAriaLabel" xml:space="preserve">
-    <value>Click on this link if you wish to go back to the previous page</value>
+    <value>Cliciwch ar y ddolen yma os hoffech chi fynd yn ôl i'r tudalen blaenorol</value>
   </data>
   <data name="BusinessPostcodeBackAriaLabel" xml:space="preserve">
-    <value>Click on this link if you wish to go back to the Do you want to update your business address page</value>
+    <value>Cliciwch ar y ddolen yma os hoffech chi fynd yn ôl i'r tudalen Hoffech chi ddiweddaru cyfeiriad eich busnes</value>
   </data>
   <data name="CompanyNameBackAriaLabel" xml:space="preserve">
-    <value>Click on this link if you wish to go back to the Do you want to update your organisation name page</value>
+    <value>Cliciwch ar y ddolen yma os hoffech chi fynd yn ôl i'r tudalen Hoffech chi ddiweddaru enw'ch sefydliad</value>
   </data>
   <data name="BusinessAddressBackAriaLabel" xml:space="preserve">
     <value>Cliciwch yma os hoffech chi fynd i'r tudalen Hoffech chi ddiweddaru cyfeiriad busnes eich sefydliad</value>
