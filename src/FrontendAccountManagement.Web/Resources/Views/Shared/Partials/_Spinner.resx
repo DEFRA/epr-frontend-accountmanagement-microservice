@@ -117,94 +117,28 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Back" xml:space="preserve">
-    <value>Yn ôl</value>
+  <data name="SpinnerAltText" xml:space="preserve">
+    <value />
   </data>
-  <data name="Continue" xml:space="preserve">
-    <value>Parhau</value>
+  <data name="SpinnerHeader" xml:space="preserve">
+    <value />
   </data>
-  <data name="SkipToMainContent" xml:space="preserve">
-    <value>Neidio i’r prif gynnwys</value>
+  <data name="SpinnerJsParagraph1" xml:space="preserve">
+    <value />
   </data>
-  <data name="ApplicationTitle" xml:space="preserve">
-    <value>Rhoi gwybod am ddata pecynwaith</value>
+  <data name="SpinnerJsParagraph2" xml:space="preserve">
+    <value />
   </data>
-  <data name="No" xml:space="preserve">
-    <value>Nac ydy</value>
+  <data name="SpinnerNoscriptLinkText" xml:space="preserve">
+    <value />
   </data>
-  <data name="Yes" xml:space="preserve">
-    <value>Ydy</value>
+  <data name="SpinnerNoscriptParagraph1" xml:space="preserve">
+    <value />
   </data>
-  <data name="Change" xml:space="preserve">
-    <value>Newid</value>
+  <data name="SpinnerNoscriptParagraph2" xml:space="preserve">
+    <value />
   </data>
-  <data name="Or" xml:space="preserve">
-    <value>neu</value>
-  </data>
-  <data name="Success" xml:space="preserve">
-    <value>Llwyddiant</value>
-  </data>
-  <data name="Error" xml:space="preserve">
-    <value>Gwall</value>
-  </data>
-  <data name="ThereIsAProblem" xml:space="preserve">
-    <value>Mae yna broblem</value>
-  </data>
-  <data name="Remove" xml:space="preserve">
-    <value>Tynnu</value>
-  </data>
-  <data name="Approved.Admin" xml:space="preserve">
-    <value>Rheoli’r tîm a llwytho data</value>
-  </data>
-  <data name="Delegated.Admin" xml:space="preserve">
-    <value>Rheoli’r tîm a llwytho data</value>
-  </data>
-  <data name="Basic.Admin" xml:space="preserve">
-    <value>Rheoli’r tîm a llwytho data</value>
-  </data>
-  <data name="Basic.Employee" xml:space="preserve">
-    <value>Uwchlwytho data yn unig</value>
-  </data>
-  <data name="Custom.BackToHome" xml:space="preserve">
-    <value>Yn ôl i’r hafan </value>
-  </data>
-  <data name="English" xml:space="preserve">
-    <value>English</value>
-  </data>
-  <data name="Cymraeg" xml:space="preserve">
-    <value>Cymraeg</value>
-  </data>
-  <data name="Welsh" xml:space="preserve">
-    <value>Cymraeg</value>
-  </data>
-  <data name="ErrorHidden" xml:space="preserve">
-    <value>WError:</value>
-  </data>
-  <data name="GovUKTitle" xml:space="preserve">
-    <value>GOV.UK</value>
-  </data>
-  <data name="Cancel" xml:space="preserve">
-    <value>Canslo</value>
-  </data>
-  <data name="SaveAndContinue" xml:space="preserve">
-    <value>Cadw a pharhau</value>
-  </data>
-  <data name="UpdateOrgNameBackAriaLabel" xml:space="preserve">
-    <value>Cliciwch ar y ddolen yma os hoffech chi fynd yn ôl i'r tudalen Rheoli Cyfrif</value>
-  </data>
-  <data name="UpdateOrgAddressBackAriaLabel" xml:space="preserve">
-    <value>Click on this link if you wish to go back to the previous page</value>
-  </data>
-  <data name="BusinessPostcodeBackAriaLabel" xml:space="preserve">
-    <value>Click on this link if you wish to go back to the Do you want to update your business address page</value>
-  </data>
-  <data name="CompanyNameBackAriaLabel" xml:space="preserve">
-    <value>Click on this link if you wish to go back to the Do you want to update your organisation name page</value>
-  </data>
-  <data name="BusinessAddressBackAriaLabel" xml:space="preserve">
-    <value>Cliciwch yma os hoffech chi fynd i'r tudalen Hoffech chi ddiweddaru cyfeiriad busnes eich sefydliad</value>
-  </data>
-  <data name="UpdateBusinessAddressBackAriaLabel" xml:space="preserve">
-    <value>Cliciwch ar y ddolen yma os hoffech chi fynd yn ôl i'r tudalen Hoffech chi ddiweddaru cyfeiriad eich busnes</value>
+  <data name="SpinnerNoscriptParagraph3" xml:space="preserve">
+    <value />
   </data>
 </root>
