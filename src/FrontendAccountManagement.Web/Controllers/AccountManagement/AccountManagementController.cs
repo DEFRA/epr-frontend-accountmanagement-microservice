@@ -1813,20 +1813,6 @@ public class AccountManagementController : Controller
         }
     }
 
-    private void SetCustomBackLink(string pagePath, string backAriaLocalizerName, bool showCustomBackLabel = true)
-    {
-        ViewBag.BackAriaLocalizerName = backAriaLocalizerName;
-
-        if (showCustomBackLabel)
-        {
-            ViewBag.CustomBackLinkToDisplay = pagePath;
-        }
-        else
-        {
-            ViewBag.BackLinkToDisplay = pagePath;
-        }
-    }
-
     private bool HasPermissionToView(UserData userData)
     {
         // only regulator admin can view if regulator deployment
