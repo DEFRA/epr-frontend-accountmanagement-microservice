@@ -72,16 +72,14 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 @await Component.InvokeAsync("PhaseBanner")
-                @await Component.InvokeAsync("LanguageSwitcher")
+                @await Component.InvokeAsync("LanguageSwitcher")     
                 @if (ViewBag.BackLinkToDisplay != null)
                 {
-                    @await Html.PartialAsync("Partials/Govuk/_BackLink",
-                             new BackLinkModel
-                {
-                    PagePath = (string)ViewBag.BackLinkToDisplay,
-                    AriaLabelLocalizerName = (string)ViewBag.BackAriaLocalizerName
-                })
-                    ;
+                    @await Html.PartialAsync("Partials/Govuk/_BackLink", 
+                        new BackLinkModel {
+                            PagePath = (string)ViewBag.BackLinkToDisplay,
+                            AriaLabelLocalizerName = (string)ViewBag.BackAriaLocalizerName
+                        });
                 }
                 @if (ViewBag.CustomBackLinkToDisplay != null)
                 {
