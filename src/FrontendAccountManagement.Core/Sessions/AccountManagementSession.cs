@@ -17,8 +17,8 @@ public class AccountManagementSession
     public EndpointResponseStatus? RemoveUserStatus { get; set; }
     public EndpointResponseStatus? AddUserStatus { get; set; }
     public string? OrganisationType { get; set; }
-    public bool IsUpdateCompanyAddress { get; set; }
-    public bool IsUpdateCompanyName { get; set; }
+    public bool? IsUpdateCompanyAddress { get; set; }
+    public bool? IsUpdateCompanyName { get; set; }
     public Address? BusinessAddress { get; set; }
     public List<Address?> AddressesForPostcode { get; set; } = new();
     public FrontendAccountManagement.Core.Enums.Nation? UkNation { get; set; } = new();
