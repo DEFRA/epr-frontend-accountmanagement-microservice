@@ -118,13 +118,13 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="NonCompaniesHouseUkNation.ErrorMessage" xml:space="preserve">
-    <value>Dewiswch ble yn y Deyrnas Unedig mae’ch sefydliad wedi’i leoli</value>
+    <value>Dewiswch ble yn y Deyrnas Unedig mae’ch busnes wedi’i leoli</value>
   </data>
   <data name="NonCompaniesHouseUkNation.ForNonUkOrganisations" xml:space="preserve">
     <value>Yn achos sefydliadau o'r tu allan i'r Deyrnas Unedig, dylai hyn fod yn un o'r canlynol:</value>
   </data>
   <data name="NonCompaniesHouseUkNation.ForUkOrganisations" xml:space="preserve">
-    <value>Yn achos sefydliadau'r Deyrnas Unedig, dylai hyn fod yn un o'r canlynol:</value>
+    <value>Yn achos sefydliadau’r Deyrnas Unedig, eich gwlad chi yw:</value>
   </data>
   <data name="NonCompaniesHouseUkNation.PrincipalPlaceOfBusiness" xml:space="preserve">
     <value>Eich prif le busnes</value>

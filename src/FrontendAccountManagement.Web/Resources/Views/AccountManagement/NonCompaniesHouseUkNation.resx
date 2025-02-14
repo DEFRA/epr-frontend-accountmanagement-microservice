@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="NonCompaniesHouseUkNation.ErrorMessage" xml:space="preserve">
-    <value>Select where in the UK your organisation is based</value>
+    <value>Select where in the UK your business is based</value>
   </data>
   <data name="NonCompaniesHouseUkNation.ForNonUkOrganisations" xml:space="preserve">
     <value>For non-UK organisations this should be one of the following:</value>
