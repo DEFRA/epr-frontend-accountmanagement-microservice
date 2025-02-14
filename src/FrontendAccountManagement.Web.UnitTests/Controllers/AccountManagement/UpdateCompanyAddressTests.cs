@@ -103,7 +103,11 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 AccountManagementSession = new AccountManagementSession
                 {
                     OrganisationType = OrganisationType.NonCompaniesHouseCompany,
-                    IsUpdateCompanyAddress = false
+                    IsUpdateCompanyAddress = false,
+
+                    Journey = new List<string> {
+                        PagePath.UpdateCompanyName, PagePath.UpdateCompanyAddress
+                    },
                 }
             };
             SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
@@ -120,6 +124,8 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
                 model.Should().NotBeNull();
                 model.IsUpdateCompanyAddress.Should().Be(YesNoAnswer.No);
+
+                AssertBackLink(viewResult, PagePath.UpdateCompanyName);
             }
         }
 
@@ -156,6 +162,20 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         public async Task Post_UpdateCompanyAddress_When_ModelStateIsInvalid_ReturnsViewWithModel()
         {
             // Arrange
+            var session = new JourneySession
+            {
+                AccountManagementSession = new AccountManagementSession
+                {
+                    OrganisationType = OrganisationType.NonCompaniesHouseCompany,
+                    IsUpdateCompanyAddress = false,
+
+                    Journey = new List<string> {
+                        PagePath.UpdateCompanyName, PagePath.UpdateCompanyAddress
+                    },
+                }
+            };
+            SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+
             SystemUnderTest.ModelState.AddModelError("isUpdateCompanyAddress", "Required");
 
             var model = new UpdateCompanyAddressViewModel
@@ -172,6 +192,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 result.Should().BeOfType<ViewResult>();
                 var viewResult = result as ViewResult;
                 viewResult.Model.Should().Be(model);
+                AssertBackLink(viewResult, PagePath.UpdateCompanyName);
             }
         }
 
