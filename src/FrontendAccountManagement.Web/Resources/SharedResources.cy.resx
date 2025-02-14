@@ -193,13 +193,13 @@
     <value>Cliciwch ar y ddolen yma os hoffech chi fynd yn ôl i'r tudalen Rheoli Cyfrif</value>
   </data>
   <data name="UpdateOrgAddressBackAriaLabel" xml:space="preserve">
-    <value>Click on this link if you wish to go back to the previous page</value>
+    <value>Cliciwch ar y ddolen yma os hoffech chi fynd yn ôl i'r tudalen blaenorol</value>
   </data>
   <data name="BusinessPostcodeBackAriaLabel" xml:space="preserve">
-    <value>Click on this link if you wish to go back to the Do you want to update your business address page</value>
+    <value>Cliciwch ar y ddolen yma os hoffech chi fynd yn ôl i'r tudalen Hoffech chi ddiweddaru cyfeiriad eich busnes</value>
   </data>
   <data name="CompanyNameBackAriaLabel" xml:space="preserve">
-    <value>Click on this link if you wish to go back to the Do you want to update your organisation name page</value>
+    <value>Cliciwch ar y ddolen yma os hoffech chi fynd yn ôl i'r tudalen Hoffech chi ddiweddaru enw'ch sefydliad</value>
   </data>
   <data name="BusinessAddressBackAriaLabel" xml:space="preserve">
     <value>Cliciwch yma os hoffech chi fynd i'r tudalen Hoffech chi ddiweddaru cyfeiriad busnes eich sefydliad</value>
