@@ -57,7 +57,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             {
                 AccountManagementSession = new AccountManagementSession
                 {
-                    Journey = new List<string> { PagePath.UpdateCompanyName, PagePath.UpdateCompanyAddress },
+                    Journey = new List<string> { PagePath.UpdateCompanyName, PagePath.CompanyName },
 
                 }
             };
@@ -77,6 +77,9 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 viewResult.Model.Should().BeOfType<OrganisationNameViewModel>();
 
                 SessionManagerMock.Verify(x => x.UpdateSessionAsync(It.IsAny<ISession>(), It.IsAny<Action<JourneySession>>()), Times.Never);
+
+                // Check that the back link redirects to UpdateCompanyName page
+                AssertBackLink(viewResult, PagePath.UpdateCompanyName);
             }
                 
 
@@ -135,7 +138,6 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 AccountManagementSession = new AccountManagementSession
                 {
                     Journey = new List<string> { PagePath.UpdateCompanyName, PagePath.UpdateCompanyAddress }
-
                 }
             };
 
