@@ -901,7 +901,7 @@ public class AccountManagementController : Controller
 
         if (!ModelState.IsValid)
         {
-            SetCustomBackLink(PagePath.BusinessAddressPostcode, false);
+            SetBackLink(session, PagePath.BusinessAddress, LocalizerName.UpdateBusinessAddressBackAriaLabel);
 
             if (TempData.ContainsKey(PostcodeLookupFailedKey))
             {
@@ -1289,7 +1289,7 @@ public class AccountManagementController : Controller
 
         if (!ModelState.IsValid)
         {
-            SetBackLink(session, PagePath.BusinessAddressPostcode);
+            SetBackLink(session, PagePath.BusinessAddressPostcode, LocalizerName.BusinessPostcodeBackAriaLabel);
 
             return View(model);
         }
@@ -1418,7 +1418,7 @@ public class AccountManagementController : Controller
                 return RedirectToAction(nameof(BusinessAddress));
             }
 
-            SetBackLink(session, PagePath.SelectBusinessAddress);
+            SetBackLink(session, PagePath.SelectBusinessAddress, LocalizerName.BusinessAddressBackAriaLabel);
             model.Postcode = session.AccountManagementSession?.BusinessAddress?.Postcode;
 
             AddressList? addressList = null;
