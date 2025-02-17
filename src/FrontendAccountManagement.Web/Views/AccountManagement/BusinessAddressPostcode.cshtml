@@ -21,7 +21,7 @@
                             @Localizer["BusinessAddressPostcode.Question"]
                         </h1>
 
-                        <p class="govuk-body">This is the address of your head office or principal place of business in the UK</p>
+                        <p class="govuk-body">@Localizer["BusinessAddressPostcode.Hint"]</p>
 
                         <div class="govuk-body@(!ViewData.ModelState.IsValid ? " govuk-form-group--error" : "")">
                             <label class="govuk-label govuk-!-font-weight-bold" for="@nameof(Model.Postcode)">
@@ -41,7 +41,7 @@
                     </div>
 
                     <button class="govuk-button" data-module="govuk-button">
-                        Find address
+	                    @Localizer["BusinessAddressPostcode.FindAddress"]
                     </button>
                 </form>
             </div>
