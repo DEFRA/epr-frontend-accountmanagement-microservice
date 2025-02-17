@@ -121,16 +121,16 @@
     <value>Dewiswch ble yn y Deyrnas Unedig mae’ch busnes wedi’i leoli</value>
   </data>
   <data name="NonCompaniesHouseUkNation.ForNonUkOrganisations" xml:space="preserve">
-    <value>Yn achos sefydliadau o'r tu allan i'r Deyrnas Unedig, dylai hyn fod yn un o'r canlynol:</value>
+    <value>Yn achos sefydliadau o’r tu allan i’r Deyrnas Unedig, eich gwlad chi yw un o’r canlynol:</value>
   </data>
   <data name="NonCompaniesHouseUkNation.ForUkOrganisations" xml:space="preserve">
     <value>Yn achos sefydliadau’r Deyrnas Unedig, eich gwlad chi yw:</value>
   </data>
   <data name="NonCompaniesHouseUkNation.PrincipalPlaceOfBusiness" xml:space="preserve">
-    <value>Eich prif le busnes</value>
+    <value>eich prif le busnes</value>
   </data>
   <data name="NonCompaniesHouseUkNation.PrincipalPlaceOfBusinessIfNotRegistered" xml:space="preserve">
-    <value>Eich prif le busnes (os nad ydych chi wedi'ch cofrestru)</value>
+    <value>eich prif le busnes (os nad ydych chi wedi cofrestru)</value>
   </data>
   <data name="NonCompaniesHouseUkNation.Title" xml:space="preserve">
     <value>Eich gwlad yn y Deyrnas Unedig</value>
@@ -142,13 +142,13 @@
     <value>Ble yn y Deyrnas Unedig mae eich busnes wedi'i leoli?</value>
   </data>
   <data name="NonCompaniesHouseUkNation.WhereYourHeadOfficeIs" xml:space="preserve">
-    <value>Ble mae eich prif swyddfa</value>
+    <value>ble mae’ch pencadlys</value>
   </data>
   <data name="NonCompaniesHouseUkNation.WhereYourOrganisationIsRegistered" xml:space="preserve">
-    <value>Ble mae eich sefydliad wedi'i gofrestru</value>
+    <value>ble mae’ch sefydliad wedi’i gofrestru</value>
   </data>
   <data name="NonCompaniesHouseUkNation.WhereYourUKBranchIs" xml:space="preserve">
-    <value>Ble mae eich cangen yn y Deyrnas Unedig neu eich cyfeiriad post yn y Deyrnas Unedig</value>
+    <value>ble mae’ch cangen yn y Deyrnas Unedig neu eich cyfeiriad post yn y Deyrnas Unedig</value>
   </data>
   <data name="NonCompaniesHouseUkNation.YourUKNation" xml:space="preserve">
     <value>Eich gwlad yn y Deyrnas Unedig</value>
