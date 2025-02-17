@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using AutoFixture;
 using EPR.Common.Authorization.Models;
+using FluentAssertions.Execution;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Constants.Enums;
@@ -47,10 +48,10 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task NonCompaniesHouseUkNationGet_ShouldReturnView()
+        public async Task NonCompaniesHouseUkNationGet_ShouldReturnView_WithCorrectUkNation()
         {
             //Arrange
-
+            _journeySession.AccountManagementSession.UkNation = (Core.Enums.Nation?)UkNation.England;
             //Act
             var result = await SystemUnderTest.NonCompaniesHouseUkNation();
 
@@ -59,7 +60,14 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             var viewResult = (ViewResult)result;
 
-            viewResult.Model.Should().BeOfType<UkNationViewModel>();
+            using (new AssertionScope())
+            {
+                viewResult.Model.Should().BeOfType<UkNationViewModel>();
+
+                var model = (UkNationViewModel)viewResult.Model!;
+
+                model.UkNation.Should().Be(UkNation.England);
+            }     
         }
 
         [TestMethod]
