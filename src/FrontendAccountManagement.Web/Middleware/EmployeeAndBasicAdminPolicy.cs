@@ -18,26 +18,10 @@ namespace FrontendAccountManagement.Web.Middleware
         {
             var userData = context.User.GetUserData();
 
-            //if ((requirement.ServiceRoleId != ParseEnum<ServiceRole>(userData.ServiceRoleId.ToString()) 
-            //    || (requirement.RoleInOrganisationAdmin != ParseEnum<PersonRole>(userData.RoleInOrganisation)))
-            //    || (requirement.RoleInOrganisationEmployee != ParseEnum<PersonRole>(userData.RoleInOrganisation)))
-            //{
-            //    context.Succeed(requirement);
-            //}
-
-            //if ((requirement.ServiceRoleId == ParseEnum<ServiceRole>(userData.ServiceRoleId.ToString()) && (requirement.RoleInOrganisationAdmin == ParseEnum<PersonRole>(userData.RoleInOrganisation)))
-            //     || (requirement.RoleInOrganisationEmployee == ParseEnum<PersonRole>(userData.RoleInOrganisation)))
-            //{
-            //    return Task.CompletedTask;
-            //}
-
-
             if ((ServiceRole.Approved == ParseEnum<ServiceRole>(userData.ServiceRoleId.ToString()) || (ServiceRole.Delegated == ParseEnum<ServiceRole>(userData.ServiceRoleId.ToString()))))
             {
                 context.Succeed(requirement);
             }
-
-            //context.Succeed(requirement);
 
             return Task.CompletedTask;
         }
