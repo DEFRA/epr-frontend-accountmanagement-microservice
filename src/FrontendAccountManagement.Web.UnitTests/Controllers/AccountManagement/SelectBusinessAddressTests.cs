@@ -1,8 +1,11 @@
-﻿using FluentAssertions.Execution;
+﻿using AutoFixture;
+using EPR.Common.Authorization.Models;
+using FluentAssertions.Execution;
 using FrontendAccountManagement.Core.Addresses;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.AccountManagement;
+using FrontendAccountManagement.Web.Controllers.Errors;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +23,9 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
     [TestClass]
     public class SelectBusinessAddressTests : AccountManagementTestBase
     {
+        private UserData _userData;
+        private Fixture _fixture = new Fixture();
+
         private static readonly IList<Address> _addressesMock = new List<Address>
         {
             new() { BuildingNumber = "10", Street = "Gracefield Gardens", Town = "London" },
@@ -31,13 +37,17 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         [TestInitialize]
         public void Setup()
         {
-            SetupBase();
+            _userData = _fixture.Create<UserData>();
+            _userData.Organisations[0].CompaniesHouseNumber = null;
+
+            SetupBase(_userData);
 
             TempDataDictionaryMock = new Mock<ITempDataDictionary>();
             SystemUnderTest.TempData = TempDataDictionaryMock.Object;
 
             JourneySessionMock = new JourneySession
             {
+                UserData = _userData,
                 AccountManagementSession = new AccountManagementSession
                 {
                     Journey = new List<string> { PagePath.BusinessAddressPostcode, PagePath.SelectBusinessAddress },
@@ -375,6 +385,55 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             }
         }
 
+        [TestMethod]
+        public async Task GivenCompaniesHouseUser_WhenPostSelectBusinessAddressCalled_ThenRedirectToErrorPage_AndUpdateSession()
+        {
+            // Arrange
+            SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>()))
+                .ReturnsAsync((JourneySession)null); // Mock session as null
+
+            var model = new SelectBusinessAddressViewModel
+            {
+                SelectedListIndex = "1"
+            };
+
+            _userData.Organisations[0].CompaniesHouseNumber = "123";
+            SetupBase(_userData);
+
+            // Act
+            var result = await SystemUnderTest.SelectBusinessAddress(model);
+
+            // Assert
+            result.Should().BeOfType<RedirectToActionResult>();
+
+            ((RedirectToActionResult)result).ActionName.Should().Be(nameof(ErrorController.Error));
+        }
+
+        [TestMethod]
+        public async Task GivenCompaniesHouseUser_WhenGetSelectBusinessAddressCalled_ThenRedirectToErrorPage_AndUpdateSession()
+        {
+            // Arrange
+            JourneySessionMock.AccountManagementSession.BusinessAddress.Postcode = string.Empty;
+
+            SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>()))
+                .ReturnsAsync(JourneySessionMock);
+
+            var model = new SelectBusinessAddressViewModel
+            {
+                SelectedListIndex = "1"
+            };
+
+            _userData.Organisations[0].CompaniesHouseNumber = "123";
+            SetupBase(_userData);
+
+            // Act
+            var result = await SystemUnderTest.SelectBusinessAddress();
+
+            // Assert
+            result.Should().BeOfType<RedirectToActionResult>();
+
+            ((RedirectToActionResult)result).ActionName.Should().Be(nameof(ErrorController.Error));
+        }
 
     }
 }

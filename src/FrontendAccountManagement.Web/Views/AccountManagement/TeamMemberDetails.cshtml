@@ -3,53 +3,69 @@
 
 @{
     ViewData["Title"] = Localizer["CheckInvitationDetails"];
+
+    var currentPage = Url.Action(PagePath.TeamMemberDetails, "AccountManagement");
+    var scriptNonce = (string?)Context.Items[ContextKeys.ScriptNonceKey];
+
 }
 
-@using (Html.BeginForm(FormMethod.Post))
+@using (Html.BeginForm(FormMethod.Post, new { id = "teammemberdetailsform" }))
 {
     <div class="govuk-width-container">
         <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
-            <h1 class="govuk-fieldset__heading govuk-label--l">
-                @Localizer["CheckInvitationDetails"]
-            </h1>
-            <br/>
-            <div class="govuk-grid-row">
-                <div class="govuk-grid-column-two-thirds">
-                    <dl class="govuk-summary-list govuk-!-margin-bottom-6">
-                        <div class="govuk-summary-list__row">
-                                <dt class="govuk-summary-list__key">
-                                    @Localizer["Email"]
-                                </dt>
-                            <dd class="govuk-summary-list__value">
-                                @Localizer[Model.Email].Value
-                            </dd>
-                            <dd class="govuk-summary-list__actions">
-                                <a href="~/@PagePath.TeamMemberEmail" class="govuk-link govuk-link--no-visited-state">
-                                    @SharedLocalizer["Change"]
-                                    <span class="govuk-visually-hidden"></span>
-                                </a>
-                            </dd>
-                        </div>
-                        <div class="govuk-summary-list__row">
-                                <dt class="govuk-summary-list__key">
-                                    @Localizer["AccountPermissions"]
-                                </dt>
-                            <dd class="govuk-summary-list__value">
-                                @SharedLocalizer[Model.SelectedUserRole].Value
-                            </dd>
-                            <dd class="govuk-summary-list__actions">
-                                <a href="~/@PagePath.TeamMemberPermissions" class="govuk-link govuk-link--no-visited-state">
-                                    @SharedLocalizer["Change"]
-                                    <span class="govuk-visually-hidden"></span>
-                                </a>
-                            </dd>
-                        </div>
-                    </dl>
-                    <button class="govuk-button" data-module="govuk-button" type="submit">
-                        @Localizer["SendInvite"]
-                    </button>
+            <div  id="teammemberdetails-wrapper">
+                <h1 class="govuk-fieldset__heading govuk-label--l">
+                    @Localizer["CheckInvitationDetails"]
+                </h1>
+                <br/>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-two-thirds">
+                        <dl class="govuk-summary-list govuk-!-margin-bottom-6">
+                            <div class="govuk-summary-list__row">
+                                    <dt class="govuk-summary-list__key">
+                                        @Localizer["Email"]
+                                    </dt>
+                                <dd class="govuk-summary-list__value">
+                                    @Localizer[Model.Email].Value
+                                </dd>
+                                <dd class="govuk-summary-list__actions">
+                                    <a href="~/@PagePath.TeamMemberEmail" class="govuk-link govuk-link--no-visited-state">
+                                        @SharedLocalizer["Change"]
+                                        <span class="govuk-visually-hidden"></span>
+                                    </a>
+                                </dd>
+                            </div>
+                            <div class="govuk-summary-list__row">
+                                    <dt class="govuk-summary-list__key">
+                                        @Localizer["AccountPermissions"]
+                                    </dt>
+                                <dd class="govuk-summary-list__value">
+                                    @SharedLocalizer[Model.SelectedUserRole].Value
+                                </dd>
+                                <dd class="govuk-summary-list__actions">
+                                    <a href="~/@PagePath.TeamMemberPermissions" class="govuk-link govuk-link--no-visited-state">
+                                        @SharedLocalizer["Change"]
+                                        <span class="govuk-visually-hidden"></span>
+                                    </a>
+                                </dd>
+                            </div>
+                        </dl>
+                        <button class="govuk-button" data-module="govuk-button" type="submit">
+                            @Localizer["SendInvite"]
+                        </button>
+                    </div>
                 </div>
             </div>
+            @await Html.PartialAsync("Partials/_Spinner", currentPage)
         </main>
     </div>
+}
+
+
+@section Scripts
+{
+    <script src="~/js/loadingspinner.js"></script>
+    <script nonce="@scriptNonce">
+        document.addEventListener("DOMContentLoaded", InitSpinner("teammemberdetails-wrapper", "teammemberdetailsform"));
+    </script>
 }
