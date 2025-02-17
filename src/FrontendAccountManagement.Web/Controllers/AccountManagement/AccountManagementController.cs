@@ -1840,13 +1840,7 @@ public class AccountManagementController : Controller
 
     private static bool HasPermissionToChangeCompany(UserData userData)
     {
-        var roleInOrganisation = userData.RoleInOrganisation;
-        if ((userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Approved || userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Delegated)
-            && !string.IsNullOrEmpty(roleInOrganisation) && roleInOrganisation == PersonRole.Admin.ToString())
-        {
-            return true;
-        }
-        return false;
+        return userData.ServiceRoleId is (int)ServiceRole.Approved or (int)ServiceRole.Delegated;
     }
 
     private static bool IsApprovedOrDelegatedUser(UserData userData)
