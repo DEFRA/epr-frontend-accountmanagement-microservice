@@ -1158,6 +1158,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.UpdateCompanyName)]
     public async Task<IActionResult> UpdateCompanyName(UpdateCompanyNameViewModel model)
     {
