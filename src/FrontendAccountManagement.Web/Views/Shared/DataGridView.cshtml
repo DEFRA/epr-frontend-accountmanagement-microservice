@@ -1,0 +1,24 @@
+﻿@model FrontendAccountManagement.Web.Controllers.AccountManagement.DataGridViewModel
+
+<table class="govuk-table">
+    <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+            @foreach (var column in Model.Columns)
+            {
+                <th class="govuk-table__header">@column</th>
+            }
+        </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+        @foreach (var item in Model.Data)
+        {
+            <tr class="govuk-table__row">
+                @foreach (var column in Model.Columns)
+                {
+                    var value = item.GetType().GetProperty(column)?.GetValue(item, null);
+                    <td class="govuk-table__cell">@value</td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
