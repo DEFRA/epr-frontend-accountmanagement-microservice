@@ -25,16 +25,13 @@
             </h1>
 
             <br />
-
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-two-thirds">
                     <dl class="govuk-summary-list govuk-!-margin-bottom-0">
                         <div class="govuk-summary-list__row">
-                            <div class="govuk-!-margin-right-3">
-                                <dt class="govuk-summary-list__key">
-                                    @Localizer["FirstName"]
-                                </dt>
-                            </div>
+                            <dt class="govuk-summary-list__key govuk-!-margin-right-3">
+                                @Localizer["FirstName"]
+                            </dt>
                             <dd class="govuk-summary-list__value">
                                 @Localizer[Model.FirstName].Value
                             </dd>
@@ -45,11 +42,9 @@
                             </dd>
                         </div>
                         <div class="govuk-summary-list__row">
-                            <div class="govuk-!-margin-right-3">
-                                <dt class="govuk-summary-list__key">
-                                    @Localizer["LastName"]
-                                </dt>
-                            </div>
+                            <dt class="govuk-summary-list__key govuk-!-margin-right-3">
+                                @Localizer["LastName"]
+                            </dt>
                             <dd class="govuk-summary-list__value">
                                 @Localizer[Model.LastName].Value
                             </dd>
@@ -62,11 +57,9 @@
                         @if (!string.IsNullOrEmpty(Model.JobTitle))
                         {
                             <div class="govuk-summary-list__row">
-                                <div class="govuk-!-margin-right-3">
-                                    <dt class="govuk-summary-list__key">
-                                        @Localizer["JobTitle"]
-                                    </dt>
-                                </div>
+                                <dt class="govuk-summary-list__key govuk-!-margin-right-3">
+                                    @Localizer["JobTitle"]
+                                </dt>
                                 <dd class="govuk-summary-list__value">
                                     @Localizer[Model.JobTitle].Value
                                 </dd>
@@ -80,12 +73,9 @@
                         @if (!string.IsNullOrEmpty(Model.Telephone))
                         {
                             <div class="govuk-summary-list__row">
-                                <div class="govuk-!-margin-right-3">
-                                    <dt class="govuk-summary-list__key">
-                                        @Localizer["TelephoneNumber"]
-                                    </dt>
-                                </div>
-
+                                <dt class="govuk-summary-list__key govuk-!-margin-right-3">
+                                    @Localizer["TelephoneNumber"]
+                                </dt>
                                 <dd class="govuk-summary-list__value">
                                     @Localizer[Model.Telephone].Value
                                 </dd>
@@ -96,16 +86,12 @@
                                 </dd>
                             </div>
                         }
-                        <div class="govuk-!-margin-right-3">
-                            <br />
-                            <br />
-                            <dt class="govuk-summary-list__value">
-                                <button class="govuk-button" data-module="govuk-button" type="submit">
-                                    @(isUpdatable ? @Localizer["SaveAndContinue"] : @Localizer["Continue"])
-                                </button>
-                            </dt>
-                        </div>
                     </dl>
+                    <div class="govuk-!-margin-top-7">
+                        <button class="govuk-button" data-module="govuk-button" type="submit">
+                            @(isUpdatable ? @Localizer["SaveAndContinue"] : @Localizer["Continue"])
+                        </button>
+                    </div>
                     <br />
                     <br />
                 </div>
