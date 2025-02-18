@@ -117,16 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Address" xml:space="preserve">
+    <value>Cyfeiriad</value>
+  </data>
   <data name="CheckYourDetails" xml:space="preserve">
     <value>Gwiriwch eich manylion</value>
   </data>
-    <data name="Name" xml:space="preserve">
-    <value>Name</value>
+  <data name="Name" xml:space="preserve">
+    <value>Enw</value>
   </data>
-    <data name="Address" xml:space="preserve">
-    <value>Address</value>
-  </data>
-    <data name="UKNation" xml:space="preserve">
-    <value>Uk Nation</value>
+  <data name="UKNation" xml:space="preserve">
+    <value>Gwlad yn y Deyrnas Unedig</value>
   </data>
 </root>
