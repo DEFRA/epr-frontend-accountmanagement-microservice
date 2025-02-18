@@ -88,7 +88,9 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 var model = viewResult.Model as UpdateCompanyNameViewModel;
 
                 model.Should().NotBeNull();
-                model.IsUpdateCompanyName.Should().Be(YesNoAnswer.Yes);  
+                model.IsUpdateCompanyName.Should().Be(YesNoAnswer.Yes);
+
+                AssertBackLink(viewResult, PagePath.ManageAccount);
             }
         }
 
@@ -178,6 +180,17 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         public async Task Post_UpdateCompanyName_ShouldReturnRedirectWhenModelIsNotValid()
         {
             // Arrange
+            var session = new JourneySession
+            {
+                AccountManagementSession = new AccountManagementSession
+                {
+                    OrganisationType = OrganisationType.NonCompaniesHouseCompany,
+                    IsUpdateCompanyName = true,
+                    Journey = new List<string> { PagePath.ManageAccount, PagePath.UpdateCompanyName }
+                }
+            };
+            SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+
             var model = new UpdateCompanyNameViewModel();
             SystemUnderTest.ModelState.AddModelError("Error", "Some error message");
 
@@ -190,6 +203,8 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 result.Should().BeOfType<ViewResult>();
                 var viewResult = result as ViewResult;
                 viewResult.Model.Should().Be(model);
+
+                AssertBackLink(viewResult, PagePath.ManageAccount);
             }
         }
     }

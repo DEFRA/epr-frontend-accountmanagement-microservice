@@ -901,7 +901,7 @@ public class AccountManagementController : Controller
 
         if (!ModelState.IsValid)
         {
-            SetCustomBackLink(PagePath.BusinessAddressPostcode, false);
+            SetBackLink(session, PagePath.BusinessAddress, LocalizerName.UpdateBusinessAddressBackAriaLabel);
 
             if (TempData.ContainsKey(PostcodeLookupFailedKey))
             {
@@ -1173,12 +1173,13 @@ public class AccountManagementController : Controller
     [Route(PagePath.UpdateCompanyName)]
     public async Task<IActionResult> UpdateCompanyName(UpdateCompanyNameViewModel model)
     {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
+
         if (!ModelState.IsValid)
         {
+            SetBackLink(session, PagePath.UpdateCompanyName, LocalizerName.UpdateOrgNameBackAriaLabel);
             return View(model);
-        }
-
-        var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
+        }        
 
         session.AccountManagementSession.IsUpdateCompanyName = model.IsUpdateCompanyName == YesNoAnswer.Yes;
 
@@ -1229,12 +1230,13 @@ public class AccountManagementController : Controller
     [Route(PagePath.UpdateCompanyAddress)]
     public async Task<IActionResult> UpdateCompanyAddress(UpdateCompanyAddressViewModel model)
     {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
+
         if (!ModelState.IsValid)
         {
+            SetBackLink(session, PagePath.UpdateCompanyAddress, LocalizerName.UpdateOrgAddressBackAriaLabel);
             return View(model);
         }
-
-        var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
 
         session.AccountManagementSession.IsUpdateCompanyAddress = model.IsUpdateCompanyAddress == YesNoAnswer.Yes;
 
@@ -1289,7 +1291,7 @@ public class AccountManagementController : Controller
 
         if (!ModelState.IsValid)
         {
-            SetBackLink(session, PagePath.BusinessAddressPostcode);
+            SetBackLink(session, PagePath.BusinessAddressPostcode, LocalizerName.BusinessPostcodeBackAriaLabel);
 
             return View(model);
         }
@@ -1418,7 +1420,7 @@ public class AccountManagementController : Controller
                 return RedirectToAction(nameof(BusinessAddress));
             }
 
-            SetBackLink(session, PagePath.SelectBusinessAddress);
+            SetBackLink(session, PagePath.SelectBusinessAddress, LocalizerName.BusinessAddressBackAriaLabel);
             model.Postcode = session.AccountManagementSession?.BusinessAddress?.Postcode;
 
             AddressList? addressList = null;
@@ -1498,10 +1500,9 @@ public class AccountManagementController : Controller
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
 
-
-
         if (!ModelState.IsValid)
         {
+            SetBackLink(session, PagePath.CompanyName, LocalizerName.CompanyNameBackAriaLabel);
             return View(model);
         }
         else
@@ -1510,7 +1511,6 @@ public class AccountManagementController : Controller
 
             return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.CompanyName, PagePath.UpdateCompanyAddress);
         }
-
     }
 
     [HttpGet]
