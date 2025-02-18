@@ -47,24 +47,22 @@
 
                             <div class="govuk-radios" data-module="govuk-radios">
                                 @{ bool isFirstOption = true; }
-                                @foreach (var role in roles)
+                                @for (var i=0; i< roles.Length; i++)
                                 {
+                                    var forString = $"SelectedCompaniesHouseRole_{i}";
+                                    var role = roles[i];
                                     string checkedAttribute = Model.SelectedCompaniesHouseRole == role.Value ? "checked" : "";
                                     <div class="govuk-radios__item">
-                                        <!input class="govuk-radios__input"
+                                        <input class="govuk-radios__input"
+                                               id="@forString"
                                                name="SelectedCompaniesHouseRole"
                                                type="radio"
                                                @checkedAttribute
-                                               gov-for="SelectedCompaniesHouseRole"
-                                               gov-first-option="@isFirstOption"
-                                               gov-value="@role.Value" 
                                                value="@role.Value"
                                                />
 
                                         <label class="govuk-label govuk-radios__label"
-                                               gov-for="SelectedCompaniesHouseRole"
-                                               gov-value="@role.Value"
-                                               gov-first-option="@isFirstOption">
+                                               for="@forString">
                                             @Localizer[role.LocalizationKey]
                                         </label>
                                     </div>
