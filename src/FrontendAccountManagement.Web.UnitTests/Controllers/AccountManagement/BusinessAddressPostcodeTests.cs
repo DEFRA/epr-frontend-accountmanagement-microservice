@@ -8,6 +8,7 @@ using FrontendAccountManagement.Web.Controllers.Errors;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using System.Net;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
@@ -34,6 +35,9 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 UserData = _userData,
                 AccountManagementSession = new AccountManagementSession() { Journey = new List<string>() }
             };
+
+            TempDataDictionaryMock = new Mock<ITempDataDictionary>();
+            SystemUnderTest.TempData = TempDataDictionaryMock.Object;
 
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
                 .Returns(Task.FromResult(_journeySession));
@@ -192,6 +196,8 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 result.Should().BeOfType<RedirectToActionResult>();
                 var redirectResult = result as RedirectToActionResult;
                 redirectResult.ActionName.Should().Be("BusinessAddress");
+
+                TempDataDictionaryMock.Invocations.SelectMany(x => x.Arguments).Should().Contain(PostcodeLookupFailedKey);
             }
         }
     }

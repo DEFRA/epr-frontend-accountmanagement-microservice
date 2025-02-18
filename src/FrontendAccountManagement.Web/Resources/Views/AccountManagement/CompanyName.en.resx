@@ -118,10 +118,10 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CompanyName.Header" xml:space="preserve">
-    <value>What is your organisation Name ?</value>
+    <value>What is your organisation's name?</value>
   </data>
   <data name="CompanyName.Hint" xml:space="preserve">
-    <value>You may trade under your own name you have given your business</value>
+    <value>You may trade under your own name, or a name you have given your business.</value>
   </data>
   <data name="CompanyName.NameErrorMessage" xml:space="preserve">
     <value>Enter an organisation name</value>
