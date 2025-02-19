@@ -8,15 +8,21 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
         [Route("Registration")]
         public ActionResult Index()
         {
-            var employees = new List<RegistrationDTO>
+            var registrations = new List<RegistrationDTO>
         {
             new RegistrationDTO { OrgId = 1, Name = "Amazon", Size = "Small" },
             new RegistrationDTO { OrgId = 2, Name = "Tesco", Size = "Large" }
         };
 
-            var viewModel = new DataGridViewModel
+            //var viewModel = new DataGridViewModel
+            //{
+            //    Data = employees.Cast<object>().ToList()
+            //};
+
+
+            var viewModel = new DataGridViewModel<RegistrationDTO>
             {
-                Data = employees.Cast<object>().ToList()
+                Data = registrations
             };
 
             return View("DataGridView", viewModel);
@@ -36,15 +42,20 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
     {
         public ActionResult Index()
         {
-            var products = new List<AccreditationDTO>
+            var accreditations = new List<AccreditationDTO>
         {
             new AccreditationDTO { OrgId = 101, Name = "Amazon", Revenue = 899.99M, PackagingType = "Cardboard" },
             new AccreditationDTO { OrgId = 102, Name = "Tesco", Revenue = 29.99M, PackagingType = "Plastic" }
         };
 
-            var viewModel = new DataGridViewModel
+            //var viewModel = new DataGridViewModel
+            //{
+            //    Data = products.Cast<object>().ToList()
+            //};
+
+            var viewModel = new DataGridViewModel<AccreditationDTO>
             {
-                Data = products.Cast<object>().ToList()
+                Data = accreditations
             };
 
             return View("DataGridView", viewModel);
@@ -59,9 +70,26 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
         public string PackagingType { get; set; }
     }
 
-    public class DataGridViewModel
+    //public class DataGridViewModel
+    //{
+    //    public IEnumerable<object> Data { get; set; } = new List<object>();
+
+    //    public List<string> Columns
+    //    {
+    //        get
+    //        {
+    //            if (Data == null || !Data.Any())
+    //                return new List<string>();
+
+    //            var firstItem = Data.First();
+    //            return firstItem.GetType().GetProperties().Select(p => p.Name).ToList();
+    //        }
+    //    }
+    //}
+
+    public class DataGridViewModel<T>
     {
-        public IEnumerable<object> Data { get; set; } = new List<object>();
+        public IEnumerable<T> Data { get; set; } = new List<T>();
 
         public List<string> Columns
         {
@@ -70,8 +98,11 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement
                 if (Data == null || !Data.Any())
                     return new List<string>();
 
-                var firstItem = Data.First();
-                return firstItem.GetType().GetProperties().Select(p => p.Name).ToList();
+                return typeof(T)
+                    .GetProperties()
+                    //.Where(p => !Attribute.IsDefined(p, typeof(HideColumnAttribute))) // Exclude hidden columns
+                    .Select(p => p.Name)
+                    .ToList();
             }
         }
     }
