@@ -122,28 +122,30 @@ public class AccountManagementController : Controller
         }
         else
         {
-            var organisation = userAccount.Organisations[0];
-            model.UserName = string.Format("{0} {1}", userAccount.FirstName, userAccount.LastName);
-            model.Telephone = userAccount.Telephone;
-            var userOrg = userAccount.Organisations?.FirstOrDefault();
+            var userOrg = userAccount.Organisations.FirstOrDefault();
+            
+            session.AccountManagementSession.OrganisationName = userOrg?.Name;
             session.AccountManagementSession.OrganisationType = userOrg?.OrganisationType;
             session.AccountManagementSession.BusinessAddress = new Address { Postcode = userOrg?.Postcode };
+
+            model.UserName = $"{userAccount.FirstName} {userAccount.LastName}";
+            model.Telephone = userAccount.Telephone;
             model.JobTitle = userAccount.JobTitle;
             model.CompanyName = userOrg?.Name;
             model.OrganisationAddress = string.Join(", ", new[] {
-                organisation.SubBuildingName,
-                organisation.BuildingNumber,
-                organisation.BuildingName,
-                organisation.Street,
-                organisation.Town,
-                organisation.County,
-                organisation.Postcode,
+                userOrg?.SubBuildingName,
+                userOrg?.BuildingNumber,
+                userOrg?.BuildingName,
+                userOrg?.Street,
+                userOrg?.Town,
+                userOrg?.County,
+                userOrg?.Postcode,
             }.Where(s => !string.IsNullOrWhiteSpace(s)));
             model.EnrolmentStatus = userAccount.EnrolmentStatus;
-            var serviceRoleId = userAccount.ServiceRoleId;
-            var serviceRoleEnum = (ServiceRole)serviceRoleId;
-            var roleInOrganisation = userAccount.RoleInOrganisation;
-            model.ServiceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
+            
+            var serviceRoleEnum = (ServiceRole)userAccount.ServiceRoleId;
+            
+            model.ServiceRoleKey = $"{serviceRoleEnum.ToString()}.{userAccount.RoleInOrganisation}";
             model.OrganisationType = userOrg?.OrganisationType;
             model.HasPermissionToChangeCompany = HasPermissionToChangeCompany(userAccount);
             model.IsRegulatorUser = IsRegulatorUser(userAccount);
