@@ -9,15 +9,14 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using FrontendAccountManagement.Core.Models;
 using EPR.Common.Authorization.Models;
-using System;
 using FrontendAccountManagement.Core.Enums;
 using System.Security.Claims;
 using System.Text.Json;
 using Organisation = EPR.Common.Authorization.Models.Organisation;
 using FrontendAccountManagement.Core.Models.CompaniesHouse;
-using AutoMapper;
 using FrontendAccountManagement.Web.Constants.Enums;
 using FrontendAccountManagement.Web.Controllers.AccountManagement;
+using FrontendAccountManagement.Core.Addresses;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
@@ -281,6 +280,36 @@ public class AccountManagementTests : AccountManagementTestBase
         Assert.AreEqual($"{SubBuildingName}, {BuildingNumber}, {BuildingName}, {Street}, {Town}, {County}, {Postcode}", model.OrganisationAddress);
         Assert.AreEqual(OrganisationType, model.OrganisationType);
         Assert.AreEqual(ServiceRoleKey, model.ServiceRoleKey);
+    }
+
+    [TestMethod]
+    public async Task GivenOnManageAccountPage_WhenAccountManagementSessionIsPopulated_ThenShouldResetAccountManagementSession()
+    {
+        // Arrange
+        var userData = SetupUserData(string.Empty);
+
+        var accountManagementSession =
+            new AccountManagementSession
+            {
+                IsUpdateCompanyName = true,
+                IsUpdateCompanyAddress = true,
+                OrganisationName = "UNEXPECTED",
+                OrganisationType = "UNEXPECTED",
+                BusinessAddress = new Address { Postcode = "UNEXPECTED" }
+            };
+
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .ReturnsAsync(new JourneySession { AccountManagementSession = accountManagementSession });
+
+        // Act
+        await SystemUnderTest.ManageAccount(new ManageAccountViewModel());
+
+        // Assert
+        accountManagementSession.IsUpdateCompanyName.Should().BeNull();
+        accountManagementSession.IsUpdateCompanyAddress.Should().BeNull();
+        accountManagementSession.OrganisationName.Should().Be(userData.Organisations[0].Name);
+        accountManagementSession.OrganisationType.Should().Be(userData.Organisations[0].OrganisationType);
+        accountManagementSession.BusinessAddress.Postcode.Should().Be(userData.Organisations[0].Postcode);
     }
 
     [TestMethod]
