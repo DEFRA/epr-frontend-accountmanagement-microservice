@@ -848,6 +848,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.BusinessAddress)]
     public async Task<IActionResult> BusinessAddress()
     {
@@ -888,6 +889,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.BusinessAddress)]
     public async Task<IActionResult> BusinessAddress(BusinessAddressViewModel model)
     {
@@ -930,6 +932,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.NonCompaniesHouseUkNation)]
     public async Task<IActionResult> NonCompaniesHouseUkNation()
     {
@@ -954,6 +957,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.NonCompaniesHouseUkNation)]
     public async Task<IActionResult> NonCompaniesHouseUkNation(UkNationViewModel model)
     {
@@ -1136,6 +1140,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     [Route(PagePath.UpdateCompanyName)]
     public async Task<IActionResult> UpdateCompanyName()
@@ -1172,6 +1177,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.UpdateCompanyName)]
     public async Task<IActionResult> UpdateCompanyName(UpdateCompanyNameViewModel model)
     {
@@ -1196,6 +1202,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     [Route(PagePath.UpdateCompanyAddress)]
     public async Task<IActionResult> UpdateCompanyAddress()
@@ -1229,6 +1236,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.UpdateCompanyAddress)]
     public async Task<IActionResult> UpdateCompanyAddress(UpdateCompanyAddressViewModel model)
     {
@@ -1260,6 +1268,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     [Route(PagePath.BusinessAddressPostcode)]
     public async Task<IActionResult> BusinessAddressPostcode()
@@ -1286,6 +1295,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.BusinessAddressPostcode)]
     public async Task<IActionResult> BusinessAddressPostcode(BusinessAddressPostcodeViewModel model)
     {
@@ -1321,6 +1331,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.SelectBusinessAddress)]
     public async Task<IActionResult> SelectBusinessAddress()
     {
@@ -1393,6 +1404,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     [Route(PagePath.SelectBusinessAddress)]
     public async Task<IActionResult> SelectBusinessAddress(SelectBusinessAddressViewModel model)
@@ -1463,6 +1475,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     [Route(PagePath.CompanyName)]
     public async Task<IActionResult> CompanyName()
@@ -1496,6 +1509,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     [Route(PagePath.CompanyName)]
     public async Task<IActionResult> CompanyName(OrganisationNameViewModel model)
@@ -1516,6 +1530,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.CheckCompanyDetails)]
     public async Task<IActionResult> CheckCompanyDetails()
     {
@@ -1557,6 +1572,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.CheckCompanyDetails)]
     public async Task<IActionResult> CheckCompanyDetailsPost()
     {
