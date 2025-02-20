@@ -10,7 +10,7 @@ namespace FrontendAccountManagement.Web.Middleware
     /// 
     /// ie: if user is not (basic - service role or admin - person role)  or  (not employee user - person role), allow access
     /// </summary>
-    public class EmployeeOrBasicAdminHandler : AuthorizationHandler<EmployeeOrBasicAdminRequirement>
+    public sealed class EmployeeOrBasicAdminHandler : AuthorizationHandler<EmployeeOrBasicAdminRequirement>
     {
         protected override Task HandleRequirementAsync(
             AuthorizationHandlerContext context,
@@ -35,7 +35,7 @@ namespace FrontendAccountManagement.Web.Middleware
         }
     }
 
-    public class EmployeeOrBasicAdminRequirement : IAuthorizationRequirement
+    public sealed class EmployeeOrBasicAdminRequirement : IAuthorizationRequirement
     {
         /// <summary>
         /// parm holder for build wire-up
