@@ -118,24 +118,24 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="DirectorCompanyRole" xml:space="preserve">
-    <value>W Director</value>
+	  <value>Cyfarwyddwr</value>
   </data>
   <data name="CompanySecretaryCompanyRole" xml:space="preserve">
-    <value>W Company Secretary</value>
+	  <value>Ysgrifennydd Cwmni</value>
   </data>
   <data name="PartnerCompanyRole" xml:space="preserve">
-    <value>W Partner</value>
+	  <value>Partner</value>
   </data>
   <data name="MemberOfALimitedLiabilityPartnershipCompanyRole" xml:space="preserve">
-    <value>W Member of a limited liability partnership</value>
+	  <value>Aelod o bartneriaeth atebolrwydd cyfyngedig</value>
   </data>
   <data name="WhatIsYourRoleInCompaniesHouse" xml:space="preserve">
-    <value>W What is your role in the organisation, as shown on Companies House?</value>
+	  <value>Beth yw eich rôl yn y Sefydliad, fel mae'n cael ei dangos ar wefan Tŷ'r Cwmnïau?</value>
   </data>
-	<data name="EditCompanyRoleDetailsTitle" xml:space="preserve">
-		<value>W Edit Company Role</value>
-	</data>
-	<data name="InvalidSelection" xml:space="preserve">
-		<value>W Select a role</value>
-	</data>
+  <data name="EditCompanyRoleDetailsTitle" xml:space="preserve">
+	  <value>Golygu Rôl Cwmni</value>
+  </data>
+  <data name="InvalidSelection" xml:space="preserve">
+	  <value>Dewiswch rôl</value>
+  </data>
 </root>
