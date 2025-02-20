@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using FrontendAccountManagement.Web.Middleware;
 using System.Text.Json;
+using FluentAssertions.Execution;
 
 namespace FrontendAccountManagement.Web.UnitTests.Middleware
 {
@@ -41,9 +42,9 @@ namespace FrontendAccountManagement.Web.UnitTests.Middleware
                                     };
 
             var claims = new List<Claim>
-                                {
-                                    new(ClaimTypes.UserData, JsonSerializer.Serialize(mockUserData))
-                                };
+            {
+                new(ClaimTypes.UserData, JsonSerializer.Serialize(mockUserData))
+            };
 
             var user = new ClaimsPrincipal(
                    new ClaimsIdentity(
@@ -57,9 +58,12 @@ namespace FrontendAccountManagement.Web.UnitTests.Middleware
             var handler = new EmployeeOrBasicAdminHandler();
             await handler.HandleAsync(context);
 
-            context.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                context.Should().NotBeNull();
 
-            Assert.IsFalse(context.HasSucceeded);
+                Assert.IsFalse(context.HasSucceeded);
+            }
         }
 
 
@@ -86,9 +90,9 @@ namespace FrontendAccountManagement.Web.UnitTests.Middleware
                                     };
 
             var claims = new List<Claim>
-        {
-            new(ClaimTypes.UserData, JsonSerializer.Serialize(mockUserData))
-        };
+            {
+                new(ClaimTypes.UserData, JsonSerializer.Serialize(mockUserData))
+            };
 
             var user = new ClaimsPrincipal(
                    new ClaimsIdentity(
@@ -102,9 +106,12 @@ namespace FrontendAccountManagement.Web.UnitTests.Middleware
             var handler = new EmployeeOrBasicAdminHandler();
             await handler.HandleAsync(context);
 
-            context.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                context.Should().NotBeNull();
 
-            Assert.IsFalse(context.HasSucceeded);
+                Assert.IsFalse(context.HasSucceeded);
+            }
         }
 
         [TestMethod]
@@ -130,9 +137,9 @@ namespace FrontendAccountManagement.Web.UnitTests.Middleware
                                     };
 
             var claims = new List<Claim>
-        {
-            new(ClaimTypes.UserData, JsonSerializer.Serialize(mockUserData))
-        };
+            {
+                new(ClaimTypes.UserData, JsonSerializer.Serialize(mockUserData))
+            };
 
             var user = new ClaimsPrincipal(
                    new ClaimsIdentity(
@@ -146,9 +153,12 @@ namespace FrontendAccountManagement.Web.UnitTests.Middleware
             var handler = new EmployeeOrBasicAdminHandler();
             await handler.HandleAsync(context);
 
-            context.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                context.Should().NotBeNull();
 
-            Assert.IsTrue(context.HasSucceeded);
+                Assert.IsTrue(context.HasSucceeded);
+            }
         }
 
         [TestMethod]
@@ -174,9 +184,9 @@ namespace FrontendAccountManagement.Web.UnitTests.Middleware
                                     };
 
             var claims = new List<Claim>
-        {
-            new(ClaimTypes.UserData, JsonSerializer.Serialize(mockUserData))
-        };
+            {
+                new(ClaimTypes.UserData, JsonSerializer.Serialize(mockUserData))
+            };
 
             var user = new ClaimsPrincipal(
                    new ClaimsIdentity(
@@ -190,9 +200,12 @@ namespace FrontendAccountManagement.Web.UnitTests.Middleware
             var handler = new EmployeeOrBasicAdminHandler();
             await handler.HandleAsync(context);
 
-            context.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                context.Should().NotBeNull();
 
-            Assert.IsTrue(context.HasSucceeded);
+                Assert.IsTrue(context.HasSucceeded);
+            }
         }
     }
 }
