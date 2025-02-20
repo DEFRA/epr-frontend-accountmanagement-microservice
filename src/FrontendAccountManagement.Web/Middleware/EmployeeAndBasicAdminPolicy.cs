@@ -18,7 +18,10 @@ namespace FrontendAccountManagement.Web.Middleware
         {
             var userData = context.User.GetUserData();
 
-            if ((ServiceRole.Approved == ParseEnum<ServiceRole>(userData.ServiceRoleId.ToString()) || (ServiceRole.Delegated == ParseEnum<ServiceRole>(userData.ServiceRoleId.ToString()))))
+            var userServiceRoleId = ParseEnum<ServiceRole>(userData.ServiceRoleId.ToString());
+
+            if ((ServiceRole.Approved == userServiceRoleId 
+                || (ServiceRole.Delegated == userServiceRoleId)))
             {
                 context.Succeed(requirement);
             }
@@ -32,7 +35,7 @@ namespace FrontendAccountManagement.Web.Middleware
         }
     }
 
-    public class EmployeeOrBasicAdminRequirement :IAuthorizationRequirement
+    public class EmployeeOrBasicAdminRequirement : IAuthorizationRequirement
     {
         /// <summary>
         /// parm holder for build wire-up
