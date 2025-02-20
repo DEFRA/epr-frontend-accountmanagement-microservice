@@ -9,15 +9,15 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using FrontendAccountManagement.Core.Models;
 using EPR.Common.Authorization.Models;
-using System;
 using FrontendAccountManagement.Core.Enums;
 using System.Security.Claims;
 using System.Text.Json;
 using Organisation = EPR.Common.Authorization.Models.Organisation;
 using FrontendAccountManagement.Core.Models.CompaniesHouse;
-using AutoMapper;
 using FrontendAccountManagement.Web.Constants.Enums;
 using FrontendAccountManagement.Web.Controllers.AccountManagement;
+using FrontendAccountManagement.Core.Addresses;
+using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 
@@ -280,6 +280,36 @@ public class AccountManagementTests : AccountManagementTestBase
         Assert.AreEqual($"{SubBuildingName}, {BuildingNumber}, {BuildingName}, {Street}, {Town}, {County}, {Postcode}", model.OrganisationAddress);
         Assert.AreEqual(OrganisationType, model.OrganisationType);
         Assert.AreEqual(ServiceRoleKey, model.ServiceRoleKey);
+    }
+
+    [TestMethod]
+    public async Task GivenOnManageAccountPage_WhenAccountManagementSessionIsPopulated_ThenShouldResetAccountManagementSession()
+    {
+        // Arrange
+        var userData = SetupUserData(string.Empty);
+
+        var accountManagementSession =
+            new AccountManagementSession
+            {
+                IsUpdateCompanyName = true,
+                IsUpdateCompanyAddress = true,
+                OrganisationName = "UNEXPECTED",
+                OrganisationType = "UNEXPECTED",
+                BusinessAddress = new Address { Postcode = "UNEXPECTED" }
+            };
+
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .ReturnsAsync(new JourneySession { AccountManagementSession = accountManagementSession });
+
+        // Act
+        await SystemUnderTest.ManageAccount(new ManageAccountViewModel());
+
+        // Assert
+        accountManagementSession.IsUpdateCompanyName.Should().BeNull();
+        accountManagementSession.IsUpdateCompanyAddress.Should().BeNull();
+        accountManagementSession.OrganisationName.Should().Be(userData.Organisations[0].Name);
+        accountManagementSession.OrganisationType.Should().Be(userData.Organisations[0].OrganisationType);
+        accountManagementSession.BusinessAddress.Postcode.Should().Be(userData.Organisations[0].Postcode);
     }
 
     [TestMethod]
@@ -1193,5 +1223,38 @@ public class AccountManagementTests : AccountManagementTestBase
         redirectResult.ActionName.Should().Be(PagePath.Error);
         redirectResult.RouteValues.Should().ContainKey("statusCode");
         redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
+    }
+
+    [DataTestMethod]
+    // The following combinations are expected user types:
+    [DataRow(PersonRole.Admin, ServiceRole.Approved, true)] // Approved user
+    [DataRow(PersonRole.Admin, ServiceRole.Delegated, true)] // Delegated user
+    [DataRow(PersonRole.Admin, ServiceRole.Basic, false)] // Admin user
+    [DataRow(PersonRole.Employee, ServiceRole.Basic, false)] // Basic user
+
+    // The following combinations are not expected, but added for completeness:
+    [DataRow(PersonRole.Employee, ServiceRole.Approved, true)]
+    [DataRow(PersonRole.Employee, ServiceRole.Delegated, true)]
+    public async Task GivenOnManageAccountPage_WhenUserIsApprovedOrDelegated_ThenCanEditOrganisation(PersonRole roleInOrganisation, ServiceRole serviceRole, bool hasPermissionToChangeCompany)
+    {
+        // Note: ServiceRole.RegulatorAdmin and ServiceRole.RegulatorBasic are used in this scenario as they have no permission to view this page.
+        // Arrange
+        var mockUserData = new UserData
+        {
+            ServiceRoleId = (int)serviceRole,
+            RoleInOrganisation = roleInOrganisation.ToString(),
+            Organisations = [new Organisation()]
+        };
+
+        SetupBase(userData: mockUserData);
+
+        // Act
+        var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
+
+        // Assert
+        result?.Model.Should().BeOfType<ManageAccountViewModel>();
+
+        var model = (ManageAccountViewModel)result!.Model!;
+        model.HasPermissionToChangeCompany.Should().Be(hasPermissionToChangeCompany);
     }
 }
