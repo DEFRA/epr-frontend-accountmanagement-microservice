@@ -19,17 +19,4 @@ public class DeploymentRoleOptionsTests
         // Assert
         result.Should().Be(expectedResult);
     }
-
-    [TestMethod]
-    public void ManageCompanyDetailChanges_FeatureName_ShouldBeCorrect()
-    {
-        // Arrange
-        const string expectedFeatureName = "ManageCompanyDetailChanges";
-
-        // Act
-        var actualFeatureName = FeatureFlags.ManageCompanyDetailChanges;
-
-        // Assert
-        actualFeatureName.Should().Be(expectedFeatureName);
-    }
 }
