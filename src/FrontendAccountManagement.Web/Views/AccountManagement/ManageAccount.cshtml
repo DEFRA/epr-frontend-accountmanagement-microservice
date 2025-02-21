@@ -4,6 +4,7 @@
 @using FrontendAccountManagement.Core.Models
 @using FrontendAccountManagement.Core.Enums;
 @using FrontendAccountManagement.Web.Constants
+@using FrontendAccountManagement.Web.Configs
 @addTagHelper *, Microsoft.FeatureManagement.AspNetCore
 
 @model ManageAccountViewModel
@@ -65,13 +66,13 @@
                             }
                             else
                             {
-                                <feature name="@FeatureName.ManageCompanyDetailChanges">
+                                <feature name="@FeatureFlags.ManageCompanyDetailChanges">
                                     <a href="~/@PagePath.UpdateCompanyName" class="govuk-link govuk-link--no-visited-state">
                                         @SharedLocalizer["Change"]
                                         <span class="govuk-visually-hidden"></span>
                                     </a>
                                 </feature>
-                                <feature name="@FeatureName.ManageCompanyDetailChanges" negate="true">
+                                <feature name="@FeatureFlags.ManageCompanyDetailChanges" negate="true">
                                     <a href="~/@PagePath.ChangeCompanyDetails" class="govuk-link govuk-link--no-visited-state">
                                         @SharedLocalizer["Change"]
                                         <span class="govuk-visually-hidden"></span>

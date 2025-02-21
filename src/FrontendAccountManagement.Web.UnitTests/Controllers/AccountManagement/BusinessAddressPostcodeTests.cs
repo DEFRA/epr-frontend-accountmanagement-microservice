@@ -3,6 +3,7 @@ using EPR.Common.Authorization.Models;
 using FluentAssertions.Execution;
 using FrontendAccountManagement.Core.Addresses;
 using FrontendAccountManagement.Core.Sessions;
+using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.Errors;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
@@ -205,7 +206,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         public async Task GivenFeatureIsDisabled_WhenBusinessAddressPostcodeCalled_ThenReturnsToErrorPage_WithNotFoundStatusCode()
         {
             // Arrange
-            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
             .ReturnsAsync(false);
 
             // Act

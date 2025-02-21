@@ -14,6 +14,7 @@ using FrontendAccountManagement.Core.Sessions;
 using AutoFixture;
 using FrontendAccountManagement.Web.Controllers.Errors;
 using System.Net;
+using FrontendAccountManagement.Web.Configs;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 {
@@ -64,7 +65,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         public async Task GivenFeatureIsDisabled_WhenCompanyDetailsUpdatedCalled_ThenReturnsToErrorPage_WithNotFoundStatusCode()
         {
             // Arrange
-            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
             .ReturnsAsync(false);
 
             // Act

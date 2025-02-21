@@ -14,6 +14,7 @@ using FrontendAccountManagement.Web.Controllers.Errors;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using FluentAssertions.Execution;
 using System.Net;
+using FrontendAccountManagement.Web.Configs;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 
@@ -332,7 +333,7 @@ public class BusinessAddressTests : AccountManagementTestBase
     public async Task GivenFeatureIsDisabled_WhenBusinessAddressCalled_ThenReturnsToErrorPage_WithNotFoundStatusCode()
     {
         // Arrange
-        FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         .ReturnsAsync(false);
 
         // Act

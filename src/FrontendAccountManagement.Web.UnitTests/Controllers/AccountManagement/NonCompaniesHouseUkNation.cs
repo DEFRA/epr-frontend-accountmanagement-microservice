@@ -5,6 +5,7 @@ using AutoFixture;
 using EPR.Common.Authorization.Models;
 using FluentAssertions.Execution;
 using FrontendAccountManagement.Core.Sessions;
+using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Constants.Enums;
 using FrontendAccountManagement.Web.Controllers.AccountManagement;
@@ -148,7 +149,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         public async Task GivenFeatureIsDisabled_WhenNonCompaniesHouseUkNationCalled_ThenReturnsToErrorPage_WithNotFoundStatusCode()
         {
             // Arrange
-            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
             .ReturnsAsync(false);
 
             // Act

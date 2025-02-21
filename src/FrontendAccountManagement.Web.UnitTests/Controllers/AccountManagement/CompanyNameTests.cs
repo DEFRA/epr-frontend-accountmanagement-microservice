@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using AutoFixture;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
+using FrontendAccountManagement.Web.Configs;
 
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
@@ -285,7 +286,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         public async Task GivenFeatureIsDisabled_WhenCompanyNameCalled_ThenReturnsToErrorPage_WithNotFoundStatusCode()
         {
             // Arrange
-            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
             .ReturnsAsync(false);
 
             // Act

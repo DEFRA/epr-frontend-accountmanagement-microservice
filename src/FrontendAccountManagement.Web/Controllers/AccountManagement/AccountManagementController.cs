@@ -837,7 +837,7 @@ public class AccountManagementController : Controller
     [Route(PagePath.CompanyDetailsUpdated)]
     public async Task<IActionResult> CompanyDetailsUpdated()
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
         }
@@ -858,7 +858,7 @@ public class AccountManagementController : Controller
     [Route(PagePath.BusinessAddress)]
     public async Task<IActionResult> BusinessAddress()
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
         }
@@ -903,7 +903,7 @@ public class AccountManagementController : Controller
     [Route(PagePath.BusinessAddress)]
     public async Task<IActionResult> BusinessAddress(BusinessAddressViewModel model)
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
         }
@@ -950,7 +950,7 @@ public class AccountManagementController : Controller
     [Route(PagePath.NonCompaniesHouseUkNation)]
     public async Task<IActionResult> NonCompaniesHouseUkNation()
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
         }
@@ -979,7 +979,7 @@ public class AccountManagementController : Controller
     [Route(PagePath.NonCompaniesHouseUkNation)]
     public async Task<IActionResult> NonCompaniesHouseUkNation(UkNationViewModel model)
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
         }
@@ -1167,7 +1167,7 @@ public class AccountManagementController : Controller
     [Route(PagePath.UpdateCompanyName)]
     public async Task<IActionResult> UpdateCompanyName()
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
         }
@@ -1207,7 +1207,7 @@ public class AccountManagementController : Controller
     [Route(PagePath.UpdateCompanyName)]
     public async Task<IActionResult> UpdateCompanyName(UpdateCompanyNameViewModel model)
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
         }
@@ -1237,7 +1237,7 @@ public class AccountManagementController : Controller
     [Route(PagePath.UpdateCompanyAddress)]
     public async Task<IActionResult> UpdateCompanyAddress()
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
         }
@@ -1274,7 +1274,7 @@ public class AccountManagementController : Controller
     [Route(PagePath.UpdateCompanyAddress)]
     public async Task<IActionResult> UpdateCompanyAddress(UpdateCompanyAddressViewModel model)
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
         }
@@ -1311,7 +1311,7 @@ public class AccountManagementController : Controller
     [Route(PagePath.BusinessAddressPostcode)]
     public async Task<IActionResult> BusinessAddressPostcode()
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
         }
@@ -1341,7 +1341,7 @@ public class AccountManagementController : Controller
     [Route(PagePath.BusinessAddressPostcode)]
     public async Task<IActionResult> BusinessAddressPostcode(BusinessAddressPostcodeViewModel model)
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
         }
@@ -1381,7 +1381,7 @@ public class AccountManagementController : Controller
     [Route(PagePath.SelectBusinessAddress)]
     public async Task<IActionResult> SelectBusinessAddress()
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
         }
@@ -1459,7 +1459,7 @@ public class AccountManagementController : Controller
     [Route(PagePath.SelectBusinessAddress)]
     public async Task<IActionResult> SelectBusinessAddress(SelectBusinessAddressViewModel model)
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
         }
@@ -1534,7 +1534,7 @@ public class AccountManagementController : Controller
     [Route(PagePath.CompanyName)]
     public async Task<IActionResult> CompanyName()
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
         }
@@ -1572,7 +1572,7 @@ public class AccountManagementController : Controller
     [Route(PagePath.CompanyName)]
     public async Task<IActionResult> CompanyName(OrganisationNameViewModel model)
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
         }
@@ -1596,7 +1596,7 @@ public class AccountManagementController : Controller
     [Route(PagePath.CheckCompanyDetails)]
     public async Task<IActionResult> CheckCompanyDetails()
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
         }
@@ -1642,7 +1642,7 @@ public class AccountManagementController : Controller
     [Route(PagePath.CheckCompanyDetails)]
     public async Task<IActionResult> CheckCompanyDetailsPost()
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
         }

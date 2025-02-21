@@ -3,6 +3,7 @@ using AutoFixture;
 using EPR.Common.Authorization.Models;
 using FluentAssertions.Execution;
 using FrontendAccountManagement.Core.Sessions;
+using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.AccountManagement;
 using FrontendAccountManagement.Web.Controllers.Errors;
@@ -315,7 +316,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         public async Task GivenFeatureIsDisabled_WhenUpdateCompanyAddressCalled_ThenReturnsToErrorPage_WithNotFoundStatusCode()
         {
             // Arrange
-            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
             .ReturnsAsync(false);
 
             // Act

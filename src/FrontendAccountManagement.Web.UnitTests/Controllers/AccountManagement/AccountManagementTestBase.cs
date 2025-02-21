@@ -56,7 +56,7 @@ public abstract class AccountManagementTestBase
         ClaimsExtensionsWrapperMock = new Mock<IClaimsExtensionsWrapper>();
         AutoMapperMock = new Mock<IMapper>();
 
-        FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         .ReturnsAsync(true);
 
         SetUpUserData(userData);
