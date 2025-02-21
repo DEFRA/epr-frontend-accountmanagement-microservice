@@ -18,6 +18,7 @@ using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext
 using FrontendAccountManagement.Core.Services.Dto.CompaniesHouse;
 using System.IO;
 using FluentAssertions.Execution;
+using System.Net;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 
@@ -404,5 +405,26 @@ public class CheckCompanyDetailsTests : AccountManagementTestBase
         ((RedirectToActionResult)result).ActionName.Should().Be(PagePath.Error);
     }
 
+    [TestMethod]
+    public async Task GivenFeatureIsDisabled_WhenCheckCompanyDetailsCalled_ThenReturnsToErrorPage_WithNotFoundStatusCode()
+    {
+        // Arrange
+        FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        .ReturnsAsync(false);
 
+        // Act
+        var result = await SystemUnderTest.CheckCompanyDetails();
+
+        // Assert
+        using (new AssertionScope())
+        {
+            result.Should().BeOfType<RedirectToActionResult>();
+
+            var actionResult = result as RedirectToActionResult;
+            actionResult.Should().NotBeNull();
+            actionResult.ActionName.Should().Be(PagePath.Error);
+            actionResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+            actionResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
+        }
+    }
 }

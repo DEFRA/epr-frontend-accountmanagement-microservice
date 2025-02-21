@@ -280,5 +280,28 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
 
         }
+
+        [TestMethod]
+        public async Task GivenFeatureIsDisabled_WhenCompanyNameCalled_ThenReturnsToErrorPage_WithNotFoundStatusCode()
+        {
+            // Arrange
+            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+            .ReturnsAsync(false);
+
+            // Act
+            var result = await SystemUnderTest.CompanyName();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+
+                var actionResult = result as RedirectToActionResult;
+                actionResult.Should().NotBeNull();
+                actionResult.ActionName.Should().Be(PagePath.Error);
+                actionResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                actionResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
+            }
+        }
     }
 }

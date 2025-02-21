@@ -4,6 +4,7 @@ using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
+using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.AccountManagement;
 using FrontendAccountManagement.Web.Utilities.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -54,6 +55,9 @@ public abstract class AccountManagementTestBase
         TempDataDictionary = new TempDataDictionary(this.HttpContextMock.Object, new Mock<ITempDataProvider>().Object);
         ClaimsExtensionsWrapperMock = new Mock<IClaimsExtensionsWrapper>();
         AutoMapperMock = new Mock<IMapper>();
+
+        FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureName.ManageCompanyDetailChanges))
+        .ReturnsAsync(true);
 
         SetUpUserData(userData);
 
