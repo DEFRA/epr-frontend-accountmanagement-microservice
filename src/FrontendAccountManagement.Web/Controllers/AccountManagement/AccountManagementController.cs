@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
+using Microsoft.FeatureManagement.Mvc;
 using Microsoft.Identity.Web;
 using System;
 using System.Net;
@@ -74,6 +75,7 @@ public class AccountManagementController : Controller
 
     [HttpGet] 
     [Route(PagePath.ApprovedPersonPhoneNumberChange)]
+    [FeatureGate(FeatureFlags.ShowApprovedCompanyHouseDetailsChange)]
     public async Task<IActionResult> ManageAccountTelephone()
     { 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
@@ -105,6 +107,7 @@ public class AccountManagementController : Controller
 
     [HttpPost]
     [Route(PagePath.ApprovedPersonPhoneNumberChange)]
+    [FeatureGate(FeatureFlags.ShowApprovedCompanyHouseDetailsChange)]
     public async Task<IActionResult> ManageAccountTelephone(ManageAccountTelephoneViewModel model)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
@@ -201,7 +204,7 @@ public class AccountManagementController : Controller
             model.IsChangeRequestPending = userAccount.IsChangeRequestPending;
             model.IsAdmin = userAccount.RoleInOrganisation == PersonRole.Admin.ToString();
             model.ShowManageUserDetailChanges = await _featureManager.IsEnabledAsync(FeatureFlags.ManageUserDetailChanges);
-            model.IsApprovedOrDelegatedCompaniesHouseUser = IsApprovedOrDelegatedCompaniesHouseUser(userAccount);
+            model.IsApprovedOrDelegatedCompaniesHouseUser = await _featureManager.IsEnabledAsync(FeatureFlags.ShowApprovedCompanyHouseDetailsChange) && IsApprovedOrDelegatedCompaniesHouseUser(userAccount);
         }
         return View(nameof(ManageAccount), model);
     }
@@ -658,11 +661,12 @@ public class AccountManagementController : Controller
             TempData[NewUserDetailsKey] = JsonSerializer.Serialize(editUserDetailsViewModel);
         }
 
-        return RedirectToAction(nameof(PagePath.ApprovedPersonRoleChange));
+        return RedirectToAction(nameof(PagePath.CheckYourDetails));
     }
 
     [HttpGet]
     [Route(PagePath.ApprovedPersonRoleChange)]
+    [FeatureGate(FeatureFlags.ShowApprovedCompanyHouseDetailsChange)]
     public async Task<IActionResult> ApprovedPersonRoleChange()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
@@ -693,6 +697,7 @@ public class AccountManagementController : Controller
 
     [HttpPost]
     [Route(PagePath.ApprovedPersonRoleChange)]
+    [FeatureGate(FeatureFlags.ShowApprovedCompanyHouseDetailsChange)]
     public async Task<IActionResult> ApprovedPersonRoleChange(ApprovedPersonRoleChangeViewModel editCompanyRoleDetailsViewModel)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
@@ -779,6 +784,7 @@ public class AccountManagementController : Controller
 
     [HttpGet]
     [Route(PagePath.ApprovedPersonCheckYourDetails)]
+    [FeatureGate(FeatureFlags.ShowApprovedCompanyHouseDetailsChange)]
     public async Task<IActionResult> CheckYourDetailsApprovedUserCompanyHouse()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
@@ -1144,6 +1150,7 @@ public class AccountManagementController : Controller
 
     [HttpGet]
     [Route(PagePath.ApprovedPersonNameChange)]
+    [FeatureGate(FeatureFlags.ShowApprovedCompanyHouseDetailsChange)]
     public async Task<IActionResult> ApprovedPersonNameChange()
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
@@ -1176,6 +1183,7 @@ public class AccountManagementController : Controller
 
     [HttpPost]
     [Route(PagePath.ApprovedPersonNameChange)]
+    [FeatureGate(FeatureFlags.ShowApprovedCompanyHouseDetailsChange)]
     public async Task<IActionResult> ApprovedPersonNameChange(ApprovedPersonNameChangeViewModel model)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
