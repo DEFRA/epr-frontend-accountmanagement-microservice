@@ -232,5 +232,30 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 actionResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
             }
         }
+
+        [TestMethod]
+        public async Task GivenFeatureIsDisabled_WhenUpdateCompanyNameSubmitted_ThenReturnsToErrorPage_WithNotFoundStatusCode()
+        {
+            // Arrange
+            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+            .ReturnsAsync(false);
+
+            var model = new UpdateCompanyNameViewModel { IsUpdateCompanyName = YesNoAnswer.Yes };
+
+            // Act
+            var result = await SystemUnderTest.UpdateCompanyName(model);
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+
+                var actionResult = result as RedirectToActionResult;
+                actionResult.Should().NotBeNull();
+                actionResult.ActionName.Should().Be(PagePath.Error);
+                actionResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                actionResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
+            }
+        }
     }
 }

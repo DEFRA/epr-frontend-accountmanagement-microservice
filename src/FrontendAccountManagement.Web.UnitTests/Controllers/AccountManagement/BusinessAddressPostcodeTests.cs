@@ -225,5 +225,32 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             }
         }
 
+        [TestMethod]
+        public async Task GivenFeatureIsDisabled_WhenBusinessAddressPostcodeSubmitted_ThenReturnsToErrorPage_WithNotFoundStatusCode()
+        {
+            // Arrange
+            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+            .ReturnsAsync(false);
+
+            var model = new BusinessAddressPostcodeViewModel
+            {
+                Postcode = "AB12 3CD"
+            };
+
+            // Act
+            var result = await SystemUnderTest.BusinessAddressPostcode(model);
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+
+                var actionResult = result as RedirectToActionResult;
+                actionResult.Should().NotBeNull();
+                actionResult.ActionName.Should().Be(PagePath.Error);
+                actionResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                actionResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
+            }
+        }
     }
 }
