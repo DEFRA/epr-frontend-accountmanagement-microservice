@@ -345,6 +345,39 @@ public class AccountManagementTests : AccountManagementTestBase
         Assert.IsNull(SystemUnderTest.TempData[checkYourOrganisationDetailsKey]);
     }
 
+    [TestMethod]
+    public async Task GivenOnManageAccountPage_When_ShowApprovedCompanyHouseDetailsChange_Feature_IsOff_ShouldSetModelProps_Correctly()
+    {
+        const string checkYourOrganisationDetailsKey = "CheckYourOrganisationDetails";
+        // Arrange
+        var checkYourOrganisationDetails = new CheckYourOrganisationDetailsViewModel
+        {
+            OrganisationId = Guid.NewGuid(),
+            UkNation = UkNation.England,
+        };
+
+        var userData = SetupUserData(string.Empty);
+
+        SetupBase(userData: userData);
+
+        SystemUnderTest.TempData.Add(checkYourOrganisationDetailsKey, JsonSerializer.Serialize(checkYourOrganisationDetails));
+
+        Assert.IsNotNull(SystemUnderTest.TempData[checkYourOrganisationDetailsKey]);
+
+        FeatureManagerMock.Setup(x => x.IsEnabledAsync(It.IsAny<string>())).ReturnsAsync(false);
+
+        // Act
+        var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
+        var modelResult = result.Model as ManageAccountViewModel;
+
+        // Assert
+        result.Should().BeOfType<ViewResult>();
+        result.ViewName.Should().Be(ViewName);
+        modelResult.Should().NotBeNull();
+        modelResult.IsApprovedOrDelegatedCompaniesHouseUser.Should().BeFalse();
+
+        Assert.IsNull(SystemUnderTest.TempData[checkYourOrganisationDetailsKey]);
+    }
 
     [TestMethod]
     public async Task GivenOnEditUserDetailsPage_WhenPageSubbmitedWithValidData_RedirectsToNextPage()
