@@ -408,7 +408,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             // Assert
             result.Should().BeOfType<RedirectToActionResult>();
 
-            ((RedirectToActionResult)result).ActionName.Should().Be(nameof(ErrorController.Error));
+            ((RedirectToActionResult)result).ControllerName.Should().Be(nameof(ErrorController.Error));
         }
 
         [TestMethod]
@@ -434,7 +434,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             // Assert
             result.Should().BeOfType<RedirectToActionResult>();
 
-            ((RedirectToActionResult)result).ActionName.Should().Be(nameof(ErrorController.Error));
+            ((RedirectToActionResult)result).ControllerName.Should().Be(nameof(ErrorController.Error));
         }
 
         [TestMethod]

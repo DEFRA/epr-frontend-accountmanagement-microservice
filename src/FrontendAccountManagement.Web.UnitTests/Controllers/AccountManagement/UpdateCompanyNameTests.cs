@@ -61,7 +61,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 result.Should().BeOfType<RedirectToActionResult>();
                 var redirectResult = result as RedirectToActionResult;
                 redirectResult.ControllerName.Should().Be("Error");
-                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
+                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
             }
         }
 

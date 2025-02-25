@@ -187,7 +187,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
                 redirectResult.ActionName.Should().Be(PagePath.Error);
                 redirectResult.RouteValues.Should().ContainKey("statusCode");
-                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
+                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
             }
                 
         }
