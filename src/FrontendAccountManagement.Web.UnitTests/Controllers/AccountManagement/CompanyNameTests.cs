@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using AutoFixture;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
+using FrontendAccountManagement.Web.Configs;
 
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
@@ -186,7 +187,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
                 redirectResult.ActionName.Should().Be(PagePath.Error);
                 redirectResult.RouteValues.Should().ContainKey("statusCode");
-                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
+                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
             }
                 
         }
@@ -279,6 +280,58 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             }
 
 
+        }
+
+        [TestMethod]
+        public async Task GivenFeatureIsDisabled_WhenCompanyNameCalled_ThenReturnsToErrorPage_WithNotFoundStatusCode()
+        {
+            // Arrange
+            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+            .ReturnsAsync(false);
+
+            // Act
+            var result = await SystemUnderTest.CompanyName();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+
+                var actionResult = result as RedirectToActionResult;
+                actionResult.Should().NotBeNull();
+                actionResult.ActionName.Should().Be(PagePath.Error);
+                actionResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                actionResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
+            }
+        }
+
+        [TestMethod]
+        public async Task GivenFeatureIsDisabled_WhenCompanyNameSubmitted_ThenReturnsToErrorPage_WithNotFoundStatusCode()
+        {
+            // Arrange
+            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+            .ReturnsAsync(false);
+
+            var updatedOrganisationName = "Updated Company Name";
+            var model = new OrganisationNameViewModel
+            {
+                OrganisationName = updatedOrganisationName
+            };
+
+            // Act
+            var result = await SystemUnderTest.CompanyName(model);
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+
+                var actionResult = result as RedirectToActionResult;
+                actionResult.Should().NotBeNull();
+                actionResult.ActionName.Should().Be(PagePath.Error);
+                actionResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                actionResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
+            }
         }
     }
 }

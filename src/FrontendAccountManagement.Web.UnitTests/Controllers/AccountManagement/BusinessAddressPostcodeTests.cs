@@ -3,6 +3,7 @@ using EPR.Common.Authorization.Models;
 using FluentAssertions.Execution;
 using FrontendAccountManagement.Core.Addresses;
 using FrontendAccountManagement.Core.Sessions;
+using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.Errors;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
@@ -83,7 +84,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 result.Should().BeOfType<RedirectToActionResult>();
                 var redirectResult = result as RedirectToActionResult;
                 redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
-                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
+                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
             }
         }
 
@@ -198,6 +199,57 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 redirectResult.ActionName.Should().Be("BusinessAddress");
 
                 TempDataDictionaryMock.Invocations.SelectMany(x => x.Arguments).Should().Contain(PostcodeLookupFailedKey);
+            }
+        }
+
+        [TestMethod]
+        public async Task GivenFeatureIsDisabled_WhenBusinessAddressPostcodeCalled_ThenReturnsToErrorPage_WithNotFoundStatusCode()
+        {
+            // Arrange
+            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+            .ReturnsAsync(false);
+
+            // Act
+            var result = await SystemUnderTest.BusinessAddressPostcode();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+
+                var actionResult = result as RedirectToActionResult;
+                actionResult.Should().NotBeNull();
+                actionResult.ActionName.Should().Be(PagePath.Error);
+                actionResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                actionResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
+            }
+        }
+
+        [TestMethod]
+        public async Task GivenFeatureIsDisabled_WhenBusinessAddressPostcodeSubmitted_ThenReturnsToErrorPage_WithNotFoundStatusCode()
+        {
+            // Arrange
+            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+            .ReturnsAsync(false);
+
+            var model = new BusinessAddressPostcodeViewModel
+            {
+                Postcode = "AB12 3CD"
+            };
+
+            // Act
+            var result = await SystemUnderTest.BusinessAddressPostcode(model);
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+
+                var actionResult = result as RedirectToActionResult;
+                actionResult.Should().NotBeNull();
+                actionResult.ActionName.Should().Be(PagePath.Error);
+                actionResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                actionResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
             }
         }
     }
