@@ -207,4 +207,7 @@
   <data name="UpdateBusinessAddressBackAriaLabel" xml:space="preserve">
     <value>Cliciwch ar y ddolen yma os hoffech chi fynd yn ôl i'r tudalen Hoffech chi ddiweddaru cyfeiriad eich busnes</value>
   </data>
+  <data name="NonCompaniesHouseUkNationBackAriaLabel" xml:space="preserve">
+    <value>Cliciwch ar y ddolen yma os hoffech chi fynd yn ôl i'r tudalen blaenorol</value>
+  </data>
 </root>

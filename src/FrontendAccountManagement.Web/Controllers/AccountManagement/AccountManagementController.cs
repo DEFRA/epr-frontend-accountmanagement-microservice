@@ -943,7 +943,7 @@ public class AccountManagementController : Controller
             });
         }
 
-        SetBackLink(session, PagePath.NonCompaniesHouseUkNation);
+        SetBackLink(session, PagePath.UpdateCompanyAddress, LocalizerName.NonCompaniesHouseUkNation);
 
         var viewModel = new NonCompaniesHouseUkNationViewModel
         {
