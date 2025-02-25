@@ -1,14 +1,16 @@
-﻿using AutoFixture;
+﻿using System.Net;
+using AutoFixture;
 using EPR.Common.Authorization.Models;
 using FluentAssertions.Execution;
 using FrontendAccountManagement.Core.Sessions;
+using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
+using FrontendAccountManagement.Web.Controllers.Errors;
 using FrontendAccountManagement.Web.ViewModels;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using System.Net;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 {
@@ -59,7 +61,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 result.Should().BeOfType<RedirectToActionResult>();
                 var redirectResult = result as RedirectToActionResult;
                 redirectResult.ControllerName.Should().Be("Error");
-                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
+                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
             }
         }
 
@@ -205,6 +207,54 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 viewResult.Model.Should().Be(model);
 
                 AssertBackLink(viewResult, PagePath.ManageAccount);
+            }
+        }
+
+        [TestMethod]
+        public async Task GivenFeatureIsDisabled_WhenUpdateCompanyNameCalled_ThenReturnsToErrorPage_WithNotFoundStatusCode()
+        {
+            // Arrange
+            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+            .ReturnsAsync(false);
+
+            // Act
+            var result = await SystemUnderTest.UpdateCompanyName();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+
+                var actionResult = result as RedirectToActionResult;
+                actionResult.Should().NotBeNull();
+                actionResult.ActionName.Should().Be(PagePath.Error);
+                actionResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                actionResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
+            }
+        }
+
+        [TestMethod]
+        public async Task GivenFeatureIsDisabled_WhenUpdateCompanyNameSubmitted_ThenReturnsToErrorPage_WithNotFoundStatusCode()
+        {
+            // Arrange
+            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+            .ReturnsAsync(false);
+
+            var model = new UpdateCompanyNameViewModel { IsUpdateCompanyName = YesNoAnswer.Yes };
+
+            // Act
+            var result = await SystemUnderTest.UpdateCompanyName(model);
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+
+                var actionResult = result as RedirectToActionResult;
+                actionResult.Should().NotBeNull();
+                actionResult.ActionName.Should().Be(PagePath.Error);
+                actionResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                actionResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
             }
         }
     }

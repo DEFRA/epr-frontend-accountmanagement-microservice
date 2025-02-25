@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using AutoFixture;
 using EPR.Common.Authorization.Models;
 using FluentAssertions.Execution;
 using FrontendAccountManagement.Core.Sessions;
+using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Constants.Enums;
 using FrontendAccountManagement.Web.Controllers.AccountManagement;
@@ -100,7 +102,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             // Assert
             result.Should().BeOfType<RedirectToActionResult>();
 
-            ((RedirectToActionResult)result).ActionName.Should().Be(nameof(ErrorController.Error));
+            ((RedirectToActionResult)result).ControllerName.Should().Be(nameof(ErrorController.Error));
         }
 
         [TestMethod]
@@ -141,6 +143,54 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             // Assert
             result.Should().BeOfType<InvalidOperationException>();
+        }
+
+        [TestMethod]
+        public async Task GivenFeatureIsDisabled_WhenNonCompaniesHouseUkNationCalled_ThenReturnsToErrorPage_WithNotFoundStatusCode()
+        {
+            // Arrange
+            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+            .ReturnsAsync(false);
+
+            // Act
+            var result = await SystemUnderTest.NonCompaniesHouseUkNation();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+
+                var actionResult = result as RedirectToActionResult;
+                actionResult.Should().NotBeNull();
+                actionResult.ActionName.Should().Be(PagePath.Error);
+                actionResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                actionResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
+            }
+        }
+
+        [TestMethod]
+        public async Task GivenFeatureIsDisabled_WhenNonCompaniesHouseUkNationSubmitted_ThenReturnsToErrorPage_WithNotFoundStatusCode()
+        {
+            // Arrange
+            FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+            .ReturnsAsync(false);
+
+            var model = new UkNationViewModel { UkNation = UkNation.England };
+
+            // Act
+            var result = await SystemUnderTest.NonCompaniesHouseUkNation(model);
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+
+                var actionResult = result as RedirectToActionResult;
+                actionResult.Should().NotBeNull();
+                actionResult.ActionName.Should().Be(PagePath.Error);
+                actionResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                actionResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
+            }
         }
     }
 }

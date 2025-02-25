@@ -1,4 +1,5 @@
 ﻿using FrontendAccountManagement.Core.Configuration;
+using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Extensions;
@@ -6,6 +7,7 @@ using FrontendAccountManagement.Web.HealthChecks;
 using FrontendAccountManagement.Web.Middleware;
 using FrontendAccountManagement.Web.Utilities;
 using FrontendAccountManagement.Web.Utilities.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
@@ -48,7 +50,19 @@ builder.Services
 builder.Services.AddRazorPages();
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddSingleton<IAuthorizationHandler,EmployeeOrBasicAdminHandler>();
 builder.Services.AddTransient<IClaimsExtensionsWrapper, ClaimsExtensionsWrapper>();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("IsEmployeeOrBasicAdmin", policy => 
+    policy.Requirements.Add(
+        new EmployeeOrBasicAdminRequirement(
+            ServiceRole.Basic,
+            PersonRole.Employee,
+            PersonRole.Admin 
+            )));
+});
 
 builder.Services
     .Configure<ForwardedHeadersOptions>(options =>
