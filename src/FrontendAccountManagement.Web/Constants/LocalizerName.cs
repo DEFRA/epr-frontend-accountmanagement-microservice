@@ -8,5 +8,6 @@
         public const string CompanyNameBackAriaLabel = "CompanyNameBackAriaLabel";
         public const string BusinessAddressBackAriaLabel = "BusinessAddressBackAriaLabel";
         public const string UpdateBusinessAddressBackAriaLabel = "UpdateBusinessAddressBackAriaLabel";
+        public const string NonCompaniesHouseUkNation = "NonCompaniesHouseUkNationBackAriaLabel";
     }
 }
