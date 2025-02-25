@@ -1,7 +1,4 @@
-﻿using System;
-using System.Net;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using EPR.Common.Authorization.Models;
 using FluentAssertions.Execution;
 using FrontendAccountManagement.Core.Sessions;
@@ -14,6 +11,9 @@ using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using System;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 {
@@ -38,7 +38,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 UserData = _userData,
                 AccountManagementSession = new AccountManagementSession()
                 {
-                    Journey = 
+                    Journey =
                     [
                         PagePath.BusinessAddressPostcode, PagePath.SelectBusinessAddress,PagePath.NonCompaniesHouseUkNation
                     ],
@@ -68,7 +68,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 var model = (NonCompaniesHouseUkNationViewModel)viewResult.Model!;
 
                 model.UkNation.Should().Be(UkNation.England);
-            }     
+            }
         }
 
         [TestMethod]
@@ -79,7 +79,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             // Act
             var result = await SystemUnderTest.NonCompaniesHouseUkNation(request);
-      
+
             // Assert
             result.Should().BeOfType<RedirectToActionResult>();
 
@@ -98,7 +98,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             // Act
             var result = await SystemUnderTest.NonCompaniesHouseUkNation();
-            
+
             // Assert
             result.Should().BeOfType<RedirectToActionResult>();
 
@@ -175,7 +175,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
             .ReturnsAsync(false);
 
-            var model = new UkNationViewModel { UkNation = UkNation.England };
+            var model = new NonCompaniesHouseUkNationViewModel { UkNation = UkNation.England };
 
             // Act
             var result = await SystemUnderTest.NonCompaniesHouseUkNation(model);
