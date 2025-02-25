@@ -937,12 +937,12 @@ public class AccountManagementController : Controller
     [Route(PagePath.NonCompaniesHouseUkNation)]
     public async Task<IActionResult> NonCompaniesHouseUkNation()
     {
-        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-
         if (IsCompaniesHouseUser() || !await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
         }
+    
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
         SetBackLink(session, PagePath.UpdateCompanyAddress, LocalizerName.NonCompaniesHouseUkNation);
 
