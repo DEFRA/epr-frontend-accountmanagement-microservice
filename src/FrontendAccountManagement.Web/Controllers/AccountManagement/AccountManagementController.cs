@@ -1,14 +1,20 @@
+using System;
+using System.IO;
+using System.Net;
+using System.Text.Json;
 using AutoMapper;
 using EPR.Common.Authorization.Constants;
 using EPR.Common.Authorization.Extensions;
 using EPR.Common.Authorization.Models;
 using EPR.Common.Authorization.Sessions;
+using FrontendAccountManagement.Core.Addresses;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Services;
+using FrontendAccountManagement.Core.Services.Dto.CompaniesHouse;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
@@ -16,16 +22,17 @@ using FrontendAccountManagement.Web.Controllers.Errors;
 using FrontendAccountManagement.Web.Extensions;
 using FrontendAccountManagement.Web.Profiles;
 using FrontendAccountManagement.Web.Utilities.Interfaces;
+using FrontendAccountManagement.Web.ViewModels;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
+using Microsoft.FeatureManagement.Mvc;
 using Microsoft.Identity.Web;
-using System;
-using System.Net;
-using System.Text.Json;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
@@ -40,6 +47,7 @@ public class AccountManagementController : Controller
     private const string AmendedUserDetailsKey = "AmendedUserDetails";
     private const string NewUserDetailsKey = "NewUserDetails";
     private const string ServiceKey = "Packaging";
+    private const string PostcodeLookupFailedKey = "PostcodeLookupFailed";
     private readonly ISessionManager<JourneySession> _sessionManager;
     private readonly IFacadeService _facadeService;
     private readonly ILogger<AccountManagementController> _logger;
@@ -89,6 +97,8 @@ public class AccountManagementController : Controller
         }
 
         session.AccountManagementSession.AddUserJourney = null;
+        session.AccountManagementSession.IsUpdateCompanyName = null;
+        session.AccountManagementSession.IsUpdateCompanyAddress = null;
         if (session.AccountManagementSession.RemoveUserStatus != null)
         {
             model.UserRemovedStatus = session.AccountManagementSession.RemoveUserStatus;
@@ -108,36 +118,36 @@ public class AccountManagementController : Controller
 
         model.PersonUpdated = TempData["PersonUpdated"] == null ? null : TempData["PersonUpdated"].ToString();
 
-        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccount);
-
-        SetCustomBackLink(_urlOptions.LandingPageUrl);
-
         if (userAccount is null)
         {
             _logger.LogInformation("User authenticated but account could not be found");
         }
         else
         {
-            var organisation = userAccount.Organisations[0];
-            model.UserName = string.Format("{0} {1}", userAccount.FirstName, userAccount.LastName);
+            var userOrg = userAccount.Organisations.FirstOrDefault();
+            
+            session.AccountManagementSession.OrganisationName = userOrg?.Name;
+            session.AccountManagementSession.OrganisationType = userOrg?.OrganisationType;
+            session.AccountManagementSession.BusinessAddress = new Address { Postcode = userOrg?.Postcode };
+
+            model.UserName = $"{userAccount.FirstName} {userAccount.LastName}";
             model.Telephone = userAccount.Telephone;
-            var userOrg = userAccount.Organisations?.FirstOrDefault();
             model.JobTitle = userAccount.JobTitle;
             model.CompanyName = userOrg?.Name;
             model.OrganisationAddress = string.Join(", ", new[] {
-                organisation.SubBuildingName,
-                organisation.BuildingNumber,
-                organisation.BuildingName,
-                organisation.Street,
-                organisation.Town,
-                organisation.County,
-                organisation.Postcode,
+                userOrg?.SubBuildingName,
+                userOrg?.BuildingNumber,
+                userOrg?.BuildingName,
+                userOrg?.Street,
+                userOrg?.Town,
+                userOrg?.County,
+                userOrg?.Postcode,
             }.Where(s => !string.IsNullOrWhiteSpace(s)));
             model.EnrolmentStatus = userAccount.EnrolmentStatus;
-            var serviceRoleId = userAccount.ServiceRoleId;
-            var serviceRoleEnum = (ServiceRole)serviceRoleId;
-            var roleInOrganisation = userAccount.RoleInOrganisation;
-            model.ServiceRoleKey = $"{serviceRoleEnum.ToString()}.{roleInOrganisation}";
+            
+            var serviceRoleEnum = (ServiceRole)userAccount.ServiceRoleId;
+            
+            model.ServiceRoleKey = $"{serviceRoleEnum.ToString()}.{userAccount.RoleInOrganisation}";
             model.OrganisationType = userOrg?.OrganisationType;
             model.HasPermissionToChangeCompany = HasPermissionToChangeCompany(userAccount);
             model.IsRegulatorUser = IsRegulatorUser(userAccount);
@@ -145,6 +155,11 @@ public class AccountManagementController : Controller
             model.IsAdmin = userAccount.RoleInOrganisation == PersonRole.Admin.ToString();
             model.ShowManageUserDetailChanges = await _featureManager.IsEnabledAsync(FeatureFlags.ManageUserDetailChanges);
         }
+
+        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccount);
+
+        SetCustomBackLink(_urlOptions.LandingPageUrl);
+
         return View(nameof(ManageAccount), model);
     }
 
@@ -822,6 +837,11 @@ public class AccountManagementController : Controller
     [Route(PagePath.CompanyDetailsUpdated)]
     public async Task<IActionResult> CompanyDetailsUpdated()
     {
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
+        }
+
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         TempData.TryGetValue("OrganisationDetailsUpdatedTime", out var changeDate);
         var model = new CompanyDetailsUpdatedViewModel
@@ -832,6 +852,130 @@ public class AccountManagementController : Controller
 
         TempData.Keep("OrganisationDetailsUpdatedTime");
         return View(nameof(CompanyDetailsUpdated), model);
+    }
+
+    [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
+    [Route(PagePath.BusinessAddress)]
+    public async Task<IActionResult> BusinessAddress()
+    {
+        if (IsCompaniesHouseUser() || !await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.BusinessAddressPostcode);
+        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.BusinessAddress);
+        session.AccountManagementSession.Journey.RemoveAll(x => x == PagePath.SelectBusinessAddress);
+        SetBackLink(session, PagePath.BusinessAddress, LocalizerName.UpdateBusinessAddressBackAriaLabel);
+
+        var model = new BusinessAddressViewModel
+        {
+            SubBuildingName = session.AccountManagementSession.BusinessAddress?.SubBuildingName,
+            BuildingName = session.AccountManagementSession.BusinessAddress?.BuildingName,
+            BuildingNumber = session.AccountManagementSession.BusinessAddress?.BuildingNumber,
+            Street = session.AccountManagementSession.BusinessAddress?.Street,
+            Town = session.AccountManagementSession.BusinessAddress?.Town,
+            County = session.AccountManagementSession.BusinessAddress?.County,
+            Postcode = session.AccountManagementSession.BusinessAddress?.Postcode
+        };
+
+        if (TempData.ContainsKey(PostcodeLookupFailedKey))
+        {
+            model.ShowWarning = true;
+            TempData[PostcodeLookupFailedKey] = true;
+        }
+        await _sessionManager.SaveSessionAsync(HttpContext.Session, session);
+
+        return View(nameof(BusinessAddress), model);
+    }
+
+    [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
+    [Route(PagePath.BusinessAddress)]
+    public async Task<IActionResult> BusinessAddress(BusinessAddressViewModel model)
+    {
+        if (IsCompaniesHouseUser() || !await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        if (!ModelState.IsValid)
+        {
+            SetBackLink(session, PagePath.BusinessAddress, LocalizerName.UpdateBusinessAddressBackAriaLabel);
+
+            if (TempData.ContainsKey(PostcodeLookupFailedKey))
+            {
+                model.ShowWarning = true;
+                TempData[PostcodeLookupFailedKey] = true;
+            }
+
+            return View(model);
+        }
+
+        session.AccountManagementSession.BusinessAddress = new Address
+        {
+            SubBuildingName = model.SubBuildingName,
+            BuildingName = model.BuildingName,
+            BuildingNumber = model.BuildingNumber,
+            Street = model.Street,
+            Town = model.Town,
+            County = model.County,
+            Postcode = model.Postcode
+        };
+        TempData.Remove(PostcodeLookupFailedKey);
+
+        return await SaveSessionAndRedirect(session, nameof(NonCompaniesHouseUkNation), PagePath.BusinessAddress, PagePath.NonCompaniesHouseUkNation);
+    }
+
+    [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
+    [Route(PagePath.NonCompaniesHouseUkNation)]
+    public async Task<IActionResult> NonCompaniesHouseUkNation()
+    {
+        if (IsCompaniesHouseUser() || !await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
+        }
+    
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        SetBackLink(session, PagePath.UpdateCompanyAddress, LocalizerName.NonCompaniesHouseUkNation);
+
+        var viewModel = new NonCompaniesHouseUkNationViewModel
+        {
+            UkNation = (Constants.Enums.UkNation?)session.AccountManagementSession.UkNation
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
+    [Route(PagePath.NonCompaniesHouseUkNation)]
+    public async Task<IActionResult> NonCompaniesHouseUkNation(NonCompaniesHouseUkNationViewModel model)
+    {
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        SetCustomBackLink(PagePath.BusinessAddress, false);
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        session.AccountManagementSession.UkNation = (Core.Enums.Nation)model.UkNation;
+
+        return await SaveSessionAndRedirect(session, nameof(CheckCompanyDetails), PagePath.NonCompaniesHouseUkNation, PagePath.CheckCompanyDetails);
     }
 
     /// <summary>
@@ -998,6 +1142,612 @@ public class AccountManagementController : Controller
         return View();
     }
 
+    [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
+    [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
+    [Route(PagePath.UpdateCompanyName)]
+    public async Task<IActionResult> UpdateCompanyName()
+    {
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
+        }
+
+        YesNoAnswer? isUpdateName = null;
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        if (session != null)
+        {
+            session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ManageAccount);
+
+            await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.UpdateCompanyName);
+            SetBackLink(session, PagePath.UpdateCompanyName, LocalizerName.UpdateOrgNameBackAriaLabel);
+
+            if (session.AccountManagementSession?.OrganisationType == OrganisationType.CompaniesHouseCompany)
+            {
+                return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+                {
+                    statusCode = (int)HttpStatusCode.NotFound
+                });
+            }
+
+            isUpdateName = session.AccountManagementSession.IsUpdateCompanyName switch
+            {
+                true => YesNoAnswer.Yes,
+                false => YesNoAnswer.No,
+                _ => null
+            };
+        }
+
+        return View(new UpdateCompanyNameViewModel
+        {
+            IsUpdateCompanyName = isUpdateName
+        });
+    }
+
+    [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
+    [Route(PagePath.UpdateCompanyName)]
+    public async Task<IActionResult> UpdateCompanyName(UpdateCompanyNameViewModel model)
+    {
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
+
+        if (!ModelState.IsValid)
+        {
+            SetBackLink(session, PagePath.UpdateCompanyName, LocalizerName.UpdateOrgNameBackAriaLabel);
+            return View(model);
+        }
+
+        session.AccountManagementSession.IsUpdateCompanyName = model.IsUpdateCompanyName == YesNoAnswer.Yes;
+
+        if (session.AccountManagementSession.IsUpdateCompanyName == true)
+        {
+            return await SaveSessionAndRedirect(session, nameof(CompanyName), PagePath.UpdateCompanyName, PagePath.CompanyName);
+        }
+        else
+        {
+            return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.UpdateCompanyName, PagePath.UpdateCompanyAddress);
+        }
+    }
+
+    [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
+    [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
+    [Route(PagePath.UpdateCompanyAddress)]
+    public async Task<IActionResult> UpdateCompanyAddress()
+    {
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
+        }
+
+        YesNoAnswer? isUpdateAddress = null;
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        if (session != null)
+        {
+            if (session.AccountManagementSession?.OrganisationType == OrganisationType.CompaniesHouseCompany)
+            {
+                return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+                {
+                    statusCode = (int)HttpStatusCode.NotFound
+                });
+            }
+
+            isUpdateAddress = session.AccountManagementSession.IsUpdateCompanyAddress switch
+            {
+                true => YesNoAnswer.Yes,
+                false => YesNoAnswer.No,
+                _ => null
+            };
+
+            SetBackLink(session, PagePath.UpdateCompanyAddress, LocalizerName.UpdateOrgAddressBackAriaLabel);
+        }
+
+        return View(new UpdateCompanyAddressViewModel
+        {
+            IsUpdateCompanyAddress = isUpdateAddress
+        });
+    }
+
+    [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
+    [Route(PagePath.UpdateCompanyAddress)]
+    public async Task<IActionResult> UpdateCompanyAddress(UpdateCompanyAddressViewModel model)
+    {
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
+
+        if (!ModelState.IsValid)
+        {
+            SetBackLink(session, PagePath.UpdateCompanyAddress, LocalizerName.UpdateOrgAddressBackAriaLabel);
+            return View(model);
+        }
+
+        session.AccountManagementSession.IsUpdateCompanyAddress = model.IsUpdateCompanyAddress == YesNoAnswer.Yes;
+
+        if (session.AccountManagementSession.IsUpdateCompanyAddress == true)
+        {
+            return await SaveSessionAndRedirect(session, nameof(BusinessAddressPostcode), PagePath.UpdateCompanyAddress, PagePath.BusinessAddressPostcode);
+        }
+        else
+        {
+            if (session.AccountManagementSession.IsUpdateCompanyName == true)
+            {
+                return await SaveSessionAndRedirect(session, nameof(CheckCompanyDetails), PagePath.UpdateCompanyAddress, PagePath.CheckCompanyDetails);
+            }
+            else
+            {
+                return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.UpdateCompanyAddress, string.Empty);
+            }
+        }
+    }
+
+    [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
+    [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
+    [Route(PagePath.BusinessAddressPostcode)]
+    public async Task<IActionResult> BusinessAddressPostcode()
+    {
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        if (session != null)
+        {
+            if (session.AccountManagementSession?.OrganisationType == OrganisationType.CompaniesHouseCompany)
+            {
+                return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+                {
+                    statusCode = (int)HttpStatusCode.NotFound
+                });
+            }
+            SetBackLink(session, PagePath.BusinessAddressPostcode, LocalizerName.BusinessPostcodeBackAriaLabel);
+        }
+
+        var viewModel = new BusinessAddressPostcodeViewModel()
+        {
+            Postcode = session?.AccountManagementSession?.BusinessAddress?.Postcode,
+        };
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
+    [Route(PagePath.BusinessAddressPostcode)]
+    public async Task<IActionResult> BusinessAddressPostcode(BusinessAddressPostcodeViewModel model)
+    {
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        if (!ModelState.IsValid)
+        {
+            SetBackLink(session, PagePath.BusinessAddressPostcode, LocalizerName.BusinessPostcodeBackAriaLabel);
+
+            return View(model);
+        }
+
+        session.AccountManagementSession.BusinessAddress = new Address { Postcode = model.Postcode };
+
+        AddressList? addressList = null;
+
+        try
+        {
+            addressList = await _facadeService.GetAddressListByPostcodeAsync(session.AccountManagementSession.BusinessAddress.Postcode);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Failed to retrieve addresses for postcode: {BusinessAddressPostcode}", session.AccountManagementSession.BusinessAddress.Postcode);
+        }
+
+        if (addressList == null)
+        {
+            TempData[PostcodeLookupFailedKey] = true;
+            return await SaveSessionAndRedirect(session, nameof(BusinessAddress), PagePath.BusinessAddressPostcode, PagePath.BusinessAddress);
+        }
+
+        return await SaveSessionAndRedirect(session, nameof(SelectBusinessAddress), PagePath.BusinessAddressPostcode, PagePath.SelectBusinessAddress);
+    }
+
+    [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
+    [Route(PagePath.SelectBusinessAddress)]
+    public async Task<IActionResult> SelectBusinessAddress()
+    {
+        if (IsCompaniesHouseUser() || !await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        if (session == null)
+        {
+            TempData[PostcodeLookupFailedKey] = true;
+            _logger.LogWarning("Session is null, redirecting to BusinessAddress page.");
+            return RedirectToAction(nameof(BusinessAddress));
+        }
+
+        var viewModel = new SelectBusinessAddressViewModel()
+        {
+            Postcode = session?.AccountManagementSession?.BusinessAddress?.Postcode,
+        };
+
+        SetBackLink(session, PagePath.SelectBusinessAddress, LocalizerName.BusinessAddressBackAriaLabel);
+        await _sessionManager.SaveSessionAsync(HttpContext.Session, session);
+
+        AddressList? addressList = null;
+        var addressLookupFailed = false;
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(session.AccountManagementSession?.BusinessAddress?.Postcode))
+            {
+                _logger.LogWarning("Postcode is missing in session, redirecting to BusinessAddress page.");
+                addressLookupFailed = true;
+            }
+            else
+            {
+                addressList = await _facadeService.GetAddressListByPostcodeAsync(session.AccountManagementSession.BusinessAddress.Postcode);
+
+                if (addressList == null || !addressList.Addresses.Any())
+                {
+                    _logger.LogWarning("No addresses found for postcode: {Postcode}", session.AccountManagementSession.BusinessAddress.Postcode);
+                    addressLookupFailed = true;
+                }
+            }
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Failed to retrieve addresses for postcode: {Postcode}",
+                             session?.AccountManagementSession?.BusinessAddress?.Postcode);
+            addressLookupFailed = true;
+        }
+
+        if (addressLookupFailed)
+        {
+            TempData[PostcodeLookupFailedKey] = true;
+            return RedirectToAction(nameof(BusinessAddress));
+        }
+
+        viewModel.SetAddressItems(addressList.Addresses, viewModel.SelectedListIndex!);
+        session.AccountManagementSession?.AddressesForPostcode.Clear();
+        session.AccountManagementSession?.AddressesForPostcode.AddRange(addressList.Addresses);
+        await _sessionManager.SaveSessionAsync(HttpContext.Session, session);
+        TempData.Remove(PostcodeLookupFailedKey);
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
+    [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
+    [Route(PagePath.SelectBusinessAddress)]
+    public async Task<IActionResult> SelectBusinessAddress(SelectBusinessAddressViewModel model)
+    {
+        if (IsCompaniesHouseUser() || !await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        var indexParseResult = int.TryParse(model.SelectedListIndex, out var index);
+        if (ModelState.IsValid &&
+            (!indexParseResult || index < 0 || index >= session?.AccountManagementSession?.AddressesForPostcode.Count))
+        {
+            ModelState.AddModelError(nameof(model.SelectedListIndex), "SelectBusinessAddress.ErrorMessage");
+        }
+
+        if (!ModelState.IsValid || session == null)
+        {
+            if (session == null)
+            {
+                TempData[PostcodeLookupFailedKey] = true;
+                return RedirectToAction(nameof(BusinessAddress));
+            }
+
+            SetBackLink(session, PagePath.SelectBusinessAddress, LocalizerName.BusinessAddressBackAriaLabel);
+            model.Postcode = session.AccountManagementSession?.BusinessAddress?.Postcode;
+
+            AddressList? addressList = null;
+            var addressLookupFailed = false;
+
+            try
+            {
+                addressList = await _facadeService.GetAddressListByPostcodeAsync(session.AccountManagementSession.BusinessAddress.Postcode);
+
+                if (addressList == null || !addressList.Addresses.Any())
+                {
+                    addressLookupFailed = true;
+                }
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Failed to retrieve addresses for postcode: {BusinessAddressPostcode}",
+                                 session?.AccountManagementSession?.BusinessAddress?.Postcode);
+                addressLookupFailed = true;
+            }
+
+            if (addressLookupFailed)
+            {
+                await SaveSession(session);
+                TempData[PostcodeLookupFailedKey] = true;
+                return RedirectToAction(nameof(BusinessAddress));
+            }
+
+            model.SetAddressItems(addressList.Addresses, model.SelectedListIndex);
+            return View(model);
+        }
+
+        model.SetAddressItems(session.AccountManagementSession?.AddressesForPostcode, model.SelectedListIndex!);
+        session.AccountManagementSession ??= new AccountManagementSession();
+        session.AccountManagementSession.BusinessAddress = session.AccountManagementSession?.AddressesForPostcode[index];
+
+        return await SaveSessionAndRedirect(session, nameof(NonCompaniesHouseUkNation), PagePath.SelectBusinessAddress, PagePath.NonCompaniesHouseUkNation);
+    }
+
+    [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
+    [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
+    [Route(PagePath.CompanyName)]
+    public async Task<IActionResult> CompanyName()
+    {
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        if (session != null)
+        {
+            if (session.UserData?.Organisations.Count == 0) session.UserData = User.GetUserData();
+            if (session.UserData?.Organisations[0]?.OrganisationType == OrganisationType.CompaniesHouseCompany)
+            {
+                return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+                {
+                    statusCode = (int)HttpStatusCode.NotFound
+                });
+            }
+            else
+            {
+                session.AccountManagementSession.Journey.AddIfNotExists(PagePath.UpdateCompanyName);
+
+                await SaveSessionAndJourney(session, PagePath.UpdateCompanyName, PagePath.CompanyName);
+
+                SetBackLink(session, PagePath.CompanyName, LocalizerName.CompanyNameBackAriaLabel);
+            }
+        }
+        var viewModel = new OrganisationNameViewModel()
+        {
+            OrganisationName = session?.AccountManagementSession?.OrganisationName ?? session?.UserData?.Organisations[0].Name,
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
+    [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
+    [Route(PagePath.CompanyName)]
+    public async Task<IActionResult> CompanyName(OrganisationNameViewModel model)
+    {
+        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session) ?? new JourneySession();
+
+        if (!ModelState.IsValid)
+        {
+            SetBackLink(session, PagePath.CompanyName, LocalizerName.CompanyNameBackAriaLabel);
+            return View(model);
+        }
+        else
+        {
+            session.AccountManagementSession.OrganisationName = model.OrganisationName;
+
+            return await SaveSessionAndRedirect(session, nameof(UpdateCompanyAddress), PagePath.CompanyName, PagePath.UpdateCompanyAddress);
+        }
+    }
+
+    [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
+    [Route(PagePath.CheckCompanyDetails)]
+    public async Task<IActionResult> CheckCompanyDetails()
+    {
+        if (IsCompaniesHouseUser() || !await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        if (session?.AccountManagementSession == null || !session.AccountManagementSession.Journey.Any())
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.NotFound
+            });
+        }
+
+        var lastJourneyPage = session.AccountManagementSession.Journey[session.AccountManagementSession.Journey.Count - 2];
+
+        switch (lastJourneyPage)
+        {
+            case PagePath.UpdateCompanyAddress:
+            case PagePath.NonCompaniesHouseUkNation:
+                SetBackLink(session, PagePath.CheckCompanyDetails, "Back");
+                break;
+            default:
+                return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+                {
+                    statusCode = (int)HttpStatusCode.NotFound
+                });
+                break;
+        }
+
+        var model = new CheckCompanyDetailsViewModel
+        {
+            IsUpdateCompanyName = session.AccountManagementSession.IsUpdateCompanyName == true,
+            IsUpdateCompanyAddress = session.AccountManagementSession.IsUpdateCompanyAddress == true,
+            Name = session.AccountManagementSession.OrganisationName,
+            Address = session.AccountManagementSession.BusinessAddress?.SingleLineAddress,
+            UKNation = session.AccountManagementSession.UkNation.ToString()
+        };
+
+        return View(nameof(CheckCompanyDetails), model);
+    }
+
+    [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
+    [Route(PagePath.CheckCompanyDetails)]
+    public async Task<IActionResult> CheckCompanyDetailsPost()
+    {
+        if (IsCompaniesHouseUser() || !await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
+        }
+
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        if (session == null)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.NotFound
+            });
+        }
+
+        var userData = User.GetUserData();
+
+        var organisationData = userData.Organisations.FirstOrDefault();
+
+        try
+        {
+            OrganisationUpdateDto organisation;
+
+            if (session.AccountManagementSession.IsUpdateCompanyName == true && session.AccountManagementSession.IsUpdateCompanyAddress == true)
+            {
+                organisation = new OrganisationUpdateDto
+                {
+                    Name = session.AccountManagementSession.OrganisationName,
+                    BuildingName = session.AccountManagementSession.BusinessAddress.BuildingName,
+                    BuildingNumber = session.AccountManagementSession.BusinessAddress.BuildingNumber,
+                    Country = session.AccountManagementSession.BusinessAddress.BuildingNumber,
+                    County = session.AccountManagementSession.BusinessAddress.County,
+                    DependentLocality = session.AccountManagementSession.BusinessAddress.DependentLocality,
+                    Locality = session.AccountManagementSession.BusinessAddress.Locality,
+                    Postcode = session.AccountManagementSession.BusinessAddress.Postcode,
+                    Street = session.AccountManagementSession.BusinessAddress.Street,
+                    SubBuildingName = session.AccountManagementSession.BusinessAddress.SubBuildingName,
+                    Town = session.AccountManagementSession.BusinessAddress.Town,
+                    NationId = (int)session.AccountManagementSession.UkNation,
+                };
+            }
+            else if (session.AccountManagementSession.IsUpdateCompanyName == true)
+            {
+                organisation = new OrganisationUpdateDto
+                {
+                    Name = session.AccountManagementSession.OrganisationName,
+
+                    BuildingName = userData.Organisations[0].BuildingName,
+                    BuildingNumber = userData.Organisations[0].BuildingNumber,
+                    Country = userData.Organisations[0].BuildingNumber,
+                    County = userData.Organisations[0].County,
+                    DependentLocality = userData.Organisations[0].DependentLocality,
+                    Locality = userData.Organisations[0].Locality,
+                    Postcode = userData.Organisations[0].Postcode,
+                    Street = userData.Organisations[0].Street,
+                    SubBuildingName = userData.Organisations[0].SubBuildingName,
+                    Town = userData.Organisations[0].Town,
+                    NationId = userData.Organisations[0].NationId.Value,
+                };
+            }
+            else if (session.AccountManagementSession.IsUpdateCompanyAddress == true)
+            {
+                organisation = new OrganisationUpdateDto
+                {
+                    Name = userData.Organisations[0].Name,
+                    BuildingName = session.AccountManagementSession.BusinessAddress.BuildingName,
+                    BuildingNumber = session.AccountManagementSession.BusinessAddress.BuildingNumber,
+                    Country = session.AccountManagementSession.BusinessAddress.BuildingNumber,
+                    County = session.AccountManagementSession.BusinessAddress.County,
+                    DependentLocality = session.AccountManagementSession.BusinessAddress.DependentLocality,
+                    Locality = session.AccountManagementSession.BusinessAddress.Locality,
+                    Postcode = session.AccountManagementSession.BusinessAddress.Postcode,
+                    Street = session.AccountManagementSession.BusinessAddress.Street,
+                    SubBuildingName = session.AccountManagementSession.BusinessAddress.SubBuildingName,
+                    Town = session.AccountManagementSession.BusinessAddress.Town,
+                    NationId = (int)session.AccountManagementSession.UkNation,
+                };
+            }
+            else
+            {
+                throw new InvalidOperationException(nameof(session.AccountManagementSession));
+            }
+
+
+            await _facadeService.UpdateOrganisationDetails(organisationData.Id.Value, organisation);
+
+        }
+        catch (Exception)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.InternalServerError
+            });
+        }
+
+        TempData.Remove(CheckYourOrganisationDetailsKey);
+
+        // refresh the user data from the database
+        var userAccount = await _facadeService.GetUserAccount();
+        session.UserData = userAccount.User;
+
+        // Clear Session Data
+        session.AccountManagementSession.OrganisationName = null;
+        session.AccountManagementSession.BusinessAddress = null;
+        session.AccountManagementSession.UkNation = null;
+
+        // need to do this so that the cookie updates with the latest data
+        await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
+
+        // save the date/time that the update was performed for the next page
+        var changedDateAt = DateTime.UtcNow;
+        TempData[OrganisationDetailsUpdatedTimeKey] = changedDateAt.UtcToGmt();
+
+        return await SaveSessionAndRedirect(session, nameof(CompanyDetailsUpdated), PagePath.CheckCompanyDetails, PagePath.CompanyDetailsUpdated);
+    }
+
+    private bool IsCompaniesHouseUser()
+    {
+        var userData = User.GetUserData();
+
+        var organisationData = userData.Organisations.FirstOrDefault();
+
+        if (organisationData == null)
+        {
+            throw new InvalidOperationException(nameof(organisationData));
+        }
+
+        return organisationData.CompaniesHouseNumber != null;
+    }
+
     private async Task<bool> CompareDataAsync(JourneySession session)
     {
         var userData = User.GetUserData();
@@ -1099,6 +1849,13 @@ public class AccountManagementController : Controller
     private void SetBackLink(JourneySession session, string currentPagePath)
     {
         ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
+
+    }
+
+    private void SetBackLink(JourneySession session, string currentPagePath, string backAriaLocalizerName)
+    {
+        ViewBag.BackLinkToDisplay = session.AccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
+        ViewBag.BackAriaLocalizerName = backAriaLocalizerName;
     }
 
     private void SetCustomBackLink(string pagePath, bool showCustomBackLabel = true)
@@ -1140,13 +1897,7 @@ public class AccountManagementController : Controller
 
     private static bool HasPermissionToChangeCompany(UserData userData)
     {
-        var roleInOrganisation = userData.RoleInOrganisation;
-        if ((userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Approved || userData.ServiceRoleId == (int)Core.Enums.ServiceRole.Delegated)
-            && !string.IsNullOrEmpty(roleInOrganisation) && roleInOrganisation == PersonRole.Admin.ToString())
-        {
-            return true;
-        }
-        return false;
+        return userData.ServiceRoleId is (int)ServiceRole.Approved or (int)ServiceRole.Delegated;
     }
 
     private static bool IsApprovedOrDelegatedUser(UserData userData)

@@ -1,9 +1,11 @@
+using FrontendAccountManagement.Core.Addresses;
 using FrontendAccountManagement.Core.Configuration;
 using FrontendAccountManagement.Core.Constants;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Models.CompaniesHouse;
+using FrontendAccountManagement.Core.Services.Dto.Address;
 using FrontendAccountManagement.Core.Sessions;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
@@ -320,6 +322,24 @@ public class FacadeService : IFacadeService
         response.EnsureSuccessStatusCode();
         var responseData = await response.Content.ReadFromJsonAsync<UpdateUserDetailsResponse>();
         return responseData;
+    }
+
+    public async Task<AddressList?> GetAddressListByPostcodeAsync(string postcode)
+    {
+        await PrepareAuthenticatedClient();
+
+        var response = await _httpClient.GetAsync($"/api/address-lookup?postcode={postcode}");
+
+        if (response.StatusCode == HttpStatusCode.NoContent)
+        {
+            return null;
+        }
+
+        response.EnsureSuccessStatusCode();
+
+        var addressResponse = await response.Content.ReadFromJsonAsync<AddressLookupResponse>();
+
+        return new AddressList(addressResponse);
     }
 
     private async Task PrepareAuthenticatedClient()
