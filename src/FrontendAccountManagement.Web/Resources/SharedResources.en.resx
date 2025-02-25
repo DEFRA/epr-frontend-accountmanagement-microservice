@@ -198,7 +198,7 @@
   <data name="BusinessPostcodeBackAriaLabel" xml:space="preserve">
     <value>Click on this link if you wish to go back to the Do you want to update your business address page</value>
   </data>
-	<data name="CompanyNameBackAriaLabel" xml:space="preserve">
+  <data name="CompanyNameBackAriaLabel" xml:space="preserve">
     <value>Click on this link if you wish to go back to the Do you want to update your organisation name page</value>
   </data>
   <data name="BusinessAddressBackAriaLabel" xml:space="preserve">
@@ -206,5 +206,8 @@
   </data>
   <data name="UpdateBusinessAddressBackAriaLabel" xml:space="preserve">
     <value>Click on this link if you wish to go back to the Do you want to update your business address page</value>
+  </data>
+  <data name="NonCompaniesHouseUkNationBackAriaLabel" xml:space="preserve">
+    <value>Click on this link if you wish to go back to the previous page</value>
   </data>
 </root>
