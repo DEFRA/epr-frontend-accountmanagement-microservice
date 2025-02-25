@@ -284,7 +284,7 @@ public class BusinessAddressTests : AccountManagementTestBase
         // Assert
         result.Should().BeOfType<RedirectToActionResult>();
 
-        ((RedirectToActionResult)result).ActionName.Should().Be(nameof(ErrorController.Error));
+        ((RedirectToActionResult)result).ControllerName.Should().Be(nameof(ErrorController.Error));
     }
 
     [TestMethod]
@@ -302,7 +302,7 @@ public class BusinessAddressTests : AccountManagementTestBase
         // Assert
         result.Should().BeOfType<RedirectToActionResult>();
 
-        ((RedirectToActionResult)result).ActionName.Should().Be(nameof(ErrorController.Error));
+        ((RedirectToActionResult)result).ControllerName.Should().Be(nameof(ErrorController.Error));
     }
 
     [TestMethod]

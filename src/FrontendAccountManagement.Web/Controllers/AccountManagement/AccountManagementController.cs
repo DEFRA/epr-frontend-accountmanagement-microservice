@@ -855,20 +855,13 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.BusinessAddress)]
     public async Task<IActionResult> BusinessAddress()
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        if (IsCompaniesHouseUser() || !await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
-        }
-
-        if (IsCompaniesHouseUser())
-        {
-            return RedirectToAction(nameof(ErrorController.Error), nameof(ErrorController), new
-            {
-                statusCode = (int)HttpStatusCode.Forbidden
-            });
         }
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
@@ -900,20 +893,13 @@ public class AccountManagementController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.BusinessAddress)]
     public async Task<IActionResult> BusinessAddress(BusinessAddressViewModel model)
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        if (IsCompaniesHouseUser() || !await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
-        }
-
-        if (IsCompaniesHouseUser())
-        {
-            return RedirectToAction(nameof(ErrorController.Error), nameof(ErrorController), new
-            {
-                statusCode = (int)HttpStatusCode.Forbidden
-            });
         }
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
@@ -947,6 +933,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.NonCompaniesHouseUkNation)]
     public async Task<IActionResult> NonCompaniesHouseUkNation()
     {
@@ -957,15 +944,12 @@ public class AccountManagementController : Controller
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        if (IsCompaniesHouseUser())
+        if (IsCompaniesHouseUser() || !await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
-            return RedirectToAction(nameof(ErrorController.Error), nameof(ErrorController), new
-            {
-                statusCode = (int)HttpStatusCode.Forbidden
-            });
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
         }
 
-        SetBackLink(session, PagePath.NonCompaniesHouseUkNation);
+        SetBackLink(session, PagePath.UpdateCompanyAddress, LocalizerName.NonCompaniesHouseUkNation);
 
         var viewModel = new UkNationViewModel
         {
@@ -976,6 +960,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.NonCompaniesHouseUkNation)]
     public async Task<IActionResult> NonCompaniesHouseUkNation(UkNationViewModel model)
     {
@@ -1163,6 +1148,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     [Route(PagePath.UpdateCompanyName)]
     public async Task<IActionResult> UpdateCompanyName()
@@ -1185,7 +1171,7 @@ public class AccountManagementController : Controller
             {
                 return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
                 {
-                    statusCode = (int)HttpStatusCode.Forbidden
+                    statusCode = (int)HttpStatusCode.NotFound
                 });
             }
 
@@ -1204,6 +1190,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.UpdateCompanyName)]
     public async Task<IActionResult> UpdateCompanyName(UpdateCompanyNameViewModel model)
     {
@@ -1233,6 +1220,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     [Route(PagePath.UpdateCompanyAddress)]
     public async Task<IActionResult> UpdateCompanyAddress()
@@ -1250,7 +1238,7 @@ public class AccountManagementController : Controller
             {
                 return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
                 {
-                    statusCode = (int)HttpStatusCode.Forbidden
+                    statusCode = (int)HttpStatusCode.NotFound
                 });
             }
 
@@ -1271,6 +1259,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.UpdateCompanyAddress)]
     public async Task<IActionResult> UpdateCompanyAddress(UpdateCompanyAddressViewModel model)
     {
@@ -1307,6 +1296,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     [Route(PagePath.BusinessAddressPostcode)]
     public async Task<IActionResult> BusinessAddressPostcode()
@@ -1324,7 +1314,7 @@ public class AccountManagementController : Controller
             {
                 return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
                 {
-                    statusCode = (int)HttpStatusCode.Forbidden
+                    statusCode = (int)HttpStatusCode.NotFound
                 });
             }
             SetBackLink(session, PagePath.BusinessAddressPostcode, LocalizerName.BusinessPostcodeBackAriaLabel);
@@ -1338,6 +1328,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.BusinessAddressPostcode)]
     public async Task<IActionResult> BusinessAddressPostcode(BusinessAddressPostcodeViewModel model)
     {
@@ -1378,20 +1369,13 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.SelectBusinessAddress)]
     public async Task<IActionResult> SelectBusinessAddress()
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        if (IsCompaniesHouseUser() || !await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
-        }
-
-        if (IsCompaniesHouseUser())
-        {
-            return RedirectToAction(nameof(ErrorController.Error), nameof(ErrorController), new
-            {
-                statusCode = (int)HttpStatusCode.Forbidden
-            });
         }
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
@@ -1455,21 +1439,14 @@ public class AccountManagementController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     [Route(PagePath.SelectBusinessAddress)]
     public async Task<IActionResult> SelectBusinessAddress(SelectBusinessAddressViewModel model)
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        if (IsCompaniesHouseUser() || !await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
-        }
-
-        if (IsCompaniesHouseUser())
-        {
-            return RedirectToAction(nameof(ErrorController.Error), nameof(ErrorController), new
-            {
-                statusCode = (int)HttpStatusCode.Forbidden
-            });
         }
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
@@ -1530,6 +1507,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     [Route(PagePath.CompanyName)]
     public async Task<IActionResult> CompanyName()
@@ -1547,7 +1525,7 @@ public class AccountManagementController : Controller
             {
                 return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
                 {
-                    statusCode = (int)HttpStatusCode.Forbidden
+                    statusCode = (int)HttpStatusCode.NotFound
                 });
             }
             else
@@ -1568,6 +1546,7 @@ public class AccountManagementController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     [Route(PagePath.CompanyName)]
     public async Task<IActionResult> CompanyName(OrganisationNameViewModel model)
@@ -1593,10 +1572,11 @@ public class AccountManagementController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.CheckCompanyDetails)]
     public async Task<IActionResult> CheckCompanyDetails()
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        if (IsCompaniesHouseUser() || !await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
         }
@@ -1606,7 +1586,7 @@ public class AccountManagementController : Controller
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
             {
-                statusCode = (int)HttpStatusCode.Forbidden
+                statusCode = (int)HttpStatusCode.NotFound
             });
         }
 
@@ -1621,7 +1601,7 @@ public class AccountManagementController : Controller
             default:
                 return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
                 {
-                    statusCode = (int)HttpStatusCode.Forbidden
+                    statusCode = (int)HttpStatusCode.NotFound
                 });
                 break;
         }
@@ -1639,20 +1619,13 @@ public class AccountManagementController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.CheckCompanyDetails)]
     public async Task<IActionResult> CheckCompanyDetailsPost()
     {
-        if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
+        if (IsCompaniesHouseUser() || !await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.NotFound });
-        }
-
-        if (IsCompaniesHouseUser())
-        {
-            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
-            {
-                statusCode = (int)HttpStatusCode.Forbidden
-            });
         }
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
@@ -1661,7 +1634,7 @@ public class AccountManagementController : Controller
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
             {
-                statusCode = (int)HttpStatusCode.Forbidden
+                statusCode = (int)HttpStatusCode.NotFound
             });
         }
 
