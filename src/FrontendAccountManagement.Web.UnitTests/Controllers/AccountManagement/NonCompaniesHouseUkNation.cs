@@ -61,9 +61,9 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 result.Should().BeOfType<ViewResult>();
 
                 var viewResult = (ViewResult)result;
-                viewResult.Model.Should().BeOfType<UkNationViewModel>();
+                viewResult.Model.Should().BeOfType<NonCompaniesHouseUkNationViewModel>();
 
-                var model = (UkNationViewModel)viewResult.Model!;
+                var model = (NonCompaniesHouseUkNationViewModel)viewResult.Model!;
 
                 model.UkNation.Should().Be(UkNation.England);
             }     
@@ -73,7 +73,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         public async Task GivenValidUkNation_WhenNonCompaniesHouseUkNationsCalled_ThenRedirectToCheckCompanyDetailsPage_AndUpdateSession()
         {
             // Arrange
-            var request = new UkNationViewModel { UkNation = Constants.Enums.UkNation.England };
+            var request = new NonCompaniesHouseUkNationViewModel { UkNation = Constants.Enums.UkNation.England };
 
             // Act
             var result = await SystemUnderTest.NonCompaniesHouseUkNation(request);
@@ -107,7 +107,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         public async Task NonCompaniesHouseUkNation_ShouldReturnViewWithModel_WhenModelStateIsInvalid()
         {
             // Arrange
-            var model = new UkNationViewModel { UkNation = null };
+            var model = new NonCompaniesHouseUkNationViewModel { UkNation = null };
             SystemUnderTest.ModelState.AddModelError("UkNation", "Required");
 
             // Act

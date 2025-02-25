@@ -945,7 +945,7 @@ public class AccountManagementController : Controller
 
         SetBackLink(session, PagePath.NonCompaniesHouseUkNation);
 
-        var viewModel = new UkNationViewModel
+        var viewModel = new NonCompaniesHouseUkNationViewModel
         {
             UkNation = (Constants.Enums.UkNation?)session.AccountManagementSession.UkNation
         };
@@ -955,7 +955,7 @@ public class AccountManagementController : Controller
 
     [HttpPost]
     [Route(PagePath.NonCompaniesHouseUkNation)]
-    public async Task<IActionResult> NonCompaniesHouseUkNation(UkNationViewModel model)
+    public async Task<IActionResult> NonCompaniesHouseUkNation(NonCompaniesHouseUkNationViewModel model)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
