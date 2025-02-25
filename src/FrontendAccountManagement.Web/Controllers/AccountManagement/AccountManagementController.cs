@@ -946,7 +946,7 @@ public class AccountManagementController : Controller
 
         SetBackLink(session, PagePath.UpdateCompanyAddress, LocalizerName.NonCompaniesHouseUkNation);
 
-        var viewModel = new UkNationViewModel
+        var viewModel = new NonCompaniesHouseUkNationViewModel
         {
             UkNation = (Constants.Enums.UkNation?)session.AccountManagementSession.UkNation
         };
@@ -957,7 +957,7 @@ public class AccountManagementController : Controller
     [HttpPost]
     [Authorize(Policy = "IsEmployeeOrBasicAdmin")]
     [Route(PagePath.NonCompaniesHouseUkNation)]
-    public async Task<IActionResult> NonCompaniesHouseUkNation(UkNationViewModel model)
+    public async Task<IActionResult> NonCompaniesHouseUkNation(NonCompaniesHouseUkNationViewModel model)
     {
         if (!await _featureManager.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
         {
