@@ -99,8 +99,8 @@ public class AccountManagementController : Controller
         UpdateTempDataWithEditUserDetails(editDetailsViewModel);
 
         await SaveSessionAndJourney(session, PagePath.ApprovedPersonRoleChange, PagePath.ApprovedPersonPhoneNumberChange);
-         
-        SetCustomBackLink(PagePath.ApprovedPersonRoleChange, false);
+
+        SetBackLink(session, PagePath.ApprovedPersonPhoneNumberChange);
 
         return View(nameof(ManageAccountTelephone), model);
     }
@@ -122,7 +122,7 @@ public class AccountManagementController : Controller
         editDetailsViewModel.Telephone = model.Telephone;
         UpdateTempDataWithEditUserDetails(editDetailsViewModel);
 
-        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonPhoneNumberChange);
+        await SaveSessionAndJourney(session, PagePath.ApprovedPersonRoleChange, PagePath.ApprovedPersonPhoneNumberChange); 
         SetBackLink(session, PagePath.ApprovedPersonPhoneNumberChange);
 
         return RedirectToAction(nameof(CheckYourDetailsApprovedUserCompanyHouse));
@@ -551,9 +551,18 @@ public class AccountManagementController : Controller
             }
         }
 
-        SaveSessionAndJourney(session, PagePath.CheckYourDetails, PagePath.Declaration);
-        SetBackLink(session, PagePath.Declaration);
 
+        if(IsApprovedOrDelegatedCompaniesHouseUser(userData))
+        {
+            SaveSessionAndJourney(session, PagePath.ApprovedPersonCheckYourDetails, PagePath.Declaration);
+            SetBackLink(session, PagePath.Declaration); 
+        }
+        else 
+        { 
+            SaveSessionAndJourney(session, PagePath.CheckYourDetails, PagePath.Declaration);
+            SetBackLink(session, PagePath.Declaration); 
+        } 
+             
         TempData.Keep(AmendedUserDetailsKey);
         TempData.Keep(NewUserDetailsKey);
 
@@ -689,8 +698,9 @@ public class AccountManagementController : Controller
 
         UpdateTempDataWithEditUserDetails(editDetailsViewModel);
 
-        await SaveSessionAndJourney(session, PagePath.ApprovedPersonNameChange, PagePath.ApprovedPersonRoleChange); 
-        SetCustomBackLink(PagePath.ApprovedPersonNameChange, false);
+        await SaveSessionAndJourney(session, PagePath.ApprovedPersonNameChange, PagePath.ApprovedPersonRoleChange);  
+
+        SetBackLink(session, PagePath.ApprovedPersonRoleChange);
 
         return View(model);
     }
@@ -808,8 +818,8 @@ public class AccountManagementController : Controller
 
         UpdateTempDataWithEditUserDetails(editUserDetailsViewModel);
         
-        SaveSessionAndJourney(session, PagePath.ApprovedPersonPhoneNumberChange, PagePath.CheckYourDetails);
-        SetBackLink(PagePath.CheckYourDetails);
+        await SaveSessionAndJourney(session, PagePath.ApprovedPersonPhoneNumberChange, PagePath.ApprovedPersonCheckYourDetails);
+        SetBackLink(session, PagePath.ApprovedPersonCheckYourDetails);
 
         ViewBag.IsUpdatable = isUpdatable;
 
@@ -1175,8 +1185,7 @@ public class AccountManagementController : Controller
         UpdateTempDataWithEditUserDetails(editDetailsViewModel);
 
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ApprovedPersonNameChange);
-         
-        SetCustomBackLink(PagePath.ManageAccount, false);
+        SetBackLink(session, PagePath.ApprovedPersonNameChange); 
 
         return View(model);
     }
