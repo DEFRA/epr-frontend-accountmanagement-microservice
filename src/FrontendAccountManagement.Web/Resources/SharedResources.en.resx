@@ -189,4 +189,25 @@
   <data name="SaveAndContinue" xml:space="preserve">
     <value>Save and continue</value>
   </data>
+  <data name="UpdateOrgNameBackAriaLabel" xml:space="preserve">
+    <value>Click on this link if you wish to go back to the manage account page</value>
+  </data>
+  <data name="UpdateOrgAddressBackAriaLabel" xml:space="preserve">
+    <value>Click on this link if you wish to go back to the previous page</value>
+  </data>
+  <data name="BusinessPostcodeBackAriaLabel" xml:space="preserve">
+    <value>Click on this link if you wish to go back to the Do you want to update your business address page</value>
+  </data>
+  <data name="CompanyNameBackAriaLabel" xml:space="preserve">
+    <value>Click on this link if you wish to go back to the Do you want to update your organisation name page</value>
+  </data>
+  <data name="BusinessAddressBackAriaLabel" xml:space="preserve">
+    <value>Click here if you wish to go to the Do you want to update your organisation’s business address page</value>
+  </data>
+  <data name="UpdateBusinessAddressBackAriaLabel" xml:space="preserve">
+    <value>Click on this link if you wish to go back to the Do you want to update your business address page</value>
+  </data>
+  <data name="NonCompaniesHouseUkNationBackAriaLabel" xml:space="preserve">
+    <value>Click on this link if you wish to go back to the previous page</value>
+  </data>
 </root>

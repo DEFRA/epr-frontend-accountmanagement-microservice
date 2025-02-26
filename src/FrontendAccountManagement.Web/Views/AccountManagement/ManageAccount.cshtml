@@ -4,6 +4,7 @@
 @using FrontendAccountManagement.Core.Models
 @using FrontendAccountManagement.Core.Enums;
 @using FrontendAccountManagement.Web.Constants
+@using FrontendAccountManagement.Web.Configs
 @addTagHelper *, Microsoft.FeatureManagement.AspNetCore
 
 @model ManageAccountViewModel
@@ -58,17 +59,25 @@
                         <dd class="govuk-summary-list__actions">
                             @if (Model.OrganisationType == OrganisationType.CompaniesHouseCompany)
                             {
-                                <a href="~/@PagePath.CompanyDetailsCheck" class="govuk-link govuk-link--no-visited-state">
+                                        <a href="~/@PagePath.CompanyDetailsCheck" class="govuk-link govuk-link--no-visited-state">
                                     @SharedLocalizer["Change"]
                                     <span class="govuk-visually-hidden"></span>
                                 </a>
                             }
                             else
                             {
+                                <feature name="@FeatureFlags.ManageCompanyDetailChanges">
+                                    <a href="~/@PagePath.UpdateCompanyName" class="govuk-link govuk-link--no-visited-state">
+                                        @SharedLocalizer["Change"]
+                                        <span class="govuk-visually-hidden"></span>
+                                    </a>
+                                </feature>
+                                <feature name="@FeatureFlags.ManageCompanyDetailChanges" negate="true">
                                     <a href="~/@PagePath.ChangeCompanyDetails" class="govuk-link govuk-link--no-visited-state">
-                                    @SharedLocalizer["Change"]
-                                    <span class="govuk-visually-hidden"></span>
-                                </a>
+                                        @SharedLocalizer["Change"]
+                                        <span class="govuk-visually-hidden"></span>
+                                    </a>
+                                </feature>
                             }
                         </dd>
                         }

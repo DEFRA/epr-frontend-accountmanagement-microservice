@@ -162,4 +162,13 @@
   <data name="Footer.LicenceDescription3" xml:space="preserve">
     <value>, oni nodir yn wahanol</value>
   </data>
+  <data name="Footer.AccessibilityAriaLabel" xml:space="preserve">
+    <value>Cliciwch ar y ddolen yma os hoffech chi fynd i'r Datganiad hygyrchedd</value>
+  </data>
+  <data name="Footer.PrivacyAriaLabel" xml:space="preserve">
+    <value>Cliciwch ar y ddolen yma os hoffech chi fynd i'r Hysbysiad preifatrwydd</value>
+  </data>
+  <data name="Footer.CookiesAriaLabel" xml:space="preserve">
+    <value>Cliciwch ar y ddolen yma os hoffech chi fynd i'r tudalen Cwcis</value>
+  </data>
 </root>
