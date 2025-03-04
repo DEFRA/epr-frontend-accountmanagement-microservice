@@ -25,7 +25,12 @@ builder.Services
 
 builder.Services
     .AddAutoMapper(typeof(Program))
-    .AddAntiforgery(options => options.Cookie.Name = builder.Configuration.GetValue<string>("CookieOptions:AntiForgeryCookieName"))
+    .AddAntiforgery(options =>
+    {
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.Name = builder.Configuration.GetValue<string>("CookieOptions:AntiForgeryCookieName");
+    })
     .AddControllersWithViews(options => {
         options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
     })
@@ -39,6 +44,12 @@ builder.Services
             : "ResourcesRegulator";
     })
     .AddDataAnnotationsLocalization();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+});
 
 builder.Services
     .Configure<DeploymentRoleOptions>(options =>
