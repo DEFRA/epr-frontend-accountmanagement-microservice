@@ -137,6 +137,7 @@ public static class ServiceProviderExtension
             options.Cookie.HttpOnly = true;
             options.Cookie.SameSite = SameSiteMode.Strict;
             options.Cookie.Path = "/";
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         });
     }
     
@@ -154,6 +155,7 @@ public static class ServiceProviderExtension
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(configuration.GetValue<int>("CookieOptions:AuthenticationExpiryInMinutes"));
                 options.SlidingExpiration = true;
                 options.Cookie.Path = "/";
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             })
             .EnableTokenAcquisitionToCallDownstreamApi(new string[] {configuration.GetValue<string>("FacadeAPI:DownstreamScope")})
             .AddDistributedTokenCaches();
