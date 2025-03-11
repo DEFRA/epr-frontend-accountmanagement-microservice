@@ -180,7 +180,7 @@ public class BusinessAddressTests : AccountManagementTestBase
     }
 
     [TestMethod]
-    public async Task GivenNullSession_WhenBusinessAddressCalled_ThenBusinessAddressPageReturned_WithSelectBusinessAddresseAsTheBackLink()
+    public async Task GivenNullSession_WhenBusinessAddressCalled_ThenRedirectToError()
     {
         //Arrange
         TempDataDictionaryMock = new Mock<ITempDataDictionary>();
@@ -204,7 +204,7 @@ public class BusinessAddressTests : AccountManagementTestBase
     }
 
     [TestMethod]
-    public async Task GivenNullAccountManagementSession_WhenBusinessAddressCalled_ThenBusinessAddressPageReturned_WithSelectBusinessAddresseAsTheBackLink()
+    public async Task GivenNullAccountManagementSession_WhenBusinessAddressCalled_ThenRedirectToError()
     {
         //Arrange
         TempDataDictionaryMock = new Mock<ITempDataDictionary>();
@@ -228,7 +228,7 @@ public class BusinessAddressTests : AccountManagementTestBase
     }
 
     [TestMethod]
-    public async Task GivenNullJourney_WhenBusinessAddressCalled_ThenBusinessAddressPageReturned_WithSelectBusinessAddresseAsTheBackLink()
+    public async Task GivenNullJourney_WhenBusinessAddressCalled_ThenRedirectToError()
     {
         //Arrange
         TempDataDictionaryMock = new Mock<ITempDataDictionary>();

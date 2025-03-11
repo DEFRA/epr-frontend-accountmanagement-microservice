@@ -158,7 +158,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task UserNavigatesToCompanyNamePage_GivenNullSession_BackLinkShouldBeUpdateCompanyName()
+        public async Task UserNavigatesToCompanyNamePage_GivenNullSession_ThenRedirectToError()
         {
             // Arrange
             SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>()))
@@ -178,7 +178,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task UserNavigatesToCompanyNamePage_GivenNullAccountManagementSession_BackLinkShouldBeUpdateCompanyName()
+        public async Task UserNavigatesToCompanyNamePage_GivenNullAccountManagementSession_ThenRedirectToError()
         {
             // Arrange
             SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(new JourneySession { AccountManagementSession = null });
@@ -197,7 +197,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task UserNavigatesToCompanyNamePage_GivenNullJourney_BackLinkShouldBeUpdateCompanyName()
+        public async Task UserNavigatesToCompanyNamePage_GivenNullJourney_ThenRedirectToError()
         {
             // Arrange
             SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(new JourneySession { AccountManagementSession = new AccountManagementSession { Journey = null } });

@@ -97,7 +97,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task Get_UpdateCompanyName_ShouldReturnViewWithModelWhenSessionIsNull()
+        public async Task Get_UpdateCompanyName_ShouldRedirectToError_WhenSessionIsNull()
         {
             // Arrange
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync((JourneySession)null);
@@ -116,7 +116,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task Get_UpdateCompanyName_ShouldReturnViewWithModelWhenAccountManagementSessionIsNull()
+        public async Task Get_UpdateCompanyName_ShouldRedirectToError_WhenAccountManagementSessionIsNull()
         {
             // Arrange
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(new JourneySession { AccountManagementSession = null });
@@ -135,7 +135,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task Get_UpdateCompanyName_ShouldReturnViewWithModelWhenJourneyIsNull()
+        public async Task Get_UpdateCompanyName_ShouldRedirectToError_WhenJourneyIsNull()
         {
             // Arrange
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(new JourneySession { AccountManagementSession = new AccountManagementSession { Journey = null } });

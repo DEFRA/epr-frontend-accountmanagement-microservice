@@ -194,7 +194,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task GivenNullSession_NonCompaniesHouseUkNationGet_ShouldReturnView_WithCorrectUkNation()
+        public async Task GivenNullSession_NonCompaniesHouseUkNationGet_ShouldRedirectToError()
         {
             // Arrange
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync((JourneySession)null);
@@ -213,7 +213,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task GivenNullAccountManagementSession_NonCompaniesHouseUkNationGet_ShouldReturnView_WithCorrectUkNation()
+        public async Task GivenNullAccountManagementSession_NonCompaniesHouseUkNationGet_ShouldRedirectToError()
         {
             // Arrange
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(new JourneySession { AccountManagementSession = null });
@@ -232,7 +232,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task GivenNullJourney_NonCompaniesHouseUkNationGet_ShouldReturnView_WithCorrectUkNation()
+        public async Task GivenNullJourney_NonCompaniesHouseUkNationGet_ShouldRedirectToError()
         {
             // Arrange
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(new JourneySession { AccountManagementSession = new AccountManagementSession { Journey = null } });

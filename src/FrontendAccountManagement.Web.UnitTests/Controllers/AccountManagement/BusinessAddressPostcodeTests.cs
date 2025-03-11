@@ -49,7 +49,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task Get_BusinessAddressPostcode_When_SessionIsNull_ReturnsViewWithModel()
+        public async Task Get_BusinessAddressPostcode_When_SessionIsNull_ReturnsRedirectToError()
         {
             // Arrange
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync((JourneySession)null);
@@ -68,7 +68,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task Get_BusinessAddressPostcode_When_AccountManagementSessionIsNull_ReturnsViewWithModel()
+        public async Task Get_BusinessAddressPostcode_When_AccountManagementSessionIsNull_ReturnsRedirectToError()
         {
             // Arrange
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(new JourneySession { AccountManagementSession = null });
@@ -87,7 +87,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
-        public async Task Get_BusinessAddressPostcode_When_JourneyIsNull_ReturnsViewWithModel()
+        public async Task Get_BusinessAddressPostcode_When_JourneyIsNull_ReturnsRedirectToError()
         {
             // Arrange
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(new JourneySession { AccountManagementSession = new AccountManagementSession { Journey = null } });
