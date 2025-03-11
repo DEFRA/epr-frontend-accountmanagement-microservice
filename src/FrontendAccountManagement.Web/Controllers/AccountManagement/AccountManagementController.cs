@@ -866,6 +866,11 @@ public class AccountManagementController : Controller
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
+        if (session?.AccountManagementSession?.Journey == null)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.InternalServerError });
+        }
+
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.BusinessAddressPostcode);
         session.AccountManagementSession.Journey.AddIfNotExists(PagePath.BusinessAddress);
         session.AccountManagementSession.Journey.RemoveAll(x => x == PagePath.SelectBusinessAddress);
@@ -943,6 +948,11 @@ public class AccountManagementController : Controller
         }
     
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        if (session?.AccountManagementSession?.Journey == null)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.InternalServerError });
+        }
 
         SetBackLink(session, PagePath.UpdateCompanyAddress, LocalizerName.NonCompaniesHouseUkNation);
 
@@ -1155,29 +1165,31 @@ public class AccountManagementController : Controller
 
         YesNoAnswer? isUpdateName = null;
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        if (session != null)
+        if (session?.AccountManagementSession?.Journey == null)
         {
-            session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ManageAccount);
-
-            await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.UpdateCompanyName);
-            SetBackLink(session, PagePath.UpdateCompanyName, LocalizerName.UpdateOrgNameBackAriaLabel);
-
-            if (session.AccountManagementSession?.OrganisationType == OrganisationType.CompaniesHouseCompany)
-            {
-                return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
-                {
-                    statusCode = (int)HttpStatusCode.NotFound
-                });
-            }
-
-            isUpdateName = session.AccountManagementSession.IsUpdateCompanyName switch
-            {
-                true => YesNoAnswer.Yes,
-                false => YesNoAnswer.No,
-                _ => null
-            };
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.InternalServerError });
         }
 
+        session.AccountManagementSession.Journey.AddIfNotExists(PagePath.ManageAccount);
+
+        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.UpdateCompanyName);
+        SetBackLink(session, PagePath.UpdateCompanyName, LocalizerName.UpdateOrgNameBackAriaLabel);
+
+        if (session.AccountManagementSession?.OrganisationType == OrganisationType.CompaniesHouseCompany)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.NotFound
+            });
+        }
+
+        isUpdateName = session.AccountManagementSession.IsUpdateCompanyName switch
+        {
+            true => YesNoAnswer.Yes,
+            false => YesNoAnswer.No,
+            _ => null
+        };
+        
         return View(new UpdateCompanyNameViewModel
         {
             IsUpdateCompanyName = isUpdateName
@@ -1227,26 +1239,28 @@ public class AccountManagementController : Controller
 
         YesNoAnswer? isUpdateAddress = null;
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        if (session != null)
+        if (session?.AccountManagementSession?.Journey == null)
         {
-            if (session.AccountManagementSession?.OrganisationType == OrganisationType.CompaniesHouseCompany)
-            {
-                return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
-                {
-                    statusCode = (int)HttpStatusCode.NotFound
-                });
-            }
-
-            isUpdateAddress = session.AccountManagementSession.IsUpdateCompanyAddress switch
-            {
-                true => YesNoAnswer.Yes,
-                false => YesNoAnswer.No,
-                _ => null
-            };
-
-            SetBackLink(session, PagePath.UpdateCompanyAddress, LocalizerName.UpdateOrgAddressBackAriaLabel);
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.InternalServerError });
         }
 
+        if (session.AccountManagementSession?.OrganisationType == OrganisationType.CompaniesHouseCompany)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.NotFound
+            });
+        }
+
+        isUpdateAddress = session.AccountManagementSession.IsUpdateCompanyAddress switch
+        {
+            true => YesNoAnswer.Yes,
+            false => YesNoAnswer.No,
+            _ => null
+        };
+
+        SetBackLink(session, PagePath.UpdateCompanyAddress, LocalizerName.UpdateOrgAddressBackAriaLabel);
+        
         return View(new UpdateCompanyAddressViewModel
         {
             IsUpdateCompanyAddress = isUpdateAddress
@@ -1303,17 +1317,20 @@ public class AccountManagementController : Controller
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
-        if (session != null)
+        if (session?.AccountManagementSession?.Journey == null)
         {
-            if (session.AccountManagementSession?.OrganisationType == OrganisationType.CompaniesHouseCompany)
-            {
-                return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
-                {
-                    statusCode = (int)HttpStatusCode.NotFound
-                });
-            }
-            SetBackLink(session, PagePath.BusinessAddressPostcode, LocalizerName.BusinessPostcodeBackAriaLabel);
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.InternalServerError });
         }
+
+        if (session.AccountManagementSession?.OrganisationType == OrganisationType.CompaniesHouseCompany)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.NotFound
+            });
+        }
+
+        SetBackLink(session, PagePath.BusinessAddressPostcode, LocalizerName.BusinessPostcodeBackAriaLabel);
 
         var viewModel = new BusinessAddressPostcodeViewModel()
         {
@@ -1513,25 +1530,30 @@ public class AccountManagementController : Controller
         }
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        if (session != null)
+
+
+        if (session?.AccountManagementSession?.Journey == null)
         {
-            if (session.UserData?.Organisations.Count == 0) session.UserData = User.GetUserData();
-            if (session.UserData?.Organisations[0]?.OrganisationType == OrganisationType.CompaniesHouseCompany)
-            {
-                return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
-                {
-                    statusCode = (int)HttpStatusCode.NotFound
-                });
-            }
-            else
-            {
-                session.AccountManagementSession.Journey.AddIfNotExists(PagePath.UpdateCompanyName);
-
-                await SaveSessionAndJourney(session, PagePath.UpdateCompanyName, PagePath.CompanyName);
-
-                SetBackLink(session, PagePath.CompanyName, LocalizerName.CompanyNameBackAriaLabel);
-            }
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new { statusCode = (int)HttpStatusCode.InternalServerError });
         }
+
+        if (session.UserData?.Organisations.Count == 0) session.UserData = User.GetUserData();
+        if (session.UserData?.Organisations[0]?.OrganisationType == OrganisationType.CompaniesHouseCompany)
+        {
+            return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
+            {
+                statusCode = (int)HttpStatusCode.NotFound
+            });
+        }
+        else
+        {
+            session.AccountManagementSession.Journey.AddIfNotExists(PagePath.UpdateCompanyName);
+
+            await SaveSessionAndJourney(session, PagePath.UpdateCompanyName, PagePath.CompanyName);
+
+            SetBackLink(session, PagePath.CompanyName, LocalizerName.CompanyNameBackAriaLabel);
+        }
+        
         var viewModel = new OrganisationNameViewModel()
         {
             OrganisationName = session?.AccountManagementSession?.OrganisationName ?? session?.UserData?.Organisations[0].Name,

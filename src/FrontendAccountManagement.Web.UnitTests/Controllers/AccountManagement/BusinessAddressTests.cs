@@ -179,6 +179,77 @@ public class BusinessAddressTests : AccountManagementTestBase
         SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
     }
 
+    [TestMethod]
+    public async Task GivenNullSession_WhenBusinessAddressCalled_ThenBusinessAddressPageReturned_WithSelectBusinessAddresseAsTheBackLink()
+    {
+        //Arrange
+        TempDataDictionaryMock = new Mock<ITempDataDictionary>();
+        TempDataDictionaryMock.Setup(tempData => tempData.ContainsKey("PostcodeLookupFailed")).Returns(true);
+        TempDataDictionaryMock.SetupSet(tempData => tempData["PostcodeLookupFailed"] = true);
+        SystemUnderTest.TempData = TempDataDictionaryMock.Object;
+
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync((JourneySession)null);
+
+        //Act
+        var result = await SystemUnderTest.BusinessAddress();
+
+        // Assert
+        using (new AssertionScope())
+        {
+            result.Should().BeOfType<RedirectToActionResult>();
+            var redirectResult = result as RedirectToActionResult;
+            redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+            redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.InternalServerError);
+        }
+    }
+
+    [TestMethod]
+    public async Task GivenNullAccountManagementSession_WhenBusinessAddressCalled_ThenBusinessAddressPageReturned_WithSelectBusinessAddresseAsTheBackLink()
+    {
+        //Arrange
+        TempDataDictionaryMock = new Mock<ITempDataDictionary>();
+        TempDataDictionaryMock.Setup(tempData => tempData.ContainsKey("PostcodeLookupFailed")).Returns(true);
+        TempDataDictionaryMock.SetupSet(tempData => tempData["PostcodeLookupFailed"] = true);
+        SystemUnderTest.TempData = TempDataDictionaryMock.Object;
+
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(new JourneySession { AccountManagementSession = null });
+
+        //Act
+        var result = await SystemUnderTest.BusinessAddress();
+
+        // Assert
+        using (new AssertionScope())
+        {
+            result.Should().BeOfType<RedirectToActionResult>();
+            var redirectResult = result as RedirectToActionResult;
+            redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+            redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.InternalServerError);
+        }
+    }
+
+    [TestMethod]
+    public async Task GivenNullJourney_WhenBusinessAddressCalled_ThenBusinessAddressPageReturned_WithSelectBusinessAddresseAsTheBackLink()
+    {
+        //Arrange
+        TempDataDictionaryMock = new Mock<ITempDataDictionary>();
+        TempDataDictionaryMock.Setup(tempData => tempData.ContainsKey("PostcodeLookupFailed")).Returns(true);
+        TempDataDictionaryMock.SetupSet(tempData => tempData["PostcodeLookupFailed"] = true);
+        SystemUnderTest.TempData = TempDataDictionaryMock.Object;
+
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(new JourneySession { AccountManagementSession = new AccountManagementSession { Journey = null } });
+
+        //Act
+        var result = await SystemUnderTest.BusinessAddress();
+
+        // Assert
+        using (new AssertionScope())
+        {
+            result.Should().BeOfType<RedirectToActionResult>();
+            var redirectResult = result as RedirectToActionResult;
+            redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+            redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.InternalServerError);
+        }
+    }
 
     [TestMethod]
     public async Task GivenBusinessAddress_WhenBusinessAddressIsManualAddress_ThenUpdatesModelWIthCorrectValue()

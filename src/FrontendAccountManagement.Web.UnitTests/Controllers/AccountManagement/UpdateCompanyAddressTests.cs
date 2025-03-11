@@ -132,6 +132,64 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
+        public async Task Get_UpdateCompanyAddress_ShouldReturnViewWithModelWhenSessionIsNull()
+        {
+            // Arrange
+            SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>()))
+                .ReturnsAsync((JourneySession)null);
+
+            // Act
+            var result = await SystemUnderTest.UpdateCompanyAddress();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+                var redirectResult = result as RedirectToActionResult;
+                redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.InternalServerError);
+            }
+        }
+
+        [TestMethod]
+        public async Task Get_UpdateCompanyAddress_ShouldReturnViewWithModelWhenAccountManagementSessionIsNull()
+        {
+            // Arrange
+            SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(new JourneySession { AccountManagementSession = null });
+
+            // Act
+            var result = await SystemUnderTest.UpdateCompanyAddress();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+                var redirectResult = result as RedirectToActionResult;
+                redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.InternalServerError);
+            }
+        }
+
+        [TestMethod]
+        public async Task Get_UpdateCompanyAddress_ShouldReturnViewWithModelWhenJourneyIsNull()
+        {
+            // Arrange
+            SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(new JourneySession { AccountManagementSession = new AccountManagementSession { Journey = null } });
+
+            // Act
+            var result = await SystemUnderTest.UpdateCompanyAddress();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+                var redirectResult = result as RedirectToActionResult;
+                redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.InternalServerError);
+            }
+        }
+
+        [TestMethod]
         public async Task Get_UpdateCompanyAddress_ShouldReturnViewWithModelWhenIsUpdateCompanyAddressIsNull()
         {
             // Arrange

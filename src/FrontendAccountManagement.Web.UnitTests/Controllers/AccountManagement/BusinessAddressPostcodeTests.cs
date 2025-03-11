@@ -34,7 +34,11 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             _journeySession = new JourneySession
             {
                 UserData = _userData,
-                AccountManagementSession = new AccountManagementSession() { Journey = new List<string>() }
+                AccountManagementSession = new AccountManagementSession() {
+                    Journey = new List<string> {
+                        PagePath.UpdateCompanyAddress, PagePath.BusinessAddressPostcode
+                    },
+                }
             };
 
             TempDataDictionaryMock = new Mock<ITempDataDictionary>();
@@ -56,9 +60,48 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             // Assert
             using (new AssertionScope())
             {
-                result.Should().BeOfType<ViewResult>();
-                var viewResult = result as ViewResult;
-                viewResult.Model.Should().BeOfType<BusinessAddressPostcodeViewModel>();
+                result.Should().BeOfType<RedirectToActionResult>();
+                var redirectResult = result as RedirectToActionResult;
+                redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.InternalServerError);
+            }
+        }
+
+        [TestMethod]
+        public async Task Get_BusinessAddressPostcode_When_AccountManagementSessionIsNull_ReturnsViewWithModel()
+        {
+            // Arrange
+            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(new JourneySession { AccountManagementSession = null });
+
+            // Act
+            var result = await SystemUnderTest.BusinessAddressPostcode();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+                var redirectResult = result as RedirectToActionResult;
+                redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.InternalServerError);
+            }
+        }
+
+        [TestMethod]
+        public async Task Get_BusinessAddressPostcode_When_JourneyIsNull_ReturnsViewWithModel()
+        {
+            // Arrange
+            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(new JourneySession { AccountManagementSession = new AccountManagementSession { Journey = null } });
+
+            // Act
+            var result = await SystemUnderTest.BusinessAddressPostcode();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+                var redirectResult = result as RedirectToActionResult;
+                redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.InternalServerError);
             }
         }
 
@@ -96,7 +139,10 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             {
                 AccountManagementSession = new AccountManagementSession
                 {
-                    BusinessAddress = new Address { Postcode = "AB12 3CD" }
+                    BusinessAddress = new Address { Postcode = "AB12 3CD" },
+                    Journey = new List<string> {
+                        PagePath.UpdateCompanyAddress, PagePath.BusinessAddressPostcode
+                    },
                 }
             };
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
@@ -111,6 +157,8 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 var viewResult = result as ViewResult;
                 var model = viewResult.Model.Should().BeOfType<BusinessAddressPostcodeViewModel>().Which;
                 model.Postcode.Should().Be("AB12 3CD");
+
+                AssertBackLink(viewResult, PagePath.UpdateCompanyAddress);
             }
         }
 
