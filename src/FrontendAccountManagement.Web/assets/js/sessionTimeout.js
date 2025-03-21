@@ -1,6 +1,6 @@
 ﻿const IDLE_TIMEOUT_MS = 60 * 1000; // 1 minute before showing modal
 const LOGOUT_COUNTDOWN_DURATION = 120; // Logout countdown starts from 120 seconds
-const LOGOUT_REDIRECT_URL = "/report-data/Account/SessionSignOut";
+const LOGOUT_REDIRECT_URL = "/manage-account/Account/SessionSignOut";
 
 let idleTimeout, logoutCountdown;
 
@@ -11,7 +11,7 @@ const SessionTimeoutManager = {
 
     initialize() {
         // URLs where the modal should not be shown
-        const excludedPaths = ["/report-data/timeout-signed-out", "/report-data/signed-out"];
+        const excludedPaths = ["/manage-account/timeout-signed-out", "/manage-account/signed-out"];
         if (excludedPaths.includes(window.location.pathname)) {
             return; // Stop execution if on an excluded page
         }
