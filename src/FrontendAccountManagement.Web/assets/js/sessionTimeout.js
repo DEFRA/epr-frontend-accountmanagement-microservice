@@ -1,4 +1,4 @@
-﻿const IDLE_TIMEOUT_MS = 60 * 1000; // 1 minute before showing modal
+﻿const IDLE_TIMEOUT_MS = 20 * 60 * 1000; // 20 minutes before showing modal
 const LOGOUT_COUNTDOWN_DURATION = 120; // Logout countdown starts from 120 seconds
 const LOGOUT_REDIRECT_URL = "/manage-account/Account/SessionSignOut";
 
