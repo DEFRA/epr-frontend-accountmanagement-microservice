@@ -3,6 +3,7 @@ using FrontendAccountManagement.Web.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.Diagnostics.CodeAnalysis;
 
 namespace FrontendAccountManagement.Web.Controllers.Home;
 
@@ -23,5 +24,17 @@ public class HomeController : Controller
         HttpContext.Session.Clear();
         HttpContext.Response.Cookies.Delete(_cookieOptions.SessionCookieName);
         return View();
+    }
+
+    [Route(PagePath.TimeoutSignedOut)]
+    public IActionResult TimeoutSignedOut()
+    {
+        HttpContext.Session.Clear();
+        return View();
+    }
+    
+    public IActionResult SessionTimeoutModal()
+    {
+        return PartialView("_TimeoutSessionWarning");
     }
 }

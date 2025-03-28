@@ -51,4 +51,5 @@ public static class PagePath
     public const string Culture = "culture";
     public const string AcknowledgeCookieAcceptance = "acknowledge-cookie-acceptance";
     public const string UpdateCookieAcceptance = "update-cookie-acceptance";
+    public const string TimeoutSignedOut = "timeout-signed-out";
 }
