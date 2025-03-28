@@ -26,14 +26,13 @@ public class HomeController : Controller
         return View();
     }
 
-    [ExcludeFromCodeCoverage(Justification = "For SessionTime Out")]
     [Route(PagePath.TimeoutSignedOut)]
     public IActionResult TimeoutSignedOut()
     {
         HttpContext.Session.Clear();
         return View();
     }
-    [ExcludeFromCodeCoverage(Justification = "For SessionTime Out")]
+    
     public IActionResult SessionTimeoutModal()
     {
         return PartialView("_TimeoutSessionWarning");
