@@ -1,6 +1,7 @@
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Controllers.Home;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Moq;
 
@@ -45,5 +46,37 @@ public class HomeControllerTests
 
         // Assert
         _responseCookiesMock.Verify(x => x.Delete(SessionCookieName), Times.Once);
+    }
+
+    [TestMethod]
+    public void TimeoutSignedOut_Should_Clear_Session_And_Return_View()
+    {
+        // Arrange
+        Setup();
+        var sessionMock = new Mock<ISession>();
+        _httpContextMock.Setup(m => m.Session).Returns(sessionMock.Object);
+
+        sessionMock.Setup(s => s.Keys).Returns(new List<string> { "ABC123" });
+
+        // Act
+        var result = _systemUnderTest.TimeoutSignedOut();
+
+        // Assert
+        sessionMock.Verify(s => s.Clear(), Times.Once);
+        result.Should().BeOfType<ViewResult>();
+    }
+
+
+    [TestMethod]
+    public void SessionTimeoutModal_Should_Return_PartialViewResult()
+    {
+        // Arrange
+        Setup();
+
+        // Act
+        var result = _systemUnderTest.SessionTimeoutModal();
+
+        // Assert
+        result.Should().BeOfType<PartialViewResult>();
     }
 }

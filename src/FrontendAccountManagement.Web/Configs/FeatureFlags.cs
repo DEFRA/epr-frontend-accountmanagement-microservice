@@ -9,5 +9,6 @@ namespace FrontendAccountManagement.Web.Configs
         public const string ShowLanguageSwitcher = "ShowLanguageSwitcher";
         public const string ManageUserDetailChanges = "ManageUserDetailChanges";
         public const string ManageCompanyDetailChanges = "ManageCompanyDetailChanges";
+        public const string ShowSessionTimeoutWarning = "ShowSessionTimeoutWarning";
     }
 }
