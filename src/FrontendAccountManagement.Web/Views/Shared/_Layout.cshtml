@@ -90,10 +90,12 @@
     </div>
 
     @RenderBody()
+    @await Component.InvokeAsync("SessionTimeoutWarning")
 
     @await Html.PartialAsync("Partials/Govuk/_Footer", ExternalUrlsOptions.Value)
 
     <script src="~/js/govuk.js"></script>
+    <script src="~/js/sessionTimeout.js"></script>
     <script nonce="@scriptNonce">window.GOVUKFrontend.initAll()</script>
 
     @await RenderSectionAsync("Scripts", required: false)
