@@ -52,7 +52,7 @@ resources:
     - repository: AutomationTesting
       name: RWD-CPR-EPR4P-ADO/epr-playwright-bdd
       type: git
-      ref: develop
+      ref: develop-template-fix
 
 stages:
 - template: epr-build-pipeline.yaml@CommonTemplates
