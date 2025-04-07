@@ -88,6 +88,7 @@ namespace FrontendAccountManagement.Web.Controllers.Account
         /// <returns>Session Timeout Sign out result.</returns>
         [ExcludeFromCodeCoverage(Justification = "Unable to mock authentication")]
         [HttpGet("{scheme?}")]
+        [AllowAnonymous]
         public IActionResult SessionSignOut([FromRoute] string? scheme)
         {
             if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
@@ -108,5 +109,15 @@ namespace FrontendAccountManagement.Web.Controllers.Account
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 scheme);
         }
+
+        [ExcludeFromCodeCoverage(Justification = "Unable to mock authentication")]
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult KeepSessionAlive()
+            {
+                // Refresh session by interacting with it
+                HttpContext.Session.SetString("LastPing", DateTime.UtcNow.ToString());
+                return Ok(new { message = "Session extended" });
+            }
     }
 }
