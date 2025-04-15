@@ -171,4 +171,10 @@
   <data name="Footer.CookiesAriaLabel" xml:space="preserve">
     <value>Click on this link if you wish to go to the cookies page</value>
   </data>
+  <data name="Footer.GiveFeedback" xml:space="preserve">
+    <value>Give feedback on this service</value>
+  </data>
+  <data name="Footer.ReportAProblem" xml:space="preserve">
+    <value>Report a problem with this page</value>
+  </data>
 </root>
