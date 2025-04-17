@@ -141,9 +141,6 @@
   <data name="Footer.GetHelp" xml:space="preserve">
     <value>Get help</value>
   </data>
-  <data name="Footer.GiveFeedback" xml:space="preserve">
-    <value />
-  </data>
   <data name="Footer.LicenceDescription1" xml:space="preserve">
     <value>All content is available under the </value>
   </data>
@@ -159,13 +156,16 @@
   <data name="Footer.Privacy" xml:space="preserve">
     <value>Privacy</value>
   </data>
-  <data name="Footer.ReportAProblem" xml:space="preserve">
-    <value />
-  </data>
   <data name="Footer.SupportLinks" xml:space="preserve">
     <value>Support links</value>
   </data>
   <data name="Footer.Telephone" xml:space="preserve">
     <value>Telephone</value>
+  </data>
+  <data name="Footer.GiveFeedback" xml:space="preserve">
+    <value>Give feedback on this service</value>
+  </data>
+  <data name="Footer.ReportAProblem" xml:space="preserve">
+    <value>Report a problem with this page</value>
   </data>
 </root>
