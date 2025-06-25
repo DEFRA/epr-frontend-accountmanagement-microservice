@@ -1,7 +1,7 @@
 ﻿using FrontendAccountManagement.Core.Addresses;
-using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Models;
-using FrontendAccountManagement.Core.Sessions;
+
+namespace FrontendAccountManagement.Core.Sessions;
 
 public class AccountManagementSession
 {
