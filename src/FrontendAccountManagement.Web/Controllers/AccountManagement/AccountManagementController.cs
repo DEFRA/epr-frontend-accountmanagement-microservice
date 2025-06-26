@@ -1636,6 +1636,10 @@ public class AccountManagementController : Controller
         var userData = User.GetUserData();
 
         var organisationData = userData.Organisations.FirstOrDefault();
+        if (organisationData == null)
+        {
+            throw new InvalidOperationException(nameof(organisationData));
+        }
 
         try
         {
