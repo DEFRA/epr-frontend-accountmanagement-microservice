@@ -28,7 +28,9 @@ public interface IFacadeService
 
     Task<UserAccountDto?> GetUserAccount();
 
-    Task<List<int>> GetNationIds(Guid organisationId);
+    Task<UserAccountDto?> GetUserAccountWithEnrolments(string serviceKey);
+
+	Task<List<int>> GetNationIds(Guid organisationId);
 
     Task<CompaniesHouseResponse> GetCompaniesHouseResponseAsync(string companyHouseNumber);
 

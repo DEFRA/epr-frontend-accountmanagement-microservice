@@ -25,7 +25,8 @@ public class FacadeService : IFacadeService
     private readonly string _baseAddress;
     private readonly string _serviceRolesPath;
     private readonly string _getUserAccountPath;
-    private readonly string _getCompanyFromCompaniesHousePath;
+	private readonly string _getUserAccountV1Path;
+	private readonly string _getCompanyFromCompaniesHousePath;
 
     private readonly string _putUserDetailsByUserIdPath;
     private readonly string _putUpdateOrganisationPath;
@@ -43,7 +44,8 @@ public class FacadeService : IFacadeService
         _baseAddress = config.Address;
         _serviceRolesPath = config.GetServiceRolesPath;
         _getUserAccountPath = config.GetUserAccountPath;
-        _getCompanyFromCompaniesHousePath = config.GetCompanyFromCompaniesHousePath;
+		_getUserAccountV1Path = config.GetUserAccountV1Path;
+		_getCompanyFromCompaniesHousePath = config.GetCompanyFromCompaniesHousePath;
 
         _putUserDetailsByUserIdPath = config.PutUserDetailsByUserIdPath;
         _putUpdateOrganisationPath = config.PutUpdateOrganisationPath;
@@ -69,9 +71,27 @@ public class FacadeService : IFacadeService
         var userAccountDto = await response.Content.ReadFromJsonAsync<UserAccountDto>();
 
         return userAccountDto;
-    }
+	}
 
-    public async Task<IEnumerable<Models.ServiceRole>?> GetAllServiceRolesAsync()
+	public async Task<UserAccountDto?> GetUserAccountWithEnrolments(string serviceKey)
+	{
+		await PrepareAuthenticatedClient();
+        var requestUri = $"{_getUserAccountV1Path}?serviceKey={serviceKey}";
+		var response = await _httpClient.GetAsync(requestUri);
+
+		if (response.StatusCode == HttpStatusCode.NotFound)
+		{
+			return null;
+		}
+
+		response.EnsureSuccessStatusCode();
+
+		var userAccountDto = await response.Content.ReadFromJsonAsync<UserAccountDto>();
+
+		return userAccountDto;
+	}
+
+	public async Task<IEnumerable<Models.ServiceRole>?> GetAllServiceRolesAsync()
     {
         await PrepareAuthenticatedClient();
 

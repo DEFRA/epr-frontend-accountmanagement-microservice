@@ -79,9 +79,14 @@ public class MockedFacadeService : IFacadeService
     public Task<UserAccountDto?> GetUserAccount()
     {
         return Task.FromResult<UserAccountDto?>(null);
-    }
+	}
 
-    public Task<EnrolmentStatus?> GetEnrolmentStatus(Guid organisationId, Guid connectionId, string serviceKey, string serviceRoleKey)
+	public Task<UserAccountDto?> GetUserAccountWithEnrolments(string serviceKey)
+	{
+		return Task.FromResult<UserAccountDto?>(null);
+	}
+
+	public Task<EnrolmentStatus?> GetEnrolmentStatus(Guid organisationId, Guid connectionId, string serviceKey, string serviceRoleKey)
     {
         throw new NotImplementedException();
     }

@@ -48,7 +48,8 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 {"FacadeAPI:Address", "http://example/" },
                 {"FacadeAPI:GetServiceRolesPath", "roles" },
                 {"FacadeAPI:GetUserAccountPath", "user-accounts" },
-                {"FacadeAPI:DownStreamScope", "https://eprb2cdev.onmicrosoft.com/account-creation-facade/account-creation" }
+				{"FacadeAPI:GetUserAccountV1Path", "v1/user-accounts" },
+				{"FacadeAPI:DownStreamScope", "https://eprb2cdev.onmicrosoft.com/account-creation-facade/account-creation" }
             };
 
             _configuration = new Mock<IOptions<FacadeApiConfiguration>>();
@@ -434,7 +435,88 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             httpTestHandler.Dispose();
         }
 
-        [TestMethod]
+
+		[TestMethod]
+		public async Task GetUserAccountWithEnrolmenmts_IsSuccessful()
+		{
+			// Arrange
+			var firstName = "First";
+			var lastName = "Last";
+			var expectedResponse = new UserAccountDto
+			{
+				User = new UserData
+				{
+					Id = Guid.NewGuid(),
+					FirstName = firstName,
+					LastName = lastName,
+                    Organisations =
+					[
+						new Organisation
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "Test Organisation",
+                            Enrolments =
+							[
+								new Enrolment
+                                {
+                                    ServiceRoleKey = ServiceRoles.ReprocessorExporter.ApprovedPerson
+                                }
+							]
+						}
+					]
+				}
+			};
+
+			var httpTestHandler = new HttpResponseMessage
+			{
+				StatusCode = HttpStatusCode.OK,
+				Content = new StringContent(JsonSerializer.Serialize(expectedResponse))
+			};
+
+			_mockHandler.Protected()
+				.Setup<Task<HttpResponseMessage>>(
+					"SendAsync",
+					ItExpr.IsAny<HttpRequestMessage>(),
+					ItExpr.IsAny<CancellationToken>())
+				.ReturnsAsync(httpTestHandler);
+
+			// Act
+			var response = await _facadeService.GetUserAccountWithEnrolments(It.IsAny<string>());
+
+			// Assert
+			Assert.IsNotNull(response);
+			Assert.AreEqual(firstName, response.User.FirstName);
+			Assert.AreEqual(lastName, response.User.LastName);
+			Assert.AreEqual(expectedResponse.User.Organisations.Count, response.User.Organisations.Count);
+            Assert.AreEqual(expectedResponse.User.Organisations[0].Enrolments.Count, response.User.Organisations[0].Enrolments.Count);
+			httpTestHandler.Dispose();
+		}
+
+		[TestMethod]
+		public async Task GetUserAccountWithEnrolments_IsUnsuccessful()
+		{
+			// Arrange
+			var httpTestHandler = new HttpResponseMessage
+			{
+				StatusCode = HttpStatusCode.NotFound
+			};
+
+			_mockHandler.Protected()
+				.Setup<Task<HttpResponseMessage>>(
+					"SendAsync",
+					ItExpr.IsAny<HttpRequestMessage>(),
+					ItExpr.IsAny<CancellationToken>())
+				.ReturnsAsync(httpTestHandler);
+
+			// Act
+			var response = await _facadeService.GetUserAccountWithEnrolments(It.IsAny<string>());
+
+			// Assert
+			Assert.IsNull(response);
+			httpTestHandler.Dispose();
+		}
+
+		[TestMethod]
         public async Task GetPermissionTypeFromConnection_WithValidRequest_IsSuccessfulReturnsResult()
         {
             // Arrange
