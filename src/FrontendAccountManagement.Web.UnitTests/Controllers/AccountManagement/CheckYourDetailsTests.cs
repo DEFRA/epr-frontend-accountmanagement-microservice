@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using EPR.Common.Authorization.Constants;
 using EPR.Common.Authorization.Models;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Sessions;
@@ -20,10 +19,9 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
     {
         private UserData _userData;
         private JourneySession _journeySession;
-        private Fixture _fixture = new Fixture();
+        private readonly Fixture _fixture = new Fixture();
         private EditUserDetailsViewModel _viewModel;
         private UpdateUserDetailsRequest _userDetailsDto;
-        private UpdateUserDetailsResponse _updateUserDetailsResponse;
 
         [TestInitialize]
         public void Setup()
@@ -33,7 +31,6 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             _viewModel = _fixture.Create<EditUserDetailsViewModel>();
             _userDetailsDto = _fixture.Create<UpdateUserDetailsRequest>();
-            _updateUserDetailsResponse = _fixture.Create<UpdateUserDetailsResponse>();
 
             SetupBase(_userData);
 
@@ -97,12 +94,12 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             _userData.ServiceRole = "Basic";
             SetupBase(_userData);
 
-            AutoMapperMock.Setup(x => x.Map<UpdateUserDetailsRequest>(_viewModel)).Returns(_userDetailsDto);
+			AutoMapperMock.Setup(x => x.Map<UpdateUserDetailsRequest>(_viewModel)).Returns(_userDetailsDto);
 
             FacadeServiceMock.Setup(x => x.GetUserAccount()).ReturnsAsync(new UserAccountDto());
 
             FacadeServiceMock.Setup(x => x.UpdateUserDetailsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), "Packaging", _userDetailsDto))
-                 .ReturnsAsync(_updateUserDetailsResponse);
+                 .ReturnsAsync(new UpdateUserDetailsResponse { HasBasicUserDetailsUpdated = true });
 
             // Act        
             var result = await SystemUnderTest.CheckYourDetails(_viewModel) as RedirectToActionResult;

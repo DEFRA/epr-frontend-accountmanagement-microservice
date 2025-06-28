@@ -1,5 +1,8 @@
 ﻿using EPR.Common.Authorization.Extensions;
+using EPR.Common.Authorization.Models;
+using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Services;
+using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Utilities.Interfaces;
 using Microsoft.AspNetCore.Mvc.Controllers;
 
@@ -21,29 +24,49 @@ public class UserDataCheckerMiddleware : IMiddleware
         _logger = logger;
     }
 
-    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
-    {
-        var anonControllers = new List<string> { "Privacy", "Cookies", "Culture" };
-        var controllerName = GetControllerName(context);
-        
-        var existingUserData = context.User.GetUserData();
+	public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+	{
+		var anonControllers = new List<string> { "Privacy", "Cookies", "Culture" };
+		var reExControllers = new List<string> { "ReExAccountManagement" };
+		var controllerName = GetControllerName(context);
 
-        if (!anonControllers.Contains(controllerName) && context.User.Identity is { IsAuthenticated: true } && existingUserData is null)
-        {
-            var userAccount = await _facadeService.GetUserAccount();
+		var existingUserData = context.User.GetUserData();
 
-            if (userAccount is null)
-            {
-                _logger.LogInformation("User authenticated but account could not be found");
-            }
-            else
-            {
-                await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
-            }
-        }
 
-        await next(context);
-    }
+		if (!anonControllers.Contains(controllerName) && context.User.Identity is { IsAuthenticated: true } && existingUserData is null)
+		{
+			UserAccountDto? userAccount = null;
+			if (reExControllers.Exists(name => name == controllerName))
+			{
+				var routeValues = context.Request.RouteValues;
+				if (routeValues.TryGetValue("organisationId", out var organisationId))
+				{
+					var externalId = new Guid(organisationId.ToString());
+					userAccount = await _facadeService.GetUserAccountWithEnrolments(ServiceKey.ReprocessorExporter);
+					var selectedOrganisation = userAccount?.User?.Organisations?.Find(o => o.Id == externalId);
+					if (selectedOrganisation != null)
+					{
+						userAccount.User.Organisations = [selectedOrganisation];
+					}
+				}
+			}
+			else
+			{
+				userAccount = await _facadeService.GetUserAccount();
+			}
+
+			if (userAccount is null)
+			{
+				_logger.LogInformation("User authenticated but account could not be found");
+			}
+			else
+			{
+				await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
+			}
+		}
+
+		await next(context);
+	}
     
     private static string GetControllerName(HttpContext context)
     {

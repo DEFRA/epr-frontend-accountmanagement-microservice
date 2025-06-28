@@ -33,10 +33,15 @@ public record FacadeApiConfiguration
     /// </summary>
     public string GetUserAccountPath { get; set; }
 
-    /// <summary>
-    /// Gets or sets the path for the service roles
-    /// </summary>
-    public string GetServiceRolesPath { get; set; }
+	/// <summary>
+	/// Gets or sets the path for getting the user account, and organisations with enrolments
+	/// </summary>
+	public string GetUserAccountV1Path { get; set; }
+
+	/// <summary>
+	/// Gets or sets the path for the service roles
+	/// </summary>
+	public string GetServiceRolesPath { get; set; }
 
     /// <summary>
     /// Gets or sets the path for companies house api
