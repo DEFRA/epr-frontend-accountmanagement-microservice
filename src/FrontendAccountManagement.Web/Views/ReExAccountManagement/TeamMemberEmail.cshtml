@@ -1,0 +1,65 @@
+@using FrontendAccountManagement.Web.Extensions
+@using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
+@using FrontendAccountManagement.Web.ViewModels.AccountManagement
+
+@model TeamMemberEmailViewModel
+
+@{
+    ViewData["Title"] = Localizer["WhatIsUsersEmail"];
+    var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer);
+}
+
+@using (Html.BeginForm("TeamMemberEmail", "AccountManagement", FormMethod.Post))
+{
+    <div class="govuk-width-container">
+        <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    @await Html.PartialAsync("Partials/Govuk/_ErrorSummary", errorsViewModel)
+
+                    <h1 class="govuk-label-wrapper">
+                        <label class="govuk-label govuk-label--l" for="Email">
+                            @Localizer["WhatIsUsersEmail"]
+                        </label>
+                    </h1>
+                    
+                    <div class="govuk-hint" id="email-hint">
+                        @Localizer["Reasoning"]
+                    </div>
+                    
+                    <div class="govuk-form-group @(ViewData.ModelState.IsValid ? string.Empty : "govuk-form-group--error")">
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            @await Html.PartialAsync("Partials/Govuk/_ErrorList", errorsViewModel)
+                            
+                            <input class="govuk-input govuk-input--error"
+                                   id="Email"
+                                   name="email"
+                                   type="text"
+                                   spellcheck="false"
+                                   autocomplete="email"
+                                   gov-first-option="true"
+                                   aria-describedby="email-hint">
+                        }
+                        else
+                        {
+                            <input class="govuk-input"
+                                   id="Email"
+                                   name="email"
+                                   value="@Model.SavedEmail"
+                                   type="text"
+                                   spellcheck="false"
+                                   autocomplete="email"
+                                   gov-first-option="true"
+                                   aria-describedby="email-hint">
+                        }
+                    </div>
+                    
+                    <button class="govuk-button" data-module="govuk-button">
+                        @SharedLocalizer["Continue"]
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+}

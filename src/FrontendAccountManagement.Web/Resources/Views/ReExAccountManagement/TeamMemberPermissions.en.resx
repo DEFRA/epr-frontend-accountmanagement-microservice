@@ -1,0 +1,29 @@
+<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="WhatDoYouWantThemToDo" xml:space="preserve">
+        <value>What permissions should be given to this user? </value>
+    </data>
+    <data name="SelectWhatYouWantThemToDo" xml:space="preserve">
+        <value>Please select what you want them to do</value>
+    </data>
+    <data name="ManageOrganisation.TabTeam.Permissions.ApprovedPerson" xml:space="preserve">
+      <value>Manage team, submit registration and accreditation (Approved Person)</value>
+    </data>
+    <data name="ManageOrganisation.TabTeam.Permissions.StandardUser" xml:space="preserve">
+      <value>Submit registration and accreditation (Standard User)</value>
+    </data>
+    <data name="ManageOrganisation.TabTeam.Permissions.BasicUser" xml:space="preserve">
+      <value>Read only access (Basic User)</value>
+    </data>
+</root>
