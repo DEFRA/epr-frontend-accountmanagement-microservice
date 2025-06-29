@@ -1,21 +1,15 @@
 @using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
 @using FrontendAccountManagement.Web.Extensions
-@using FrontendAccountManagement.Web.Controllers.AccountManagement
-@using Microsoft.Extensions.Options
-@using FrontendAccountManagement.Web.Configs
+@using FrontendAccountManagement.Web.Controllers.ReEx
 
 @model FrontendAccountManagement.Web.ViewModels.AccountManagement.TeamMemberPermissionsViewModel
 
-@inject IOptions<DeploymentRoleOptions> DeploymentRoleOption
-
 @{
     ViewData["Title"] = Localizer["WhatDoYouWantThemToDo"];
-    
     var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer);
-    var isFirstItem = true;
 }
 
-@using (Html.BeginForm(nameof(AccountManagementController.TeamMemberPermissions), "AccountManagement", FormMethod.Post))
+@using (Html.BeginForm(nameof(ReExAccountManagementController.TeamMemberPermissions), "ReExAccountManagement", FormMethod.Post))
 {
     <div class="govuk-width-container">
         <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
@@ -34,44 +28,31 @@
                             @if (!ViewData.ModelState.IsValid)
                             {
                                 @await Html.PartialAsync("Partials/Govuk/_ErrorList", errorsViewModel)
-                                <br/>
+                                <br />
                             }
 
                             <div class="govuk-radios" data-module="govuk-radios">
                                 @for (var i = 0; i < Model.ServiceRoles.Count; i++)
                                 {
-                                    if (i >= 1)
-                                    {
-                                        isFirstItem = false;
-                                    }
-
-                                    var serviceRoleKey = Model.ServiceRoles[i].Key;
-                                    var serviceRoleDescriptionKey = Model.ServiceRoles[i].DescriptionKey;
+                                    var serviceRole = Model.ServiceRoles[i];
+                                    var serviceRoleKey = serviceRole.Key;
                                     var isSelected = serviceRoleKey.Equals(Model.SavedUserRole);
-                                    var isRegulatorWithDescriptionKey = DeploymentRoleOption.Value.IsRegulator()
-                                                                        && !string.IsNullOrEmpty(serviceRoleDescriptionKey);
+                                    var isDisabled = Model.IsStandardUser && serviceRoleKey.ToLowerInvariant().Contains("approvedperson");
 
                                     <div class="govuk-radios__item">
                                         <input class="govuk-radios__input"
                                                type="radio"
-                                               checked="@isSelected"
-                                               gov-for="SelectedUserRole"
-                                               gov-value="@serviceRoleKey"
-                                               gov-first-option=isFirstItem
-                                               aria-describedby="@(isRegulatorWithDescriptionKey ? serviceRoleKey + "-hint" : "")">
-                                        <label class="govuk-label govuk-radios__label"
-                                               gov-for="SelectedUserRole"
-                                               gov-value="@serviceRoleKey"
-                                               gov-first-option=isFirstItem>
-                                            @SharedLocalizer[serviceRoleKey]
-                                        </label>
+                                               name="SelectedUserRole"
+                                               id="SelectedUserRole_@i"
+                                               value="@serviceRoleKey"
+                                               @(isSelected ? "checked" : null)
+                                               @(isDisabled ? "disabled" : null) />
 
-                                        @if (isRegulatorWithDescriptionKey)
-                                        {
-                                            <div class="govuk-radios__hint govuk-hint" id="@serviceRoleKey-hint">
-                                                @SharedLocalizer[serviceRoleDescriptionKey]
-                                            </div>
-                                        }
+                                        <label class="govuk-label govuk-radios__label govuk-radios__label--block"
+                                               for="SelectedUserRole_@i"
+                                               style="display: block; width: 100%;">
+                                            @serviceRoleKey.GetPermissionDescription(Localizer)
+                                        </label>
                                     </div>
                                 }
                             </div>
@@ -79,7 +60,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-two-thirds">
                     <button class="govuk-button" data-module="govuk-button">

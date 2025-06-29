@@ -13,5 +13,7 @@ namespace FrontendAccountManagement.Web.ViewModels.AccountManagement
         public string? SelectedUserRole { get; set; }
 
         public string? SavedUserRole { get; set; }
+        public bool IsStandardUser { get; set; }
+        public Guid OrganisationId { get; set; }
     }
 }
