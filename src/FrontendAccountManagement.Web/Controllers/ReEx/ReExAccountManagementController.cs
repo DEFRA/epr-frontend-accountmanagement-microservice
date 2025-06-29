@@ -96,6 +96,11 @@ public class ReExAccountManagementController : Controller
 
         var serviceRoles = await _facadeService.GetAllServiceRolesAsync();
 
+        if (serviceRoles == null)
+        {
+            throw new InvalidOperationException(RolesNotFoundException);
+        }
+        
         var reExRoles = serviceRoles.Where(r => r.Key.StartsWith("Re-Ex.ApprovedPerson") ||
                                                 r.Key.StartsWith("Re-Ex.StandardUser") ||
                                                 r.Key.StartsWith("Re-Ex.BasicUser")).ToList();
@@ -134,8 +139,8 @@ public class ReExAccountManagementController : Controller
             return View(nameof(TeamMemberPermissions), model);
         }
 
-        session.AccountManagementSession.RoleKey = model.SelectedUserRole;
-        session.AccountManagementSession.AddUserJourney.UserRole = model.SelectedUserRole;
+        session.ReExAccountManagementSession.RoleKey = model.SelectedUserRole;
+        session.ReExAccountManagementSession.AddUserJourney.UserRole = model.SelectedUserRole;
 
         return await SaveSessionAndRedirect(session, nameof(ViewDetails), PagePath.TeamMemberPermissions, PagePath.TeamMemberDetails);
     }
