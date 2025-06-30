@@ -1,0 +1,73 @@
+@using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
+@using FrontendAccountManagement.Web.Extensions
+@using FrontendAccountManagement.Web.Controllers.ReEx
+
+@model FrontendAccountManagement.Web.ViewModels.AccountManagement.TeamMemberPermissionsViewModel
+
+@{
+    ViewData["Title"] = Localizer["WhatDoYouWantThemToDo"];
+    var errorsViewModel = new ErrorsViewModel(ViewData.ModelState.ToErrorDictionary(), Localizer);
+}
+
+@using (Html.BeginForm(nameof(ReExAccountManagementController.TeamMemberPermissions), "ReExAccountManagement", FormMethod.Post))
+{
+    <div class="govuk-width-container">
+        <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    @await Html.PartialAsync("Partials/Govuk/_ErrorSummary", errorsViewModel)
+
+                    <div class="govuk-form-group @(ViewData.ModelState.IsValid ? string.Empty : "govuk-form-group--error")">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                                <h1 class="govuk-fieldset__heading govuk-label--l">
+                                    @Localizer["WhatDoYouWantThemToDo"]
+                                </h1>
+                            </legend>
+
+                            @if (!ViewData.ModelState.IsValid)
+                            {
+                                @await Html.PartialAsync("Partials/Govuk/_ErrorList", errorsViewModel)
+                                <br />
+                            }
+
+                            <div class="govuk-radios" data-module="govuk-radios">
+                                @for (var i = 0; i < Model.ServiceRoles.Count; i++)
+                                {
+                                    var serviceRole = Model.ServiceRoles[i];
+                                    var serviceRoleKey = serviceRole.Key;
+                                    var isSelected = serviceRoleKey.Equals(Model.SavedUserRole);
+                                    var isDisabled = Model.IsStandardUser && serviceRoleKey.ToLowerInvariant().Contains("approvedperson");
+
+                                    <div class="govuk-radios__item">
+                                        <input class="govuk-radios__input"
+                                               type="radio"
+                                               name="SelectedUserRole"
+                                               id="SelectedUserRole_@i"
+                                               value="@serviceRoleKey"
+                                               @(isSelected ? "checked" : null)
+                                               @(isDisabled ? "disabled" : null) />
+
+                                        <label class="govuk-label govuk-radios__label govuk-radios__label--block"
+                                               for="SelectedUserRole_@i"
+                                               style="display: block; width: 100%;">
+                                            @serviceRoleKey.GetPermissionDescription(Localizer)
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    <button class="govuk-button" data-module="govuk-button">
+                        @SharedLocalizer["Continue"]
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+}

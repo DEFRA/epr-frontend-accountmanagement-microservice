@@ -1,19 +1,19 @@
-using EPR.Common.Authorization.Constants;
+using System.Diagnostics.CodeAnalysis;
 using EPR.Common.Authorization.Extensions;
 using EPR.Common.Authorization.Models;
 using EPR.Common.Authorization.Sessions;
-using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
+using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics.CodeAnalysis;
+
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
-namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
+namespace FrontendAccountManagement.Web.Controllers.ReEx;
 
 //[Authorize(Policy = PolicyConstants.ReExAccountManagementPolicy)]
 [AllowAnonymous]
@@ -22,6 +22,7 @@ namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 public class ReExAccountManagementController(ISessionManager<JourneySession> sessionManager) : Controller
 {
     private readonly ISessionManager<JourneySession> _sessionManager = sessionManager;
+    private readonly IFacadeService _facadeService;
 
     [HttpGet]
     [Route("organisation/{organisationId}/person/{personId}")]
