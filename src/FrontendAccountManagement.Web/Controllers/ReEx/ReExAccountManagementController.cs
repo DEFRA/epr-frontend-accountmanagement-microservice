@@ -1,3 +1,4 @@
+using EPR.Common.Authorization.Constants;
 using EPR.Common.Authorization.Extensions;
 using EPR.Common.Authorization.Models;
 using EPR.Common.Authorization.Sessions;
@@ -5,19 +6,17 @@ using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Sessions;
-using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
-using FrontendAccountManagement.Web.Resources.Views.AccountManagement;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web;
 using System.Diagnostics.CodeAnalysis;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
 namespace FrontendAccountManagement.Web.Controllers.AccountManagement;
 
-//[Authorize(Policy = PolicyConstants.AccountManagementPolicy)]
+//[Authorize(Policy = PolicyConstants.ReExAccountManagementPolicy)]
+[AllowAnonymous]
 [ExcludeFromCodeCoverage]
 [Route(PagePath.ReExManageAccount)]
 public class ReExAccountManagementController(ISessionManager<JourneySession> sessionManager) : Controller
@@ -29,27 +28,25 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
     public async Task<string> ViewDetails([FromRoute] Guid organisationId, [FromRoute] Guid personId)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        session.ReExAccountManagementSession.OrganisationId = organisationId;
+        session.ReExAccountManagementSession.PersonId = personId;
+
+        SaveSession(session);
 
         return $"It worked! {session.IsComplianceScheme} ";
     }
 
     [HttpGet]
-    [Route($"{PagePath.TeamMemberEmail}/organisation/{{organisationId}}")]
-    public async Task<IActionResult> TeamMemberEmail([FromRoute] Guid organisationId)
+    //[Authorize(Policy = PolicyConstants.ReExAddTeamMemberPolicy)]
+    [Route(PagePath.TeamMemberEmail)]
+    public async Task<IActionResult> TeamMemberEmail()
     {
         if (!ModelState.IsValid)
         {
             return View(nameof(ViewDetails));
         }
 
-        var userData = User.GetUserData();
-        if (IsEmployeeUser(userData))
-        {
-            return NotFound();
-        }
-
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        session.ReExAccountManagementSession.OrganisationId = organisationId;
         session.ReExAccountManagementSession.Journey.AddIfNotExists(PagePath.ReExManageAccount);
         session.ReExAccountManagementSession.AddUserJourney ??= new AddUserJourneyModel();
 
@@ -65,8 +62,9 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
     }
 
     [HttpPost]
-    [Route($"{PagePath.TeamMemberEmail}/organisation/{{organisationId}}")]
-    public async Task<IActionResult> TeamMemberEmail([FromRoute] Guid organisationId, TeamMemberEmailViewModel model)
+    //[Authorize(Policy = PolicyConstants.ReExAddTeamMemberPolicy)]
+    [Route(PagePath.TeamMemberEmail)]
+    public async Task<IActionResult> TeamMemberEmail(TeamMemberEmailViewModel model)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
@@ -83,6 +81,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
     }
 
     [HttpGet]
+    [Authorize(Policy = PolicyConstants.ReExAddTeamMemberPolicy)]
     [Route(PagePath.TeamMemberPermissions)]
     public async Task<IActionResult> TeamMemberPermissions()
     {
@@ -164,18 +163,6 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
         // this also cover if current page not found (index = -1) then it clears all pages
         session.ReExAccountManagementSession.Journey = session.ReExAccountManagementSession.Journey.Take(index + 1).ToList();
-    }
-
-    private static bool IsEmployeeUser(UserData userData)
-    {
-        var roleInOrganisation = userData.RoleInOrganisation;
-
-        if (string.IsNullOrEmpty(roleInOrganisation))
-        {
-            throw new InvalidOperationException("Unknown role in organisation.");
-        }
-
-        return roleInOrganisation == PersonRole.Employee.ToString();
     }
 
     private void SetBackLink(JourneySession session, string currentPagePath)

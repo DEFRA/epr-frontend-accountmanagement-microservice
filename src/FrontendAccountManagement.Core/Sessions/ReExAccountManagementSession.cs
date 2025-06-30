@@ -7,6 +7,8 @@ public class ReExAccountManagementSession
 {
     public List<string> Journey { get; set; } = [];
 
+    public Guid PersonId { get; set; } = Guid.Empty;
+
     public Guid OrganisationId { get; set; } = Guid.Empty;
 
     public string? OrganisationName { get; set; }
