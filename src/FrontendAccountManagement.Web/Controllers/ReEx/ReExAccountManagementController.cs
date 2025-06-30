@@ -19,10 +19,11 @@ namespace FrontendAccountManagement.Web.Controllers.ReEx;
 [AllowAnonymous]
 [ExcludeFromCodeCoverage]
 [Route(PagePath.ReExManageAccount)]
-public class ReExAccountManagementController(ISessionManager<JourneySession> sessionManager) : Controller
+public class ReExAccountManagementController(ISessionManager<JourneySession> sessionManager, IFacadeService facadeService) : Controller
 {
     private readonly ISessionManager<JourneySession> _sessionManager = sessionManager;
-    private readonly IFacadeService _facadeService;
+    private readonly IFacadeService _facadeService = facadeService;
+    private const string RolesNotFoundException = "Could not retrieve service roles or none found";
 
     [HttpGet]
     [Route("organisation/{organisationId}/person/{personId}")]
@@ -80,55 +81,67 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
         return await SaveSessionAndRedirect(session, nameof(TeamMemberPermissions), PagePath.TeamMemberEmail, PagePath.TeamMemberPermissions);
     }
-
     [HttpGet]
-    [Authorize(Policy = PolicyConstants.ReExAddTeamMemberPolicy)]
+    [AllowAnonymous]
     [Route(PagePath.TeamMemberPermissions)]
-    public async Task<IActionResult> TeamMemberPermissions()
+    [Route($"{PagePath.TeamMemberPermissions}/organisation/{{organisationId}}")]
+    public async Task<IActionResult> TeamMemberPermissions([FromRoute] Guid organisationId)
     {
-        //var userData = User.GetUserData();
-        //var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        var userData = User.GetUserData();
 
-        //if (IsEmployeeUser(userData))
-        //{
-        //    return NotFound();
-        //}
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        SetBackLink(session, PagePath.TeamMemberPermissions);
 
-        //SetBackLink(session, PagePath.TeamMemberPermissions);
+        var serviceRoles = await _facadeService.GetAllServiceRolesAsync();
 
-        //var serviceRoles = await _facadeService.GetAllServiceRolesAsync();
-        //if (serviceRoles == null || !serviceRoles.Any())
-        //{
-        //    throw new InvalidOperationException(RolesNotFoundException);
-        //}
+        if (serviceRoles == null)
+        {
+            throw new InvalidOperationException(RolesNotFoundException);
+        }
 
-        //var model = new TeamMemberPermissionsViewModel();
+        var reExRoles = serviceRoles.Where(r => r.Key.StartsWith("Re-Ex.ApprovedPerson") ||
+                                                r.Key.StartsWith("Re-Ex.StandardUser") ||
+                                                r.Key.StartsWith("Re-Ex.BasicUser")).ToList();
 
-        //if (!_deploymentRoleOptions.IsRegulator())
-        //{
-        //    var basicRoleId = (int)ServiceRole.Basic;
-        //    // temporarily set this to basic users only until next theme
-        //    model.ServiceRoles = serviceRoles
-        //        .Where(x => x.ServiceRoleId == basicRoleId)
-        //        .OrderByDescending(x => x.Key).ToList();
-        //    model.SavedUserRole = session.AccountManagementSession.AddUserJourney.UserRole;
-        //}
-        //else
-        //{
-        //    var regulatorAdminRoleId = (int)ServiceRole.RegulatorAdmin;
-        //    var regulatorBasicRoleId = (int)ServiceRole.RegulatorBasic;
-        //    model.ServiceRoles = serviceRoles
-        //        .Where(x => x.ServiceRoleId >= regulatorAdminRoleId && x.ServiceRoleId <= regulatorBasicRoleId)
-        //        .OrderByDescending(x => x.Key).ToList();
-        //    model.SavedUserRole = session.AccountManagementSession.AddUserJourney.UserRole;
-        //}
+        var isStandardUser = userData.Organisations.Any(org =>
+            org.Id == organisationId &&
+            org.Enrolments.Any(e => e.ServiceRoleKey.Contains("Re-Ex.BasicUser")));
 
-        //return View(nameof(TeamMemberPermissions), model);
+        var model = new TeamMemberPermissionsViewModel
+        {
+            OrganisationId = organisationId,
+            ServiceRoles = reExRoles,
+            IsStandardUser = isStandardUser,
+            SavedUserRole = session.ReExAccountManagementSession.AddUserJourney.UserRole
+        };
 
-        return View();
+        return View(nameof(TeamMemberPermissions), model);
     }
 
-    #region Helper Methods
+    [HttpPost]
+    [AllowAnonymous]
+    [Route(PagePath.TeamMemberPermissions)]
+    public async Task<IActionResult> TeamMemberPermissions(TeamMemberPermissionsViewModel model)
+    {
+        var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+
+        if (!ModelState.IsValid)
+        {
+            SetBackLink(session, PagePath.TeamMemberPermissions);
+            var serviceRoles = await _facadeService.GetAllServiceRolesAsync();
+
+            model.ServiceRoles = serviceRoles.Where(r => r.Key.StartsWith("Re-Ex.ApprovedPerson") ||
+                                                         r.Key.StartsWith("Re-Ex.StandardUser") ||
+                                                         r.Key.StartsWith("Re-Ex.BasicUser")).ToList();
+
+            return View(nameof(TeamMemberPermissions), model);
+        }
+
+        session.ReExAccountManagementSession.RoleKey = model.SelectedUserRole;
+        session.ReExAccountManagementSession.AddUserJourney.UserRole = model.SelectedUserRole;
+
+        return await SaveSessionAndRedirect(session, nameof(ViewDetails), PagePath.TeamMemberPermissions, PagePath.TeamMemberDetails);
+    }
 
     private async Task<RedirectToActionResult> SaveSessionAndRedirect(JourneySession session, string actionName, string currentPagePath, string? nextPagePath)
     {
@@ -170,6 +183,4 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
     {
         ViewBag.BackLinkToDisplay = session.ReExAccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
     }
-
-    #endregion Helper Methods
 }
