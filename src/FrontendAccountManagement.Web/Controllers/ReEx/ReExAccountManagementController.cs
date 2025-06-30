@@ -81,6 +81,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
         return await SaveSessionAndRedirect(session, nameof(TeamMemberPermissions), PagePath.TeamMemberEmail, PagePath.TeamMemberPermissions);
     }
+
     [HttpGet]
     [AllowAnonymous]
     [Route(PagePath.TeamMemberPermissions)]
