@@ -83,10 +83,8 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
     }
 
     [HttpGet]
-    [AllowAnonymous]
     [Route(PagePath.TeamMemberPermissions)]
-    [Route($"{PagePath.TeamMemberPermissions}/organisation/{{organisationId}}")]
-    public async Task<IActionResult> TeamMemberPermissions([FromRoute] Guid organisationId)
+    public async Task<IActionResult> TeamMemberPermissions()
     {
         var userData = User.GetUserData();
 
@@ -105,12 +103,12 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
                                                 r.Key.StartsWith("Re-Ex.BasicUser")).ToList();
 
         var isStandardUser = userData.Organisations.Any(org =>
-            org.Id == organisationId &&
+            org.Id == session.ReExAccountManagementSession.OrganisationId &&
             org.Enrolments.Any(e => e.ServiceRoleKey.Contains("Re-Ex.BasicUser")));
 
         var model = new TeamMemberPermissionsViewModel
         {
-            OrganisationId = organisationId,
+            OrganisationId = session.ReExAccountManagementSession.OrganisationId,
             ServiceRoles = reExRoles,
             IsStandardUser = isStandardUser,
             SavedUserRole = session.ReExAccountManagementSession.AddUserJourney.UserRole
@@ -120,7 +118,6 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
     }
 
     [HttpPost]
-    [AllowAnonymous]
     [Route(PagePath.TeamMemberPermissions)]
     public async Task<IActionResult> TeamMemberPermissions(TeamMemberPermissionsViewModel model)
     {
@@ -141,7 +138,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
         session.ReExAccountManagementSession.RoleKey = model.SelectedUserRole;
         session.ReExAccountManagementSession.AddUserJourney.UserRole = model.SelectedUserRole;
 
-        return await SaveSessionAndRedirect(session, nameof(ViewDetails), PagePath.TeamMemberPermissions, PagePath.TeamMemberDetails);
+        return await SaveSessionAndRedirect(session, nameof(ViewDetails), PagePath.TeamMemberPermissions, PagePath.TeamMemberDetails); // TODO: change to the next view
     }
 
     private async Task<RedirectToActionResult> SaveSessionAndRedirect(JourneySession session, string actionName, string currentPagePath, string? nextPagePath)
