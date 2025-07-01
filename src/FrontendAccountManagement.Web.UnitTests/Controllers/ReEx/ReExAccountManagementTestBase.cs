@@ -35,6 +35,7 @@ public class ReExAccountManagementTestBase
     protected ReExAccountManagementController SystemUnderTest;
 
     protected JourneySession JourneySessionMock { get; set; }
+    protected Guid OrganisationId { get; set; } = new Guid("ad521fbb-f255-4829-8f50-e74738d52a00");
 
     protected void SetupBase(UserData userData = null)
     {
@@ -61,7 +62,8 @@ public class ReExAccountManagementTestBase
                     PagePath.TeamMemberEmail,
                     PagePath.TeamMemberPermissions
                 },
-                AddUserJourney = new AddUserJourneyModel()
+                AddUserJourney = new AddUserJourneyModel(),
+                OrganisationId = OrganisationId
             }
         };
 
