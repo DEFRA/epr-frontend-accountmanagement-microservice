@@ -11,46 +11,44 @@ using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
+
 namespace FrontendAccountManagement.Web.Controllers.ReEx;
 
-//[Authorize(Policy = PolicyConstants.AccountManagementPolicy)]
+//[Authorize(Policy = PolicyConstants.ReExAccountManagementPolicy)]
+[AllowAnonymous]
 [ExcludeFromCodeCoverage]
 [Route(PagePath.ReExManageAccount)]
-public class ReExAccountManagementController : Controller
+public class ReExAccountManagementController(ISessionManager<JourneySession> sessionManager, IFacadeService facadeService) : Controller
 {
+    private readonly ISessionManager<JourneySession> _sessionManager = sessionManager;
+    private readonly IFacadeService _facadeService = facadeService;
     private const string RolesNotFoundException = "Could not retrieve service roles or none found";
-    
-    private readonly ISessionManager<JourneySession> _sessionManager;
-    private readonly IFacadeService _facadeService;
-
-    public ReExAccountManagementController(ISessionManager<JourneySession> sessionManager, IFacadeService facadeService)
-    {
-        _sessionManager = sessionManager;
-        _facadeService = facadeService;
-    }
 
     [HttpGet]
     [Route("organisation/{organisationId}/person/{personId}")]
     public async Task<string> ViewDetails([FromRoute] Guid organisationId, [FromRoute] Guid personId)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
+        session.ReExAccountManagementSession.OrganisationId = organisationId;
+        session.ReExAccountManagementSession.PersonId = personId;
+
+        SaveSession(session);
 
         return $"It worked! {session.IsComplianceScheme} ";
     }
 
     [HttpGet]
-    [Route($"{PagePath.TeamMemberEmail}/organisation/{{organisationId}}")]
-    public async Task<IActionResult> TeamMemberEmail([FromRoute] Guid organisationId)
+    //[Authorize(Policy = PolicyConstants.ReExAddTeamMemberPolicy)]
+    [Route(PagePath.TeamMemberEmail)]
+    public async Task<IActionResult> TeamMemberEmail()
     {
         if (!ModelState.IsValid)
         {
             return View(nameof(ViewDetails));
         }
 
-        var userData = User.GetUserData();
-        
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        session.ReExAccountManagementSession.OrganisationId = organisationId;
         session.ReExAccountManagementSession.Journey.AddIfNotExists(PagePath.ReExManageAccount);
         session.ReExAccountManagementSession.AddUserJourney ??= new AddUserJourneyModel();
 
@@ -66,8 +64,9 @@ public class ReExAccountManagementController : Controller
     }
 
     [HttpPost]
-    [Route($"{PagePath.TeamMemberEmail}/organisation/{{organisationId}}")]
-    public async Task<IActionResult> TeamMemberEmail([FromRoute] Guid organisationId, TeamMemberEmailViewModel model)
+    //[Authorize(Policy = PolicyConstants.ReExAddTeamMemberPolicy)]
+    [Route(PagePath.TeamMemberEmail)]
+    public async Task<IActionResult> TeamMemberEmail(TeamMemberEmailViewModel model)
     {
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
 
@@ -90,7 +89,7 @@ public class ReExAccountManagementController : Controller
     public async Task<IActionResult> TeamMemberPermissions([FromRoute] Guid organisationId)
     {
         var userData = User.GetUserData();
-        
+
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
         SetBackLink(session, PagePath.TeamMemberPermissions);
 
@@ -100,7 +99,7 @@ public class ReExAccountManagementController : Controller
         {
             throw new InvalidOperationException(RolesNotFoundException);
         }
-        
+
         var reExRoles = serviceRoles.Where(r => r.Key.StartsWith("Re-Ex.ApprovedPerson") ||
                                                 r.Key.StartsWith("Re-Ex.StandardUser") ||
                                                 r.Key.StartsWith("Re-Ex.BasicUser")).ToList();
@@ -119,7 +118,7 @@ public class ReExAccountManagementController : Controller
 
         return View(nameof(TeamMemberPermissions), model);
     }
-    
+
     [HttpPost]
     [AllowAnonymous]
     [Route(PagePath.TeamMemberPermissions)]
@@ -131,11 +130,11 @@ public class ReExAccountManagementController : Controller
         {
             SetBackLink(session, PagePath.TeamMemberPermissions);
             var serviceRoles = await _facadeService.GetAllServiceRolesAsync();
-            
+
             model.ServiceRoles = serviceRoles.Where(r => r.Key.StartsWith("Re-Ex.ApprovedPerson") ||
                                                          r.Key.StartsWith("Re-Ex.StandardUser") ||
                                                          r.Key.StartsWith("Re-Ex.BasicUser")).ToList();
-            
+
             return View(nameof(TeamMemberPermissions), model);
         }
 
