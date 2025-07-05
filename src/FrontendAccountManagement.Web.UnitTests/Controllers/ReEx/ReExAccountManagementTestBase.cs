@@ -1,5 +1,3 @@
-using System.Security.Claims;
-using System.Text.Json;
 using EPR.Common.Authorization.Models;
 using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Models;
@@ -15,6 +13,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 using Moq;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.ReEx;
 
@@ -36,7 +36,7 @@ public class ReExAccountManagementTestBase
 
     protected JourneySession JourneySessionMock { get; set; }
 
-    protected void SetupBase(UserData userData = null)
+    protected void SetupBase(UserData userData = null, int userServiceRoleId = 0, JourneySession journeySession = null)
     {
         HttpContextMock = new Mock<HttpContext>();
         UserMock = new Mock<ClaimsPrincipal>();
@@ -46,36 +46,44 @@ public class ReExAccountManagementTestBase
         UrlsOptionMock = new Mock<IOptions<ExternalUrlsOptions>>();
         TempDataDictionary = new TempDataDictionary(this.HttpContextMock.Object, new Mock<ITempDataProvider>().Object);
 
-        FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges))
-            .ReturnsAsync(true);
+        FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageCompanyDetailChanges)).ReturnsAsync(true);
 
         SetUpUserData(userData);
-        
+        var reExRemoveUserJourneyModel = new ReExRemoveUserJourneyModel();
+
+        if (journeySession != null)
+        {
+            reExRemoveUserJourneyModel.FirstName = journeySession.ReExAccountManagementSession.ReExRemoveUserJourney.FirstName;
+            reExRemoveUserJourneyModel.LastName = journeySession.ReExAccountManagementSession.ReExRemoveUserJourney.LastName;
+            reExRemoveUserJourneyModel.PersonId = journeySession.ReExAccountManagementSession.ReExRemoveUserJourney.PersonId;
+            reExRemoveUserJourneyModel.OrganisationId = journeySession.ReExAccountManagementSession.ReExRemoveUserJourney.OrganisationId;
+        }
+
         JourneySessionMock = new JourneySession
         {
+            UserData = userData ?? new UserData { ServiceRoleId = userServiceRoleId },
             ReExAccountManagementSession = new ReExAccountManagementSession
             {
-                Journey = new List<string>
-                {
-                    PagePath.ManageAccount,
+                ReExRemoveUserJourney = reExRemoveUserJourneyModel,
+                Journey =
+                [
+                    PagePath.ReExManageAccount,
                     PagePath.TeamMemberEmail,
-                    PagePath.TeamMemberPermissions
-                },
+                    PagePath.TeamMemberPermissions,
+                    PagePath.RemoveTeamMember,
+                    PagePath.PreRemoveTeamMember
+                ],
                 AddUserJourney = new AddUserJourneyModel()
             }
         };
 
-        SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>()))
-            .ReturnsAsync(JourneySessionMock);
+        SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(JourneySessionMock);
 
-        UrlsOptionMock.Setup(options => options.Value)
-            .Returns(new ExternalUrlsOptions { LandingPageUrl = "/back/to/home" });
+        UrlsOptionMock.Setup(options => options.Value).Returns(new ExternalUrlsOptions { LandingPageUrl = "/back/to/home" });
 
         LoggerMock = new Mock<ILogger<ReExAccountManagementController>>();
 
-        SystemUnderTest = new ReExAccountManagementController(
-            SessionManagerMock.Object,
-            FacadeServiceMock.Object);
+        SystemUnderTest = new ReExAccountManagementController(SessionManagerMock.Object, FacadeServiceMock.Object, LoggerMock.Object);
 
         SystemUnderTest.ControllerContext.HttpContext = HttpContextMock.Object;
         SystemUnderTest.TempData = this.TempDataDictionary;

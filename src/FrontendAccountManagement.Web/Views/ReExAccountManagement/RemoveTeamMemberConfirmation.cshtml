@@ -1,0 +1,37 @@
+@using FrontendAccountManagement.Web.Extensions
+@using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
+
+@model FrontendAccountManagement.Web.ViewModels.ReExAccountManagement.RemoveReExTeamMemberConfirmationViewModel
+
+@{
+    ViewData["Title"] = Localizer["Title"];
+    var userName = $"{Model.FirstName} {Model.LastName}";
+}
+
+@using (Html.BeginForm(FormMethod.Post))
+{
+    @Html.HiddenFor(x => x.FirstName)
+    @Html.HiddenFor(x => x.LastName)
+    @Html.HiddenFor(x => x.PersonId)
+    @Html.HiddenFor(x => x.OrganisationId)
+    
+    <div class="govuk-width-container">
+        <main class="govuk-main-wrapper" id="main-content" role="main">
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    <h1 class="govuk-heading-l">@Localizer["Header.RemoveTeamMember", userName]</h1>
+                    
+                    <p class="govuk-body">@Localizer["Information.LineOne", userName]</p>
+                    <p class="govuk-body">@Localizer["Information.LineTwo"]</p>
+
+                    <button class="govuk-button govuk-button--secondary" data-module="govuk-button" type="submit">
+                        @Localizer["Yes.Continue"]
+                    </button>
+                    <button class="govuk-button" data-module="govuk-button">
+                        @Localizer["Dont.Remove"]
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+}

@@ -16,4 +16,6 @@ public class JourneySession : IHasUserData
     public CompaniesHouseSession CompaniesHouseSession { get; set; } = new ();
    
     public bool IsComplianceScheme { get; set; }
+
+    public Guid? SelectedOrganisationId { get; set; }
 }
