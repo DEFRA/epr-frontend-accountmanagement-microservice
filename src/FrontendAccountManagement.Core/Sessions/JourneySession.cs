@@ -10,7 +10,11 @@ public class JourneySession : IHasUserData
     public Guid? SelectedOrganisationId { get; set; }
     
     public AccountManagementSession AccountManagementSession { get; set; } = new();
+    
+    public ReExAccountManagementSession ReExAccountManagementSession { get; set; } = new();
+    
     public PermissionManagementSession PermissionManagementSession { get; set; } = new();
+    
     public CompaniesHouseSession CompaniesHouseSession { get; set; } = new ();
    
     public bool IsComplianceScheme { get; set; }
