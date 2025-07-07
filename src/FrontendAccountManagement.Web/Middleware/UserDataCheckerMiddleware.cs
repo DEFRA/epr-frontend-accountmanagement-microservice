@@ -2,7 +2,6 @@
 using EPR.Common.Authorization.Models;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Services;
-using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Utilities.Interfaces;
 using Microsoft.AspNetCore.Mvc.Controllers;
 
@@ -27,7 +26,6 @@ public class UserDataCheckerMiddleware : IMiddleware
 	public async Task InvokeAsync(HttpContext context, RequestDelegate next)
 	{
 		var anonControllers = new List<string> { "Privacy", "Cookies", "Culture" };
-		var reExControllers = new List<string> { "ReExAccountManagement" };
 		var controllerName = GetControllerName(context);
 
 		var existingUserData = context.User.GetUserData();
@@ -35,26 +33,7 @@ public class UserDataCheckerMiddleware : IMiddleware
 
 		if (!anonControllers.Contains(controllerName) && context.User.Identity is { IsAuthenticated: true } && existingUserData is null)
 		{
-			UserAccountDto? userAccount = null;
-			if (reExControllers.Exists(name => name == controllerName))
-			{
-				var routeValues = context.Request.RouteValues;
-				if (routeValues.TryGetValue("organisationId", out var organisationId))
-				{
-					var externalId = new Guid(organisationId.ToString());
-					userAccount = await _facadeService.GetUserAccountWithEnrolments(ServiceKey.ReprocessorExporter);
-					var selectedOrganisation = userAccount?.User?.Organisations?.Find(o => o.Id == externalId);
-					if (selectedOrganisation != null)
-					{
-						userAccount.User.Organisations = [selectedOrganisation];
-					}
-				}
-			}
-			else
-			{
-				userAccount = await _facadeService.GetUserAccount();
-			}
-
+			var userAccount = await _facadeService.GetUserAccountWithEnrolments(string.Empty);
 			if (userAccount is null)
 			{
 				_logger.LogInformation("User authenticated but account could not be found");
