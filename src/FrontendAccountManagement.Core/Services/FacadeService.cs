@@ -1,3 +1,4 @@
+using EPR.Common.Authorization.Models;
 using FrontendAccountManagement.Core.Addresses;
 using FrontendAccountManagement.Core.Configuration;
 using FrontendAccountManagement.Core.Constants;
@@ -25,17 +26,15 @@ public class FacadeService : IFacadeService
     private readonly string _baseAddress;
     private readonly string _serviceRolesPath;
     private readonly string _getUserAccountPath;
-	private readonly string _getUserAccountV1Path;
-	private readonly string _getCompanyFromCompaniesHousePath;
+    private readonly string _getUserAccountV1Path;
+    private readonly string _getCompanyFromCompaniesHousePath;
 
     private readonly string _putUserDetailsByUserIdPath;
     private readonly string _putUpdateOrganisationPath;
+    private readonly string _personsApiPath;
     private readonly string[] _scopes;
 
-    public FacadeService(
-        HttpClient httpClient,
-        ITokenAcquisition tokenAcquisition,
-        IOptions<FacadeApiConfiguration> options)
+    public FacadeService(HttpClient httpClient, ITokenAcquisition tokenAcquisition, IOptions<FacadeApiConfiguration> options)
     {
         var config = options.Value;
 
@@ -44,15 +43,13 @@ public class FacadeService : IFacadeService
         _baseAddress = config.Address;
         _serviceRolesPath = config.GetServiceRolesPath;
         _getUserAccountPath = config.GetUserAccountPath;
-		_getUserAccountV1Path = config.GetUserAccountV1Path;
-		_getCompanyFromCompaniesHousePath = config.GetCompanyFromCompaniesHousePath;
+        _getUserAccountV1Path = config.GetUserAccountV1Path;
+        _getCompanyFromCompaniesHousePath = config.GetCompanyFromCompaniesHousePath;
 
         _putUserDetailsByUserIdPath = config.PutUserDetailsByUserIdPath;
         _putUpdateOrganisationPath = config.PutUpdateOrganisationPath;
-        _scopes = new[]
-        {
-            config.DownStreamScope,
-        };
+        _personsApiPath = config.GetPersonsAPIPath;
+        _scopes = [ config.DownStreamScope ];
     }
 
     public async Task<UserAccountDto?> GetUserAccount()
@@ -71,27 +68,27 @@ public class FacadeService : IFacadeService
         var userAccountDto = await response.Content.ReadFromJsonAsync<UserAccountDto>();
 
         return userAccountDto;
-	}
+    }
 
-	public async Task<UserAccountDto?> GetUserAccountWithEnrolments(string serviceKey)
-	{
-		await PrepareAuthenticatedClient();
+    public async Task<UserAccountDto?> GetUserAccountWithEnrolments(string serviceKey)
+    {
+        await PrepareAuthenticatedClient();
         var requestUri = $"{_getUserAccountV1Path}?serviceKey={serviceKey}";
-		var response = await _httpClient.GetAsync(requestUri);
+        var response = await _httpClient.GetAsync(requestUri);
 
-		if (response.StatusCode == HttpStatusCode.NotFound)
-		{
-			return null;
-		}
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
 
-		response.EnsureSuccessStatusCode();
+        response.EnsureSuccessStatusCode();
 
-		var userAccountDto = await response.Content.ReadFromJsonAsync<UserAccountDto>();
+        var userAccountDto = await response.Content.ReadFromJsonAsync<UserAccountDto>();
 
-		return userAccountDto;
-	}
+        return userAccountDto;
+    }
 
-	public async Task<IEnumerable<Models.ServiceRole>?> GetAllServiceRolesAsync()
+    public async Task<IEnumerable<Models.ServiceRole>?> GetAllServiceRolesAsync()
     {
         await PrepareAuthenticatedClient();
 
@@ -257,10 +254,7 @@ public class FacadeService : IFacadeService
         return roles;
     }
 
-    public async Task<EndpointResponseStatus> RemoveUserForOrganisation(
-        string personExternalId,
-        string organisationId,
-        int serviceRoleId)
+    public async Task<EndpointResponseStatus> RemoveUserForOrganisation(string personExternalId, string organisationId, int serviceRoleId)
     {
         await PrepareAuthenticatedClient();
 
@@ -304,9 +298,7 @@ public class FacadeService : IFacadeService
     /// <param name="organisationId">The organisation id to update</param>
     /// <param name="nationId">The nation id to use</param>
     /// <returns>An async task</returns>
-    public async Task UpdateOrganisationDetails(
-        Guid organisationId,
-        OrganisationUpdateDto organisation)
+    public async Task UpdateOrganisationDetails(Guid organisationId, OrganisationUpdateDto organisation)
     {
         await PrepareAuthenticatedClient();
 
@@ -324,11 +316,7 @@ public class FacadeService : IFacadeService
     /// <param name="serviceKey"></param>
     /// <param name="userDetailsUpdateModelRequest"></param>
     /// <returns></returns>
-    public async Task<UpdateUserDetailsResponse> UpdateUserDetailsAsync(
-        Guid userId,
-        Guid organisationId,
-        string serviceKey,
-        UpdateUserDetailsRequest userDetailsUpdateModelRequest)
+    public async Task<UpdateUserDetailsResponse> UpdateUserDetailsAsync(Guid userId, Guid organisationId, string serviceKey, UpdateUserDetailsRequest userDetailsUpdateModelRequest)
     {
         await PrepareAuthenticatedClient();
         var uri = new Uri($"{_baseAddress}{_putUserDetailsByUserIdPath}?serviceKey={serviceKey}");
@@ -341,6 +329,24 @@ public class FacadeService : IFacadeService
 
         response.EnsureSuccessStatusCode();
         var responseData = await response.Content.ReadFromJsonAsync<UpdateUserDetailsResponse>();
+        return responseData;
+    }
+
+    /// <summary>
+    /// Get User Details by Id
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="organisationId"></param>
+    /// <returns></returns>
+    public async Task<PersonDetailsDto?> GetUserDetailsByIdAsync(Guid userId)
+    {
+        await PrepareAuthenticatedClient();
+
+        var response = await _httpClient.GetAsync($"{_personsApiPath}/GetPerson?userId={userId}");
+
+        response.EnsureSuccessStatusCode();
+
+        var responseData = await response.Content.ReadFromJsonAsync<PersonDetailsDto>();
         return responseData;
     }
 

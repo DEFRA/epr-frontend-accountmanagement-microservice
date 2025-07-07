@@ -41,14 +41,18 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
         session ??= new JourneySession();
         var userAccount = User.GetUserData();
 
+        //var userDetails = await facadeService.GetUserDetailsByIdAsync(personId);
 
-        var userDetails = await facadeService.GetPersonDetailsFromConnectionAsync(organisationId, personId, userAccount.ServiceKey);
-
-
+        //var serviceRoles = await facadeService.GetAllServiceRolesAsync();
 
         ViewDetailsViewModel model = new()
         {
-            AddedBy = TempData["PersonUpdated"]?.ToString()
+            AddedBy = TempData["PersonUpdated"]?.ToString(),
+            Email = "Test@Test.com", //userDetails?.ContactEmail,
+            AccountPermissions = "Approved User, Administrator"
+            //AccountPermissions = (serviceRoles.Where(r => r.Key.StartsWith("Re-Ex.ApprovedPerson") ||
+            //                                              r.Key.StartsWith("Re-Ex.StandardUser") ||
+            //                                              r.Key.StartsWith("Re-Ex.BasicUser")).ToList()).ToString(),
         };
 
         if (userAccount is null)
