@@ -161,6 +161,14 @@
       <EmbeddedResource Update="ResourcesRegulator\Views\PermissionManagement\NameOfOrganisation.en.resx">
         <SubType>Designer</SubType>
       </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\ReExAccountManagement\TeamMemberEmail.cy.resx">
+        <LastGenOutput>TeamMemberEmail.en.Designer.cs</LastGenOutput>
+        <Generator>ResXFileCodeGenerator</Generator>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Views\ReExAccountManagement\TeamMemberEmail.en.resx">
+        <LastGenOutput>TeamMemberEmail.en.Designer.cs</LastGenOutput>
+        <Generator>ResXFileCodeGenerator</Generator>
+      </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>

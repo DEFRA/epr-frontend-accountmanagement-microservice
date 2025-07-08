@@ -7,14 +7,12 @@ using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
-using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using FrontendAccountManagement.Web.ViewModels.ReExAccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.FeatureManagement;
 using System.Diagnostics.CodeAnalysis;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
@@ -88,8 +86,8 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
     [HttpGet]
     //[Authorize(Policy = PolicyConstants.ReExAddTeamMemberPolicy)]
-    [Route(PagePath.TeamMemberEmail)]
-    public async Task<IActionResult> TeamMemberEmail()
+    [Route($"{PagePath.TeamMemberEmail}/organisation/{{organisationId}}")]
+    public async Task<IActionResult> TeamMemberEmail([FromRoute] Guid organisationId)
     {
         if (!ModelState.IsValid)
         {
@@ -97,8 +95,11 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
         }
 
         var session = await sessionManager.GetSessionAsync(HttpContext.Session);
+        session ??= new JourneySession();
+
         session.ReExAccountManagementSession.Journey.AddIfNotExists(PagePath.ReExManageAccount);
         session.ReExAccountManagementSession.AddUserJourney ??= new AddUserJourneyModel();
+        session.ReExAccountManagementSession.OrganisationId = organisationId;
 
         await SaveSessionAndJourney(session, PagePath.ReExManageAccount, PagePath.TeamMemberEmail);
         SetBackLink(session, PagePath.TeamMemberEmail);
@@ -192,11 +193,13 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
     }
 
     [HttpPost]
-    [Route(PagePath.PreRemoveTeamMember)]
     //[AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
-    public async Task<IActionResult> RemoveTeamMemberPreConfirmation(string firstName, string lastName, Guid personId, Guid organisationId)
+    [Route($"{PagePath.PreRemoveTeamMember}/organisation/{{organisationId}}/person/{{personId}}/firstName/{{firstName}}/lastName/{{lastName}}")]
+    public async Task<IActionResult> RemoveTeamMemberPreConfirmation([FromRoute] Guid organisationId, [FromRoute] Guid personId, [FromRoute] string firstName, [FromRoute] string lastName)
     {
         var session = await sessionManager.GetSessionAsync(HttpContext.Session);
+        session ??= new JourneySession();
+
         if (!ModelState.IsValid)
         {
             SetBackLink(session, PagePath.RemoveTeamMember);
@@ -209,8 +212,8 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
     }
 
     [HttpGet]
-    [Route(PagePath.RemoveTeamMember)]
     //[AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
+    [Route(PagePath.RemoveTeamMember)]
     public async Task<IActionResult> RemoveTeamMemberConfirmation()
     {
         var userData = User.GetUserData();
