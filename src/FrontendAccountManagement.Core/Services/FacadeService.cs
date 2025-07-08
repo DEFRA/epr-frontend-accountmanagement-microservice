@@ -25,7 +25,6 @@ public class FacadeService : IFacadeService
     private readonly string _baseAddress;
     private readonly string _serviceRolesPath;
     private readonly string _getUserAccountPath;
-	private readonly string _getUserAccountV1Path;
 	private readonly string _getCompanyFromCompaniesHousePath;
 
     private readonly string _putUserDetailsByUserIdPath;
@@ -44,7 +43,6 @@ public class FacadeService : IFacadeService
         _baseAddress = config.Address;
         _serviceRolesPath = config.GetServiceRolesPath;
         _getUserAccountPath = config.GetUserAccountPath;
-		_getUserAccountV1Path = config.GetUserAccountV1Path;
 		_getCompanyFromCompaniesHousePath = config.GetCompanyFromCompaniesHousePath;
 
         _putUserDetailsByUserIdPath = config.PutUserDetailsByUserIdPath;
@@ -76,7 +74,7 @@ public class FacadeService : IFacadeService
 	public async Task<UserAccountDto?> GetUserAccountWithEnrolments(string serviceKey)
 	{
 		await PrepareAuthenticatedClient();
-        var requestUri = $"{_getUserAccountV1Path}?serviceKey={serviceKey}";
+        var requestUri = $"{_getUserAccountPath}?serviceKey={serviceKey}";
 		var response = await _httpClient.GetAsync(requestUri);
 
 		if (response.StatusCode == HttpStatusCode.NotFound)
