@@ -21,6 +21,7 @@ public class RemoveReExTeamMemberConfirmationTests : ReExAccountManagementTestBa
     private const string ViewName = "RemoveTeamMemberConfirmation";
     private readonly Guid personId = Guid.NewGuid();
     private readonly Guid organisationId = Guid.NewGuid();
+    private string Role = "Role";
     private string _personExternalId;
     private int _serviceRoleId;
     private UserData _userData;
@@ -112,7 +113,7 @@ public class RemoveReExTeamMemberConfirmationTests : ReExAccountManagementTestBa
     public async Task GivenOnRemoveTeamMemberPreConfirmationPage_CheckDetailsSaved()
     {
         // Act
-        await SystemUnderTest.RemoveTeamMemberPreConfirmation(personId, organisationId, FirstName, LastName);
+        await SystemUnderTest.RemoveTeamMemberPreConfirmation(personId, organisationId, FirstName, LastName, Role);
 
         // Assert
         Assert.AreEqual(FirstName, JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney.FirstName);
@@ -127,7 +128,7 @@ public class RemoveReExTeamMemberConfirmationTests : ReExAccountManagementTestBa
         JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney = null;
 
         // Act
-        await SystemUnderTest.RemoveTeamMemberPreConfirmation(organisationId, personId, FirstName, LastName);
+        await SystemUnderTest.RemoveTeamMemberPreConfirmation(organisationId, personId, FirstName, LastName, Role);
 
         // Assert
         Assert.AreEqual(FirstName, JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney.FirstName);
@@ -139,7 +140,7 @@ public class RemoveReExTeamMemberConfirmationTests : ReExAccountManagementTestBa
     public async Task GivenOnRemoveTeamMemberPreConfirmationPage_CheckDetailsSaved_WithNullValues_ToStart()
     {
         // Act
-        await SystemUnderTest.RemoveTeamMemberPreConfirmation(Guid.Empty, Guid.Empty, null, null);
+        await SystemUnderTest.RemoveTeamMemberPreConfirmation(Guid.Empty, Guid.Empty, null, null, string.Empty);
 
         // Assert
         Assert.AreEqual(FirstName, JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney.FirstName);

@@ -6,4 +6,5 @@ namespace FrontendAccountManagement.Core.Models;
 public class ReExRemoveUserJourneyModel : RemoveUserJourneyModel
 {
     public Guid OrganisationId { get; set; }
+    public string Role { get; set; }
 }

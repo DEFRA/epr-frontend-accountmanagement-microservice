@@ -196,8 +196,12 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
     [HttpPost]
     //[AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
-    [Route($"{PagePath.PreRemoveTeamMember}/organisation/{{organisationId}}/person/{{personId}}/firstName/{{firstName}}/lastName/{{lastName}}")]
-    public async Task<IActionResult> RemoveTeamMemberPreConfirmation([FromRoute] Guid organisationId, [FromRoute] Guid personId, [FromRoute] string firstName, [FromRoute] string lastName)
+    [Route($"{PagePath.PreRemoveTeamMember}/organisation/{{organisationId}}/person/{{personId}}/firstName/{{firstName}}/lastName/{{lastName}}/role/{{role}}")]
+    public async Task<IActionResult> RemoveTeamMemberPreConfirmation([FromRoute] Guid organisationId, 
+        [FromRoute] Guid personId, 
+        [FromRoute] string firstName,
+        [FromRoute] string lastName,
+        [FromRoute] string role)
     {
         var session = await sessionManager.GetSessionAsync(HttpContext.Session);
         session ??= new JourneySession();
@@ -208,7 +212,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
             return View(nameof(ViewDetails));
         }
 
-        SetRemoveUserJourneyValues(session, firstName, lastName, personId, organisationId);
+        SetRemoveUserJourneyValues(session, firstName, lastName, personId, organisationId, role);
         await SaveSession(session);
         return RedirectToAction("RemoveTeamMemberConfirmation", "ReExAccountManagement");
     }
@@ -218,14 +222,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
     [Route(PagePath.RemoveTeamMember)]
     public async Task<IActionResult> RemoveTeamMemberConfirmation()
     {
-        var userData = User.GetUserData();
-
         var session = await sessionManager.GetSessionAsync(HttpContext.Session);
-
-        if (IsEmployeeUser(userData))
-        {
-            return NotFound();
-        }
 
         session.ReExAccountManagementSession.Journey.AddIfNotExists(PagePath.ReExManageAccount);
         session.ReExAccountManagementSession.Journey.AddIfNotExists(PagePath.RemoveTeamMember);
@@ -236,7 +233,8 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
             FirstName = session.ReExAccountManagementSession.ReExRemoveUserJourney.FirstName,
             LastName = session.ReExAccountManagementSession.ReExRemoveUserJourney.LastName,
             PersonId = session.ReExAccountManagementSession.ReExRemoveUserJourney.PersonId,
-            OrganisationId = session.ReExAccountManagementSession.ReExRemoveUserJourney.OrganisationId
+            OrganisationId = session.ReExAccountManagementSession.ReExRemoveUserJourney.OrganisationId,
+            Role = session.ReExAccountManagementSession.ReExRemoveUserJourney.Role
         };
 
         await SaveSessionAndJourney(session, PagePath.ReExManageAccount, PagePath.RemoveTeamMember);
@@ -246,32 +244,40 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
     [HttpPost]
     [Route(PagePath.RemoveTeamMember)]
-    public async Task<IActionResult> RemoveTeamMemberConfirmation(RemoveTeamMemberConfirmationViewModel model)
+    public async Task<IActionResult> RemoveTeamMemberConfirmation(RemoveReExTeamMemberConfirmationViewModel model)
     {
         var session = await sessionManager.GetSessionAsync(HttpContext.Session);
         var userData = User.GetUserData();
 
         if (!ModelState.IsValid)
         {
-            SetBackLink(session, PagePath.TeamMemberPermissions);
-            return View(model);
+            SetBackLink(session, PagePath.RemoveTeamMember);
+            return View(nameof(RemoveTeamMemberConfirmation));
         }
 
         var personExternalId = model.PersonId.ToString();
-        var organisation = userData.Organisations.FirstOrDefault();
-        if (organisation?.Id == null)
-        {
-            return RedirectToAction(nameof(ViewDetails));
-        }
-        var organisationId = organisation!.Id.ToString();
+
+        var organisationId = model.OrganisationId.ToString();
         var serviceRoleId = userData.ServiceRoleId;
         var result = await facadeService.RemoveUserForOrganisation(personExternalId, organisationId, serviceRoleId);
         session.ReExAccountManagementSession.RemoveUserStatus = result;
 
-        return await SaveSessionAndRedirect(session, nameof(ViewDetails), PagePath.RemoveTeamMember, PagePath.ReExManageAccount);
+        await SaveSessionAndJourney(session, PagePath.RemoveTeamMember, PagePath.ReExManageAccount);
+        
+        var redirectUrl = $"https://localhost:7068/epr-prn/manage-organisation?userRemoved=true" +
+                          $"&firstName={Uri.EscapeDataString(model.FirstName)}" +
+                          $"&lastName={Uri.EscapeDataString(model.LastName)}" +
+                          $"&role={Uri.EscapeDataString(model.Role)}";
+
+        return Redirect(redirectUrl);
     }
 
-    private static void SetRemoveUserJourneyValues(JourneySession session, string firstName, string lastName, Guid personId, Guid organisationId)
+    private static void SetRemoveUserJourneyValues(JourneySession session, 
+        string firstName, 
+        string lastName, 
+        Guid personId, 
+        Guid organisationId,
+        string role)
     {
         if (session.ReExAccountManagementSession.ReExRemoveUserJourney == null)
         {
@@ -280,16 +286,18 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
                 FirstName = firstName,
                 LastName = lastName,
                 PersonId = personId,
-                OrganisationId = organisationId
+                OrganisationId = organisationId,
+                Role = role
             };
         }
 
-        if (!string.IsNullOrEmpty(firstName) && !string.IsNullOrEmpty(lastName) && personId != Guid.Empty && organisationId != Guid.Empty)
+        if (!string.IsNullOrEmpty(firstName) && !string.IsNullOrEmpty(lastName) && personId != Guid.Empty && organisationId != Guid.Empty && !string.IsNullOrEmpty(firstName))
         {
             session.ReExAccountManagementSession.ReExRemoveUserJourney.FirstName = firstName;
             session.ReExAccountManagementSession.ReExRemoveUserJourney.LastName = lastName;
             session.ReExAccountManagementSession.ReExRemoveUserJourney.PersonId = personId;
             session.ReExAccountManagementSession.ReExRemoveUserJourney.OrganisationId = organisationId;
+            session.ReExAccountManagementSession.ReExRemoveUserJourney.Role = role;
         }
     }
 
@@ -332,17 +340,5 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
     private void SetBackLink(JourneySession session, string currentPagePath)
     {
         ViewBag.BackLinkToDisplay = session.ReExAccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
-    }
-
-    private static bool IsEmployeeUser(UserData userData)
-    {
-        var roleInOrganisation = userData.RoleInOrganisation;
-
-        if (string.IsNullOrEmpty(roleInOrganisation))
-        {
-            throw new InvalidOperationException("Unknown role in organisation.");
-        }
-
-        return roleInOrganisation == PersonRole.Employee.ToString();
     }
 }
