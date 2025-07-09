@@ -31,7 +31,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
     [HttpGet]
     [Route("organisation/{organisationId}/person/{personId}")]
-    public async Task<string> ViewDetails([FromRoute] Guid organisationId, [FromRoute] Guid personId)
+    public async Task<IActionResult> ViewDetails([FromRoute] Guid organisationId, [FromRoute] Guid personId)
     {
         if (!ModelState.IsValid)
         {
@@ -102,7 +102,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
         session.ReExAccountManagementSession.Journey.AddIfNotExists(PagePath.ReExManageAccount);
         session.ReExAccountManagementSession.AddUserJourney ??= new AddUserJourneyModel();
-        session.ReExAccountManagementSession.OrganisationId = organisationId;
+        //session.ReExAccountManagementSession.OrganisationId = organisationId; TODO fix this
 
         await SaveSessionAndJourney(session, PagePath.ReExManageAccount, PagePath.TeamMemberEmail);
         SetBackLink(session, PagePath.TeamMemberEmail);

@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 using EPR.Common.Authorization.Models;
 using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Models;
@@ -14,7 +15,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 using Moq;
-using Newtonsoft.Json;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.ReEx;
 
