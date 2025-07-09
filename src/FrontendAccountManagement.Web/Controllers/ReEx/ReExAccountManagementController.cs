@@ -23,7 +23,9 @@ namespace FrontendAccountManagement.Web.Controllers.ReEx;
 [AllowAnonymous]
 [ExcludeFromCodeCoverage]
 [Route(PagePath.ReExManageAccount)]
-public class ReExAccountManagementController(ISessionManager<JourneySession> sessionManager, IFacadeService facadeService) : Controller
+public class ReExAccountManagementController(ISessionManager<JourneySession> sessionManager, 
+    IFacadeService facadeService,
+    ILogger<ReExAccountManagementController> logger) : Controller
 {
     private const string RolesNotFoundException = "Could not retrieve service roles or none found";
 
