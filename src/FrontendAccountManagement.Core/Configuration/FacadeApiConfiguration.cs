@@ -57,4 +57,9 @@ public record FacadeApiConfiguration
     /// Gets or sets the path for updating the user details
     /// </summary>
     public string PutUserDetailsByUserIdPath { get; set; }
+
+    /// <summary>
+    /// Gets or sets the path for person details
+    /// </summary>
+    public string GetPersonsAPIPath { get; set; }
 }

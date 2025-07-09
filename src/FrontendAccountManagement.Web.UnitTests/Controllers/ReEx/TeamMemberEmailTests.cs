@@ -32,11 +32,11 @@ public class TeamMemberEmailTests : ReExAccountManagementTestBase
         {
             ReExAccountManagementSession = new ReExAccountManagementSession
             {
-                Journey = new List<string>
-                {
-                    PagePath.ManageAccount,
+                Journey =
+                [
+                    PagePath.ReExManageAccount,
                     PagePath.TeamMemberEmail,
-                },
+                ],
                 AddUserJourney = new AddUserJourneyModel()
             }
         };

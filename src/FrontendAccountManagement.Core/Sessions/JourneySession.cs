@@ -6,8 +6,6 @@ namespace FrontendAccountManagement.Core.Sessions;
 public class JourneySession : IHasUserData
 {
     public UserData UserData { get; set; } = new();
-
-    public Guid? SelectedOrganisationId { get; set; }
     
     public AccountManagementSession AccountManagementSession { get; set; } = new();
     
@@ -18,4 +16,6 @@ public class JourneySession : IHasUserData
     public CompaniesHouseSession CompaniesHouseSession { get; set; } = new ();
    
     public bool IsComplianceScheme { get; set; }
+
+    public Guid? SelectedOrganisationId { get; set; }
 }

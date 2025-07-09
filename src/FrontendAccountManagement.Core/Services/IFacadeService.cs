@@ -30,7 +30,9 @@ public interface IFacadeService
 
     Task<UserAccountDto?> GetUserAccountWithEnrolments(string serviceKey);
 
-	Task<List<int>> GetNationIds(Guid organisationId);
+    Task<PersonDetailsDto?> GetUserDetailsByIdAsync(Guid userId);
+
+    Task<List<int>> GetNationIds(Guid organisationId);
 
     Task<CompaniesHouseResponse> GetCompaniesHouseResponseAsync(string companyHouseNumber);
 
