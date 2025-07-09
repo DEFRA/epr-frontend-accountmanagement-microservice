@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using EPR.Common.Authorization.Extensions;
 using EPR.Common.Authorization.Models;
 using EPR.Common.Authorization.Sessions;
@@ -22,13 +23,13 @@ namespace FrontendAccountManagement.Web.Controllers.ReEx;
 [AllowAnonymous]
 [ExcludeFromCodeCoverage]
 [Route(PagePath.ReExManageAccount)]
-public class ReExAccountManagementController(ISessionManager<JourneySession> sessionManager, IFacadeService facadeService, ILogger<ReExAccountManagementController> logger) : Controller
+public class ReExAccountManagementController(ISessionManager<JourneySession> sessionManager, IFacadeService facadeService) : Controller
 {
     private const string RolesNotFoundException = "Could not retrieve service roles or none found";
 
     [HttpGet]
     [Route("organisation/{organisationId}/person/{personId}")]
-    public async Task<IActionResult> ViewDetails([FromRoute] Guid organisationId, [FromRoute] Guid personId)
+    public async Task<string> ViewDetails([FromRoute] Guid organisationId, [FromRoute] Guid personId)
     {
         if (!ModelState.IsValid)
         {
@@ -86,8 +87,8 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
     [HttpGet]
     //[Authorize(Policy = PolicyConstants.ReExAddTeamMemberPolicy)]
-    [Route($"{PagePath.TeamMemberEmail}/organisation/{{organisationId}}")]
-    public async Task<IActionResult> TeamMemberEmail([FromRoute] Guid organisationId)
+    [Route(PagePath.TeamMemberEmail)]
+    public async Task<IActionResult> TeamMemberEmail()
     {
         if (!ModelState.IsValid)
         {
@@ -132,10 +133,8 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
     }
 
     [HttpGet]
-    [AllowAnonymous]
     [Route(PagePath.TeamMemberPermissions)]
-    [Route($"{PagePath.TeamMemberPermissions}/organisation/{{organisationId}}")]
-    public async Task<IActionResult> TeamMemberPermissions([FromRoute] Guid organisationId)
+    public async Task<IActionResult> TeamMemberPermissions()
     {
         var userData = User.GetUserData();
 
@@ -153,12 +152,14 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
         var reExRoles = serviceRoles.Where(r => r.Key.StartsWith("Re-Ex.ApprovedPerson") ||
                                                 r.Key.StartsWith("Re-Ex.StandardUser") ||
                                                 r.Key.StartsWith("Re-Ex.BasicUser")).ToList();
-
-        var isStandardUser = userData.Organisations.Exists(org => org.Id == organisationId && org.Enrolments.Exists(e => e.ServiceRoleKey.Contains("Re-Ex.BasicUser")));
+        
+        var isStandardUser = userData.Organisations.Any(org =>
+            org.Id == session.ReExAccountManagementSession.OrganisationId &&
+            org.Enrolments.Any(e => e.ServiceRoleKey.Contains("Re-Ex.BasicUser")));
 
         var model = new TeamMemberPermissionsViewModel
         {
-            OrganisationId = organisationId,
+            OrganisationId = session.ReExAccountManagementSession.OrganisationId,
             ServiceRoles = reExRoles,
             IsStandardUser = isStandardUser,
             SavedUserRole = session.ReExAccountManagementSession.AddUserJourney.UserRole
@@ -168,7 +169,6 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
     }
 
     [HttpPost]
-    [AllowAnonymous]
     [Route(PagePath.TeamMemberPermissions)]
     public async Task<IActionResult> TeamMemberPermissions(TeamMemberPermissionsViewModel model)
     {
@@ -189,7 +189,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
         session.ReExAccountManagementSession.RoleKey = model.SelectedUserRole;
         session.ReExAccountManagementSession.AddUserJourney.UserRole = model.SelectedUserRole;
 
-        return await SaveSessionAndRedirect(session, nameof(ViewDetails), PagePath.TeamMemberPermissions, PagePath.TeamMemberDetails);
+        return await SaveSessionAndRedirect(session, nameof(ViewDetails), PagePath.TeamMemberPermissions, PagePath.TeamMemberDetails); // TODO: change to the next view
     }
 
     [HttpPost]

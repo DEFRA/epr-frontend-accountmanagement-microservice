@@ -9,8 +9,6 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.ReEx
     [TestClass]
     public class TeamMemberPermissionsTests : ReExAccountManagementTestBase
     {
-        private static readonly Guid OrganisationId = Guid.NewGuid();
-
         [TestMethod]
         public async Task Get_TeamMemberPermissions_ReturnsCorrectViewWithModel()
         {
@@ -42,7 +40,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.ReEx
             FacadeServiceMock.Setup(f => f.GetAllServiceRolesAsync()).ReturnsAsync(serviceRoles);
 
             // Act
-            var result = await SystemUnderTest.TeamMemberPermissions(OrganisationId) as ViewResult;
+            var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);

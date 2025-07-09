@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using EPR.Common.Authorization.Models;
 using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Models;
@@ -13,8 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 using Moq;
-using System.Security.Claims;
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.ReEx;
 
@@ -35,6 +35,7 @@ public class ReExAccountManagementTestBase
     protected ReExAccountManagementController SystemUnderTest;
 
     protected JourneySession JourneySessionMock { get; set; }
+    protected Guid OrganisationId { get; set; } = new Guid("ad521fbb-f255-4829-8f50-e74738d52a00");
 
     protected void SetupBase(UserData userData = null, int userServiceRoleId = 0, JourneySession journeySession = null)
     {
@@ -73,7 +74,8 @@ public class ReExAccountManagementTestBase
                     PagePath.RemoveTeamMember,
                     PagePath.PreRemoveTeamMember
                 ],
-                AddUserJourney = new AddUserJourneyModel()
+                AddUserJourney = new AddUserJourneyModel(),
+                OrganisationId = OrganisationId
             }
         };
 

@@ -6,6 +6,8 @@ namespace FrontendAccountManagement.Core.Sessions;
 public class JourneySession : IHasUserData
 {
     public UserData UserData { get; set; } = new();
+
+    public Guid? SelectedOrganisationId { get; set; }
     
     public AccountManagementSession AccountManagementSession { get; set; } = new();
     
