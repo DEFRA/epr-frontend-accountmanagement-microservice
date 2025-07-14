@@ -1159,7 +1159,65 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             Assert.AreEqual(expected: EndpointResponseStatus.Fail, response);
             httpTestHandler.Dispose();
         }
+        
+        [TestMethod]
+        public async Task DeletePersonConnectionAndEnrolment_WithValidRequest_IsSuccessfulReturnsResult()
+        {
+            // Arrange
+            var organisationId = Guid.NewGuid().ToString();
+            var userId = Guid.NewGuid().ToString();
+            var enrolementId = 2;
 
+            var httpTestHandler = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpTestHandler);
+
+            // Act
+            var response = await _facadeService.DeletePersonConnectionAndEnrolment(organisationId, userId, enrolementId);
+
+            // Assert
+            Assert.IsNotNull(response);
+            Assert.AreEqual(expected: EndpointResponseStatus.Success, response);
+            httpTestHandler.Dispose();
+        }
+
+        [TestMethod]
+        public async Task DeletePersonConnectionAndEnrolment_WithValidRequest_IsUnsuccessfulReturnsResult()
+        {
+            // Arrange
+            var organisationId = Guid.NewGuid().ToString();
+            var userId = Guid.NewGuid().ToString();
+            var enrolementId = 2;
+
+            var httpTestHandler = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.NotFound
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpTestHandler);
+
+            // Act
+            var response = await _facadeService.DeletePersonConnectionAndEnrolment(organisationId, userId, enrolementId);
+
+            // Assert
+            Assert.IsNotNull(response);
+            Assert.AreEqual(expected: EndpointResponseStatus.Fail, response);
+            httpTestHandler.Dispose();
+        }
+        
         [TestMethod]
         public async Task UpdatePersonRoleAdminOrEmployee_WithValidRequest_IsUnsuccessfulReturnsResult()
         {

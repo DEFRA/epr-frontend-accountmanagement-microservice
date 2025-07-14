@@ -267,6 +267,18 @@ public class FacadeService : IFacadeService
 
         return response.IsSuccessStatusCode ? EndpointResponseStatus.Success : EndpointResponseStatus.Fail;
     }
+    
+    public async Task<EndpointResponseStatus> DeletePersonConnectionAndEnrolment(
+        string personExternalId,
+        string organisationId,
+        int enrolmentId)
+    {
+        await PrepareAuthenticatedClient();
+
+        var response = await _httpClient.DeleteAsync($"enrolments/v1/{personExternalId}?organisationId={organisationId}&enrolmentId={enrolmentId}");
+
+        return response.IsSuccessStatusCode ? EndpointResponseStatus.Success : EndpointResponseStatus.Fail;
+    }
 
     public async Task<List<int>> GetNationIds(Guid organisationId)
     {
