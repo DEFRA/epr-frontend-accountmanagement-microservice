@@ -2,6 +2,8 @@
 @using FrontendAccountManagement.Web.ViewModels.Shared.GovUK
 @using FrontendAccountManagement.Web.ViewModels.ReExAccountManagement
 
+@inject IViewLocalizer Localizer
+
 @addTagHelper *, Microsoft.FeatureManagement.AspNetCore
 
 @model ViewDetailsViewModel
@@ -12,40 +14,85 @@
 
 <div class="govuk-width-container">
     <main class="govuk-main-wrapper" id="main-content" role="main">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-l govuk-!-margin-bottom-8">
-                    @Localizer["DetailsAndAccountPermissions"]
-                </h1>
-            </div>
+        <form asp-controller="ReExAccountManagement" asp-action="RemoveTeamMemberPreConfirmation" method="get">
+            <input type="hidden" asp-for="OrganisationId" />
+            <input type="hidden" asp-for="PersonId" />
+            <input type="hidden" asp-for="EnrolmentId" />
 
-            <div class="govuk-summary-list__row">
-                <div class="govuk-heading-m govuk-!-font-weight-bold govuk-!-margin-right-3">
-                    <label class="govuk-label" for="Email">@Localizer["Email"]</label>
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    <h1 class="govuk-heading-l govuk-!-margin-bottom-8">
+                        @Localizer["DetailsAndAccountPermissions"]
+                    </h1>
                 </div>
-                <div class="govuk-summary-list__value">@Model.Email</div>
-            </div>
 
-            <div class="govuk-summary-list__row">
-                <div class="govuk-heading-m govuk-!-font-weight-bold govuk-!-margin-right-3">
-                    <label class="govuk-label" for="AccountRole">@Localizer["AccountRole"]</label>
-                </div>
-                <div class="govuk-summary-list__value">@Model.AccountRole</div>
-            </div>
+                <div class="govuk-!-margin-left-3">
+                    <table class="govuk-table govuk-!-margin-top-6">
+                        <thead class="govuk-table__head">
+                            <tr class="govuk-table__row">
+                                <th scope="col" class="govuk-table__header govuk-!-width-one-quarter"></th>
+                                <th scope="col" class="govuk-table__header govuk-!-width-one-half"></th>
+                                <th scope="col" class="govuk-table__header govuk-!-width-one-quarter"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="govuk-table__body">
+                            <tr class="govuk-table__row">
+                                <td class="govuk-table__cell govuk-!-width-one-quarter">
+                                    <span class="govuk-!-font-weight-bold govuk-!-font-size-16">@Localizer["Email"]</span>
+                                </td>
+                                <td class="govuk-table__cell govuk-!-width-one-half">
+                                    <span class="govuk-!-font-size-16">@Model.Email</span>
+                                </td>
+                                <td class="govuk-table__cell govuk-!-width-one-quarter">
+                                    <span class="govuk-!-font-weight-bold govuk-!-font-size-16">&nbsp;</span>
+                                </td>
+                            </tr>
 
-            <div class="govuk-summary-list__row">
-                <div class="govuk-heading-m govuk-!-font-weight-bold govuk-!-margin-right-3">
-                    <label class="govuk-label" for="AccountPermissions">@Localizer["AccountPermissions"]</label>
-                </div>
-                <div class="govuk-summary-list__value">@Model.AccountPermissions</div>
-            </div>
+                            <tr class="govuk-table__row">
+                                <td class="govuk-table__cell govuk-!-width-one-quarter">
+                                    <span class="govuk-!-font-weight-bold govuk-!-font-size-16">@Localizer["AccountRole"]</span>
+                                </td>
+                                <td class="govuk-table__cell govuk-!-width-one-half">
+                                    <span class="govuk-!-font-size-16">@Model.AccountRole</span>
+                                </td>
+                                <td class="govuk-table__cell govuk-!-width-one-quarter">
+                                    <span class="govuk-!-font-weight-bold govuk-!-font-size-16">&nbsp;</span>
+                                </td>
+                            </tr>
 
-            <div class="govuk-summary-list__row">
-                <div class="govuk-heading-m govuk-!-font-weight-bold govuk-!-margin-right-3">
-                    <label class="govuk-label" for="AddedBy">@Localizer["AddedBy"]</label>
+                            <tr class="govuk-table__row">
+                                <td class="govuk-table__cell govuk-!-width-one-quarter">
+                                    <span class="govuk-!-font-weight-bold govuk-!-font-size-16">@Localizer["AccountPermissions"]</span>
+                                </td>
+                                <td class="govuk-table__cell govuk-!-width-one-half">
+                                    <span class="govuk-!-font-size-16">@Model.AccountPermissions.GetPermissionDescription(Localizer)</span>
+                                </td>
+                                <td class="govuk-table__cell govuk-!-width-one-quarter">
+                                    <span class="govuk-!-font-weight-bold govuk-!-font-size-16">&nbsp;</span>
+                                </td>
+                            </tr>
+
+                            <tr class="govuk-table__row">
+                                <td class="govuk-table__cell govuk-!-width-one-quarter">
+                                    <span class="govuk-!-font-weight-bold govuk-!-font-size-16">@Localizer["AddedBy"]</span>
+                                </td>
+                                <td class="govuk-table__cell govuk-!-width-one-half">
+                                    <span class="govuk-!-font-size-16">@Model.AddedBy</span>
+                                </td>
+                                <td class="govuk-table__cell govuk-!-width-one-quarter">
+                                    <span class="govuk-!-font-weight-bold govuk-!-font-size-16">&nbsp;</span>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
                 </div>
-                <div class="govuk-summary-list__value">@Model.AddedBy</div>
+                <div>
+                    <button class="govuk-button govuk-button--warning" data-module="govuk-button" aria-label="@Localizer["Remove"]">
+                        @Localizer["Remove"]
+                    </button>
+                </div>
             </div>
-        </div>
+        </form>
     </main>
 </div>

@@ -123,7 +123,7 @@
   <data name="Email" xml:space="preserve">
     <value>Email</value>
   </data>
-    <data name="AccountPermissions" xml:space="preserve">
+  <data name="AccountPermissions" xml:space="preserve">
     <value>Account permissions</value>
   </data>
   <data name="AccountRole" xml:space="preserve">
@@ -131,5 +131,20 @@
   </data>
   <data name="AddedBy" xml:space="preserve">
     <value>Added by</value>
+  </data>
+  <data name="ManageOrganisation.TabTeam.Permissions.ApprovedPerson" xml:space="preserve">
+    <value>Manage team, submit registration and accreditation (Approved Person)</value>
+  </data>
+  <data name="ManageOrganisation.TabTeam.Permissions.StandardUser" xml:space="preserve">
+    <value>Submit registration and accreditation (Standard User)</value>
+  </data>
+  <data name="ManageOrganisation.TabTeam.Permissions.BasicUser" xml:space="preserve">
+    <value>Read only access (Basic User)</value>
+  </data>
+  <data name="ManageOrganisation.TabTeam.Permissions.ReadOnly" xml:space="preserve">
+    <value>Read only access (ReadOnly User)</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Remove</value>
   </data>
 </root>

@@ -26,4 +26,7 @@
     <data name="ManageOrganisation.TabTeam.Permissions.BasicUser" xml:space="preserve">
       <value>Read only access (Basic User)</value>
     </data>
+	<data name="ManageOrganisation.TabTeam.Permissions.ReadOnly" xml:space="preserve">
+      <value>Read only access (ReadOnly User)</value>
+    </data>
 </root>

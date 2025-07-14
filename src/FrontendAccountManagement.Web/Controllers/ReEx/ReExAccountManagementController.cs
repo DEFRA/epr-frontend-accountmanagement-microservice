@@ -23,15 +23,13 @@ namespace FrontendAccountManagement.Web.Controllers.ReEx;
 [AllowAnonymous]
 [ExcludeFromCodeCoverage]
 [Route(PagePath.ReExManageAccount)]
-public class ReExAccountManagementController(ISessionManager<JourneySession> sessionManager, 
-    IFacadeService facadeService,
-    ILogger<ReExAccountManagementController> logger) : Controller
+public class ReExAccountManagementController(ISessionManager<JourneySession> sessionManager, IFacadeService facadeService, ILogger<ReExAccountManagementController> logger) : Controller
 {
     private const string RolesNotFoundException = "Could not retrieve service roles or none found";
 
     [HttpGet]
-    [Route("organisation/{organisationId}/person/{personId}")]
-    public async Task<IActionResult> ViewDetails([FromRoute] Guid organisationId, [FromRoute] Guid personId)
+    [Route("organisation/{organisationId}/person/{personId}/enrolment/{enrolmentId}")]
+    public async Task<IActionResult> ViewDetails([FromRoute] Guid organisationId, [FromRoute] Guid personId, [FromRoute] string enrolmentId)
     {
         if (!ModelState.IsValid)
         {
@@ -46,11 +44,13 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
         //var serviceRoles = await facadeService.GetAllServiceRolesAsync();
 
+        //var uridata = string.Format("{0}/organisation/{1}/person/{2}/enrolment/{3}", PagePath.PreRemoveTeamMember, organisationId, personId, enrolmentId);
+
+        //var removeUrl = new Uri($"{PagePath.PreRemoveTeamMember}/organisation/{organisationId}/person/{personId}/enrolment/{enrolmentId}", uriKind: UriKind.Absolute);
+
         ViewDetailsViewModel model = new()
         {
-            AddedBy = TempData["PersonUpdated"]?.ToString(),
-            Email = "Test@Test.com", //userDetails?.ContactEmail,
-            AccountPermissions = "Approved User, Administrator"
+            AccountRole = "Approved User, Administrator"
             //AccountPermissions = (serviceRoles.Where(r => r.Key.StartsWith("Re-Ex.ApprovedPerson") ||
             //                                              r.Key.StartsWith("Re-Ex.StandardUser") ||
             //                                              r.Key.StartsWith("Re-Ex.BasicUser")).ToList()).ToString(),
@@ -62,11 +62,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
         }
         else
         {
-            var userOrg = userAccount.Organisations.FirstOrDefault();
-
-            session.ReExAccountManagementSession.OrganisationName = userOrg?.Name;
-            session.ReExAccountManagementSession.OrganisationType = userOrg?.OrganisationType;
-            session.ReExAccountManagementSession.BusinessAddress = new Address { Postcode = userOrg?.Postcode };
+            //var userOrg = userAccount.Organisations.FirstOrDefault();
 
             model.AddedBy = $"{userAccount.FirstName} {userAccount.LastName}";
             model.Email = userAccount.Email;
@@ -194,14 +190,10 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
         return await SaveSessionAndRedirect(session, nameof(ViewDetails), PagePath.TeamMemberPermissions, PagePath.TeamMemberDetails); // TODO: change to the next view
     }
 
-    [HttpPost]
+    [HttpGet]
     //[AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
-    [Route($"{PagePath.PreRemoveTeamMember}/organisation/{{organisationId}}/person/{{personId}}/firstName/{{firstName}}/lastName/{{lastName}}/role/{{role}}")]
-    public async Task<IActionResult> RemoveTeamMemberPreConfirmation([FromRoute] Guid organisationId, 
-        [FromRoute] Guid personId, 
-        [FromRoute] string firstName,
-        [FromRoute] string lastName,
-        [FromRoute] string role)
+    [Route(PagePath.PreRemoveTeamMember)]
+    public async Task<IActionResult> RemoveTeamMemberPreConfirmation(ViewDetailsViewModel model)
     {
         var session = await sessionManager.GetSessionAsync(HttpContext.Session);
         session ??= new JourneySession();
@@ -212,7 +204,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
             return View(nameof(ViewDetails));
         }
 
-        SetRemoveUserJourneyValues(session, firstName, lastName, personId, organisationId, role);
+        SetRemoveUserJourneyValues(session, model.PersonId, model.OrganisationId, model.EnrolmentId.ToString());
         await SaveSession(session);
         return RedirectToAction("RemoveTeamMemberConfirmation", "ReExAccountManagement");
     }
@@ -272,29 +264,20 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
         return Redirect(redirectUrl);
     }
 
-    private static void SetRemoveUserJourneyValues(JourneySession session, 
-        string firstName, 
-        string lastName, 
-        Guid personId, 
-        Guid organisationId,
-        string role)
+    private static void SetRemoveUserJourneyValues(JourneySession session, Guid personId, Guid organisationId, string role)
     {
         if (session.ReExAccountManagementSession.ReExRemoveUserJourney == null)
         {
             session.ReExAccountManagementSession.ReExRemoveUserJourney = new ReExRemoveUserJourneyModel
             {
-                FirstName = firstName,
-                LastName = lastName,
                 PersonId = personId,
                 OrganisationId = organisationId,
                 Role = role
             };
         }
 
-        if (!string.IsNullOrEmpty(firstName) && !string.IsNullOrEmpty(lastName) && personId != Guid.Empty && organisationId != Guid.Empty && !string.IsNullOrEmpty(firstName))
+        if (personId != Guid.Empty && organisationId != Guid.Empty)
         {
-            session.ReExAccountManagementSession.ReExRemoveUserJourney.FirstName = firstName;
-            session.ReExAccountManagementSession.ReExRemoveUserJourney.LastName = lastName;
             session.ReExAccountManagementSession.ReExRemoveUserJourney.PersonId = personId;
             session.ReExAccountManagementSession.ReExRemoveUserJourney.OrganisationId = organisationId;
             session.ReExAccountManagementSession.ReExRemoveUserJourney.Role = role;

@@ -8,6 +8,12 @@ public class ViewDetailsViewModel
 {
     public EndpointResponseStatus? UserRemovedStatus { get; set; }
 
+    public Guid OrganisationId { get; set; }
+
+    public Guid PersonId { get; set; }
+
+    public int EnrolmentId { get; set; }
+
     public string? Email { get; set; }
 
     public string? AccountRole { get; set; }
@@ -15,4 +21,6 @@ public class ViewDetailsViewModel
     public string? AddedBy { get; set; }
 
     public string? AccountPermissions { get; set; }
+
+    public Uri Remove { get; set; }
 }
