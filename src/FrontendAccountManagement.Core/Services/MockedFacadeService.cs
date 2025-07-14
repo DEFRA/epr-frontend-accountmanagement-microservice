@@ -75,6 +75,11 @@ public class MockedFacadeService : IFacadeService
     {
         return Task.FromResult(EndpointResponseStatus.Success);
     }
+    
+    public Task<EndpointResponseStatus> DeletePersonConnectionAndEnrolment(string personExternalId, string organisationId, int enrolmentId)
+    {
+        return Task.FromResult(EndpointResponseStatus.Success);
+    }
 
     public Task<UserAccountDto?> GetUserAccount()
     {
