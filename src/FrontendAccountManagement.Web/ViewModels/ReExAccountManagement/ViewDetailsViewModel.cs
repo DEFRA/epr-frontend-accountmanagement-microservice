@@ -23,4 +23,6 @@ public class ViewDetailsViewModel
     public string? AccountPermissions { get; set; }
 
     public Uri Remove { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
 }
