@@ -30,7 +30,7 @@ public class ReExAccountManagementController(
 
     [HttpGet]
     [Route("organisation/{organisationId}/person/{personId}/enrolment/{enrolmentId}")]
-    public async Task<IActionResult> ViewDetails([FromRoute] Guid organisationId, [FromRoute] Guid personId, [FromRoute] string enrolmentId)
+    public async Task<IActionResult> ViewDetails([FromRoute] Guid organisationId, [FromRoute] Guid personId, [FromRoute] int enrolmentId)
     {
         if (!ModelState.IsValid)
         {
@@ -57,6 +57,8 @@ public class ReExAccountManagementController(
         {
             model.AddedBy = $"{userAccount.FirstName} {userAccount.LastName}";
             model.Email = userAccount.Email;
+            model.FirstName = userAccount.FirstName;
+            model.LastName = userAccount.LastName;
 
             var serviceRoleEnum = (ServiceRole)userAccount.ServiceRoleId;
 
@@ -65,6 +67,7 @@ public class ReExAccountManagementController(
 
         session.ReExAccountManagementSession.OrganisationId = organisationId;
         session.ReExAccountManagementSession.PersonId = personId;
+
         session.SelectedOrganisationId = organisationId;
 
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccount);
@@ -182,26 +185,26 @@ public class ReExAccountManagementController(
     }
 
     [HttpGet]
-    //[AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     [Route(PagePath.PreRemoveTeamMember)]
     public async Task<IActionResult> RemoveTeamMemberPreConfirmation(ViewDetailsViewModel model)
     {
         var session = await sessionManager.GetSessionAsync(HttpContext.Session);
-        session ??= new JourneySession();
 
-        if (!ModelState.IsValid)
+        session.ReExAccountManagementSession.ReExRemoveUserJourney = new ReExRemoveUserJourneyModel
         {
-            SetBackLink(session, PagePath.RemoveTeamMember);
-            return View(nameof(ViewDetails));
-        }
-
-        SetRemoveUserJourneyValues(session, model.PersonId, model.OrganisationId, model.EnrolmentId);
+            PersonId = model.PersonId,
+            OrganisationId = model.OrganisationId,
+            EnrolmentId = model.EnrolmentId,
+            FirstName = model.FirstName,
+            LastName = model.LastName,
+            Role = model.AccountRole
+        };
+        
         await SaveSession(session);
         return RedirectToAction("RemoveTeamMemberConfirmation", "ReExAccountManagement");
     }
 
     [HttpGet]
-    //[AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
     [Route(PagePath.RemoveTeamMember)]
     public async Task<IActionResult> RemoveTeamMemberConfirmation()
     {
@@ -255,27 +258,7 @@ public class ReExAccountManagementController(
 
         await SaveSessionAndJourney(session, PagePath.RemoveTeamMember, PagePath.ReExManageAccount);
         
-        return RedirectToAction(urlOptions.Value.EprPrnManageOrganisationLink); 
-    }
-
-    private static void SetRemoveUserJourneyValues(JourneySession session, Guid personId, Guid organisationId, int enrolmentId)
-    {
-        if (session.ReExAccountManagementSession.ReExRemoveUserJourney == null)
-        {
-            session.ReExAccountManagementSession.ReExRemoveUserJourney = new ReExRemoveUserJourneyModel
-            {
-                PersonId = personId,
-                OrganisationId = organisationId,
-                EnrolmentId = enrolmentId
-            };
-        }
-
-        if (personId != Guid.Empty && organisationId != Guid.Empty)
-        {
-            session.ReExAccountManagementSession.ReExRemoveUserJourney.PersonId = personId;
-            session.ReExAccountManagementSession.ReExRemoveUserJourney.OrganisationId = organisationId;
-            session.ReExAccountManagementSession.ReExRemoveUserJourney.EnrolmentId = enrolmentId;
-        }
+        return Redirect(urlOptions.Value.EprPrnManageOrganisationLink); 
     }
 
     private async Task<RedirectToActionResult> SaveSessionAndRedirect(JourneySession session, string actionName, string currentPagePath, string? nextPagePath)

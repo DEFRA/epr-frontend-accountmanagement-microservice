@@ -15,20 +15,26 @@
     @Html.HiddenFor(x => x.PersonId)
     @Html.HiddenFor(x => x.OrganisationId)
     @Html.HiddenFor(x => x.Role)
+    @Html.HiddenFor(x => x.EnrolmentId)
     
     <div class="govuk-width-container">
         <main class="govuk-main-wrapper" id="main-content" role="main">
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-two-thirds">
                     <h1 class="govuk-heading-l">@Localizer["Header.RemoveTeamMember", userName]</h1>
-                    
-                    <p class="govuk-body">@Localizer["Information.LineOne", userName]</p>
-                    <p class="govuk-body">@Localizer["Information.LineTwo"]</p>
 
-                    <button class="govuk-button govuk-button--secondary" data-module="govuk-button" type="submit">
+                    <button class="govuk-button" data-module="govuk-button" type="submit">
                         @Localizer["Yes.Continue"]
                     </button>
-                    <a class="govuk-button govuk-button--secondary" role="button" href="https://localhost:7068/epr-prn/manage-organisation#team">
+                    <a class="govuk-button govuk-button--secondary" role="button"
+                       href="@Url.Action(
+                                 "ViewDetails",                
+                                 "ReExAccountManagement",      
+                                 new { 
+                                     organisationId = Model.OrganisationId, 
+                                     personId = Model.PersonId, 
+                                     enrolmentId = Model.EnrolmentId 
+                                 })">
                         @Localizer["Dont.Remove"]
                     </a>
                 </div>
