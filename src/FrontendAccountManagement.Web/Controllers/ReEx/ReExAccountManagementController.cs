@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using EPR.Common.Authorization.Constants;
 using EPR.Common.Authorization.Extensions;
 using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Extensions;
@@ -16,8 +17,7 @@ using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
 namespace FrontendAccountManagement.Web.Controllers.ReEx;
 
-//[Authorize(Policy = PolicyConstants.ReExAccountManagementPolicy)]
-[AllowAnonymous]
+[Authorize(Policy = PolicyConstants.ReExAccountManagementPolicy)]
 [ExcludeFromCodeCoverage]
 [Route(PagePath.ReExManageAccount)]
 public class ReExAccountManagementController(
@@ -76,8 +76,8 @@ public class ReExAccountManagementController(
 
     [HttpGet]
     //[Authorize(Policy = PolicyConstants.ReExAddTeamMemberPolicy)]
-    [Route(PagePath.TeamMemberEmail)]
-    public async Task<IActionResult> TeamMemberEmail()
+    [Route($"{PagePath.TeamMemberEmail}/organisation/{{organisationId}}")]
+    public async Task<IActionResult> TeamMemberEmail([FromRoute] Guid organisationId)
     {
         if (!ModelState.IsValid)
         {
@@ -89,7 +89,7 @@ public class ReExAccountManagementController(
 
         session.ReExAccountManagementSession.Journey.AddIfNotExists(PagePath.ReExManageAccount);
         session.ReExAccountManagementSession.AddUserJourney ??= new AddUserJourneyModel();
-        //session.ReExAccountManagementSession.OrganisationId = organisationId; TODO fix this
+        session.ReExAccountManagementSession.OrganisationId = organisationId;
 
         await SaveSessionAndJourney(session, PagePath.ReExManageAccount, PagePath.TeamMemberEmail);
         SetBackLink(session, PagePath.TeamMemberEmail);
