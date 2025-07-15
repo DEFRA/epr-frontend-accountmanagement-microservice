@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using EPR.Common.Authorization.Constants;
 using EPR.Common.Authorization.Extensions;
 using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Extensions;
@@ -16,8 +17,7 @@ using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
 namespace FrontendAccountManagement.Web.Controllers.ReEx;
 
-//[Authorize(Policy = PolicyConstants.ReExAccountManagementPolicy)]
-[AllowAnonymous]
+[Authorize(Policy = PolicyConstants.ReExAccountManagementPolicy)]
 [ExcludeFromCodeCoverage]
 [Route(PagePath.ReExManageAccount)]
 public class ReExAccountManagementController(
