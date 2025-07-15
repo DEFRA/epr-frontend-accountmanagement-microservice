@@ -7,4 +7,7 @@ public class ReExRemoveUserJourneyModel : RemoveUserJourneyModel
 {
     public Guid OrganisationId { get; set; }
     public string Role { get; set; }
+    public int EnrolmentId { get; set; }
+    
+    public bool IsRemoved { get; set; }
 }

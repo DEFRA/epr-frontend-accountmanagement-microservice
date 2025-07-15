@@ -85,7 +85,7 @@ public class ReExAccountManagementTestBase
 
         LoggerMock = new Mock<ILogger<ReExAccountManagementController>>();
 
-        SystemUnderTest = new ReExAccountManagementController(SessionManagerMock.Object, FacadeServiceMock.Object, LoggerMock.Object);
+        SystemUnderTest = new ReExAccountManagementController(SessionManagerMock.Object, FacadeServiceMock.Object, LoggerMock.Object, UrlsOptionMock.Object);
 
         SystemUnderTest.ControllerContext.HttpContext = HttpContextMock.Object;
         SystemUnderTest.TempData = this.TempDataDictionary;

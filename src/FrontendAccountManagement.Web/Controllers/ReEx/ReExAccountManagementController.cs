@@ -1,19 +1,17 @@
 using System.Diagnostics.CodeAnalysis;
 using EPR.Common.Authorization.Extensions;
-using EPR.Common.Authorization.Models;
 using EPR.Common.Authorization.Sessions;
-using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
+using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using FrontendAccountManagement.Web.ViewModels.ReExAccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Options;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
 namespace FrontendAccountManagement.Web.Controllers.ReEx;
@@ -22,7 +20,11 @@ namespace FrontendAccountManagement.Web.Controllers.ReEx;
 [AllowAnonymous]
 [ExcludeFromCodeCoverage]
 [Route(PagePath.ReExManageAccount)]
-public class ReExAccountManagementController(ISessionManager<JourneySession> sessionManager, IFacadeService facadeService, ILogger<ReExAccountManagementController> logger) : Controller
+public class ReExAccountManagementController(
+    ISessionManager<JourneySession> sessionManager, 
+    IFacadeService facadeService, 
+    ILogger<ReExAccountManagementController> logger,
+    IOptions<ExternalUrlsOptions> urlOptions) : Controller
 {
     private const string RolesNotFoundException = "Could not retrieve service roles or none found";
 
@@ -193,7 +195,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
             return View(nameof(ViewDetails));
         }
 
-        SetRemoveUserJourneyValues(session, model.PersonId, model.OrganisationId, model.EnrolmentId.ToString());
+        SetRemoveUserJourneyValues(session, model.PersonId, model.OrganisationId, model.EnrolmentId);
         await SaveSession(session);
         return RedirectToAction("RemoveTeamMemberConfirmation", "ReExAccountManagement");
     }
@@ -215,20 +217,21 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
             LastName = session.ReExAccountManagementSession.ReExRemoveUserJourney.LastName,
             PersonId = session.ReExAccountManagementSession.ReExRemoveUserJourney.PersonId,
             OrganisationId = session.ReExAccountManagementSession.ReExRemoveUserJourney.OrganisationId,
-            Role = session.ReExAccountManagementSession.ReExRemoveUserJourney.Role
+            Role = session.ReExAccountManagementSession.ReExRemoveUserJourney.Role,
+            EnrolmentId = session.ReExAccountManagementSession.ReExRemoveUserJourney.EnrolmentId
+            
         };
 
         await SaveSessionAndJourney(session, PagePath.ReExManageAccount, PagePath.RemoveTeamMember);
 
         return View(nameof(RemoveTeamMemberConfirmation), model);
     }
-
+    
     [HttpPost]
     [Route(PagePath.RemoveTeamMember)]
     public async Task<IActionResult> RemoveTeamMemberConfirmation(RemoveReExTeamMemberConfirmationViewModel model)
     {
         var session = await sessionManager.GetSessionAsync(HttpContext.Session);
-        var userData = User.GetUserData();
 
         if (!ModelState.IsValid)
         {
@@ -237,23 +240,25 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
         }
 
         var personExternalId = model.PersonId.ToString();
-
         var organisationId = model.OrganisationId.ToString();
-        var serviceRoleId = userData.ServiceRoleId;
-        var result = await facadeService.RemoveUserForOrganisation(personExternalId, organisationId, serviceRoleId);
+    
+        var result = await facadeService.DeletePersonConnectionAndEnrolment(personExternalId, organisationId, model.EnrolmentId);
         session.ReExAccountManagementSession.RemoveUserStatus = result;
+        
+        session.ReExAccountManagementSession.ReExRemoveUserJourney = new ReExRemoveUserJourneyModel
+        {
+            IsRemoved = true,
+            FirstName = model.FirstName,
+            LastName = model.LastName,
+            Role = model.Role
+        };
 
         await SaveSessionAndJourney(session, PagePath.RemoveTeamMember, PagePath.ReExManageAccount);
         
-        var redirectUrl = $"https://localhost:7068/epr-prn/manage-organisation?userRemoved=true" +
-                          $"&firstName={Uri.EscapeDataString(model.FirstName)}" +
-                          $"&lastName={Uri.EscapeDataString(model.LastName)}" +
-                          $"&role={Uri.EscapeDataString(model.Role)}";
-
-        return Redirect(redirectUrl);
+        return RedirectToAction(urlOptions.Value.EprPrnManageOrganisationLink); 
     }
 
-    private static void SetRemoveUserJourneyValues(JourneySession session, Guid personId, Guid organisationId, string role)
+    private static void SetRemoveUserJourneyValues(JourneySession session, Guid personId, Guid organisationId, int enrolmentId)
     {
         if (session.ReExAccountManagementSession.ReExRemoveUserJourney == null)
         {
@@ -261,7 +266,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
             {
                 PersonId = personId,
                 OrganisationId = organisationId,
-                Role = role
+                EnrolmentId = enrolmentId
             };
         }
 
@@ -269,7 +274,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
         {
             session.ReExAccountManagementSession.ReExRemoveUserJourney.PersonId = personId;
             session.ReExAccountManagementSession.ReExRemoveUserJourney.OrganisationId = organisationId;
-            session.ReExAccountManagementSession.ReExRemoveUserJourney.Role = role;
+            session.ReExAccountManagementSession.ReExRemoveUserJourney.EnrolmentId = enrolmentId;
         }
     }
 
