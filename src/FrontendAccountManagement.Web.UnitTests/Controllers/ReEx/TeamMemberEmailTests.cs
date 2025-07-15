@@ -62,7 +62,7 @@ public class TeamMemberEmailTests : ReExAccountManagementTestBase
 
         // Assert
         result.ViewName.Should().Be(ViewName);
-        AssertBackLink(result, PagePath.ManageAccount);
+        AssertBackLink(result, PagePath.ReExManageAccount);
     }
 
     [TestMethod]
@@ -87,7 +87,7 @@ public class TeamMemberEmailTests : ReExAccountManagementTestBase
 
         // Assert
         result.ViewName.Should().Be(ViewName);
-        AssertBackLink(result, PagePath.ManageAccount);
+        AssertBackLink(result, PagePath.ReExManageAccount);
     }
 
     // happy path

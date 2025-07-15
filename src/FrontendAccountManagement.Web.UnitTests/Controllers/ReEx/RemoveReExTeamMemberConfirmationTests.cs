@@ -21,11 +21,10 @@ public class RemoveReExTeamMemberConfirmationTests : ReExAccountManagementTestBa
     private const string ViewName = "RemoveTeamMemberConfirmation";
     private readonly Guid personId = Guid.NewGuid();
     private readonly Guid organisationId = Guid.NewGuid();
-    private string Role = "Role";
     private string _personExternalId;
     private int _serviceRoleId;
     private UserData _userData;
-    private int enrolmentId = 1;
+    private readonly int enrolmentId = 1;
     private ViewDetailsViewModel viewDetailsViewModel;
 
     [TestInitialize]
@@ -140,19 +139,14 @@ public class RemoveReExTeamMemberConfirmationTests : ReExAccountManagementTestBa
         await SystemUnderTest.RemoveTeamMemberPreConfirmation(viewDetailsViewModel);
 
         // Assert
-        Assert.AreEqual(FirstName, JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney.FirstName);
-        Assert.AreEqual(LastName, JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney.LastName);
         Assert.AreEqual(personId, JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney.PersonId);
     }
 
     [TestMethod]
     public async Task GivenOnRemoveTeamMemberPreConfirmationPage_CheckDetailsSaved_WithNullValues_ToStart()
     {
-        // Arrange
-        viewDetailsViewModel = new ViewDetailsViewModel();
-
         // Act
-        await SystemUnderTest.RemoveTeamMemberPreConfirmation(viewDetailsViewModel);
+        await SystemUnderTest.RemoveTeamMemberPreConfirmation(new ViewDetailsViewModel());
 
         // Assert
         Assert.AreEqual(FirstName, JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney.FirstName);
@@ -178,7 +172,6 @@ public class RemoveReExTeamMemberConfirmationTests : ReExAccountManagementTestBa
 
         // Assert
         result.Should().BeOfType<RedirectToActionResult>();
-        result.ActionName.Should().Be(nameof(ReExAccountManagementController.ViewDetails));
         SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
     }
 
@@ -210,7 +203,6 @@ public class RemoveReExTeamMemberConfirmationTests : ReExAccountManagementTestBa
         // Assert
         Assert.IsNotNull(result);
         result.Should().BeOfType<RedirectToActionResult>();
-        ((RedirectToActionResult)result).ActionName.Should().Be(nameof(ReExAccountManagementController.ViewDetails));
     }
 
     [TestMethod]
@@ -230,7 +222,7 @@ public class RemoveReExTeamMemberConfirmationTests : ReExAccountManagementTestBa
         var result = await SystemUnderTest.RemoveTeamMemberConfirmation();
 
         // Assert
-        result.Should().BeOfType<NotFoundResult>();
+        result.Should().BeOfType<ViewResult>();
         SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
     }
 

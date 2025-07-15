@@ -10,4 +10,5 @@ namespace FrontendAccountManagement.Web.ViewModels.ReExAccountManagement;
 public class RemoveReExTeamMemberConfirmationViewModel : RemoveTeamMemberConfirmationViewModel
 {
     public Guid OrganisationId { get; set; }
+    public int EnrolmentId { get; set; }
 }
