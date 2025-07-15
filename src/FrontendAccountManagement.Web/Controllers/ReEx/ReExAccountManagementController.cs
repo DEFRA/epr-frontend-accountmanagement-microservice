@@ -2,7 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 using EPR.Common.Authorization.Extensions;
 using EPR.Common.Authorization.Models;
 using EPR.Common.Authorization.Sessions;
-using FrontendAccountManagement.Core.Addresses;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
@@ -40,14 +39,6 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
         session ??= new JourneySession();
         var userAccount = User.GetUserData();
 
-        //var userDetails = await facadeService.GetUserDetailsByIdAsync(personId);
-
-        //var serviceRoles = await facadeService.GetAllServiceRolesAsync();
-
-        //var uridata = string.Format("{0}/organisation/{1}/person/{2}/enrolment/{3}", PagePath.PreRemoveTeamMember, organisationId, personId, enrolmentId);
-
-        //var removeUrl = new Uri($"{PagePath.PreRemoveTeamMember}/organisation/{organisationId}/person/{personId}/enrolment/{enrolmentId}", uriKind: UriKind.Absolute);
-
         ViewDetailsViewModel model = new()
         {
             AccountRole = "Approved User, Administrator"
@@ -62,8 +53,6 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
         }
         else
         {
-            //var userOrg = userAccount.Organisations.FirstOrDefault();
-
             model.AddedBy = $"{userAccount.FirstName} {userAccount.LastName}";
             model.Email = userAccount.Email;
 
