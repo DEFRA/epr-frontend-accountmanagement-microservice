@@ -22,9 +22,8 @@ public class RemoveReExTeamMemberConfirmationTests : ReExAccountManagementTestBa
     private readonly Guid personId = Guid.NewGuid();
     private readonly Guid organisationId = Guid.NewGuid();
     private string _personExternalId;
-    private int _serviceRoleId;
     private UserData _userData;
-    private readonly int enrolmentId = 1;
+    private int enrolmentId = 1;
     private ViewDetailsViewModel viewDetailsViewModel;
 
     [TestInitialize]
@@ -61,11 +60,13 @@ public class RemoveReExTeamMemberConfirmationTests : ReExAccountManagementTestBa
         {
             PersonId = personId,
             OrganisationId = organisationId,
-            EnrolmentId = enrolmentId
+            EnrolmentId = enrolmentId,
+            FirstName = FirstName,
+            LastName = LastName
         };
 
         _personExternalId = Guid.NewGuid().ToString();
-        _serviceRoleId = 3;
+        enrolmentId = 3;
 
         SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(JourneySessionMock);
     }
@@ -149,16 +150,16 @@ public class RemoveReExTeamMemberConfirmationTests : ReExAccountManagementTestBa
         await SystemUnderTest.RemoveTeamMemberPreConfirmation(new ViewDetailsViewModel());
 
         // Assert
-        Assert.AreEqual(FirstName, JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney.FirstName);
-        Assert.AreEqual(LastName, JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney.LastName);
-        Assert.AreEqual(personId, JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney.PersonId);
+        Assert.AreEqual(null, JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney.FirstName);
+        Assert.AreEqual(null, JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney.LastName);
+        Assert.AreEqual(Guid.Empty, JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney.PersonId);
     }
 
     [TestMethod]
     public async Task GivenOnRemoveTeamMemberConfirmationPage_WhenRemoveTeamMemberConfirmationPageHttpPostCalled_AndSuccessfulResponse_ThenUserRemoved()
     {
         // Arrange
-        FacadeServiceMock.Setup(x => x.RemoveUserForOrganisation(_personExternalId, organisationId.ToString(), _serviceRoleId)).ReturnsAsync(EndpointResponseStatus.Success);
+        FacadeServiceMock.Setup(x => x.DeletePersonConnectionAndEnrolment(_personExternalId, organisationId.ToString(), enrolmentId)).ReturnsAsync(EndpointResponseStatus.Success);
         var model = new RemoveReExTeamMemberConfirmationViewModel
         {
             PersonId = personId,
@@ -168,10 +169,10 @@ public class RemoveReExTeamMemberConfirmationTests : ReExAccountManagementTestBa
         };
 
         // Act
-        var result = await SystemUnderTest.RemoveTeamMemberConfirmation(model) as RedirectToActionResult;
+        var result = await SystemUnderTest.RemoveTeamMemberConfirmation(model) as RedirectResult;
 
         // Assert
-        result.Should().BeOfType<RedirectToActionResult>();
+        result.Should().BeOfType<RedirectResult>();
         SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
     }
 
@@ -187,7 +188,7 @@ public class RemoveReExTeamMemberConfirmationTests : ReExAccountManagementTestBa
 
         SetupBase(_userData);
 
-        FacadeServiceMock.Setup(x => x.RemoveUserForOrganisation(_personExternalId, organisationId.ToString(), _serviceRoleId)).ReturnsAsync(EndpointResponseStatus.Success);
+        FacadeServiceMock.Setup(x => x.DeletePersonConnectionAndEnrolment(_personExternalId, organisationId.ToString(), enrolmentId)).ReturnsAsync(EndpointResponseStatus.Success);
 
         var model = new RemoveReExTeamMemberConfirmationViewModel
         {
@@ -202,7 +203,7 @@ public class RemoveReExTeamMemberConfirmationTests : ReExAccountManagementTestBa
 
         // Assert
         Assert.IsNotNull(result);
-        result.Should().BeOfType<RedirectToActionResult>();
+        result.Should().BeOfType<RedirectResult>();
     }
 
     [TestMethod]
