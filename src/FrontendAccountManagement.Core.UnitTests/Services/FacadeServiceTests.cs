@@ -1166,12 +1166,10 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             // Arrange
             var organisationId = Guid.NewGuid().ToString();
             var userId = Guid.NewGuid().ToString();
-            var enrolementId = 2;
+            var enrolmentId = 2;
 
-            var httpTestHandler = new HttpResponseMessage
-            {
-                StatusCode = HttpStatusCode.OK
-            };
+            using var httpTestHandler = new HttpResponseMessage();
+            httpTestHandler.StatusCode = HttpStatusCode.OK;
 
             _mockHandler.Protected()
                 .Setup<Task<HttpResponseMessage>>(
@@ -1181,12 +1179,11 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 .ReturnsAsync(httpTestHandler);
 
             // Act
-            var response = await _facadeService.DeletePersonConnectionAndEnrolment(organisationId, userId, enrolementId);
+            var response = await _facadeService.DeletePersonConnectionAndEnrolment(organisationId, userId, enrolmentId);
 
             // Assert
             Assert.IsNotNull(response);
             Assert.AreEqual(expected: EndpointResponseStatus.Success, response);
-            httpTestHandler.Dispose();
         }
 
         [TestMethod]
@@ -1195,7 +1192,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             // Arrange
             var organisationId = Guid.NewGuid().ToString();
             var userId = Guid.NewGuid().ToString();
-            var enrolementId = 2;
+            var enrolmentId = 2;
 
             var httpTestHandler = new HttpResponseMessage
             {
@@ -1210,7 +1207,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 .ReturnsAsync(httpTestHandler);
 
             // Act
-            var response = await _facadeService.DeletePersonConnectionAndEnrolment(organisationId, userId, enrolementId);
+            var response = await _facadeService.DeletePersonConnectionAndEnrolment(organisationId, userId, enrolmentId);
 
             // Assert
             Assert.IsNotNull(response);

@@ -43,7 +43,7 @@ public class ReExAccountManagementController(
 
         ViewDetailsViewModel model = new()
         {
-            AccountRole = "Approved User, Administrator"
+            AccountRole = "Approved User, Administrator" // TODO: this is to be implemented in a nother storyy
             //AccountPermissions = (serviceRoles.Where(r => r.Key.StartsWith("Re-Ex.ApprovedPerson") ||
             //                                              r.Key.StartsWith("Re-Ex.StandardUser") ||
             //                                              r.Key.StartsWith("Re-Ex.BasicUser")).ToList()).ToString(),
@@ -239,7 +239,7 @@ public class ReExAccountManagementController(
         if (!ModelState.IsValid)
         {
             SetBackLink(session, PagePath.RemoveTeamMember);
-            return View(nameof(RemoveTeamMemberConfirmation));
+            return View(nameof(RemoveTeamMemberConfirmation),  model);
         }
 
         var personExternalId = model.PersonId.ToString();

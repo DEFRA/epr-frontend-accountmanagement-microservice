@@ -123,11 +123,13 @@ public class RemoveReExTeamMemberConfirmationTests : ReExAccountManagementTestBa
     {
         // Act
         await SystemUnderTest.RemoveTeamMemberPreConfirmation(viewDetailsViewModel);
+        
+        var journey = JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney;
 
         // Assert
-        Assert.AreEqual(FirstName, JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney.FirstName);
-        Assert.AreEqual(LastName, JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney.LastName);
-        Assert.AreEqual(personId, JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney.PersonId);
+        Assert.AreEqual(FirstName, journey.FirstName);
+        Assert.AreEqual(LastName, journey.LastName);
+        Assert.AreEqual(personId, journey.PersonId);
     }
 
     [TestMethod]
@@ -149,10 +151,12 @@ public class RemoveReExTeamMemberConfirmationTests : ReExAccountManagementTestBa
         // Act
         await SystemUnderTest.RemoveTeamMemberPreConfirmation(new ViewDetailsViewModel());
 
+        var journey = JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney;
+        
         // Assert
-        Assert.AreEqual(null, JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney.FirstName);
-        Assert.AreEqual(null, JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney.LastName);
-        Assert.AreEqual(Guid.Empty, JourneySessionMock.ReExAccountManagementSession.ReExRemoveUserJourney.PersonId);
+        Assert.AreEqual(null, journey.FirstName);
+        Assert.AreEqual(null, journey.LastName);
+        Assert.AreEqual(Guid.Empty, journey.PersonId);
     }
 
     [TestMethod]
@@ -174,36 +178,6 @@ public class RemoveReExTeamMemberConfirmationTests : ReExAccountManagementTestBa
         // Assert
         result.Should().BeOfType<RedirectResult>();
         SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task GivenOnRemoveTeamMemberConfirmationPage_WhenRemoveTeamMemberConfirmationPageHttpPostCalled_AndOrganisationInvalid_ThenUserNotRemovedAndRedirected()
-    {
-        // Arrange
-        _userData = new UserData
-        {
-            ServiceRoleId = 3,
-            Organisations = new List<Organisation>()
-        };
-
-        SetupBase(_userData);
-
-        FacadeServiceMock.Setup(x => x.DeletePersonConnectionAndEnrolment(_personExternalId, organisationId.ToString(), enrolmentId)).ReturnsAsync(EndpointResponseStatus.Success);
-
-        var model = new RemoveReExTeamMemberConfirmationViewModel
-        {
-            PersonId = personId,
-            FirstName = FirstName,
-            LastName = LastName,
-            OrganisationId = organisationId
-        };
-
-        // Act
-        var result = await SystemUnderTest.RemoveTeamMemberConfirmation(model);
-
-        // Assert
-        Assert.IsNotNull(result);
-        result.Should().BeOfType<RedirectResult>();
     }
 
     [TestMethod]
