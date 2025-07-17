@@ -95,7 +95,7 @@ public class ReExAccountManagementController(
         session.ReExAccountManagementSession.OrganisationId = organisationId;
 
         await SaveSessionAndJourney(session, PagePath.ReExManageAccount, PagePath.TeamMemberEmail);
-        SetBackLink(session, PagePath.TeamMemberEmail);
+        SetCustomBackLink(urlOptions.Value.ReExLandingPageUrl);
 
         var model = new TeamMemberEmailViewModel
         {
@@ -113,9 +113,9 @@ public class ReExAccountManagementController(
         var session = await sessionManager.GetSessionAsync(HttpContext.Session);
 
         if (!ModelState.IsValid)
-        {
-            SetBackLink(session, PagePath.TeamMemberEmail);
-            return View(nameof(TeamMemberEmail), model);
+		{
+			SetCustomBackLink(urlOptions.Value.ReExLandingPageUrl);
+			return View(nameof(TeamMemberEmail), model);
         }
 
         session.ReExAccountManagementSession.InviteeEmailAddress = model.Email;
@@ -301,4 +301,16 @@ public class ReExAccountManagementController(
     {
         ViewBag.BackLinkToDisplay = session.ReExAccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
     }
+
+	private void SetCustomBackLink(string pagePath, bool showCustomBackLabel = true)
+	{
+		if (showCustomBackLabel)
+		{
+			ViewBag.CustomBackLinkToDisplay = pagePath;
+		}
+		else
+		{
+			ViewBag.BackLinkToDisplay = pagePath;
+		}
+	}
 }
