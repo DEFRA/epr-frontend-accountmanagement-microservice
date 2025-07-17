@@ -75,6 +75,11 @@ public class MockedFacadeService : IFacadeService
     {
         return Task.FromResult(EndpointResponseStatus.Success);
     }
+    
+    public Task<EndpointResponseStatus> DeletePersonConnectionAndEnrolment(string personExternalId, string organisationId, int enrolmentId)
+    {
+        return Task.FromResult(EndpointResponseStatus.Success);
+    }
 
     public Task<UserAccountDto?> GetUserAccount()
     {
@@ -136,9 +141,7 @@ public class MockedFacadeService : IFacadeService
         return Task.FromResult(stubResponse);
     }
 
-    public async Task UpdateOrganisationDetails(
-        Guid organisationId,
-        OrganisationUpdateDto organisation)
+    public async Task UpdateOrganisationDetails(Guid organisationId, OrganisationUpdateDto organisation)
     {
         await Task.CompletedTask;
     }
@@ -150,7 +153,6 @@ public class MockedFacadeService : IFacadeService
 
     public async Task<UpdateUserDetailsResponse> UpdateUserDetailsAsync(Guid userId, Guid organisationId, string serviceKey, UpdateUserDetailsRequest userDetailsUpdateModelRequest)
     {
-
         var stubResponse = new UpdateUserDetailsResponse
         {
             HasApprovedOrDelegatedUserDetailsSentForApproval = false,
@@ -163,5 +165,14 @@ public class MockedFacadeService : IFacadeService
     public Task<AddressList?> GetAddressListByPostcodeAsync(string postcode)
     {
         throw new NotImplementedException();  // PAUL TO DO
+    }
+
+    public async Task<PersonDetailsDto?> GetUserDetailsByIdAsync(Guid userId)
+    {
+        var stubResponse = new PersonDetailsDto
+        {
+            ContactEmail = "test@test.com"
+        };
+        return await Task.FromResult(stubResponse);
     }
 }

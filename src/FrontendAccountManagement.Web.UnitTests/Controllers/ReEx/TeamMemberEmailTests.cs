@@ -22,6 +22,7 @@ public class TeamMemberEmailTests : ReExAccountManagementTestBase
     private const string ModelErrorValueMissingString = "Enter team members email";
     private const string ModelErrorEmailTooLong = "Email address must be 254 characters or less";
     private const string ViewName = "TeamMemberEmail";
+    private Guid organisationId = Guid.NewGuid();
 
     [TestInitialize]
     public void Setup()
@@ -32,11 +33,11 @@ public class TeamMemberEmailTests : ReExAccountManagementTestBase
         {
             ReExAccountManagementSession = new ReExAccountManagementSession
             {
-                Journey = new List<string>
-                {
-                    PagePath.ManageAccount,
+                Journey =
+                [
+                    PagePath.ReExManageAccount,
                     PagePath.TeamMemberEmail,
-                },
+                ],
                 AddUserJourney = new AddUserJourneyModel()
             }
         };
@@ -58,11 +59,11 @@ public class TeamMemberEmailTests : ReExAccountManagementTestBase
         SetupBase(mockUserData);
 
         // Act
-        var result = await SystemUnderTest.TeamMemberEmail() as ViewResult;
+        var result = await SystemUnderTest.TeamMemberEmail(organisationId) as ViewResult;
 
         // Assert
         result.ViewName.Should().Be(ViewName);
-        AssertBackLink(result, PagePath.ManageAccount);
+        AssertBackLink(result, PagePath.ReExManageAccount);
     }
 
     [TestMethod]
@@ -83,11 +84,11 @@ public class TeamMemberEmailTests : ReExAccountManagementTestBase
         SetupBase(mockUserData);
 
         // Act
-        var result = await SystemUnderTest.TeamMemberEmail() as ViewResult;
+        var result = await SystemUnderTest.TeamMemberEmail(organisationId) as ViewResult;
 
         // Assert
         result.ViewName.Should().Be(ViewName);
-        AssertBackLink(result, PagePath.ManageAccount);
+        AssertBackLink(result, PagePath.ReExManageAccount);
     }
 
     // happy path
@@ -191,7 +192,7 @@ public class TeamMemberEmailTests : ReExAccountManagementTestBase
         SessionManagerMock.Setup(m => m.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
 
         // Act
-        var result = await SystemUnderTest.TeamMemberEmail() as ViewResult;
+        var result = await SystemUnderTest.TeamMemberEmail(organisationId) as ViewResult;
         var model = result.Model as TeamMemberEmailViewModel;
 
         // Assert
@@ -213,7 +214,7 @@ public class TeamMemberEmailTests : ReExAccountManagementTestBase
         SetupBase(userData);
 
         // Act
-        var result = await SystemUnderTest.TeamMemberEmail();
+        var result = await SystemUnderTest.TeamMemberEmail(organisationId);
 
         // Assert
         result.Should().BeOfType<ViewResult>();
@@ -234,7 +235,7 @@ public class TeamMemberEmailTests : ReExAccountManagementTestBase
         SetupBase(userData);
 
         // Act
-        var result = await SystemUnderTest.TeamMemberEmail();
+        var result = await SystemUnderTest.TeamMemberEmail(organisationId);
 
         // Assert
         result.Should().BeOfType<ViewResult>();

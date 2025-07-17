@@ -25,12 +25,16 @@ public interface IFacadeService
     Task<IEnumerable<ManageUserModel>?> GetUsersForOrganisationAsync(string organisationId, int serviceRoleId);
 
     Task<EndpointResponseStatus> RemoveUserForOrganisation(string personExternalId, string organisationId, int serviceRoleId);
+    
+    Task<EndpointResponseStatus> DeletePersonConnectionAndEnrolment(string personExternalId, string organisationId, int enrolmentId);
 
     Task<UserAccountDto?> GetUserAccount();
 
     Task<UserAccountDto?> GetUserAccountWithEnrolments(string serviceKey);
 
-	Task<List<int>> GetNationIds(Guid organisationId);
+    Task<PersonDetailsDto?> GetUserDetailsByIdAsync(Guid userId);
+
+    Task<List<int>> GetNationIds(Guid organisationId);
 
     Task<CompaniesHouseResponse> GetCompaniesHouseResponseAsync(string companyHouseNumber);
 
