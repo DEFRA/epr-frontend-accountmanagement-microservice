@@ -21,7 +21,9 @@ namespace FrontendAccountManagement.Web.Configs
 
         public string LandingPageUrl { get; set; }
 
-        public string PrivacyScottishEnvironmentalProtectionAgency { get; set; }
+		public string ReExLandingPageUrl { get; set; }
+
+		public string PrivacyScottishEnvironmentalProtectionAgency { get; set; }
 
         public string PrivacyNationalResourcesWales { get; set; }
 
