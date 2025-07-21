@@ -59,7 +59,7 @@ public class TeamMemberEmailTests : ReExAccountManagementTestBase
         SetupBase(mockUserData);
 
         // Act
-        var result = await SystemUnderTest.TeamMemberEmail(organisationId) as ViewResult;
+        var result = await SystemUnderTest.TeamMemberEmail() as ViewResult;
 
         // Assert
         result.ViewName.Should().Be(ViewName);
@@ -83,7 +83,7 @@ public class TeamMemberEmailTests : ReExAccountManagementTestBase
         SetupBase(mockUserData);
 
         // Act
-        var result = await SystemUnderTest.TeamMemberEmail(organisationId) as ViewResult;
+        var result = await SystemUnderTest.TeamMemberEmail() as ViewResult;
 
         // Assert
         result.ViewName.Should().Be(ViewName);
@@ -190,7 +190,7 @@ public class TeamMemberEmailTests : ReExAccountManagementTestBase
         SessionManagerMock.Setup(m => m.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
 
         // Act
-        var result = await SystemUnderTest.TeamMemberEmail(organisationId) as ViewResult;
+        var result = await SystemUnderTest.TeamMemberEmail() as ViewResult;
         var model = result.Model as TeamMemberEmailViewModel;
 
         // Assert
@@ -212,7 +212,7 @@ public class TeamMemberEmailTests : ReExAccountManagementTestBase
         SetupBase(userData);
 
         // Act
-        var result = await SystemUnderTest.TeamMemberEmail(organisationId);
+        var result = await SystemUnderTest.TeamMemberEmail();
 
         // Assert
         result.Should().BeOfType<ViewResult>();
@@ -233,7 +233,7 @@ public class TeamMemberEmailTests : ReExAccountManagementTestBase
         SetupBase(userData);
 
         // Act
-        var result = await SystemUnderTest.TeamMemberEmail(organisationId);
+        var result = await SystemUnderTest.TeamMemberEmail();
 
         // Assert
         result.Should().BeOfType<ViewResult>();

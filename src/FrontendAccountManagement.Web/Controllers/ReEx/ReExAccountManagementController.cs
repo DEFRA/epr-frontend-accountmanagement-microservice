@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using EPR.Common.Authorization.Constants;
 using EPR.Common.Authorization.Extensions;
 using EPR.Common.Authorization.Sessions;
@@ -13,11 +12,12 @@ using FrontendAccountManagement.Web.ViewModels.ReExAccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.Diagnostics.CodeAnalysis;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
 namespace FrontendAccountManagement.Web.Controllers.ReEx;
 
-//[Authorize(Policy = PolicyConstants.ReExAccountManagementPolicy)]
+[Authorize(Policy = PolicyConstants.ReExAccountManagementPolicy)]
 [ExcludeFromCodeCoverage]
 [Route(PagePath.ReExManageAccount)]
 public class ReExAccountManagementController(ISessionManager<JourneySession> sessionManager, IFacadeService facadeService, ILogger<ReExAccountManagementController> logger, IOptions<ExternalUrlsOptions> urlOptions) : Controller
@@ -103,9 +103,9 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
         var session = await sessionManager.GetSessionAsync(HttpContext.Session);
 
         if (!ModelState.IsValid)
-		{
-			SetCustomBackLink(urlOptions.Value.ReExLandingPageUrl);
-			return View(nameof(TeamMemberEmail), model);
+        {
+            SetCustomBackLink(urlOptions.Value.ReExLandingPageUrl);
+            return View(nameof(TeamMemberEmail), model);
         }
 
         session.ReExAccountManagementSession.InviteeEmailAddress = model.Email;
@@ -134,7 +134,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
         var reExRoles = serviceRoles.Where(r => r.Key.StartsWith("Re-Ex.ApprovedPerson") ||
                                                 r.Key.StartsWith("Re-Ex.StandardUser") ||
                                                 r.Key.StartsWith("Re-Ex.BasicUser")).ToList();
-        
+
         var isStandardUser = userData.Organisations.Any(org =>
             org.Id == session.ReExAccountManagementSession.OrganisationId &&
             org.Enrolments.Any(e => e.ServiceRoleKey.Contains("Re-Ex.BasicUser")));
@@ -189,7 +189,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
             LastName = model.LastName,
             Role = model.AccountRole
         };
-        
+
         await SaveSession(session);
         return RedirectToAction("RemoveTeamMemberConfirmation", "ReExAccountManagement");
     }
@@ -218,7 +218,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
         return View(nameof(RemoveTeamMemberConfirmation), model);
     }
-    
+
     [HttpPost]
     [Route(PagePath.RemoveTeamMember)]
     public async Task<IActionResult> RemoveTeamMemberConfirmation(RemoveReExTeamMemberConfirmationViewModel model)
@@ -228,15 +228,15 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
         if (!ModelState.IsValid)
         {
             SetBackLink(session, PagePath.RemoveTeamMember);
-            return View(nameof(RemoveTeamMemberConfirmation),  model);
+            return View(nameof(RemoveTeamMemberConfirmation), model);
         }
 
         var personExternalId = model.PersonId.ToString();
         var organisationId = model.OrganisationId.ToString();
-    
+
         var result = await facadeService.DeletePersonConnectionAndEnrolment(personExternalId, organisationId, model.EnrolmentId);
         session.ReExAccountManagementSession.RemoveUserStatus = result;
-        
+
         session.ReExAccountManagementSession.ReExRemoveUserJourney = new ReExRemoveUserJourneyModel
         {
             IsRemoved = true,
@@ -246,8 +246,8 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
         };
 
         await SaveSessionAndJourney(session, PagePath.RemoveTeamMember, PagePath.ReExManageAccount);
-        
-        return Redirect(urlOptions.Value.EprPrnManageOrganisationLink); 
+
+        return Redirect(urlOptions.Value.EprPrnManageOrganisationLink);
     }
 
     private async Task<RedirectToActionResult> SaveSessionAndRedirect(JourneySession session, string actionName, string currentPagePath, string? nextPagePath)
@@ -291,15 +291,15 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
         ViewBag.BackLinkToDisplay = session.ReExAccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
     }
 
-	private void SetCustomBackLink(string pagePath, bool showCustomBackLabel = true)
-	{
-		if (showCustomBackLabel)
-		{
-			ViewBag.CustomBackLinkToDisplay = pagePath;
-		}
-		else
-		{
-			ViewBag.BackLinkToDisplay = pagePath;
-		}
-	}
+    private void SetCustomBackLink(string pagePath, bool showCustomBackLabel = true)
+    {
+        if (showCustomBackLabel)
+        {
+            ViewBag.CustomBackLinkToDisplay = pagePath;
+        }
+        else
+        {
+            ViewBag.BackLinkToDisplay = pagePath;
+        }
+    }
 }
