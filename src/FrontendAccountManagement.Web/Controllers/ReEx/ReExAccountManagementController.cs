@@ -20,7 +20,7 @@ using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
 namespace FrontendAccountManagement.Web.Controllers.ReEx;
 
-//[Authorize(Policy = PolicyConstants.ReExAccountManagementPolicy)]
+[Authorize(Policy = PolicyConstants.ReExAccountManagementPolicy)]
 [ExcludeFromCodeCoverage]
 [Route(PagePath.ReExManageAccount)]
 public class ReExAccountManagementController(ISessionManager<JourneySession> sessionManager, IFacadeService facadeService, ILogger<ReExAccountManagementController> logger, IOptions<ExternalUrlsOptions> urlOptions) : Controller
@@ -37,10 +37,10 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
         }
 
         var session = await sessionManager.GetSessionAsync(HttpContext.Session);
-        session ??= new JourneySession();
+		logger.LogInformation(JsonSerializer.Serialize(session));
+		session ??= new JourneySession();
         var userAccount = User.GetUserData();
 
-		logger.LogInformation(JsonSerializer.Serialize(session));
 		//var enrolment = session.ReExAccountManagementSession.TeamViewModel.TeamMembers
   //                              .SelectMany(tm => tm.Enrolments)
   //                              .FirstOrDefault(e => e.EnrolmentId == enrolmentId);
