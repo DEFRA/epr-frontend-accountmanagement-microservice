@@ -69,7 +69,7 @@
                                     <span class="govuk-!-font-weight-bold govuk-!-font-size-16">@Localizer["AccountPermissions"]</span>
                                 </td>
                                 <td class="govuk-table__cell govuk-!-width-one-half">
-                                    <span class="govuk-!-font-size-16">@Model.AccountPermissions.GetPermissionDescription(Localizer)</span>
+                                    <span class="govuk-!-font-size-16">@Model.AccountRole.GetPermissionDescription(Localizer)</span>
                                 </td>
                                 <td class="govuk-table__cell govuk-!-width-one-quarter">
                                     <span class="govuk-!-font-weight-bold govuk-!-font-size-16">&nbsp;</span>
@@ -91,11 +91,14 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="govuk-!-text-align-right">
-                    <button class="govuk-button govuk-button--warning" data-module="govuk-button" aria-label="@Localizer["Remove"]">
-                        @Localizer["Remove"]
-                    </button>
-                </div>
+                @if (Model.CanRemoveUser)
+                {
+                    <div class="govuk-!-text-align-right">
+                        <button class="govuk-button govuk-button--warning" data-module="govuk-button" aria-label="@Localizer["Remove"]">
+                            @Localizer["Remove"]
+                        </button>
+                    </div>
+                }
             </div>
         </form>
     </main>
