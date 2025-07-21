@@ -17,7 +17,7 @@ using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
 namespace FrontendAccountManagement.Web.Controllers.ReEx;
 
-[Authorize(Policy = PolicyConstants.ReExAccountManagementPolicy)]
+//[Authorize(Policy = PolicyConstants.ReExAccountManagementPolicy)]
 [ExcludeFromCodeCoverage]
 [Route(PagePath.ReExManageAccount)]
 public class ReExAccountManagementController(ISessionManager<JourneySession> sessionManager, IFacadeService facadeService, ILogger<ReExAccountManagementController> logger, IOptions<ExternalUrlsOptions> urlOptions) : Controller
