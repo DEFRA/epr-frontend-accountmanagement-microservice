@@ -36,4 +36,6 @@ public class ReExAccountManagementSession
     public List<Address?> AddressesForPostcode { get; set; } = [];
     
     public FrontendAccountManagement.Core.Enums.Nation? UkNation { get; set; } = new();
+
+    public TeamViewModel? TeamViewModel { get; set; }
 }

@@ -17,20 +17,16 @@ using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
 namespace FrontendAccountManagement.Web.Controllers.ReEx;
 
-[Authorize(Policy = PolicyConstants.ReExAccountManagementPolicy)]
+//[Authorize(Policy = PolicyConstants.ReExAccountManagementPolicy)]
 [ExcludeFromCodeCoverage]
 [Route(PagePath.ReExManageAccount)]
-public class ReExAccountManagementController(
-    ISessionManager<JourneySession> sessionManager, 
-    IFacadeService facadeService, 
-    ILogger<ReExAccountManagementController> logger,
-    IOptions<ExternalUrlsOptions> urlOptions) : Controller
+public class ReExAccountManagementController(ISessionManager<JourneySession> sessionManager, IFacadeService facadeService, ILogger<ReExAccountManagementController> logger, IOptions<ExternalUrlsOptions> urlOptions) : Controller
 {
     private const string RolesNotFoundException = "Could not retrieve service roles or none found";
 
     [HttpGet]
-    [Route("organisation/{organisationId}/person/{personId}/enrolment/{enrolmentId}")]
-    public async Task<IActionResult> ViewDetails([FromRoute] Guid organisationId, [FromRoute] Guid personId, [FromRoute] int enrolmentId)
+    [Route("enrolment/{enrolmentId}")]
+    public async Task<IActionResult> ViewDetails([FromRoute] int enrolmentId)
     {
         if (!ModelState.IsValid)
         {
@@ -41,12 +37,13 @@ public class ReExAccountManagementController(
         session ??= new JourneySession();
         var userAccount = User.GetUserData();
 
+        var enrolment = session.ReExAccountManagementSession.TeamViewModel.TeamMembers
+                                .SelectMany(tm => tm.Enrolments)
+                                .FirstOrDefault(e => e.EnrolmentId == enrolmentId);
+
         ViewDetailsViewModel model = new()
         {
-            AccountRole = "Approved User, Administrator" // TODO: this is to be implemented in a nother storyy
-            //AccountPermissions = (serviceRoles.Where(r => r.Key.StartsWith("Re-Ex.ApprovedPerson") ||
-            //                                              r.Key.StartsWith("Re-Ex.StandardUser") ||
-            //                                              r.Key.StartsWith("Re-Ex.BasicUser")).ToList()).ToString(),
+            AccountRole = enrolment?.ServiceRoleKey ?? string.Empty
         };
 
         if (userAccount is null)
@@ -65,22 +62,16 @@ public class ReExAccountManagementController(
             model.AccountPermissions = $"{serviceRoleEnum}.{userAccount.RoleInOrganisation}";
         }
 
-        session.ReExAccountManagementSession.OrganisationId = organisationId;
-        session.ReExAccountManagementSession.PersonId = personId;
-
-        session.SelectedOrganisationId = organisationId;
-
         await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccount);
-
-        SetBackLink(session, PagePath.ReExManageAccount);
+        SetCustomBackLink(urlOptions.Value.ReExLandingPageUrl);
 
         return View(nameof(ViewDetails), model);
     }
 
     [HttpGet]
     //[Authorize(Policy = PolicyConstants.ReExAddTeamMemberPolicy)]
-    [Route($"{PagePath.TeamMemberEmail}/organisation/{{organisationId}}")]
-    public async Task<IActionResult> TeamMemberEmail([FromRoute] Guid organisationId)
+    [Route($"{PagePath.TeamMemberEmail}")]
+    public async Task<IActionResult> TeamMemberEmail()
     {
         if (!ModelState.IsValid)
         {
@@ -92,7 +83,6 @@ public class ReExAccountManagementController(
 
         session.ReExAccountManagementSession.Journey.AddIfNotExists(PagePath.ReExManageAccount);
         session.ReExAccountManagementSession.AddUserJourney ??= new AddUserJourneyModel();
-        session.ReExAccountManagementSession.OrganisationId = organisationId;
 
         await SaveSessionAndJourney(session, PagePath.ReExManageAccount, PagePath.TeamMemberEmail);
         SetCustomBackLink(urlOptions.Value.ReExLandingPageUrl);
@@ -222,7 +212,6 @@ public class ReExAccountManagementController(
             OrganisationId = session.ReExAccountManagementSession.ReExRemoveUserJourney.OrganisationId,
             Role = session.ReExAccountManagementSession.ReExRemoveUserJourney.Role,
             EnrolmentId = session.ReExAccountManagementSession.ReExRemoveUserJourney.EnrolmentId
-            
         };
 
         await SaveSessionAndJourney(session, PagePath.ReExManageAccount, PagePath.RemoveTeamMember);

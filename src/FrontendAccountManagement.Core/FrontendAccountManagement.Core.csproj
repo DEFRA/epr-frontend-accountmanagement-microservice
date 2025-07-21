@@ -20,7 +20,7 @@
 
   <ItemGroup>
 		<SonarQubeSetting Include="sonar.coverage.exclusions">
-			<Value>**/AddUserJourneyModel.cs,**/ConnectionPerson.cs,**/ConnectionWithEnrolments.cs,**/CurrentUserAccess.cs,**/DelegatedPersonNominationRequest.cs,**/EndpointResponseStatus.cs,**/InvitedUser.cs,**/InviteUserRequest.cs,**/InvitingUser.cs,**/ManageUserModel.cs,**/RelationshipType.cs,**/RemoveUserJourneyModel.cs,**/ServiceRole.cs,**/UpdatePersonRoleRequest.cs,**/MockedFacadeService.cs,**/PermissionType.cs,**/RelationshipWithOrganisation.cs,**/MockedManageUserModels.cs,**/Program.cs,**/ServiceProviderExtension.cs</Value>
+			<Value>**/AddUserJourneyModel.cs,**/ConnectionPerson.cs,**/ConnectionWithEnrolments.cs,**/CurrentUserAccess.cs,**/DelegatedPersonNominationRequest.cs,**/EndpointResponseStatus.cs,**/InvitedUser.cs,**/InviteUserRequest.cs,**/InvitingUser.cs,**/ManageUserModel.cs,**/RelationshipType.cs,**/RemoveUserJourneyModel.cs,**/ServiceRole.cs,**/UpdatePersonRoleRequest.cs,**/MockedFacadeService.cs,**/PermissionType.cs,**/RelationshipWithOrganisation.cs,**/MockedManageUserModels.cs,**/Program.cs,**/ServiceProviderExtension.cs,**/ServiceRoleExtensions.cs</Value>
 		</SonarQubeSetting>
 	</ItemGroup>
 
