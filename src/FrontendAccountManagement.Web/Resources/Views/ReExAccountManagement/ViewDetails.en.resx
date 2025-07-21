@@ -132,17 +132,20 @@
   <data name="AddedBy" xml:space="preserve">
     <value>Added by</value>
   </data>
+	<data name="ManageOrganisation.TabTeam.Permissions.AdminUser" xml:space="preserve">
+    <value>Manage team, submit registration and apply for accreditation</value>
+  </data>
   <data name="ManageOrganisation.TabTeam.Permissions.ApprovedPerson" xml:space="preserve">
-    <value>Manage team, submit registration and accreditation (Approved Person)</value>
+    <value>Manage team, submit registration and accreditation</value>
   </data>
   <data name="ManageOrganisation.TabTeam.Permissions.StandardUser" xml:space="preserve">
-    <value>Submit registration and accreditation (Standard User)</value>
+    <value>Submit registration and accreditation</value>
   </data>
   <data name="ManageOrganisation.TabTeam.Permissions.BasicUser" xml:space="preserve">
-    <value>Read only access (Basic User)</value>
+    <value>Read only access</value>
   </data>
   <data name="ManageOrganisation.TabTeam.Permissions.ReadOnly" xml:space="preserve">
-    <value>Read only access (ReadOnly User)</value>
+    <value>Read only access</value>
   </data>
   <data name="Remove" xml:space="preserve">
     <value>Remove</value>

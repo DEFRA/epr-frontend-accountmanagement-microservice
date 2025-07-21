@@ -12,10 +12,7 @@ using FrontendAccountManagement.Web.ViewModels.ReExAccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
-using System.Text.Json;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
 namespace FrontendAccountManagement.Web.Controllers.ReEx;
@@ -25,285 +22,291 @@ namespace FrontendAccountManagement.Web.Controllers.ReEx;
 [Route(PagePath.ReExManageAccount)]
 public class ReExAccountManagementController(ISessionManager<JourneySession> sessionManager, IFacadeService facadeService, ILogger<ReExAccountManagementController> logger, IOptions<ExternalUrlsOptions> urlOptions) : Controller
 {
-    private const string RolesNotFoundException = "Could not retrieve service roles or none found";
+	private const string RolesNotFoundException = "Could not retrieve service roles or none found";
 
-    [HttpGet]
-    [Route("enrolment/{enrolmentId}")]
-    public async Task<IActionResult> ViewDetails([FromRoute] int enrolmentId)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+	[HttpGet]
+	[Route("enrolment/{enrolmentId}")]
+	public async Task<IActionResult> ViewDetails([FromRoute] int enrolmentId)
+	{
+		if (!ModelState.IsValid)
+		{
+			return BadRequest(ModelState);
+		}
 
-        var session = await sessionManager.GetSessionAsync(HttpContext.Session);
-		logger.LogInformation(JsonSerializer.Serialize(session));
+		var session = await sessionManager.GetSessionAsync(HttpContext.Session);
 		session ??= new JourneySession();
-        var userAccount = User.GetUserData();
+		var userAccount = User.GetUserData();
+		var teamMember = session.ReExAccountManagementSession.TeamViewModel.TeamMembers
+			.Find(tm => tm.Enrolments.Any(e => e.EnrolmentId == enrolmentId));
+		var enrolment = teamMember.Enrolments.FirstOrDefault(e => e.EnrolmentId == enrolmentId);
 
-		//var enrolment = session.ReExAccountManagementSession.TeamViewModel.TeamMembers
-  //                              .SelectMany(tm => tm.Enrolments)
-  //                              .FirstOrDefault(e => e.EnrolmentId == enrolmentId);
+		ViewDetailsViewModel model = new()
+		{
+			AccountRole = enrolment?.ServiceRoleKey ?? string.Empty,
+			Email = teamMember.Email,
+			FirstName = teamMember.FirstName,
+			LastName = teamMember.LastName,
+			AddedBy = enrolment?.AddedBy
+		};
 
-        ViewDetailsViewModel model = new()
-        {
-            AccountRole = "User role"
-        };
+		if (userAccount is null)
+		{
+			logger.LogInformation("User authenticated but account could not be found");
+		}
+		else
+		{
+			model.CanRemoveUser = CanRemoveTeamMember(session.ReExAccountManagementSession.TeamViewModel, enrolment!);
+		}
 
-        if (userAccount is null)
-        {
-            logger.LogInformation("User authenticated but account could not be found");
-        }
-        else
-        {
-            model.AddedBy = $"{userAccount.FirstName} {userAccount.LastName}";
-            model.Email = userAccount.Email;
-            model.FirstName = userAccount.FirstName;
-            model.LastName = userAccount.LastName;
+		await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccount);
+		SetCustomBackLink(urlOptions.Value.ReExLandingPageUrl);
 
-            var serviceRoleEnum = (ServiceRole)userAccount.ServiceRoleId;
+		return View(nameof(ViewDetails), model);
+	}
 
-            model.AccountPermissions = $"{serviceRoleEnum}.{userAccount.RoleInOrganisation}";
-        }
+	private static bool CanRemoveTeamMember(TeamViewModel teamViewModel, TeamMemberEnrolments enrolment)
+	{
+		if (enrolment.ServiceRoleKey == "Re-Ex.AdminUser")
+		{
+			return false;
+		}
 
-        await SaveSessionAndJourney(session, PagePath.ManageAccount, PagePath.ManageAccount);
-        SetCustomBackLink(urlOptions.Value.ReExLandingPageUrl);
+		return teamViewModel.UserServiceRoles.Exists(e => e.Contains("Re-Ex.AdminUser") ||
+									e.Contains("Re-Ex.ApprovedPerson"));
+	}
 
-        return View(nameof(ViewDetails), model);
-    }
+	[HttpGet]
+	//[Authorize(Policy = PolicyConstants.ReExAddTeamMemberPolicy)]
+	[Route(PagePath.TeamMemberEmail)]
+	public async Task<IActionResult> TeamMemberEmail()
+	{
+		if (!ModelState.IsValid)
+		{
+			return View(nameof(ViewDetails));
+		}
 
-    [HttpGet]
-    //[Authorize(Policy = PolicyConstants.ReExAddTeamMemberPolicy)]
-    [Route($"{PagePath.TeamMemberEmail}")]
-    public async Task<IActionResult> TeamMemberEmail()
-    {
-        if (!ModelState.IsValid)
-        {
-            return View(nameof(ViewDetails));
-        }
+		var session = await sessionManager.GetSessionAsync(HttpContext.Session);
+		session ??= new JourneySession();
 
-        var session = await sessionManager.GetSessionAsync(HttpContext.Session);
-        session ??= new JourneySession();
+		session.ReExAccountManagementSession.Journey.AddIfNotExists(PagePath.ReExManageAccount);
+		session.ReExAccountManagementSession.AddUserJourney ??= new AddUserJourneyModel();
 
-        session.ReExAccountManagementSession.Journey.AddIfNotExists(PagePath.ReExManageAccount);
-        session.ReExAccountManagementSession.AddUserJourney ??= new AddUserJourneyModel();
+		await SaveSessionAndJourney(session, PagePath.ReExManageAccount, PagePath.TeamMemberEmail);
+		SetCustomBackLink(urlOptions.Value.ReExLandingPageUrl);
 
-        await SaveSessionAndJourney(session, PagePath.ReExManageAccount, PagePath.TeamMemberEmail);
-        SetCustomBackLink(urlOptions.Value.ReExLandingPageUrl);
+		var model = new TeamMemberEmailViewModel
+		{
+			SavedEmail = session.ReExAccountManagementSession.AddUserJourney.Email
+		};
 
-        var model = new TeamMemberEmailViewModel
-        {
-            SavedEmail = session.ReExAccountManagementSession.AddUserJourney.Email
-        };
+		return View(nameof(TeamMemberEmail), model);
+	}
 
-        return View(nameof(TeamMemberEmail), model);
-    }
+	[HttpPost]
+	//[Authorize(Policy = PolicyConstants.ReExAddTeamMemberPolicy)]
+	[Route(PagePath.TeamMemberEmail)]
+	public async Task<IActionResult> TeamMemberEmail(TeamMemberEmailViewModel model)
+	{
+		var session = await sessionManager.GetSessionAsync(HttpContext.Session);
 
-    [HttpPost]
-    //[Authorize(Policy = PolicyConstants.ReExAddTeamMemberPolicy)]
-    [Route(PagePath.TeamMemberEmail)]
-    public async Task<IActionResult> TeamMemberEmail(TeamMemberEmailViewModel model)
-    {
-        var session = await sessionManager.GetSessionAsync(HttpContext.Session);
+		if (!ModelState.IsValid)
+		{
+			SetCustomBackLink(urlOptions.Value.ReExLandingPageUrl);
+			return View(nameof(TeamMemberEmail), model);
+		}
 
-        if (!ModelState.IsValid)
-        {
-            SetCustomBackLink(urlOptions.Value.ReExLandingPageUrl);
-            return View(nameof(TeamMemberEmail), model);
-        }
+		session.ReExAccountManagementSession.InviteeEmailAddress = model.Email;
+		session.ReExAccountManagementSession.AddUserJourney.Email = model.Email;
 
-        session.ReExAccountManagementSession.InviteeEmailAddress = model.Email;
-        session.ReExAccountManagementSession.AddUserJourney.Email = model.Email;
+		return await SaveSessionAndRedirect(session, nameof(TeamMemberPermissions), PagePath.TeamMemberEmail, PagePath.TeamMemberPermissions);
+	}
 
-        return await SaveSessionAndRedirect(session, nameof(TeamMemberPermissions), PagePath.TeamMemberEmail, PagePath.TeamMemberPermissions);
-    }
+	[HttpGet]
+	[Route(PagePath.TeamMemberPermissions)]
+	public async Task<IActionResult> TeamMemberPermissions()
+	{
+		var userData = User.GetUserData();
 
-    [HttpGet]
-    [Route(PagePath.TeamMemberPermissions)]
-    public async Task<IActionResult> TeamMemberPermissions()
-    {
-        var userData = User.GetUserData();
+		var session = await sessionManager.GetSessionAsync(HttpContext.Session);
+		SetBackLink(session, PagePath.TeamMemberPermissions);
 
-        var session = await sessionManager.GetSessionAsync(HttpContext.Session);
-        SetBackLink(session, PagePath.TeamMemberPermissions);
+		if (!ModelState.IsValid)
+		{
+			SetBackLink(session, PagePath.ReExManageAccount);
+			return View(nameof(ViewDetails));
+		}
 
-        if (!ModelState.IsValid)
-        {
-            SetBackLink(session, PagePath.ReExManageAccount);
-            return View(nameof(ViewDetails));
-        }
+		var serviceRoles = await facadeService.GetAllServiceRolesAsync() ?? throw new InvalidOperationException(RolesNotFoundException);
 
-        var serviceRoles = await facadeService.GetAllServiceRolesAsync() ?? throw new InvalidOperationException(RolesNotFoundException);
+		var reExRoles = serviceRoles.Where(r => r.Key.StartsWith("Re-Ex.ApprovedPerson") ||
+												r.Key.StartsWith("Re-Ex.StandardUser") ||
+												r.Key.StartsWith("Re-Ex.BasicUser")).ToList();
 
-        var reExRoles = serviceRoles.Where(r => r.Key.StartsWith("Re-Ex.ApprovedPerson") ||
-                                                r.Key.StartsWith("Re-Ex.StandardUser") ||
-                                                r.Key.StartsWith("Re-Ex.BasicUser")).ToList();
+		var isStandardUser = userData.Organisations.Any(org =>
+			org.Id == session.ReExAccountManagementSession.OrganisationId &&
+			org.Enrolments.Any(e => e.ServiceRoleKey.Contains("Re-Ex.BasicUser")));
 
-        var isStandardUser = userData.Organisations.Any(org =>
-            org.Id == session.ReExAccountManagementSession.OrganisationId &&
-            org.Enrolments.Any(e => e.ServiceRoleKey.Contains("Re-Ex.BasicUser")));
+		var model = new TeamMemberPermissionsViewModel
+		{
+			OrganisationId = session.ReExAccountManagementSession.OrganisationId,
+			ServiceRoles = reExRoles,
+			IsStandardUser = isStandardUser,
+			SavedUserRole = session.ReExAccountManagementSession.AddUserJourney.UserRole
+		};
 
-        var model = new TeamMemberPermissionsViewModel
-        {
-            OrganisationId = session.ReExAccountManagementSession.OrganisationId,
-            ServiceRoles = reExRoles,
-            IsStandardUser = isStandardUser,
-            SavedUserRole = session.ReExAccountManagementSession.AddUserJourney.UserRole
-        };
+		return View(nameof(TeamMemberPermissions), model);
+	}
 
-        return View(nameof(TeamMemberPermissions), model);
-    }
+	[HttpPost]
+	[Route(PagePath.TeamMemberPermissions)]
+	public async Task<IActionResult> TeamMemberPermissions(TeamMemberPermissionsViewModel model)
+	{
+		var session = await sessionManager.GetSessionAsync(HttpContext.Session);
 
-    [HttpPost]
-    [Route(PagePath.TeamMemberPermissions)]
-    public async Task<IActionResult> TeamMemberPermissions(TeamMemberPermissionsViewModel model)
-    {
-        var session = await sessionManager.GetSessionAsync(HttpContext.Session);
+		if (!ModelState.IsValid)
+		{
+			SetBackLink(session, PagePath.TeamMemberPermissions);
+			var serviceRoles = await facadeService.GetAllServiceRolesAsync();
 
-        if (!ModelState.IsValid)
-        {
-            SetBackLink(session, PagePath.TeamMemberPermissions);
-            var serviceRoles = await facadeService.GetAllServiceRolesAsync();
+			model.ServiceRoles = serviceRoles.Where(r => r.Key.StartsWith("Re-Ex.ApprovedPerson") ||
+														 r.Key.StartsWith("Re-Ex.StandardUser") ||
+														 r.Key.StartsWith("Re-Ex.BasicUser")).ToList();
 
-            model.ServiceRoles = serviceRoles.Where(r => r.Key.StartsWith("Re-Ex.ApprovedPerson") ||
-                                                         r.Key.StartsWith("Re-Ex.StandardUser") ||
-                                                         r.Key.StartsWith("Re-Ex.BasicUser")).ToList();
+			return View(nameof(TeamMemberPermissions), model);
+		}
 
-            return View(nameof(TeamMemberPermissions), model);
-        }
+		session.ReExAccountManagementSession.RoleKey = model.SelectedUserRole;
+		session.ReExAccountManagementSession.AddUserJourney.UserRole = model.SelectedUserRole;
 
-        session.ReExAccountManagementSession.RoleKey = model.SelectedUserRole;
-        session.ReExAccountManagementSession.AddUserJourney.UserRole = model.SelectedUserRole;
+		return await SaveSessionAndRedirect(session, nameof(ViewDetails), PagePath.TeamMemberPermissions, PagePath.TeamMemberDetails); // TODO: change to the next view
+	}
 
-        return await SaveSessionAndRedirect(session, nameof(ViewDetails), PagePath.TeamMemberPermissions, PagePath.TeamMemberDetails); // TODO: change to the next view
-    }
+	[HttpGet]
+	[Route(PagePath.PreRemoveTeamMember)]
+	public async Task<IActionResult> RemoveTeamMemberPreConfirmation(ViewDetailsViewModel model)
+	{
+		var session = await sessionManager.GetSessionAsync(HttpContext.Session);
 
-    [HttpGet]
-    [Route(PagePath.PreRemoveTeamMember)]
-    public async Task<IActionResult> RemoveTeamMemberPreConfirmation(ViewDetailsViewModel model)
-    {
-        var session = await sessionManager.GetSessionAsync(HttpContext.Session);
+		session.ReExAccountManagementSession.ReExRemoveUserJourney = new ReExRemoveUserJourneyModel
+		{
+			PersonId = model.PersonId,
+			OrganisationId = model.OrganisationId,
+			EnrolmentId = model.EnrolmentId,
+			FirstName = model.FirstName,
+			LastName = model.LastName,
+			Role = model.AccountRole
+		};
 
-        session.ReExAccountManagementSession.ReExRemoveUserJourney = new ReExRemoveUserJourneyModel
-        {
-            PersonId = model.PersonId,
-            OrganisationId = model.OrganisationId,
-            EnrolmentId = model.EnrolmentId,
-            FirstName = model.FirstName,
-            LastName = model.LastName,
-            Role = model.AccountRole
-        };
+		await SaveSession(session);
+		return RedirectToAction("RemoveTeamMemberConfirmation", "ReExAccountManagement");
+	}
 
-        await SaveSession(session);
-        return RedirectToAction("RemoveTeamMemberConfirmation", "ReExAccountManagement");
-    }
+	[HttpGet]
+	[Route(PagePath.RemoveTeamMember)]
+	public async Task<IActionResult> RemoveTeamMemberConfirmation()
+	{
+		var session = await sessionManager.GetSessionAsync(HttpContext.Session);
 
-    [HttpGet]
-    [Route(PagePath.RemoveTeamMember)]
-    public async Task<IActionResult> RemoveTeamMemberConfirmation()
-    {
-        var session = await sessionManager.GetSessionAsync(HttpContext.Session);
+		session.ReExAccountManagementSession.Journey.AddIfNotExists(PagePath.ReExManageAccount);
+		session.ReExAccountManagementSession.Journey.AddIfNotExists(PagePath.RemoveTeamMember);
 
-        session.ReExAccountManagementSession.Journey.AddIfNotExists(PagePath.ReExManageAccount);
-        session.ReExAccountManagementSession.Journey.AddIfNotExists(PagePath.RemoveTeamMember);
+		SetBackLink(session, PagePath.RemoveTeamMember);
+		var model = new RemoveReExTeamMemberConfirmationViewModel
+		{
+			FirstName = session.ReExAccountManagementSession.ReExRemoveUserJourney.FirstName,
+			LastName = session.ReExAccountManagementSession.ReExRemoveUserJourney.LastName,
+			PersonId = session.ReExAccountManagementSession.ReExRemoveUserJourney.PersonId,
+			OrganisationId = session.ReExAccountManagementSession.ReExRemoveUserJourney.OrganisationId,
+			Role = session.ReExAccountManagementSession.ReExRemoveUserJourney.Role,
+			EnrolmentId = session.ReExAccountManagementSession.ReExRemoveUserJourney.EnrolmentId
+		};
 
-        SetBackLink(session, PagePath.RemoveTeamMember);
-        var model = new RemoveReExTeamMemberConfirmationViewModel
-        {
-            FirstName = session.ReExAccountManagementSession.ReExRemoveUserJourney.FirstName,
-            LastName = session.ReExAccountManagementSession.ReExRemoveUserJourney.LastName,
-            PersonId = session.ReExAccountManagementSession.ReExRemoveUserJourney.PersonId,
-            OrganisationId = session.ReExAccountManagementSession.ReExRemoveUserJourney.OrganisationId,
-            Role = session.ReExAccountManagementSession.ReExRemoveUserJourney.Role,
-            EnrolmentId = session.ReExAccountManagementSession.ReExRemoveUserJourney.EnrolmentId
-        };
+		await SaveSessionAndJourney(session, PagePath.ReExManageAccount, PagePath.RemoveTeamMember);
 
-        await SaveSessionAndJourney(session, PagePath.ReExManageAccount, PagePath.RemoveTeamMember);
+		return View(nameof(RemoveTeamMemberConfirmation), model);
+	}
 
-        return View(nameof(RemoveTeamMemberConfirmation), model);
-    }
+	[HttpPost]
+	[Route(PagePath.RemoveTeamMember)]
+	public async Task<IActionResult> RemoveTeamMemberConfirmation(RemoveReExTeamMemberConfirmationViewModel model)
+	{
+		var session = await sessionManager.GetSessionAsync(HttpContext.Session);
 
-    [HttpPost]
-    [Route(PagePath.RemoveTeamMember)]
-    public async Task<IActionResult> RemoveTeamMemberConfirmation(RemoveReExTeamMemberConfirmationViewModel model)
-    {
-        var session = await sessionManager.GetSessionAsync(HttpContext.Session);
+		if (!ModelState.IsValid)
+		{
+			SetBackLink(session, PagePath.RemoveTeamMember);
+			return View(nameof(RemoveTeamMemberConfirmation), model);
+		}
 
-        if (!ModelState.IsValid)
-        {
-            SetBackLink(session, PagePath.RemoveTeamMember);
-            return View(nameof(RemoveTeamMemberConfirmation), model);
-        }
+		var personExternalId = model.PersonId.ToString();
+		var organisationId = model.OrganisationId.ToString();
 
-        var personExternalId = model.PersonId.ToString();
-        var organisationId = model.OrganisationId.ToString();
+		var result = await facadeService.DeletePersonConnectionAndEnrolment(personExternalId, organisationId, model.EnrolmentId);
+		session.ReExAccountManagementSession.RemoveUserStatus = result;
 
-        var result = await facadeService.DeletePersonConnectionAndEnrolment(personExternalId, organisationId, model.EnrolmentId);
-        session.ReExAccountManagementSession.RemoveUserStatus = result;
+		session.ReExAccountManagementSession.ReExRemoveUserJourney = new ReExRemoveUserJourneyModel
+		{
+			IsRemoved = true,
+			FirstName = model.FirstName,
+			LastName = model.LastName,
+			Role = model.Role
+		};
 
-        session.ReExAccountManagementSession.ReExRemoveUserJourney = new ReExRemoveUserJourneyModel
-        {
-            IsRemoved = true,
-            FirstName = model.FirstName,
-            LastName = model.LastName,
-            Role = model.Role
-        };
+		await SaveSessionAndJourney(session, PagePath.RemoveTeamMember, PagePath.ReExManageAccount);
 
-        await SaveSessionAndJourney(session, PagePath.RemoveTeamMember, PagePath.ReExManageAccount);
+		return Redirect(urlOptions.Value.EprPrnManageOrganisationLink);
+	}
 
-        return Redirect(urlOptions.Value.EprPrnManageOrganisationLink);
-    }
+	private async Task<RedirectToActionResult> SaveSessionAndRedirect(JourneySession session, string actionName, string currentPagePath, string? nextPagePath)
+	{
+		await SaveSessionAndJourney(session, currentPagePath, nextPagePath);
 
-    private async Task<RedirectToActionResult> SaveSessionAndRedirect(JourneySession session, string actionName, string currentPagePath, string? nextPagePath)
-    {
-        await SaveSessionAndJourney(session, currentPagePath, nextPagePath);
+		return RedirectToAction(actionName);
+	}
 
-        return RedirectToAction(actionName);
-    }
+	/// <summary>
+	/// Saves the session data and adds a step to the list detailing the user's journey through the site.
+	/// </summary>
+	/// <param name="session">The session data to save.</param>
+	/// <param name="sourcePagePath">The page this step of the journey starts from (typically the page we've just come from.).</param>
+	/// <param name="destinationPagePath">The page this step of the journey ends at (typically the current page.).</param>
+	/// <returns>A <see cref="Task"/>.</returns>
+	private async Task SaveSessionAndJourney(JourneySession session, string sourcePagePath, string? destinationPagePath)
+	{
+		ClearRestOfJourney(session, sourcePagePath);
 
-    /// <summary>
-    /// Saves the session data and adds a step to the list detailing the user's journey through the site.
-    /// </summary>
-    /// <param name="session">The session data to save.</param>
-    /// <param name="sourcePagePath">The page this step of the journey starts from (typically the page we've just come from.).</param>
-    /// <param name="destinationPagePath">The page this step of the journey ends at (typically the current page.).</param>
-    /// <returns>A <see cref="Task"/>.</returns>
-    private async Task SaveSessionAndJourney(JourneySession session, string sourcePagePath, string? destinationPagePath)
-    {
-        ClearRestOfJourney(session, sourcePagePath);
+		session.ReExAccountManagementSession.Journey.AddIfNotExists(destinationPagePath);
 
-        session.ReExAccountManagementSession.Journey.AddIfNotExists(destinationPagePath);
+		await SaveSession(session);
+	}
 
-        await SaveSession(session);
-    }
+	private async Task SaveSession(JourneySession session)
+	{
+		await sessionManager.SaveSessionAsync(HttpContext.Session, session);
+	}
 
-    private async Task SaveSession(JourneySession session)
-    {
-        await sessionManager.SaveSessionAsync(HttpContext.Session, session);
-    }
+	private static void ClearRestOfJourney(JourneySession session, string currentPagePath)
+	{
+		var index = session.ReExAccountManagementSession.Journey.IndexOf(currentPagePath);
 
-    private static void ClearRestOfJourney(JourneySession session, string currentPagePath)
-    {
-        var index = session.ReExAccountManagementSession.Journey.IndexOf(currentPagePath);
+		// this also cover if current page not found (index = -1) then it clears all pages
+		session.ReExAccountManagementSession.Journey = session.ReExAccountManagementSession.Journey.Take(index + 1).ToList();
+	}
 
-        // this also cover if current page not found (index = -1) then it clears all pages
-        session.ReExAccountManagementSession.Journey = session.ReExAccountManagementSession.Journey.Take(index + 1).ToList();
-    }
+	private void SetBackLink(JourneySession session, string currentPagePath)
+	{
+		ViewBag.BackLinkToDisplay = session.ReExAccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
+	}
 
-    private void SetBackLink(JourneySession session, string currentPagePath)
-    {
-        ViewBag.BackLinkToDisplay = session.ReExAccountManagementSession.Journey.PreviousOrDefault(currentPagePath) ?? string.Empty;
-    }
-
-    private void SetCustomBackLink(string pagePath, bool showCustomBackLabel = true)
-    {
-        if (showCustomBackLabel)
-        {
-            ViewBag.CustomBackLinkToDisplay = pagePath;
-        }
-        else
-        {
-            ViewBag.BackLinkToDisplay = pagePath;
-        }
-    }
+	private void SetCustomBackLink(string pagePath, bool showCustomBackLabel = true)
+	{
+		if (showCustomBackLabel)
+		{
+			ViewBag.CustomBackLinkToDisplay = pagePath;
+		}
+		else
+		{
+			ViewBag.BackLinkToDisplay = pagePath;
+		}
+	}
 }

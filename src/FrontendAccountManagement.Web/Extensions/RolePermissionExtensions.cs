@@ -13,7 +13,13 @@ public static class RolePermissionExtensions
 
         var lowerKey = roleKey.ToLowerInvariant();
 
-        if (lowerKey.Contains("approvedperson"))
+		if (lowerKey.Contains("adminuser"))
+		{
+			return localizer["ManageOrganisation.TabTeam.Permissions.AdminUser"];
+			// "Manage team, submit registration and apply accreditation (Admin User)"
+		}
+
+		if (lowerKey.Contains("approvedperson"))
         {
             return localizer["ManageOrganisation.TabTeam.Permissions.ApprovedPerson"];
             // "Manage team, submit registration and accreditation (Approved Person)"
