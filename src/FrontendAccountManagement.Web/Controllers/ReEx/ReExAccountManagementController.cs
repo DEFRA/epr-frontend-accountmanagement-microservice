@@ -12,7 +12,10 @@ using FrontendAccountManagement.Web.ViewModels.ReExAccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
+using System.Text.Json;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
 namespace FrontendAccountManagement.Web.Controllers.ReEx;
@@ -37,13 +40,14 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
         session ??= new JourneySession();
         var userAccount = User.GetUserData();
 
-        var enrolment = session.ReExAccountManagementSession.TeamViewModel.TeamMembers
-                                .SelectMany(tm => tm.Enrolments)
-                                .FirstOrDefault(e => e.EnrolmentId == enrolmentId);
+		logger.LogInformation(JsonSerializer.Serialize(session));
+		//var enrolment = session.ReExAccountManagementSession.TeamViewModel.TeamMembers
+  //                              .SelectMany(tm => tm.Enrolments)
+  //                              .FirstOrDefault(e => e.EnrolmentId == enrolmentId);
 
         ViewDetailsViewModel model = new()
         {
-            AccountRole = enrolment?.ServiceRoleKey ?? string.Empty
+            AccountRole = "User role"
         };
 
         if (userAccount is null)
