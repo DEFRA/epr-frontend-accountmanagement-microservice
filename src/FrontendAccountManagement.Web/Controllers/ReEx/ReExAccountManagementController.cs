@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Identity.Web;
 
 namespace FrontendAccountManagement.Web.Controllers.ReEx;
 
