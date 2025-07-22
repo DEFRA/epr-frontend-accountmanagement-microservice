@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using System.Diagnostics.CodeAnalysis;
-using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
 namespace FrontendAccountManagement.Web.Controllers.ReEx;
 
@@ -23,8 +22,6 @@ namespace FrontendAccountManagement.Web.Controllers.ReEx;
 [Route(PagePath.ReExManageAccount)]
 public class ReExAccountManagementController(ISessionManager<JourneySession> sessionManager, IFacadeService facadeService, ILogger<ReExAccountManagementController> logger, IOptions<ExternalUrlsOptions> urlOptions) : Controller
 {
-	private const string RolesNotFoundException = "Could not retrieve service roles or none found";
-
 	[HttpGet]
 	[Route("enrolment/{enrolmentId}")]
 	public async Task<IActionResult> ViewDetails([FromRoute] int enrolmentId)
@@ -47,7 +44,9 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 			Email = teamMember.Email,
 			FirstName = teamMember.FirstName,
 			LastName = teamMember.LastName,
-			AddedBy = enrolment?.AddedBy
+			AddedBy = enrolment?.AddedBy,
+			PersonId = teamMember.PersonId,
+			OrganisationId = session.ReExAccountManagementSession.OrganisationId,
 		};
 
 		if (userAccount is null)
@@ -117,7 +116,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 		session.ReExAccountManagementSession.InviteeEmailAddress = model.Email;
 		session.ReExAccountManagementSession.AddUserJourney.Email = model.Email;
 
-		return await SaveSessionAndRedirect(session, nameof(TeamMemberPermissions), PagePath.TeamMemberEmail, PagePath.TeamMemberPermissions);
+		return await SaveSessionAndRedirect(session, nameof(TeamMemberPermissions), PagePath.TeamMemberEmail, PagePath.PreRemoveTeamMember);
 	}
 
 	[HttpGet]
@@ -130,11 +129,12 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 		var session = await sessionManager.GetSessionAsync(HttpContext.Session);
 		SetBackLink(session, PagePath.TeamMemberPermissions);
 
-		var serviceRoles = await facadeService.GetAllServiceRolesAsync() ?? throw new InvalidOperationException(RolesNotFoundException);
-
-		var reExRoles = serviceRoles.Where(r => r.Key.StartsWith("Re-Ex.ApprovedPerson") ||
-												r.Key.StartsWith("Re-Ex.StandardUser") ||
-												r.Key.StartsWith("Re-Ex.BasicUser")).ToList();
+		var reExRoles = new List<ServiceRole>
+		{
+			new() { ServiceRoleId = 8, Key = "Re-Ex.ApprovedPerson" },
+			new() { ServiceRoleId = 10, Key = "Re-Ex.BasicUser" },
+			new() {ServiceRoleId = 12, Key = "Re-Ex.StandardUser"}
+		};
 
 		var isStandardUser = userData.Organisations.Any(org =>
 			org.Id == session.ReExAccountManagementSession.OrganisationId &&
@@ -250,7 +250,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
 		await SaveSessionAndJourney(session, PagePath.RemoveTeamMember, PagePath.ReExManageAccount);
 
-		return Redirect(urlOptions.Value.EprPrnManageOrganisationLink);
+		return Redirect(urlOptions.Value.ReExLandingPageUrl);
 	}
 
 	private async Task<RedirectToActionResult> SaveSessionAndRedirect(JourneySession session, string actionName, string currentPagePath, string? nextPagePath)
