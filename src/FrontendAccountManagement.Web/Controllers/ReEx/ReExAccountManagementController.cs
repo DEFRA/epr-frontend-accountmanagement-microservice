@@ -20,6 +20,7 @@ namespace FrontendAccountManagement.Web.Controllers.ReEx;
 //[Authorize(Policy = PolicyConstants.ReExAccountManagementPolicy)]
 [ExcludeFromCodeCoverage]
 [Route(PagePath.ReExManageAccount)]
+[AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
 public class ReExAccountManagementController(ISessionManager<JourneySession> sessionManager, IFacadeService facadeService, ILogger<ReExAccountManagementController> logger, IOptions<ExternalUrlsOptions> urlOptions) : Controller
 {
 	[HttpGet]
@@ -121,7 +122,6 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
 	[HttpGet]
 	[Route(PagePath.TeamMemberPermissions)]
-	[AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
 	public async Task<IActionResult> TeamMemberPermissions()
 	{
 		var userData = User.GetUserData();
@@ -197,7 +197,6 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
 	[HttpGet]
 	[Route(PagePath.RemoveTeamMember)]
-	[AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
 	public async Task<IActionResult> RemoveTeamMemberConfirmation()
 	{
 		var session = await sessionManager.GetSessionAsync(HttpContext.Session);
@@ -223,7 +222,6 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
 	[HttpPost]
 	[Route(PagePath.RemoveTeamMember)]
-	[AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
 	public async Task<IActionResult> RemoveTeamMemberConfirmation(RemoveReExTeamMemberConfirmationViewModel model)
 	{
 		var session = await sessionManager.GetSessionAsync(HttpContext.Session);
