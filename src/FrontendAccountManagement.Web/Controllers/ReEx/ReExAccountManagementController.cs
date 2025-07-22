@@ -125,7 +125,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 		var userData = User.GetUserData();
 
 		var session = await sessionManager.GetSessionAsync(HttpContext.Session);
-		SetBackLink(session, PagePath.TeamMemberPermissions);
+		SetBackLink(session, PagePath.TeamMemberEmail);
 
 		if (!ModelState.IsValid)
 		{
@@ -163,7 +163,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
 		if (!ModelState.IsValid)
 		{
-			SetBackLink(session, PagePath.TeamMemberPermissions);
+			SetBackLink(session, PagePath.TeamMemberEmail);
 			var serviceRoles = await facadeService.GetAllServiceRolesAsync();
 
 			model.ServiceRoles = serviceRoles.Where(r => r.Key.StartsWith("Re-Ex.ApprovedPerson") ||
