@@ -19,6 +19,7 @@ namespace FrontendAccountManagement.Web.Controllers.ReEx;
 //[Authorize(Policy = PolicyConstants.ReExAccountManagementPolicy)]
 [ExcludeFromCodeCoverage]
 [Route(PagePath.ReExManageAccount)]
+[AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
 public class ReExAccountManagementController(ISessionManager<JourneySession> sessionManager, IFacadeService facadeService, ILogger<ReExAccountManagementController> logger, IOptions<ExternalUrlsOptions> urlOptions) : Controller
 {
 	[HttpGet]
