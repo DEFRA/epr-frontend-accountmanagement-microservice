@@ -12,6 +12,7 @@ using FrontendAccountManagement.Web.ViewModels.ReExAccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Web;
 using System.Diagnostics.CodeAnalysis;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
@@ -76,7 +77,6 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 	}
 
 	[HttpGet]
-	//[Authorize(Policy = PolicyConstants.ReExAddTeamMemberPolicy)]
 	[Route(PagePath.TeamMemberEmail)]
 	public async Task<IActionResult> TeamMemberEmail()
 	{
@@ -103,7 +103,6 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 	}
 
 	[HttpPost]
-	//[Authorize(Policy = PolicyConstants.ReExAddTeamMemberPolicy)]
 	[Route(PagePath.TeamMemberEmail)]
 	public async Task<IActionResult> TeamMemberEmail(TeamMemberEmailViewModel model)
 	{
@@ -123,18 +122,13 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
 	[HttpGet]
 	[Route(PagePath.TeamMemberPermissions)]
+	[AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
 	public async Task<IActionResult> TeamMemberPermissions()
 	{
 		var userData = User.GetUserData();
 
 		var session = await sessionManager.GetSessionAsync(HttpContext.Session);
 		SetBackLink(session, PagePath.TeamMemberPermissions);
-
-		if (!ModelState.IsValid)
-		{
-			SetBackLink(session, PagePath.ReExManageAccount);
-			return View(nameof(ViewDetails));
-		}
 
 		var serviceRoles = await facadeService.GetAllServiceRolesAsync() ?? throw new InvalidOperationException(RolesNotFoundException);
 
@@ -203,6 +197,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
 	[HttpGet]
 	[Route(PagePath.RemoveTeamMember)]
+	[AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
 	public async Task<IActionResult> RemoveTeamMemberConfirmation()
 	{
 		var session = await sessionManager.GetSessionAsync(HttpContext.Session);
@@ -228,6 +223,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
 	[HttpPost]
 	[Route(PagePath.RemoveTeamMember)]
+	[AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
 	public async Task<IActionResult> RemoveTeamMemberConfirmation(RemoveReExTeamMemberConfirmationViewModel model)
 	{
 		var session = await sessionManager.GetSessionAsync(HttpContext.Session);
