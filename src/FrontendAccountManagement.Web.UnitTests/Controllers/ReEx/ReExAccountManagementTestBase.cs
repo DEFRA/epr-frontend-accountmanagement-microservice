@@ -81,7 +81,7 @@ public class ReExAccountManagementTestBase
 
         SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(JourneySessionMock);
 
-        UrlsOptionMock.Setup(options => options.Value).Returns(new ExternalUrlsOptions { LandingPageUrl = "/back/to/home", EprPrnManageOrganisationLink = "/prn"});
+        UrlsOptionMock.Setup(options => options.Value).Returns(new ExternalUrlsOptions { LandingPageUrl = "/back/to/home", ReExLandingPageUrl = "/prn"});
 
         LoggerMock = new Mock<ILogger<ReExAccountManagementController>>();
 

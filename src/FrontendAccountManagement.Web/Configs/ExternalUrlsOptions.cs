@@ -44,7 +44,5 @@ namespace FrontendAccountManagement.Web.Configs
         public string CookiesLink { get; set; }
 
         public string CompanyHouseChangeRequestLink { get; set; }
-        
-        public string EprPrnManageOrganisationLink { get; set; }
     }
 }

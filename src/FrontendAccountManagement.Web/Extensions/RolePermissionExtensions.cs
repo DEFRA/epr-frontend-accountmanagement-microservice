@@ -31,7 +31,7 @@ public static class RolePermissionExtensions
             // "Submit registration and accreditation (Standard User)"
         }
 
-        if (lowerKey.Contains(".basicuser"))
+        if (lowerKey.Contains("basicuser"))
         {
             return localizer["ManageOrganisation.TabTeam.Permissions.BasicUser"];
             // "Read only access (Basic User)"
