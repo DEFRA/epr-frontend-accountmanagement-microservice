@@ -12,6 +12,7 @@ using FrontendAccountManagement.Web.ViewModels.ReExAccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Web;
 using System.Diagnostics.CodeAnalysis;
 
 namespace FrontendAccountManagement.Web.Controllers.ReEx;
@@ -120,18 +121,13 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
 	[HttpGet]
 	[Route(PagePath.TeamMemberPermissions)]
+	[AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
 	public async Task<IActionResult> TeamMemberPermissions()
 	{
 		var userData = User.GetUserData();
 
 		var session = await sessionManager.GetSessionAsync(HttpContext.Session);
 		SetBackLink(session, PagePath.TeamMemberEmail);
-
-		if (!ModelState.IsValid)
-		{
-			SetBackLink(session, PagePath.ReExManageAccount);
-			return View(nameof(ViewDetails));
-		}
 
 		var reExRoles = new List<ServiceRole>
 		{
@@ -201,6 +197,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
 	[HttpGet]
 	[Route(PagePath.RemoveTeamMember)]
+	[AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
 	public async Task<IActionResult> RemoveTeamMemberConfirmation()
 	{
 		var session = await sessionManager.GetSessionAsync(HttpContext.Session);
@@ -226,6 +223,7 @@ public class ReExAccountManagementController(ISessionManager<JourneySession> ses
 
 	[HttpPost]
 	[Route(PagePath.RemoveTeamMember)]
+	[AuthorizeForScopes(ScopeKeySection = "FacadeAPI:DownstreamScope")]
 	public async Task<IActionResult> RemoveTeamMemberConfirmation(RemoveReExTeamMemberConfirmationViewModel model)
 	{
 		var session = await sessionManager.GetSessionAsync(HttpContext.Session);
