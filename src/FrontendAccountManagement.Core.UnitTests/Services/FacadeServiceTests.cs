@@ -416,7 +416,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             // Arrange
             var httpTestHandler = new HttpResponseMessage
             {
-                StatusCode = HttpStatusCode.NotFound
+                StatusCode = HttpStatusCode.NoContent
             };
 
             _mockHandler.Protected()
