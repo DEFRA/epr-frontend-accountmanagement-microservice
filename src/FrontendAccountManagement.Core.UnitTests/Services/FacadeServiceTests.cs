@@ -411,7 +411,31 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task GetUserAccount_IsUnsuccessful()
+        public async Task GetUserAccount_WhenStatusCodeIsNotFound_ReturnsDefault()
+        {
+            // Arrange
+            var httpTestHandler = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.NotFound
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpTestHandler);
+
+            // Act
+            var response = await _facadeService.GetUserAccount();
+
+            // Assert
+            Assert.IsNull(response);
+            httpTestHandler.Dispose();
+        }
+
+        [TestMethod]
+        public async Task GetUserAccount_WhenStatusCodeIsNoContent_ReturnsDefault()
         {
             // Arrange
             var httpTestHandler = new HttpResponseMessage
