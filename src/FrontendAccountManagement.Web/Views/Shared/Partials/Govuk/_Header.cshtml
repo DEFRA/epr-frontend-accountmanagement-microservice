@@ -4,8 +4,8 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @inject IOptions<DeploymentRoleOptions> DeploymentRoleOption
 
-<header class="govuk-header">
-  <div class="epr-header epr-header--with-additional-navigation" data-module="govuk-header">
+
+<header class="govuk-header govuk-header--with-js-navigation" data-module="govuk-header">
     <div class="govuk-header__container govuk-width-container">
 	    <div class="govuk-header__logo">
 		    <a href="@Model.GovUkHome" class="govuk-header__link govuk-header__link--homepage">
@@ -46,19 +46,26 @@
         else
         {
           {
-            <div class="epr-sign-out-nav">
-              @if (User.Identity?.IsAuthenticated == true)
-              {
-                <a class="govuk-header__link epr-sign-out-nav__link" asp-controller="Account" asp-action="SignOut">@SharedLocalizer["Regulator.SignOut"]</a>
-              }
-              else
-              {
-                <a class="govuk-header__link epr-sign-out-nav__link" asp-controller="Account" asp-action="SignIn">@SharedLocalizer["Regulator.SignIn"]</a>
-              }
-            </div>
+	          <nav class="govuk-header__navigation" aria-label="Menu">
+		          <button type="button" class="govuk-header__menu-button govuk-js-header-toggle" aria-controls="navigation" aria-expanded="false" hidden="">
+			          Menu
+		          </button>
+
+		          <ul id="navigation" class="govuk-header__navigation-list">
+			          <li class="govuk-header__navigation-item">
+				          @if (User.Identity?.IsAuthenticated == true)
+				          {
+					          <a class="govuk-header__link epr-sign-out-nav__link" asp-controller="Account" asp-action="SignOut">@SharedLocalizer["Regulator.SignOut"]</a>
+				          }
+				          else
+				          {
+					          <a class="govuk-header__link epr-sign-out-nav__link" asp-controller="Account" asp-action="SignIn">@SharedLocalizer["Regulator.SignIn"]</a>
+				          }
+			          </li>
+		          </ul>
+	          </nav>
           }
         }
       </div>
     </div>
-  </div>
-</header>
+  </header>
