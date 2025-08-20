@@ -95,7 +95,7 @@ public class FacadeService : IFacadeService
             return EndpointResponseStatus.Success;
         }
 
-        if (response.StatusCode == HttpStatusCode.BadRequest)
+        if (response.StatusCode == HttpStatusCode.BadRequest || response.StatusCode == HttpStatusCode.NoContent)
         {
             return EndpointResponseStatus.UserExists;
         }
