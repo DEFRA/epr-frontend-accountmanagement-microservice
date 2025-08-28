@@ -1,11 +1,13 @@
 ﻿using AutoFixture;
 using EPR.Common.Authorization.Constants;
 using EPR.Common.Authorization.Models;
+using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System.Threading.Tasks;
 using static FrontendAccountManagement.Core.Constants.ServiceRoles;
@@ -45,6 +47,43 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
                 .Returns(Task.FromResult(_journeySession));
+        }
+
+        [TestMethod]
+        public async Task CheckYourDetails_Logs_Error_WhenNewUserDetailsViewModelJsonInvalid()
+        {
+            // Arrange
+            var userData = new UserData
+            {
+                ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+                ServiceRoleId = 1,
+                RoleInOrganisation = PersonRole.Admin.ToString(),
+            };
+            SetupBase(userData);
+            SystemUnderTest.TempData.Add("NewUserDetails", "{ invalid json }");
+            // Act
+            var result = await SystemUnderTest.CheckYourDetails();
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
+            var viewResult = (ViewResult)result;
+            var viewModelResult = (EditUserDetailsViewModel)viewResult.Model;
+            Assert.IsNull(viewModelResult.FirstName);
+            Assert.IsNull(viewModelResult.LastName);
+            LoggerMock.Verify(
+                x => x.Log(
+                    LogLevel.Information,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Deserialising NewUserDetails Failed.")),
+                    It.IsAny<Exception>(),
+                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+                Times.Once);
+            // Verify the session was saved and the back link was set
+            SessionManagerMock.Verify(
+                m =>
+                    m.SaveSessionAsync(
+                        It.IsAny<ISession>(),
+                        It.IsAny<JourneySession>())
+                    , Times.Once);
         }
 
         [TestMethod]
