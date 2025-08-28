@@ -313,6 +313,7 @@ public class AccountManagementTests : AccountManagementTestBase
         accountManagementSession.BusinessAddress.Postcode.Should().Be(userData.Organisations[0].Postcode);
     }
 
+
     [TestMethod]
     public async Task GivenOnEditUserDetailsPage_WhenRequested_TheShowUserDetails()
     {
@@ -1318,5 +1319,57 @@ public class AccountManagementTests : AccountManagementTestBase
 
         var model = (ManageAccountViewModel)result!.Model!;
         model.HasPermissionToChangeCompany.Should().Be(hasPermissionToChangeCompany);
+    }
+
+    //[TestMethod]
+    //public async Task ManageAccount_WhenOrganisationIsNullOrEmpty_ShouldNotThrowAndSetDefaults()
+    //{
+    //    // Arrange
+    //    var userData = new UserData
+    //    {
+    //        FirstName = "Test",
+    //        LastName = "User",
+    //        Organisations = null // or new List<Organisation>()
+    //    };
+    //    SetupBase(userData);
+
+    //    // Act
+    //    var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
+
+    //    // Assert
+    //    Assert.IsNotNull(result);
+    //    var model = result.Model as ManageAccountViewModel;
+    //    Assert.IsNull(model.CompanyName);
+    //    Assert.IsNull(model.OrganisationAddress);
+    //}
+
+    [TestMethod]
+    public async Task ManageAccount_WhenPersonUpdatedInTempData_ShouldPopulateModel()
+    {
+        // Arrange
+        SetupBase();
+        SystemUnderTest.TempData["PersonUpdated"] = "Updated";
+
+        // Act
+        var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
+
+        // Assert
+        var model = result.Model as ManageAccountViewModel;
+        Assert.AreEqual("Updated", model.PersonUpdated);
+    }
+
+    [TestMethod]
+    public async Task ManageAccount_WhenFeatureFlagIsDisabled_ShouldSetShowManageUserDetailChangesFalse()
+    {
+        // Arrange
+        SetupBase();
+        FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.ManageUserDetailChanges)).ReturnsAsync(false);
+
+        // Act
+        var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
+
+        // Assert
+        var model = result.Model as ManageAccountViewModel;
+        Assert.IsFalse(model.ShowManageUserDetailChanges);
     }
 }

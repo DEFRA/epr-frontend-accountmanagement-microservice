@@ -101,6 +101,8 @@ public class ConfirmChangePermissionTests : PermissionManagementTestBase
         Assert.IsNotNull(result);
         result.Should().BeOfType<RedirectToActionResult>();
         ((RedirectToActionResult)result).ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
+
+        
     }
 
     [TestMethod]
