@@ -138,7 +138,7 @@ public class MockedFacadeService : IFacadeService
         await Task.CompletedTask;
     }
 
-    public async Task UpdateUserDetails(Guid? userId, UpdateUserDetailsRequest userDetailsDto)
+    public static async Task UpdateUserDetails(Guid? userId, UpdateUserDetailsRequest userDetailsDto)
     {
         await Task.CompletedTask;
     }
