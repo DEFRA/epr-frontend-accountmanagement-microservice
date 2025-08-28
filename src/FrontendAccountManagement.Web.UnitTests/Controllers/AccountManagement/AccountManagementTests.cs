@@ -1459,4 +1459,48 @@ public class AccountManagementTests : AccountManagementTestBase
         Assert.IsNull(session.AccountManagementSession.OrganisationType);
         Assert.IsNull(session.AccountManagementSession.BusinessAddress.Postcode);
     }
+
+    [TestMethod]
+    public async Task TeamMemberPermissions_ShouldFilterServiceRolesToBasicOnly()
+    {
+        // Arrange
+        var serviceRoles = new List<FrontendAccountManagement.Core.Models.ServiceRole>
+        {
+            new FrontendAccountManagement.Core.Models.ServiceRole { ServiceRoleId = 1, Key = "Approved" },
+            new FrontendAccountManagement.Core.Models.ServiceRole { ServiceRoleId = 2, Key = "Delegated" },
+            new FrontendAccountManagement.Core.Models.ServiceRole { ServiceRoleId = 3, Key = "Basic" }
+        };
+
+        FacadeServiceMock.Setup(f => f.GetAllServiceRolesAsync())
+            .ReturnsAsync(serviceRoles);
+        
+
+        var userData = new UserData
+        {
+            ServiceRoleId = 1,
+            RoleInOrganisation = "Admin",
+            Organisations = new List<Organisation> { new Organisation() }
+        };
+        SetupBase(userData);
+
+        AddUserJourneyModel userDetails = new() { Email = "an.other@test.com", UserRole = "Test" };
+        var session = new JourneySession
+        {
+            AccountManagementSession = new AccountManagementSession
+            {
+                AddUserJourney = userDetails //new AddUserJourneyModel()
+            }
+        };
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .ReturnsAsync(session);
+        // Act
+        var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
+        var model = result?.Model as TeamMemberPermissionsViewModel;
+
+        // Assert
+        Assert.IsNotNull(model);
+        Assert.AreEqual(1, model.ServiceRoles.Count);
+        Assert.AreEqual(3, model.ServiceRoles[0].ServiceRoleId);
+        Assert.AreEqual("Basic", model.ServiceRoles[0].Key);
+    }
 }
