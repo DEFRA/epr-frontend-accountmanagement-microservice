@@ -100,6 +100,45 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                     , Times.Once);
         }
 
+        
+
+        [TestMethod]
+        public async Task Declaration_Logs_Error_WhenEditUserDetailsViewModelJsonInvalid()
+        {
+            // Arrange
+            var userData = new UserData
+            {
+                ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+                ServiceRoleId = 1,
+                RoleInOrganisation = PersonRole.Admin.ToString(),
+            };
+            SetupBase(userData);
+            SystemUnderTest.TempData.Add("AmendedUserDetails", "{ invalid json }");
+            // Act
+            var result = await SystemUnderTest.Declaration();
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
+            var viewResult = (ViewResult)result;
+            var viewModelResult = (EditUserDetailsViewModel)viewResult.Model;
+            Assert.IsNull(viewModelResult.FirstName);
+            Assert.IsNull(viewModelResult.LastName);
+            LoggerMock.Verify(
+                x => x.Log(
+                    LogLevel.Information,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Deserialising NewUserDetails Failed.")),
+                    It.IsAny<Exception>(),
+                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+                Times.Once);
+            // Verify the session was saved and the back link was set
+            SessionManagerMock.Verify(
+                m =>
+                    m.SaveSessionAsync(
+                        It.IsAny<ISession>(),
+                        It.IsAny<JourneySession>())
+                    , Times.Once);
+        }
+
         /// <summary>
         /// Checks that a bad request returned if the model is not valid.
         /// </summary>

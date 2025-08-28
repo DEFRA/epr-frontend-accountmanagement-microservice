@@ -1114,6 +1114,42 @@ public class AccountManagementTests : AccountManagementTestBase
     }
 
     [TestMethod]
+    public async Task EditUserDetails_Logs_Error_WhenEditUserDetailsViewModelJsonInvalid()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+        SetupBase(userData);
+        SystemUnderTest.TempData.Add("AmendedUserDetails", "{ invalid json }");
+        // Act
+        var result = await SystemUnderTest.EditUserDetails();
+        // Assert
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
+        var viewResult = (ViewResult)result;
+        var viewModelResult = (EditUserDetailsViewModel)viewResult.Model;
+
+        LoggerMock.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Deserialising NewUserDetails Failed.")),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+            Times.Once);
+        // Verify the session was saved and the back link was set
+        SessionManagerMock.Verify(
+            m =>
+                m.SaveSessionAsync(
+                    It.IsAny<ISession>(),
+                    It.IsAny<JourneySession>())
+                , Times.Once);
+    }
+
+    [TestMethod]
     public async Task EditUserDetails_ShouldReturnForbidden_WhenIsChangeRequestPendingIsTrue()
     {
         // Arrange
