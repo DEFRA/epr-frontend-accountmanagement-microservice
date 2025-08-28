@@ -1889,7 +1889,7 @@ public class AccountManagementController : Controller
         userData?.ServiceRoleId == (int)Core.Enums.ServiceRole.RegulatorAdmin;
 
     private static bool IsRegulatorBasic(UserData userData) =>
-        userData.ServiceRoleId == (int)Core.Enums.ServiceRole.RegulatorBasic;
+        userData?.ServiceRoleId == (int)Core.Enums.ServiceRole.RegulatorBasic;
 
     private static bool IsRegulatorUser(UserData userData) =>
         IsRegulatorAdmin(userData) || IsRegulatorBasic(userData);

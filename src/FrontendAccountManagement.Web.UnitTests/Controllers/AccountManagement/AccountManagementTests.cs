@@ -1321,27 +1321,27 @@ public class AccountManagementTests : AccountManagementTestBase
         model.HasPermissionToChangeCompany.Should().Be(hasPermissionToChangeCompany);
     }
 
-    //[TestMethod]
-    //public async Task ManageAccount_WhenOrganisationIsNullOrEmpty_ShouldNotThrowAndSetDefaults()
-    //{
-    //    // Arrange
-    //    var userData = new UserData
-    //    {
-    //        FirstName = "Test",
-    //        LastName = "User",
-    //        Organisations = null // or new List<Organisation>()
-    //    };
-    //    SetupBase(userData);
+    [TestMethod]
+    public async Task ManageAccount_WhenOrganisationIsNullOrEmpty_ShouldNotThrowAndSetDefaults()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            FirstName = "Test",
+            LastName = "User",
+            Organisations = [new Organisation()]
+        };
+        SetupBase(userData);
 
-    //    // Act
-    //    var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
+        // Act
+        var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
 
-    //    // Assert
-    //    Assert.IsNotNull(result);
-    //    var model = result.Model as ManageAccountViewModel;
-    //    Assert.IsNull(model.CompanyName);
-    //    Assert.IsNull(model.OrganisationAddress);
-    //}
+        // Assert
+        Assert.IsNotNull(result);
+        var model = result.Model as ManageAccountViewModel;
+        Assert.IsNull(model.CompanyName);
+        Assert.AreEqual(string.Empty, model.OrganisationAddress);
+    }
 
     [TestMethod]
     public async Task ManageAccount_WhenPersonUpdatedInTempData_ShouldPopulateModel()
