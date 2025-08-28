@@ -1329,7 +1329,7 @@ public class AccountManagementTests : AccountManagementTestBase
         {
             FirstName = "Test",
             LastName = "User",
-            Organisations = [new Organisation()]
+            Organisations = new List<Organisation>()
         };
         SetupBase(userData);
 
@@ -1371,5 +1371,92 @@ public class AccountManagementTests : AccountManagementTestBase
         // Assert
         var model = result.Model as ManageAccountViewModel;
         Assert.IsFalse(model.ShowManageUserDetailChanges);
+    }
+
+    [TestMethod]
+    public async Task ManageAccount_WhenUserOrgIsNull_SetsSessionPropertiesToNull()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            FirstName = "Test",
+            LastName = "User",
+            Organisations = new List<Organisation>() // No organisation, so userOrg will be null
+        };
+        SetupBase(userData);
+
+        var session = new JourneySession { AccountManagementSession = new AccountManagementSession() };
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .ReturnsAsync(session);
+
+        // Act
+        await SystemUnderTest.ManageAccount(new ManageAccountViewModel());
+
+        // Assert
+        Assert.IsNull(session.AccountManagementSession.OrganisationName);
+        Assert.IsNull(session.AccountManagementSession.OrganisationType);
+        Assert.IsNull(session.AccountManagementSession.BusinessAddress.Postcode);
+    }
+
+    [TestMethod]
+    public async Task ManageAccount_WhenUserOrgHasValues_SetsSessionPropertiesCorrectly()
+    {
+        // Arrange
+        var org = new Organisation
+        {
+            Name = "OrgName",
+            OrganisationType = "OrgType",
+            Postcode = "AB12 3CD"
+        };
+        var userData = new UserData
+        {
+            FirstName = "Test",
+            LastName = "User",
+            Organisations = new List<Organisation> { org }
+        };
+        SetupBase(userData);
+
+        var session = new JourneySession { AccountManagementSession = new AccountManagementSession() };
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .ReturnsAsync(session);
+
+        // Act
+        await SystemUnderTest.ManageAccount(new ManageAccountViewModel());
+
+        // Assert
+        Assert.AreEqual("OrgName", session.AccountManagementSession.OrganisationName);
+        Assert.AreEqual("OrgType", session.AccountManagementSession.OrganisationType);
+        Assert.AreEqual("AB12 3CD", session.AccountManagementSession.BusinessAddress.Postcode);
+    }
+
+    [TestMethod]
+    public async Task ManageAccount_WhenUserOrgHasNullProperties_SetsSessionPropertiesToNull()
+    {
+        // Arrange
+        var org = new Organisation
+        {
+            Name = null,
+            OrganisationType = null,
+            Postcode = null
+        };
+        var userData = new UserData
+        {
+            FirstName = "Test",
+            LastName = "User",
+            Organisations = new List<Organisation> { org }
+        };
+        SetupBase(userData);
+
+        var session = new JourneySession { AccountManagementSession = new AccountManagementSession() };
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .ReturnsAsync(session);
+
+        // Act
+        await SystemUnderTest.ManageAccount(new ManageAccountViewModel());
+
+        // Assert
+        Assert.IsNull(session.AccountManagementSession.OrganisationName);
+        Assert.IsNull(session.AccountManagementSession.OrganisationType);
+        Assert.IsNull(session.AccountManagementSession.BusinessAddress.Postcode);
     }
 }
