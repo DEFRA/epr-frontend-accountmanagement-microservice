@@ -128,6 +128,21 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
+        public async Task CheckYourDetailsPost_ShouldRedirectToAction_Declaration_For_Approved_Or_Delegate_User()
+        {
+            //Arrange
+            _userData.ServiceRoleId = 1;
+            _userData.RoleInOrganisation = "Admin";
+            _userData.ServiceRole = "Approved";
+            SetupBase(_userData);
+            // Act        
+            var result = await SystemUnderTest.CheckYourDetails(_viewModel) as RedirectToActionResult;
+            // Assert
+            result.Should().NotBeNull();
+            result.ActionName.Should().Be("Declaration");
+        }
+
+        [TestMethod]
         public async Task CheckYourDetailsPost_Call_UpdateUserDetails_When_Condition_Met()
         {
             //Arrange
