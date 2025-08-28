@@ -28,7 +28,7 @@ public class ErrorsViewModel
     }
 
     public ErrorsViewModel(List<(string Key, List<ErrorViewModel> Errors)> errors,
-        IStringLocalizer<SharedResources> localizer)
+        IStringLocalizer<ISharedResources> localizer)
         : this(errors, (x) => localizer[x].Value)
     {
     }

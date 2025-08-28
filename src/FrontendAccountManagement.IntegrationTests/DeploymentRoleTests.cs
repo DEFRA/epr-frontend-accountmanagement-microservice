@@ -24,7 +24,7 @@ public class DeploymentRoleTests
             });
 
         // Act
-        var local = application.Services.GetService<IStringLocalizer<SharedResources>>();
+        var local = application.Services.GetService<IStringLocalizer<ISharedResources>>();
 
         // Assert
         local["ApplicationTitle"].ToString().Should().Be(expectedApplication);

@@ -70,16 +70,14 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<IAuthorizationHandler,EmployeeOrBasicAdminHandler>();
 builder.Services.AddTransient<IClaimsExtensionsWrapper, ClaimsExtensionsWrapper>();
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("IsEmployeeOrBasicAdmin", policy => 
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("IsEmployeeOrBasicAdmin", policy => 
     policy.Requirements.Add(
         new EmployeeOrBasicAdminRequirement(
             ServiceRole.Basic,
             PersonRole.Employee,
             PersonRole.Admin 
             )));
-});
 
 builder.Services
     .Configure<ForwardedHeadersOptions>(options =>

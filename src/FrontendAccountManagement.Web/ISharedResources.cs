@@ -1,5 +1,5 @@
 ﻿namespace FrontendAccountManagement.Web;
 
-public class SharedResources
+public interface ISharedResources
 {
 }
