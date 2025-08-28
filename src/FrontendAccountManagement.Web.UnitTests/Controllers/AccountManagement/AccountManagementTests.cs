@@ -18,6 +18,7 @@ using FrontendAccountManagement.Web.Constants.Enums;
 using FrontendAccountManagement.Web.Controllers.AccountManagement;
 using FrontendAccountManagement.Core.Addresses;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
+using Microsoft.Extensions.Logging;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 
@@ -329,6 +330,31 @@ public class AccountManagementTests : AccountManagementTestBase
 
         SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
         AutoMapperMock.Verify(m => m.Map<EditUserDetailsViewModel>(It.IsAny<UserData>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GivenOnEditUserDetailsPage_WhenUserAccountIsNull_LogsInformation()
+    {
+        // Arrange
+        SetupUserData(null);
+        SetupBase(
+            deploymentRole: DeploymentRoleOptions.RegulatorRoleValue,
+            userServiceRoleId: (int)Core.Enums.ServiceRole.RegulatorAdmin,
+            userData: null);
+        FacadeServiceMock.Setup(s => s.GetUserAccount()).ReturnsAsync((UserAccountDto?)null);
+
+        // Act
+        await SystemUnderTest.ManageAccount(new ManageAccountViewModel());
+        // Assert
+        LoggerMock.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("User authenticated but account could not be found")),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+
     }
 
     [TestMethod]

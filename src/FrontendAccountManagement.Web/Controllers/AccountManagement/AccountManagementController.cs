@@ -87,6 +87,10 @@ public class AccountManagementController : Controller
         session ??= new JourneySession();
 
         var userAccount = User.GetUserData();
+        if (userAccount is null)
+        {
+            _logger.LogInformation("User authenticated but account could not be found");
+        }
 
         if (!HasPermissionToView(userAccount))
         {
@@ -118,11 +122,7 @@ public class AccountManagementController : Controller
 
         model.PersonUpdated = TempData["PersonUpdated"] == null ? null : TempData["PersonUpdated"].ToString();
 
-        if (userAccount is null)
-        {
-            _logger.LogInformation("User authenticated but account could not be found");
-        }
-        else
+        if (userAccount != null)
         {
             var userOrg = userAccount.Organisations.FirstOrDefault();
             
@@ -1886,7 +1886,7 @@ public class AccountManagementController : Controller
     }
 
     private static bool IsRegulatorAdmin(UserData userData) =>
-        userData.ServiceRoleId == (int)Core.Enums.ServiceRole.RegulatorAdmin;
+        userData?.ServiceRoleId == (int)Core.Enums.ServiceRole.RegulatorAdmin;
 
     private static bool IsRegulatorBasic(UserData userData) =>
         userData.ServiceRoleId == (int)Core.Enums.ServiceRole.RegulatorBasic;
