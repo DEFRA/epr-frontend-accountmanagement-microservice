@@ -28,7 +28,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         private UserData _userData;
         private Fixture _fixture = new Fixture();
 
-        private static readonly IList<Address> _addressesMock = new List<Address>
+        private static readonly List<Address> _addressesMock = new List<Address>
         {
             new() { BuildingNumber = "10", Street = "Gracefield Gardens", Town = "London" },
             new() { BuildingNumber = "11", Street = "Gracefield Gardens", Town = "London" },

@@ -457,7 +457,7 @@ public class AccountManagementTests : AccountManagementTestBase
     /// <summary>
     /// Parses the user details from the temp data back to an object.
     /// </summary>
-    private EditUserDetailsViewModel DeserialiseUserDetailsJson(object json)
+    private static EditUserDetailsViewModel DeserialiseUserDetailsJson(object json)
     {
         var stream = new MemoryStream();
         var writer = new StreamWriter(stream);
