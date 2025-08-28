@@ -9,8 +9,7 @@
 
     <PropertyGroup>
         <!-- SonarCloud does not recognise file-scoped namespaces in current version. -->
-        <NoWarn>S3903</NoWarn>
-        <RunSettingsFilePath>C:\Users\a938767\Source\Repos\epr-frontend-accountmanagement-microservice\src\FrontendAccountManagement.Core.UnitTests\bin\Debug\net8.0\fine-code-coverage\coverage-tool-output\FrontendAccountManagement.Core.UnitTests-fcc-mscodecoverage-generated.runsettings</RunSettingsFilePath>
+        <NoWarn>S3903</NoWarn>        
     </PropertyGroup>
 
     <ItemGroup>
