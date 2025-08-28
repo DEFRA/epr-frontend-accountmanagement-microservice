@@ -30,7 +30,7 @@ public class FacadeService : IFacadeService
     private readonly string _putUserDetailsByUserIdPath;
     private readonly string _putUpdateOrganisationPath;
     private readonly string[] _scopes;
-    private readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions();
+    private readonly JsonSerializerOptions _jsonSerializerOptions;
 
     public FacadeService(
         HttpClient httpClient,
