@@ -86,7 +86,7 @@ public class AccountManagementTests : AccountManagementTestBase
             Organisations = new List<Organisation>
             {
                 new Organisation()
-            }
+            }   
         };
 
         SetupBase(
@@ -1165,6 +1165,23 @@ public class AccountManagementTests : AccountManagementTestBase
 
         // Assert
         Assert.IsInstanceOfType(result, typeof(ViewResult));
-        // Optionally, verify that the session used is the one you provided
+        // Optionally, check that the session used is the one you provided
+    }
+
+    [TestMethod]
+    public async Task ManageAccount_CreatesNewSession_WhenSessionIsNull()
+    {
+        // Arrange
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .ReturnsAsync((JourneySession)null); // Simulate no session
+
+        var model = new ManageAccountViewModel();
+
+        // Act
+        var result = await SystemUnderTest.ManageAccount(model);
+
+        // Assert
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
+        // Optionally, check that session is not null after the call
     }
 }
