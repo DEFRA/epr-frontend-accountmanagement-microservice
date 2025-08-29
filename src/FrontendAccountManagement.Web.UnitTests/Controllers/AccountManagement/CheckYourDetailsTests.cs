@@ -4,6 +4,7 @@ using EPR.Common.Authorization.Models;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Sessions;
+using FrontendAccountManagement.Web.Controllers.AccountManagement;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -194,6 +195,53 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             // Assert
             result.Should().NotBeNull();
             result.ActionName.Should().Be("UpdateDetailsConfirmation");
+        }
+
+        [TestMethod]
+        public async Task CheckYourDetails_AddsAmendedUserDetailsToTempData_WhenNotPresent()
+        {
+            // Arrange
+            var userData = new UserData
+            {
+                FirstName = "Test",
+                LastName = "User",
+                ServiceRoleId = (int)Core.Enums.ServiceRole.Approved,
+                RoleInOrganisation = PersonRole.Admin.ToString(),
+                Organisations = new List<Organisation> { new Organisation() }
+            };
+            SetupBase(userData);
+
+            SystemUnderTest.TempData.Remove(AccountManagementController.AmendedUserDetailsKey); // Ensure it's not present
+
+            // Act
+            await SystemUnderTest.CheckYourDetails();
+
+            // Assert
+            Assert.IsTrue(SystemUnderTest.TempData.ContainsKey(AccountManagementController.AmendedUserDetailsKey));
+        }
+
+        [TestMethod]
+        public async Task CheckYourDetails_DoesNotAddAmendedUserDetailsToTempData_WhenAlreadyPresent()
+        {
+            // Arrange
+            var userData = new UserData
+            {
+                FirstName = "Test",
+                LastName = "User",
+                ServiceRoleId = (int)Core.Enums.ServiceRole.Approved,
+                RoleInOrganisation = PersonRole.Admin.ToString(),
+                Organisations = new List<Organisation> { new Organisation() }
+            };
+            SetupBase(userData);
+
+            var expectedValue = "existing";
+            SystemUnderTest.TempData[AccountManagementController.AmendedUserDetailsKey] = expectedValue;
+
+            // Act
+            await SystemUnderTest.CheckYourDetails();
+
+            // Assert
+            Assert.AreEqual(expectedValue, SystemUnderTest.TempData[AccountManagementController.AmendedUserDetailsKey]);
         }
 
         #region Private
