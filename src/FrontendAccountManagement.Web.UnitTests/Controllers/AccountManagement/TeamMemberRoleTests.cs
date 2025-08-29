@@ -157,7 +157,15 @@ public class TeamMemberRoleTests : AccountManagementTestBase
         // Arrange
         var model = new TeamMemberPermissionsViewModel();
         SystemUnderTest.ModelState.AddModelError(ModelErrorKey, ModelErrorValueSelectARole);
+        var serviceRoles = new List<FrontendAccountManagement.Core.Models.ServiceRole>
+        {
+            new FrontendAccountManagement.Core.Models.ServiceRole { ServiceRoleId = 1, Key = "Approved" },
+            new FrontendAccountManagement.Core.Models.ServiceRole { ServiceRoleId = 2, Key = "Delegated" },
+            new FrontendAccountManagement.Core.Models.ServiceRole { ServiceRoleId = 3, Key = "Basic" }
+        };
 
+        FacadeServiceMock.Setup(f => f.GetAllServiceRolesAsync())
+            .ReturnsAsync(serviceRoles);
         // Act
         var result = await SystemUnderTest.TeamMemberPermissions(model) as ViewResult;
 
@@ -170,7 +178,7 @@ public class TeamMemberRoleTests : AccountManagementTestBase
         Assert.AreEqual(expected: ModelErrorValueSelectARole, actual: errors[0].ErrorMessage);
 
         Assert.IsNotNull(model);
-
+        Assert.IsTrue(model.ServiceRoles.Exists(r => r.ServiceRoleId == (int)Core.Enums.ServiceRole.Basic));
         Assert.AreEqual(0, model.ServiceRoles.Count(r => r.ServiceRoleId !=  (int)Core.Enums.ServiceRole.Basic));
     }
 
