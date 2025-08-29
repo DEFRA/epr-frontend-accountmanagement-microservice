@@ -119,6 +119,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             var viewResult = result as ViewResult;
 
             Assert.AreEqual(model, viewResult.Model);
+            Assert.AreEqual(model.UkNation, ((NonCompaniesHouseUkNationViewModel)viewResult.Model).UkNation);
         }
 
         [TestMethod]
