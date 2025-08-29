@@ -168,6 +168,10 @@ public class TeamMemberRoleTests : AccountManagementTestBase
 
         var errors = result.ViewData.ModelState["Error"].Errors;
         Assert.AreEqual(expected: ModelErrorValueSelectARole, actual: errors[0].ErrorMessage);
+
+        Assert.IsNotNull(model);
+
+        Assert.AreEqual(0, model.ServiceRoles.Count(r => r.ServiceRoleId !=  (int)Core.Enums.ServiceRole.Basic));
     }
 
     [TestMethod]

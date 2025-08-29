@@ -105,8 +105,7 @@ public class TeamMemberEmailTests : AccountManagementTestBase
         // Assert
         result.ActionName.Should().Be(nameof(AccountManagementController.TeamMemberPermissions));
         SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
-        // verify all model.serviceroleids are 3
-        
+
 
     }
 
