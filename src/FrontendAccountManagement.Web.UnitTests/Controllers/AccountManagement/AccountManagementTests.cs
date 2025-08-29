@@ -1184,4 +1184,40 @@ public class AccountManagementTests : AccountManagementTestBase
         Assert.IsInstanceOfType(result, typeof(ViewResult));
         // Optionally, check that session is not null after the call
     }
+
+    [TestMethod]
+    public async Task ManageAccount_SetsOrganisationFieldsToNull_WhenUserOrgIsNull()
+    {
+        // Arrange: UserData with no organisations
+        var userData = new UserData
+        {
+            FirstName = FirstName,
+            LastName = LastName,
+            JobTitle = JobTitle,
+            Telephone = Telephone,
+            ServiceRole = ServiceRole.Approved.ToString(),
+            ServiceRoleId = ServiceRoleId,
+            RoleInOrganisation = RoleInOrganisation,
+            Organisations = new List<Organisation>() // Empty list
+        };
+
+        SetupBase(userData: userData);
+
+        var session = new JourneySession
+        {
+            AccountManagementSession = new AccountManagementSession()
+        };
+
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .ReturnsAsync(session);
+
+        // Act
+        var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.IsNull(session.AccountManagementSession.OrganisationName);
+        Assert.IsNull(session.AccountManagementSession.OrganisationType);
+        Assert.IsNull(session.AccountManagementSession.BusinessAddress.Postcode);
+    }
 }
