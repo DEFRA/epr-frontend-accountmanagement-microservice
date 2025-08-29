@@ -313,6 +313,43 @@ public class AccountManagementTests : AccountManagementTestBase
         accountManagementSession.BusinessAddress.Postcode.Should().Be(userData.Organisations[0].Postcode);
     }
 
+    [TestMethod]
+    public async Task GivenOnEditUserDetailsPage_WhenIsChangeRequestPending_RedirectsToActionForbidden()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            FirstName = FirstName,
+            LastName = LastName,
+            Telephone = Telephone,
+            IsChangeRequestPending = true,
+            ServiceRoleId = ServiceRoleId,
+            RoleInOrganisation = RoleInOrganisation,
+            Organisations = new List<Organisation>
+            {
+                new Organisation()
+                {
+                    Name = OrganisationName,
+                    OrganisationType = OrganisationType,
+                    //AddressLine1 = BuildingNumber,
+                    //AddressLine2 = BuildingName,
+                    //AddressLine3 = Street,
+                    //AddressLine4 = Town,
+                    //AddressLine5 = County,
+                    Postcode = Postcode
+                }
+            }
+        };
+        SetupBase(userData: userData);
+        // Act
+        var result = await SystemUnderTest.EditUserDetails();
+        // Assert
+        var redirectResult = result as RedirectToActionResult;
+        Assert.IsNotNull(redirectResult);
+        Assert.AreEqual(nameof(ErrorController.Error).ToLower(), redirectResult.ActionName);
+        Assert.AreEqual("Error", redirectResult.ControllerName);
+        Assert.AreEqual((int)HttpStatusCode.Forbidden, redirectResult.RouteValues["statusCode"]);
+    }
 
     [TestMethod]
     public async Task GivenOnEditUserDetailsPage_WhenRequested_TheShowUserDetails()
