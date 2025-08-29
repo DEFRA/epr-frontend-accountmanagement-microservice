@@ -1178,6 +1178,46 @@ public class AccountManagementTests : AccountManagementTestBase
                 (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
             Times.Once);
     }
+
+    
+    [TestMethod]
+    public async Task EditUserDetails_Deserialized_Model_Correctly_WhenEditUserDetailsViewModelJsonValid()
+    {         
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+        SetupBase(userData);
+        var amendedUserDetails = new EditUserDetailsViewModel
+        {
+            FirstName = "First",
+            LastName = "Last",
+            JobTitle = "Job",
+            Telephone = "Telephone"
+        };
+        SystemUnderTest.TempData.Add("AmendedUserDetails", JsonSerializer.Serialize(amendedUserDetails));
+        // Act
+        var result = await SystemUnderTest.EditUserDetails();
+        // Assert
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
+        var viewResult = (ViewResult)result;
+        var viewModelResult = (EditUserDetailsViewModel)viewResult.Model;
+        Assert.AreEqual(amendedUserDetails.FirstName, viewModelResult.FirstName);
+        Assert.AreEqual(amendedUserDetails.LastName, viewModelResult.LastName);
+        Assert.AreEqual(amendedUserDetails.JobTitle, viewModelResult.JobTitle);
+        Assert.AreEqual(amendedUserDetails.Telephone, viewModelResult.Telephone);
+        // Verify the session was saved and the back link was set
+        SessionManagerMock.Verify(
+            m =>
+                m.SaveSessionAsync(
+                    It.IsAny<ISession>(),
+                    It.IsAny<JourneySession>())
+                , Times.Once);
+    }
+
     [TestMethod]
     public async Task EditUserDetails_Logs_Error_WhenEditUserDetailsViewModelJsonInvalid()
     {
