@@ -313,8 +313,9 @@ public class AccountManagementController : Controller
             SetBackLink(session, PagePath.TeamMemberPermissions);
             var serviceRoles = await _facadeService.GetAllServiceRolesAsync();
             // temporarily set this to basic users only until next theme
+            var basicRoleId = (int)ServiceRole.Basic;
             model.ServiceRoles = serviceRoles
-                .Where(x => x.ServiceRoleId == 3)
+                .Where(x => x.ServiceRoleId == basicRoleId)
                 .OrderByDescending(x => x.Key).ToList();
 
             return View(nameof(TeamMemberPermissions), model);

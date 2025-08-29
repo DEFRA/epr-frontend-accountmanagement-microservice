@@ -1502,5 +1502,6 @@ public class AccountManagementTests : AccountManagementTestBase
         Assert.AreEqual(1, model.ServiceRoles.Count);
         Assert.AreEqual(3, model.ServiceRoles[0].ServiceRoleId);
         Assert.AreEqual("Basic", model.ServiceRoles[0].Key);
+        Assert.AreEqual(0, model.ServiceRoles.Where(r => r.ServiceRoleId != 3).Count());
     }
 }
