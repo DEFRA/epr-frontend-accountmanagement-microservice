@@ -44,7 +44,7 @@ public class AccountManagementController : Controller
     private const string RolesNotFoundException = "Could not retrieve service roles or none found";
     private const string CheckYourOrganisationDetailsKey = "CheckYourOrganisationDetails";
     private const string OrganisationDetailsUpdatedTimeKey = "OrganisationDetailsUpdatedTime";
-    private const string AmendedUserDetailsKey = "AmendedUserDetails";
+    public const string AmendedUserDetailsKey = "AmendedUserDetails";
     private const string NewUserDetailsKey = "NewUserDetails";
     private const string ServiceKey = "Packaging";
     private const string PostcodeLookupFailedKey = "PostcodeLookupFailed";
