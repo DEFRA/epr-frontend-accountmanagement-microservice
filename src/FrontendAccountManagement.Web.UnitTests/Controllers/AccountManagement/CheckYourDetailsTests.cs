@@ -4,6 +4,7 @@ using EPR.Common.Authorization.Models;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Sessions;
+using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.AccountManagement;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Http;
@@ -177,7 +178,85 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             var result = await SystemUnderTest.CheckYourDetails(_viewModel) as ViewResult;
             // Assert
             result.Should().NotBeNull();
-        }       
+        }
+
+        [TestMethod]
+        public async Task CheckYourDetailsPost_Call_UpdateUserDetails_Update_Basic_User()
+        {
+            //Arrange
+
+            _userData.ServiceRoleId = 3;
+            _userData.RoleInOrganisation = "Admin";
+            _userData.ServiceRole = "Basic";
+            SetupBase(_userData);
+
+            var editUserDetailsViewModel = new EditUserDetailsViewModel
+            {
+                FirstName = "TestFirst",
+                LastName = "TestLast",
+                JobTitle = "NewJob",
+                Telephone = "07545812345",
+                OriginalFirstName = "TestFirst",
+                OriginalLastName = "TestLast",
+                OriginalJobTitle = "TestJob",
+                OriginalTelephone = "07545812346"
+
+
+            };
+
+            AutoMapperMock.Setup(x => x.Map<UpdateUserDetailsRequest>(editUserDetailsViewModel)).Returns(_userDetailsDto);
+            FacadeServiceMock.Setup(x => x.GetUserAccount()).ReturnsAsync(new UserAccountDto());
+
+            FacadeServiceMock.Setup(x => x.UpdateUserDetailsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), "Packaging", _userDetailsDto))
+                 .ReturnsAsync(new UpdateUserDetailsResponse { HasTelephoneOnlyUpdated = false, HasBasicUserDetailsUpdated = true });
+
+            // Act        
+            var result = await SystemUnderTest.CheckYourDetails(editUserDetailsViewModel) as RedirectToActionResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.ActionName.Should().Be(nameof(PagePath.UpdateDetailsConfirmation));
+        }
+
+
+        [TestMethod]   
+        public async Task CheckYourDetailsPost_Call_UpdateUserDetails_Update_Admin_User()
+        {
+            //Arrange
+
+            _userData.ServiceRoleId = 1;
+            _userData.RoleInOrganisation = "Admin";
+            _userData.ServiceRole = "Approved";
+            SetupBase(_userData);
+
+            var editUserDetailsViewModel = new EditUserDetailsViewModel
+            {
+                FirstName = "TestFirst",
+                LastName = "TestLast",
+                JobTitle = "NewJob",
+                Telephone = "07545812345",
+                OriginalFirstName = "TestFirst",
+                OriginalLastName = "TestLast",
+                OriginalJobTitle = "TestJob",
+                OriginalTelephone = "07545812346"
+
+
+            };
+
+            AutoMapperMock.Setup(x => x.Map<UpdateUserDetailsRequest>(editUserDetailsViewModel)).Returns(_userDetailsDto);
+            FacadeServiceMock.Setup(x => x.GetUserAccount()).ReturnsAsync(new UserAccountDto());
+
+            FacadeServiceMock.Setup(x => x.UpdateUserDetailsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), "Packaging", _userDetailsDto))
+                 .ReturnsAsync(new UpdateUserDetailsResponse { HasTelephoneOnlyUpdated = false });
+
+            // Act        
+            var result = await SystemUnderTest.CheckYourDetails(editUserDetailsViewModel) as RedirectToActionResult;
+
+            // Assert
+            result.Should().NotBeNull();        
+            result.ActionName.Should().Be("Declaration");
+        }
+
 
         [TestMethod]
         public async Task CheckYourDetailsPost_Call_UpdateUserDetails_Update_Telephone_Only_When_Condition_Met()
