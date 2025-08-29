@@ -1150,7 +1150,34 @@ public class AccountManagementTests : AccountManagementTestBase
 
         FacadeServiceMock.Verify(f => f.GetCompaniesHouseResponseAsync(It.IsAny<string>()), Times.Never);
     }
+    [TestMethod]
+    public async Task EditUserDetails_LogsError_WhenAmendedUserDetailsJsonIsInvalid()
+    {
+        // Arrange
+       
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+        SetupBase(userData);
 
+        SystemUnderTest.TempData[AccountManagementController.AmendedUserDetailsKey] = "{ invalid json }";
+        // Act
+        var result = await SystemUnderTest.EditUserDetails();
+
+        // Assert
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
+        LoggerMock.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Deserialising NewUserDetails Failed.")),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+            Times.Once);
+    }
     [TestMethod]
     public async Task EditUserDetails_Logs_Error_WhenEditUserDetailsViewModelJsonInvalid()
     {
