@@ -168,6 +168,18 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
+        public async Task CheckYourDetailsPost_UserData_Empty()
+        {
+            //Arrange
+            _userData = new UserData();
+            SetupBase(_userData);
+            // Act        
+            var result = await SystemUnderTest.CheckYourDetails(_viewModel) as ViewResult;
+            // Assert
+            result.Should().NotBeNull();
+        }       
+
+        [TestMethod]
         public async Task CheckYourDetailsPost_Call_UpdateUserDetails_Update_Telephone_Only_When_Condition_Met()
         {
             //Arrange
