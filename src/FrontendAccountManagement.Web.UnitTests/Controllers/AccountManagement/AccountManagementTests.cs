@@ -1178,8 +1178,7 @@ public class AccountManagementTests : AccountManagementTestBase
                 (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
             Times.Once);
     }
-
-    
+   
     [TestMethod]
     public async Task EditUserDetails_Deserialized_Model_Correctly_WhenEditUserDetailsViewModelJsonValid()
     {         
