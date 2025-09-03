@@ -1140,7 +1140,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task GetNationId_WithValidRequest_IsUnsuccessfulReturnsResult()
+        public async Task GetNationId_WithValidRequest_IsSuccessfulReturnsResult()
         {
             // Arrange
             var organisationId = Guid.NewGuid();
@@ -1192,6 +1192,62 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             // Assert
             Assert.IsNotNull(response);
             response.Result.Should().BeEquivalentTo(expectedResponse);
+            httpTestHandler.Dispose();
+        }
+
+
+        [TestMethod]
+        public async Task GetUserIdForPerson_WithValidRequest_IsSuccessfulReturnsResult()
+        {
+            // Arrange
+            var personId = Guid.NewGuid();
+            var expectedResponse = Guid.NewGuid();
+
+            var httpTestHandler = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(expectedResponse.ToString())
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpTestHandler);
+
+            // Act
+            var result = await _facadeService.GetUserIdForPerson(personId);
+
+            // Assert
+            Assert.IsNotNull(result);
+            result.Should().Be(expectedResponse);
+            httpTestHandler.Dispose();
+        }
+
+        [TestMethod]
+        public async Task GetUserIdForPerson_WithValidRequest_IsUnsuccessful_ReturnsNull()
+        {
+            // Arrange
+            var personId = Guid.NewGuid();
+            var httpTestHandler = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.NotFound
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpTestHandler);
+
+            // Act
+            var response = _facadeService.GetUserIdForPerson(personId);
+
+            // Assert
+            Assert.IsNotNull(response);
+            response.Result.Should().BeNull();
             httpTestHandler.Dispose();
         }
 
