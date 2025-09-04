@@ -230,5 +230,27 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.Account
             // Assert
             act.Should().Throw<NullReferenceException>();
         }
+
+        [TestMethod]
+        public void SignIn_NullRedirectUri_ShouldReturnChallengeResultWithDefaultRedirect()
+        {
+            // Arrange
+            var controller = new AccountController();
+            controller.Url = _urlHelperMock.Object;
+            string scheme = "TestScheme";
+            string defaultRedirect = "~/";
+
+            _urlHelperMock.Setup(x => x.IsLocalUrl(null)).Returns(false);
+            _urlHelperMock.Setup(x => x.Content(defaultRedirect)).Returns(defaultRedirect);
+
+            // Act
+            var result = controller.SignIn(scheme, null);
+
+            // Assert
+            result.Should().BeOfType<ChallengeResult>();
+            var challengeResult = result as ChallengeResult;
+            challengeResult!.Properties.RedirectUri.Should().Be(defaultRedirect);
+            challengeResult.AuthenticationSchemes.Should().Contain(scheme);
+        }
     }
 }
