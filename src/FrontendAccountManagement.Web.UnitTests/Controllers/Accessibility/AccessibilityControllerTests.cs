@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Moq;
+using FrontendAccountManagement.Web.Extensions;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.Accessibility;
 
@@ -72,6 +74,42 @@ public class AccessibilityControllerTests
         accessibilityModel.EqualityAdvisorySupportServiceUrl.Should().Be(_urlOptions.Object.Value.AccessibilityEqualityAdvisorySupportService);
     }
 
+    [TestMethod]
+    public void Detail_WhenReturnUrlIsNotLocal_ItShouldSetHomePathAsBackLink()
+    {
+        // Arrange
+        const string nonLocalUrl = "http://external.com";
+        const string homePath = "~/home/index";
+        _systemUnderTest.Url = new StubUrlHelper(); 
+
+        // Act
+        var result = _systemUnderTest.Detail(nonLocalUrl);
+        var viewResult = (ViewResult)result;
+
+        // Assert
+        result.Should().BeOfType(typeof(ViewResult));
+        ((string)_systemUnderTest.ViewBag.BackLinkToDisplay).Should().Be(homePath);
+        ((string)_systemUnderTest.ViewBag.CurrentPage).Should().Be(homePath);
+    }
+
+    [TestMethod]
+    public void Detail_WhenReturnUrlIsNull_ItShouldSetHomePathAsBackLink()
+    {
+        // Arrange
+        string? nullUrl = null;
+        const string homePath = "~/home/index";
+        _systemUnderTest.Url =  new StubUrlHelper();
+
+        // Act
+        var result = _systemUnderTest.Detail(nullUrl);
+        var viewResult = (ViewResult)result;
+
+        // Assert
+        result.Should().BeOfType(typeof(ViewResult));
+        ((string)_systemUnderTest.ViewBag.BackLinkToDisplay).Should().Be(homePath);
+        ((string)_systemUnderTest.ViewBag.CurrentPage).Should().Be(homePath);
+    }
+
     private void SetUpConfigOption()
     {
         var externalUrlsOptions = new ExternalUrlsOptions
@@ -106,5 +144,40 @@ public class AccessibilityControllerTests
         _siteDateOptions!
             .Setup(x => x.Value)
             .Returns(siteDateOptions);
+    }
+
+    public class StubUrlHelper : IUrlHelper
+    {
+        ActionContext IUrlHelper.ActionContext => throw new NotImplementedException();
+
+        public bool IsLocalUrl(string url) => false;
+        public string HomePath() => "~/home/index";
+
+        string? IUrlHelper.Action(UrlActionContext actionContext)
+        {
+            return ("~/home/index");
+            
+        }
+
+        string? IUrlHelper.Content(string? contentPath)
+        {
+            throw new NotImplementedException();
+        }
+
+        bool IUrlHelper.IsLocalUrl(string? url)
+        {
+            return false;
+        }
+
+        string? IUrlHelper.RouteUrl(UrlRouteContext routeContext)
+        {
+            throw new NotImplementedException();
+        }
+
+        string? IUrlHelper.Link(string? routeName, object? values)
+        {
+            throw new NotImplementedException();
+        }
+        // ...other members throw NotImplementedException...
     }
 }
