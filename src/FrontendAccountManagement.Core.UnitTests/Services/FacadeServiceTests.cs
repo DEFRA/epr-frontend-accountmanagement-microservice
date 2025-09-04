@@ -1304,4 +1304,24 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             await Assert.ThrowsExceptionAsync<HttpRequestException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
         }
     }
+    [TestMethod]
+public async Task GetCompaniesHouseResponseAsync_Error_ThrowsException()
+{
+    // Arrange
+    var companyHouseNumber = "12345678";
+    var responseMessage = new HttpResponseMessage
+    {
+        StatusCode = HttpStatusCode.BadRequest
+    };
+
+    _mockHandler.Protected()
+        .Setup<Task<HttpResponseMessage>>(
+            "SendAsync",
+            ItExpr.IsAny<HttpRequestMessage>(),
+            ItExpr.IsAny<CancellationToken>())
+        .ReturnsAsync(responseMessage);
+
+    // Act & Assert
+    await Assert.ThrowsExceptionAsync<HttpRequestException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
+}
 }
