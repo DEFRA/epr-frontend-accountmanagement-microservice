@@ -150,8 +150,8 @@ public class AccessibilityControllerTests
     {
         ActionContext IUrlHelper.ActionContext => throw new NotImplementedException();
 
-        public bool IsLocalUrl(string url) => false;
-        public string HomePath() => "~/home/index";
+        public static bool IsLocalUrl(string url) => false;
+        public static string HomePath() => "~/home/index";
 
         string? IUrlHelper.Action(UrlActionContext actionContext)
         {
