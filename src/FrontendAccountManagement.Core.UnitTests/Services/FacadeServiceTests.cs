@@ -55,7 +55,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
 
             _configuration.Setup(c => c.Value).Returns(new FacadeApiConfiguration
             {
-
+                Address = "https://localhost:5000/"
             });
 
             _facadeService = new FacadeService(
@@ -1361,6 +1361,204 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
 
             // Act & Assert
             await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
+        }
+
+        [TestMethod]
+        public async Task UpdateUserDetailsAsync_Success_ReturnsResponse()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var organisationId = Guid.NewGuid();
+            var serviceKey = "Packaging";
+            var request = new UpdateUserDetailsRequest
+            {
+                FirstName = "A",
+                LastName = "B",
+                JobTitle = "C"
+            };
+            var expected = new UpdateUserDetailsResponse
+            {
+                HasApprovedOrDelegatedUserDetailsSentForApproval = true
+            };
+
+            var httpResponse = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(JsonSerializer.Serialize(expected))
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpResponse);
+
+            // Act
+            var result = await _facadeService.UpdateUserDetailsAsync(userId, organisationId, serviceKey, request);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.HasApprovedOrDelegatedUserDetailsSentForApproval);
+
+            _mockHandler.Protected().Verify(
+                "SendAsync",
+                Times.Once(),
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Put),
+                ItExpr.IsAny<CancellationToken>());
+
+            httpResponse.Dispose();
+        }
+
+        [TestMethod]
+        public async Task UpdateUserDetailsAsync_NonSuccess_ThrowsHttpRequestException()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var organisationId = Guid.NewGuid();
+            var serviceKey = "Packaging";
+            var request = new UpdateUserDetailsRequest();
+
+            var httpResponse = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.BadRequest
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpResponse);
+
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<HttpRequestException>(() =>
+                _facadeService.UpdateUserDetailsAsync(userId, organisationId, serviceKey, request));
+
+            httpResponse.Dispose();
+        }
+
+        [TestMethod]
+        public async Task GetUsersForOrganisationAsync_Success_ReturnsUsers()
+        {
+            // Arrange
+            var organisationId = Guid.NewGuid().ToString();
+            var serviceRoleId = 2;
+
+            var expectedResponse = new List<ManageUserModel>
+            {
+                new ManageUserModel { FirstName = "Alice", LastName = "Doe", ServiceRoleId = 2, PersonRoleId = 1 },
+                new ManageUserModel { FirstName = "Bob", LastName = "Smith", ServiceRoleId = 3, PersonRoleId = 2 }
+            };
+
+            var httpResponse = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(JsonSerializer.Serialize(expectedResponse))
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpResponse);
+
+            // Act
+            var result = await _facadeService.GetUsersForOrganisationAsync(organisationId, serviceRoleId);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2, result.Count());
+            Assert.AreEqual("Alice", result.First().FirstName);
+
+            _mockHandler.Protected().Verify(
+                "SendAsync",
+                Times.Once(),
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get),
+                ItExpr.IsAny<CancellationToken>());
+
+            httpResponse.Dispose();
+        }
+
+        [TestMethod]
+        public async Task GetAddressListByPostcodeAsync_Success_MapsAddressList()
+        {
+            // Arrange
+            var postcode = "TT1 1TT";
+            var addressResponse = new FrontendAccountManagement.Core.Services.Dto.Address.AddressLookupResponse
+            {
+                Results = new[]
+                {
+                    new FrontendAccountManagement.Core.Services.Dto.Address.AddressLookupResponseResult
+                    {
+                        Address = new FrontendAccountManagement.Core.Services.Dto.Address.AddressLookupResponseAddress
+                        {
+                            AddressLine = "1 Test Street",
+                            BuildingNumber = "1",
+                            Street = "Test Street",
+                            Town = "Test Town",
+                            County = "Test County",
+                            Postcode = postcode
+                        }
+                    }
+                },
+                Header = new FrontendAccountManagement.Core.Services.Dto.Address.AddressLookupResponseHeader()
+            };
+
+            var httpResponse = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(JsonSerializer.Serialize(addressResponse))
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpResponse);
+
+            // Act
+            var result = await _facadeService.GetAddressListByPostcodeAsync(postcode);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result.Addresses);
+            Assert.AreEqual(1, result.Addresses.Count);
+            Assert.AreEqual("1 Test Street", result.Addresses[0].AddressSingleLine);
+            Assert.AreEqual(postcode, result.Addresses[0].Postcode);
+
+            _mockHandler.Protected().Verify(
+                "SendAsync",
+                Times.Once(),
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get),
+                ItExpr.IsAny<CancellationToken>());
+
+            httpResponse.Dispose();
+        }
+
+        [TestMethod]
+        public async Task GetAddressListByPostcodeAsync_NotFound_ReturnsNull()
+        {
+            // Arrange
+            var postcode = "TT1 1TT";
+            var httpResponse = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.NotFound
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpResponse);
+
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<HttpRequestException>(() => _facadeService.GetAddressListByPostcodeAsync(postcode));
+
+            httpResponse.Dispose();
         }
     }
 
