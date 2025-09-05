@@ -272,6 +272,40 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
     }
 
     [TestMethod]
+    public async Task GivenOnRemoveTeamMemberConfirmationPage_WhenRemoveTeamMemberConfirmationPageHttpPostCalled_AndSuccessfulResponse_ButNoExistingClaims_ThenOrgIdsClaimNotRemoved()
+    {
+        // Arrange
+        FacadeServiceMock.Setup(x => x.RemoveUserForOrganisation(_personId.ToString(), _userData.Organisations[0].Id.ToString(), _serviceRoleId))
+            .ReturnsAsync(EndpointResponseStatus.Success);
+
+        FacadeServiceMock.Setup(x => x.GetUserIdForPerson(_personId))
+            .ReturnsAsync(_userId);
+
+        GraphServiceMock.Setup(x => x.QueryUserProperty(_userId, ExtensionClaims.OrganisationIdsExtensionClaimName, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(default(string));
+
+        FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.UseGraphApiForExtendedUserClaims))
+            .ReturnsAsync(true);
+        var model = new RemoveTeamMemberConfirmationViewModel
+        {
+            PersonId = _personId,
+            FirstName = FirstName,
+            LastName = LastName
+        };
+
+        // Act
+        var result = await SystemUnderTest.RemoveTeamMemberConfirmation(model) as RedirectToActionResult;
+
+        // Assert
+        result.Should().BeOfType<RedirectToActionResult>();
+        result.ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
+
+        FacadeServiceMock.Verify(x => x.GetUserIdForPerson(It.IsAny<Guid>()), Times.Once);
+        GraphServiceMock.Verify(x => x.QueryUserProperty(_userId, ExtensionClaims.OrganisationIdsExtensionClaimName, It.IsAny<CancellationToken>()), Times.Once);
+        GraphServiceMock.Verify(x => x.PatchUserProperty(_userId, ExtensionClaims.OrganisationIdsExtensionClaimName, It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestMethod]
     public async Task GivenOnRemoveTeamMemberConfirmationPage_WhenRemoveTeamMemberConfirmationPageHttpPostCalled_AndSuccessfulResponse_ThenOrgIdsClaimRemoved()
     {
         // Arrange

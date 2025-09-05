@@ -1988,7 +1988,7 @@ public class AccountManagementController : Controller
 
                 orgIds.RemoveAll(x => x == organisationId);
 
-                var updatedOrgIds = orgIds.Any() ? string.Join(",", orgIds) : null;
+                var updatedOrgIds = orgIds.Count > 0 ? string.Join(",", orgIds) : null;
                 if (updatedOrgIds != queryResult)
                 {
                     await _graphService.PatchUserProperty(userExternalId.Value, ExtensionClaims.OrganisationIdsExtensionClaimName, updatedOrgIds);

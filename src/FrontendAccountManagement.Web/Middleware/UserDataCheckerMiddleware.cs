@@ -51,7 +51,7 @@ public class UserDataCheckerMiddleware : IMiddleware
             }
             else
             {
-                await UpdateOrganisationIdsClaim(context.User, userAccount.User);
+                await UpdateOrganisationIdsClaim(userAccount.User);
                 await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
             }
         }
@@ -59,7 +59,7 @@ public class UserDataCheckerMiddleware : IMiddleware
         await next(context);
     }
 
-    private async Task UpdateOrganisationIdsClaim(ClaimsPrincipal user, UserData accountUser)
+    private async Task UpdateOrganisationIdsClaim(UserData accountUser)
     {
         if (!await _featureManager.IsEnabledAsync(nameof(FeatureFlags.UseGraphApiForExtendedUserClaims)))
         {

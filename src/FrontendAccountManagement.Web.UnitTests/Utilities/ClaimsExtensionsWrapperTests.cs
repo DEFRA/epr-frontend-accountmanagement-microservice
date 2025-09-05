@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Routing;
 using Moq;
 using System.Security.Claims;
 using System.Text.Json;
@@ -140,6 +141,36 @@ public class ClaimsExtensionsWrapperTests
         var claimsPrincipal = new ClaimsPrincipal(identity);
 
         _httpContextMock.Setup(c => c.User).Returns(claimsPrincipal);
+
+        // Act
+        var result = await _claimsExtensionWrapper.TryGetOrganisatonIds();
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+
+    [TestMethod]
+    public async Task TryGetOrganisatonIds_ShouldReturnNull_WhenClaimsIsNull()
+    {
+        // Arrange
+        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
+        claimsPrincipalMock.Setup(x => x.Claims).Returns((IEnumerable<Claim>)null);
+
+        _httpContextMock.Setup(c => c.User).Returns(claimsPrincipalMock.Object);
+
+        // Act
+        var result = await _claimsExtensionWrapper.TryGetOrganisatonIds();
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [TestMethod]
+    public async Task TryGetOrganisatonIds_ShouldReturnNull_WhenClaimsPrincipalIsNull()
+    {
+        // Arrange
+        _httpContextMock.Setup(c => c.User).Returns(default(ClaimsPrincipal));
 
         // Act
         var result = await _claimsExtensionWrapper.TryGetOrganisatonIds();

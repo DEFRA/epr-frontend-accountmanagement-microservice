@@ -42,7 +42,7 @@ public static class ClaimsExtensions
 
     public static string TryGetOrganisatonIds(HttpContext httpContext)
     {
-        var claimsIdentity = httpContext.User.Identity as ClaimsIdentity;
+        var claimsIdentity = httpContext.User?.Identity as ClaimsIdentity;
 
         return claimsIdentity?.Claims?
             .FirstOrDefault(claim => claim.Type == ExtensionClaims.OrganisationIdsClaim)?
