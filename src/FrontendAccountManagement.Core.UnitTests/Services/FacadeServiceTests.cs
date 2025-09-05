@@ -1303,25 +1303,65 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             // Act & Assert
             await Assert.ThrowsExceptionAsync<HttpRequestException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
         }
+
+        [TestMethod]
+        public async Task GetCompaniesHouseResponseAsync_MalformedContent_ThrowsJsonException()
+        {
+            // Arrange
+            var companyHouseNumber = "12345678";
+            var responseMessage = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent("not a valid json")
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(responseMessage);
+
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<System.Text.Json.JsonException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
+        }
+
+        [TestMethod]
+        public async Task GetCompaniesHouseResponseAsync_UnexpectedStatusCode_ThrowsHttpRequestException()
+        {
+            // Arrange
+            var companyHouseNumber = "12345678";
+            var responseMessage = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.Forbidden
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(responseMessage);
+
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<HttpRequestException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
+        }
+
+        [TestMethod]
+        public async Task GetCompaniesHouseResponseAsync_NullHttpResponse_ThrowsException()
+        {
+            // Arrange
+            var companyHouseNumber = "12345678";
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync((HttpResponseMessage)null);
+
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
+        }
     }
-    [TestMethod]
-public async Task GetCompaniesHouseResponseAsync_Error_ThrowsException()
-{
-    // Arrange
-    var companyHouseNumber = "12345678";
-    var responseMessage = new HttpResponseMessage
-    {
-        StatusCode = HttpStatusCode.BadRequest
-    };
 
-    _mockHandler.Protected()
-        .Setup<Task<HttpResponseMessage>>(
-            "SendAsync",
-            ItExpr.IsAny<HttpRequestMessage>(),
-            ItExpr.IsAny<CancellationToken>())
-        .ReturnsAsync(responseMessage);
-
-    // Act & Assert
-    await Assert.ThrowsExceptionAsync<HttpRequestException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
-}
 }
