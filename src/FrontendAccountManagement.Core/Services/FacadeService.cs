@@ -264,19 +264,7 @@ public class FacadeService : IFacadeService
 
         var response = await _httpClient.GetAsync($"user-by-person-id?personId={personExternalId}");
 
-        if(response.IsSuccessStatusCode)
-        {
-            var content = response.Content as StringContent;
-            var s = await content.ReadAsStringAsync();
-            
-            if(Guid.TryParse(s, out var guid))
-            {
-                return guid;
-            }
-        }
-
-        return null;
-        // return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<List<int>>() : null;
+        return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<Guid?>() : null;
     }
 
     public async Task<CompaniesHouseResponse> GetCompaniesHouseResponseAsync(string companyHouseNumber)

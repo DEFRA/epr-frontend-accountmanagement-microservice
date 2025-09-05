@@ -32,4 +32,9 @@ public class ClaimsExtensionsWrapper : IClaimsExtensionsWrapper
     {
         await ClaimsExtensions.UpdateUserDataClaimsAndSignInAsync(_httpContext, userData);
     }
+
+    public async Task<string> TryGetOrganisatonIds()
+    {
+        return ClaimsExtensions.TryGetOrganisatonIds(_httpContext);
+    }
 }

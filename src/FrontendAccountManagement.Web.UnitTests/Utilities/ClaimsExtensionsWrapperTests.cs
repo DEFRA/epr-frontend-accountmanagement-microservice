@@ -1,6 +1,4 @@
-﻿
-using EPR.Common.Authorization.Constants;
-using EPR.Common.Authorization.Models;
+﻿using EPR.Common.Authorization.Models;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Utilities;
 using Microsoft.AspNetCore.Authentication;
@@ -8,9 +6,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Moq;
-using System.Diagnostics.Metrics;
-using System.IO;
-using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -57,16 +52,16 @@ public class ClaimsExtensionsWrapperTests
         };
 
         var identity = new ClaimsIdentity(claims);
-        
+
         // Create a mock ClaimsPrincipal
         var claimsPrincipal = new ClaimsPrincipal(identity);
-        
+
         _httpContextMock.Setup(c => c.User).Returns(claimsPrincipal);
 
         var mockFeatureCollection = new Mock<IFeatureCollection>();
         var mockAuthenticateResultFeature = new Mock<IAuthenticateResultFeature>();
         var mockAuthenticateResult = new Mock<AuthenticateResult>();
-        
+
         // Setup the AuthenticateResultFeature to return the AuthenticateResult
         mockAuthenticateResultFeature.Setup(arf => arf.AuthenticateResult).Returns(mockAuthenticateResult.Object);
 
@@ -112,5 +107,44 @@ public class ClaimsExtensionsWrapperTests
         claimsPrincipal.Claims.Count().Should().Be(1);
         claimsPrincipal.HasClaim(c => c.Type == ClaimTypes.UserData).Should().BeTrue();
         JsonSerializer.Deserialize<UserData>(claimsPrincipal.Claims.First(c => c.Type == ClaimTypes.UserData).Value).FirstName.Should().Be(newFirstName);
+    }
+
+    [TestMethod]
+    public async Task TryGetOrganisatonIds_ReturnExpectedOrganisationIds_WhenClaimPresent()
+    {
+        // Arrange
+        const string organisationIds = "012345,67890";
+
+        var claims = new List<Claim>
+        {
+            new Claim(ExtensionClaims.OrganisationIdsClaim, organisationIds)
+        };
+
+        var identity = new ClaimsIdentity(claims);
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+
+        _httpContextMock.Setup(c => c.User).Returns(claimsPrincipal);
+
+        // Act
+        var result = await _claimsExtensionWrapper.TryGetOrganisatonIds();
+
+        // Assert
+        result.Should().Be(organisationIds);
+    }
+
+    [TestMethod]
+    public async Task TryGetOrganisatonIds_ReturnsNull_WhenNoOrganisationIdsClaimPresent()
+    {
+        // Arrange
+        var identity = new ClaimsIdentity(); // no claims
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+
+        _httpContextMock.Setup(c => c.User).Returns(claimsPrincipal);
+
+        // Act
+        var result = await _claimsExtensionWrapper.TryGetOrganisatonIds();
+
+        // Assert
+        result.Should().BeNull();
     }
 }

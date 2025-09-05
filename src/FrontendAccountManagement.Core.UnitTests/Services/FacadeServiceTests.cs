@@ -42,17 +42,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
 
             _httpClient.DefaultRequestHeaders.Add("X-EPR-Organisation", "Test");
 
-            var inMemorySettings = new Dictionary<string, string> {
-                {"TopLevelKey", "TopLevelValue"},
-                {"SectionName:SomeKey", "SectionValue"},
-                {"FacadeAPI:Address", "http://example/" },
-                {"FacadeAPI:GetServiceRolesPath", "roles" },
-                {"FacadeAPI:GetUserAccountPath", "user-accounts" },
-                {"FacadeAPI:DownStreamScope", "https://eprb2cdev.onmicrosoft.com/account-creation-facade/account-creation" }
-            };
-
             _configuration = new Mock<IOptions<FacadeApiConfiguration>>();
-
             _configuration.Setup(c => c.Value).Returns(new FacadeApiConfiguration
             {
 
@@ -1201,12 +1191,13 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
         {
             // Arrange
             var personId = Guid.NewGuid();
-            var expectedResponse = Guid.NewGuid();
+            var expectedUserId = Guid.NewGuid();
+            var apiResponse = $"\"{expectedUserId}\"";
 
             var httpTestHandler = new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(expectedResponse.ToString())
+                Content = new StringContent(apiResponse)
             };
 
             _mockHandler.Protected()
@@ -1221,7 +1212,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
 
             // Assert
             Assert.IsNotNull(result);
-            result.Should().Be(expectedResponse);
+            result.Should().Be(expectedUserId);
             httpTestHandler.Dispose();
         }
 

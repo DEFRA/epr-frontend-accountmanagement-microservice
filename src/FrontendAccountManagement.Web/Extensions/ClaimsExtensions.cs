@@ -1,17 +1,18 @@
-﻿using EPR.Common.Authorization.Models;
-using System.Security.Claims;
-using System.Text.Json;
-using EPR.Common.Authorization.Extensions;
+﻿using EPR.Common.Authorization.Extensions;
+using EPR.Common.Authorization.Models;
+using FrontendAccountManagement.Web.Constants;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace FrontendAccountManagement.Web.Extensions;
 
 public static class ClaimsExtensions
 {
     public static async Task UpdateUserDataClaimsAndSignInAsync(HttpContext httpContext, UserData userData)
-    {
-        
+    {        
         var claimsIdentity = httpContext.User.Identity as ClaimsIdentity;
         var claim = claimsIdentity?.FindFirst(ClaimTypes.UserData);
 
@@ -37,5 +38,14 @@ public static class ClaimsExtensions
 
         // We need to set the user data in the http context here to ensure it is accessible in this request
         httpContext.User.AddOrUpdateUserData(userData);
+    }
+
+    public static string TryGetOrganisatonIds(HttpContext httpContext)
+    {
+        var claimsIdentity = httpContext.User.Identity as ClaimsIdentity;
+
+        return claimsIdentity?.Claims?
+            .FirstOrDefault(claim => claim.Type == ExtensionClaims.OrganisationIdsClaim)?
+            .Value;
     }
 }

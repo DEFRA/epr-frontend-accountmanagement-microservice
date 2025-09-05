@@ -447,19 +447,8 @@ public class AccountManagementController : Controller
             return RedirectToAction(nameof(ManageAccount));
         }
         var organisationId = organisation!.Id.ToString();
+        var organisationNumber = organisation!.OrganisationNumber;
         var serviceRoleId = userData.ServiceRoleId;
-
-
-        // TODO: Move this call to later, after removal
-        if (await _featureManager.IsEnabledAsync(FeatureFlags.UseGraphApiForExtendedUserClaims))
-        {
-            var userExternalId = await _facadeService.GetUserIdForPerson(model.PersonId);
-
-            if (userExternalId is not null)
-            {
-                var queryResult = await _graphService.QueryUserProperty(userExternalId.Value, ExtensionClaims.OrganisationIdsExtensionClaimName);
-            }
-        }
 
         var result = await _facadeService.RemoveUserForOrganisation(personExternalId, organisationId, serviceRoleId);
         session.AccountManagementSession.RemoveUserStatus = result;
@@ -467,25 +456,8 @@ public class AccountManagementController : Controller
         if (result != EndpointResponseStatus.Fail &&
             (await _featureManager.IsEnabledAsync(FeatureFlags.UseGraphApiForExtendedUserClaims)))
         {
-            /*
-             var userAccount = await _facadeService.GetUserAccount();
-             session.UserData = userAccount.User;
-             await SaveSession(session);
-             update cookie  with the latest data
-             await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
-            */
-
-            // Get user id?
-
-            //Get the claims from graph api
-            // _graphService.QueryUserProperty(userId, ExtensionClaims.OrganisationIdsExtensionClaimName, );
-
-            //Remove the organisation id from the claim value
-
-            //patch
-            // _graphService.PatchUserProperty(userId, ExtensionClaims.OrganisationIdsExtensionClaimName, );
+            await RemoveUserClaim(model.PersonId, organisationNumber);
         }
-
 
         return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.RemoveTeamMember, PagePath.ManageAccount);
     }
@@ -549,7 +521,6 @@ public class AccountManagementController : Controller
 
         return View(nameof(Declaration), editUserDetailsViewModel);
     }
-
 
     [HttpPost]
     [Route(PagePath.Declaration, Name = "Declaration")]
@@ -2001,5 +1972,29 @@ public class AccountManagementController : Controller
 
         return roleInOrganisation == PersonRole.Admin.ToString() &&
             serviceRoleId == (int)ServiceRole.Basic;
+    }
+
+    private async Task RemoveUserClaim(Guid personId, string organisationId)
+    {
+        var userExternalId = await _facadeService.GetUserIdForPerson(personId);
+
+        if (userExternalId is not null)
+        {
+            var queryResult = await _graphService.QueryUserProperty(userExternalId.Value, ExtensionClaims.OrganisationIdsExtensionClaimName);
+
+            if (!string.IsNullOrEmpty(queryResult))
+            {
+                var orgIds = queryResult.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+
+                orgIds.RemoveAll(x => x == organisationId);
+
+                var updatedOrgIds = orgIds.Any() ? string.Join(",", orgIds) : null;
+                if (updatedOrgIds != queryResult)
+                {
+                    await _graphService.PatchUserProperty(userExternalId.Value, ExtensionClaims.OrganisationIdsExtensionClaimName, updatedOrgIds);
+                    _logger.LogInformation("Removed organisation id {OrganisationId} from user {UserId} extensions. New value: {UpdatedValue}", organisationId, userExternalId.Value, updatedOrgIds);
+                }
+            }
+        }
     }
 }
