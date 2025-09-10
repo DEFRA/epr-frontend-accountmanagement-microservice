@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using EPR.Common.Authorization.Models;
+using EPR.Common.Authorization.Services.Interfaces;
 using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
-using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.AccountManagement;
 using FrontendAccountManagement.Web.Utilities.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -38,6 +38,8 @@ public abstract class AccountManagementTestBase
     protected Mock<IClaimsExtensionsWrapper> ClaimsExtensionsWrapperMock;
     protected Mock<IMapper> AutoMapperMock;
     protected Mock<ITempDataDictionary> TempDataDictionaryMock;
+    protected Mock<IGraphService> GraphServiceMock;
+
     protected AccountManagementController SystemUnderTest;
 
     protected JourneySession JourneySessionMock { get; set; }
@@ -50,6 +52,7 @@ public abstract class AccountManagementTestBase
         ClaimsIdentityMock = new Mock<ClaimsIdentity>();
         SessionManagerMock = new Mock<ISessionManager<JourneySession>>();
         FeatureManagerMock = new Mock<IFeatureManager>();
+        GraphServiceMock = new Mock<IGraphService>();
         UrlsOptionMock = new Mock<IOptions<ExternalUrlsOptions>>();
         DeploymentRoleOptionsMock = new Mock<IOptions<DeploymentRoleOptions>>();
         TempDataDictionary = new TempDataDictionary(this.HttpContextMock.Object, new Mock<ITempDataProvider>().Object);
@@ -83,6 +86,7 @@ public abstract class AccountManagementTestBase
             LoggerMock.Object,
             ClaimsExtensionsWrapperMock.Object,
             FeatureManagerMock.Object,
+            GraphServiceMock.Object,
             AutoMapperMock.Object);
 
         SystemUnderTest.ControllerContext.HttpContext = HttpContextMock.Object;
