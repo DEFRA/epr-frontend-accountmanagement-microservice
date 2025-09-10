@@ -41,7 +41,7 @@ public class AccountManagementController : Controller
     private const string RolesNotFoundException = "Could not retrieve service roles or none found";
     private const string CheckYourOrganisationDetailsKey = "CheckYourOrganisationDetails";
     private const string OrganisationDetailsUpdatedTimeKey = "OrganisationDetailsUpdatedTime";
-    private const string AmendedUserDetailsKey = "AmendedUserDetails";
+    public const string AmendedUserDetailsKey = "AmendedUserDetails";
     private const string NewUserDetailsKey = "NewUserDetails";
     private const string ServiceKey = "Packaging";
     private const string PostcodeLookupFailedKey = "PostcodeLookupFailed";
@@ -87,6 +87,10 @@ public class AccountManagementController : Controller
         session ??= new JourneySession();
 
         var userAccount = User.GetUserData();
+        if (userAccount is null)
+        {
+            _logger.LogInformation("User authenticated but account could not be found");
+        }
 
         if (!HasPermissionToView(userAccount))
         {
@@ -118,11 +122,7 @@ public class AccountManagementController : Controller
 
         model.PersonUpdated = TempData["PersonUpdated"] == null ? null : TempData["PersonUpdated"].ToString();
 
-        if (userAccount is null)
-        {
-            _logger.LogInformation("User authenticated but account could not be found");
-        }
-        else
+        if (userAccount != null)
         {
             var userOrg = userAccount.Organisations.FirstOrDefault();
             
@@ -313,8 +313,9 @@ public class AccountManagementController : Controller
             SetBackLink(session, PagePath.TeamMemberPermissions);
             var serviceRoles = await _facadeService.GetAllServiceRolesAsync();
             // temporarily set this to basic users only until next theme
+            var basicRoleId = (int)ServiceRole.Basic;
             model.ServiceRoles = serviceRoles
-                .Where(x => x.ServiceRoleId == 3)
+                .Where(x => x.ServiceRoleId == basicRoleId)
                 .OrderByDescending(x => x.Key).ToList();
 
             return View(nameof(TeamMemberPermissions), model);
@@ -1391,7 +1392,7 @@ public class AccountManagementController : Controller
 
         var viewModel = new SelectBusinessAddressViewModel()
         {
-            Postcode = session?.AccountManagementSession?.BusinessAddress?.Postcode,
+            Postcode = session.AccountManagementSession?.BusinessAddress?.Postcode,
         };
 
         SetBackLink(session, PagePath.SelectBusinessAddress, LocalizerName.BusinessAddressBackAriaLabel);
@@ -1421,7 +1422,7 @@ public class AccountManagementController : Controller
         catch (Exception exception)
         {
             _logger.LogError(exception, "Failed to retrieve addresses for postcode: {Postcode}",
-                             session?.AccountManagementSession?.BusinessAddress?.Postcode);
+                             session.AccountManagementSession?.BusinessAddress?.Postcode);
             addressLookupFailed = true;
         }
 
@@ -1486,7 +1487,7 @@ public class AccountManagementController : Controller
             catch (Exception exception)
             {
                 _logger.LogError(exception, "Failed to retrieve addresses for postcode: {BusinessAddressPostcode}",
-                                 session?.AccountManagementSession?.BusinessAddress?.Postcode);
+                                 session.AccountManagementSession?.BusinessAddress?.Postcode);
                 addressLookupFailed = true;
             }
 
@@ -1584,7 +1585,7 @@ public class AccountManagementController : Controller
         }
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        if (session?.AccountManagementSession == null || !session.AccountManagementSession.Journey.Any())
+        if (session?.AccountManagementSession == null || session.AccountManagementSession.Journey.Count == 0)
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
             {
@@ -1893,10 +1894,10 @@ public class AccountManagementController : Controller
     }
 
     private static bool IsRegulatorAdmin(UserData userData) =>
-        userData.ServiceRoleId == (int)Core.Enums.ServiceRole.RegulatorAdmin;
+        userData?.ServiceRoleId == (int)Core.Enums.ServiceRole.RegulatorAdmin;
 
     private static bool IsRegulatorBasic(UserData userData) =>
-        userData.ServiceRoleId == (int)Core.Enums.ServiceRole.RegulatorBasic;
+        userData?.ServiceRoleId == (int)Core.Enums.ServiceRole.RegulatorBasic;
 
     private static bool IsRegulatorUser(UserData userData) =>
         IsRegulatorAdmin(userData) || IsRegulatorBasic(userData);
@@ -1924,7 +1925,7 @@ public class AccountManagementController : Controller
 
     private static bool SetUpdatableValue(bool isUpdatable, string serviceRole, string roleInOrganisation, EditUserDetailsViewModel model)
     {
-        if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower()
+        if (serviceRole.Equals(ServiceRoles.BasicUser, StringComparison.CurrentCultureIgnoreCase)
            && (roleInOrganisation == RoleInOrganisation.Admin || roleInOrganisation == RoleInOrganisation.Employee))
         {
             isUpdatable = true;

@@ -35,7 +35,10 @@ namespace FrontendAccountManagement.Web.Configs
 
         public string PrivacyInformationCommissioner { get; set; }
 
-        public string FrontEndCreationBaseUrl { get; set; }
+        public string PrivacyProducerPackagingPrivacy { get; set; }
+        public string PrivacyProducerPackagingAccessibility { get; set; }
+
+public string FrontEndCreationBaseUrl { get; set; }
 
         public string PrivacyLink { get; set; }
 

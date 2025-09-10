@@ -48,5 +48,45 @@ namespace FrontendAccountManagement.Web.UnitTests.Utilities
             // Assert
             result.Should().BeFalse();
         }
+
+        [TestMethod]
+        public async Task IsValidEmail_WithSpacesInEmail_ReturnsFalse()
+        {
+            // Act
+            var result = RegexUtilities.IsValidEmail("an other@test.com");
+
+            // Assert
+            result.Should().BeFalse();
+        }
+
+        [TestMethod]
+        public async Task IsValidEmail_WithSpecialCharacters_ReturnsTrue()
+        {
+            // Act
+            var result = RegexUtilities.IsValidEmail("an+other@test.com");
+
+            // Assert
+            result.Should().BeTrue();
+        }
+
+        [TestMethod]
+        public async Task IsValidEmail_WithSubdomain_ReturnsTrue()
+        {
+            // Act
+            var result = RegexUtilities.IsValidEmail("an.other@mail.test.com");
+
+            // Assert
+            result.Should().BeTrue();
+        }
+
+        [TestMethod]
+        public async Task IsValidEmail_WithInvalidTld_ReturnsFalse()
+        {
+            // Act
+            var result = RegexUtilities.IsValidEmail("an.other@test.c");
+
+            // Assert
+            result.Should().BeFalse();
+        }
     }
 }

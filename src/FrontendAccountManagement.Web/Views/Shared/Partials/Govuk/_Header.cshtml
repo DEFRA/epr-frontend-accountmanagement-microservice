@@ -29,18 +29,18 @@
         }
         else
         {
-          {
+          
             <div class="epr-sign-out-nav">
-              @if (User.Identity?.IsAuthenticated == true)
-              {
+                @if (User.Identity?.IsAuthenticated == true)
+                {
                 <a class="govuk-link epr-sign-out-nav__link" asp-controller="Account" asp-action="SignOut">@SharedLocalizer["Regulator.SignOut"]</a>
-              }
-              else
-              {
+                }
+                else
+                {
                 <a class="govuk-link epr-sign-out-nav__link" asp-controller="Account" asp-action="SignIn">@SharedLocalizer["Regulator.SignIn"]</a>
-              }
+                }
             </div>
-          }
+          
         }
       </div>
     </div>

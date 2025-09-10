@@ -52,23 +52,16 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         [TestMethod]
         public async Task NonCompaniesHouseUkNationGet_ShouldReturnView_WithCorrectUkNation()
         {
-            //Arrange
-            _journeySession.AccountManagementSession.UkNation = (Core.Enums.Nation?)UkNation.England;
-            //Act
+            // Arrange
+            _journeySession.AccountManagementSession.UkNation = Core.Enums.Nation.England;
+
+            // Act
             var result = await SystemUnderTest.NonCompaniesHouseUkNation();
 
-            //Assert
-            using (new AssertionScope())
-            {
-                result.Should().BeOfType<ViewResult>();
-
-                var viewResult = (ViewResult)result;
-                viewResult.Model.Should().BeOfType<NonCompaniesHouseUkNationViewModel>();
-
-                var model = (NonCompaniesHouseUkNationViewModel)viewResult.Model!;
-
-                model.UkNation.Should().Be(UkNation.England);
-            }
+            // Assert
+            var viewResult = (ViewResult)result;
+            var model = (NonCompaniesHouseUkNationViewModel)viewResult.Model!;
+            Assert.AreEqual(UkNation.England, model.UkNation);
         }
 
         [TestMethod]
@@ -119,6 +112,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             var viewResult = result as ViewResult;
 
             Assert.AreEqual(model, viewResult.Model);
+            Assert.AreEqual(model.UkNation, ((NonCompaniesHouseUkNationViewModel)viewResult.Model).UkNation);
         }
 
         [TestMethod]
@@ -191,6 +185,21 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 actionResult.ControllerName.Should().Be(nameof(ErrorController.Error));
                 actionResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
             }
+        }
+
+        [TestMethod]
+        public async Task NonCompaniesHouseUkNationGet_ShouldReturnView_WithNullUkNation()
+        {
+            // Arrange
+            _journeySession.AccountManagementSession.UkNation = null;
+
+            // Act
+            var result = await SystemUnderTest.NonCompaniesHouseUkNation();
+
+            // Assert
+            var viewResult = (ViewResult)result;
+            var model = (NonCompaniesHouseUkNationViewModel)viewResult.Model!;
+            Assert.IsNull(model.UkNation);
         }
     }
 }

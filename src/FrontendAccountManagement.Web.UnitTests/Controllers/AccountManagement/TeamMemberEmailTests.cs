@@ -105,6 +105,8 @@ public class TeamMemberEmailTests : AccountManagementTestBase
         // Assert
         result.ActionName.Should().Be(nameof(AccountManagementController.TeamMemberPermissions));
         SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
+
+
     }
 
     // no email input
