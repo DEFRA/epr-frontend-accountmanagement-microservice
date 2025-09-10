@@ -258,6 +258,15 @@ public class FacadeService : IFacadeService
         return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<List<int>>() : new List<int> { 0 };
     }
 
+    public async Task<Guid?> GetUserIdForPerson(Guid personExternalId)
+    {
+        await PrepareAuthenticatedClient();
+
+        var response = await _httpClient.GetAsync($"user-by-person-id?personId={personExternalId}");
+
+        return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<Guid?>() : null;
+    }
+
     public async Task<CompaniesHouseResponse> GetCompaniesHouseResponseAsync(string companyHouseNumber)
     {
         await PrepareAuthenticatedClient();
