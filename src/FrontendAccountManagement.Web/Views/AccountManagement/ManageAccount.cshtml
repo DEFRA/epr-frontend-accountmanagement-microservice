@@ -50,16 +50,16 @@
 
                 @if (!string.IsNullOrEmpty(Model.OrganisationType) && Model.OrganisationType != OrganisationType.NotSet)
                 {
-                    <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+                    <div class="govuk-summary-list govuk-!-margin-bottom-0">
                         <h2 class="govuk-heading-m govuk-!-margin-bottom-4">
                             @Localizer["YourOrganisation"]
                         </h2>
                         @if (Model.HasPermissionToChangeCompany.HasValue && Model.HasPermissionToChangeCompany.Value)
                         {
-                        <dd class="govuk-summary-list__actions">
+                        <div class="govuk-summary-list__actions">
                             @if (Model.OrganisationType == OrganisationType.CompaniesHouseCompany)
                             {
-                                        <a href="~/@PagePath.CompanyDetailsCheck" class="govuk-link govuk-link--no-visited-state">
+                                    <a href="~/@PagePath.CompanyDetailsCheck" class="govuk-link govuk-link--no-visited-state">
                                     @SharedLocalizer["Change"]
                                     <span class="govuk-visually-hidden"></span>
                                 </a>
@@ -79,40 +79,39 @@
                                     </a>
                                 </feature>
                             }
-                        </dd>
+                        </div>
                         }
+                    </div>
 
-                    </dl>
-
-                    <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+                    <div class="govuk-summary-list govuk-!-margin-bottom-0">
                         <div class="govuk-summary-list__row">
                             <div class="govuk-!-margin-right-3">
-                                <dt class="govuk-summary-list__value">
+                                <div class="govuk-summary-list__value">
                                     @Localizer["CompanyName"]
-                                </dt>
+                                </div>
                             </div>
-                            <dd class="govuk-summary-list__value">
+                            <div class="govuk-summary-list__value">
                                 @Model.CompanyName
-                            </dd>
+                            </div>
                         </div>
                         <div class="govuk-summary-list__row">
                             <div class="govuk-!-margin-right-3">
-                                <dt class="govuk-summary-list__value">
+                                <div class="govuk-summary-list__value">
                                     @Localizer["OrganisationAddress"]
-                                </dt>
+                                </div>
                             </div>
-                            <dd class="govuk-summary-list__value">
+                            <div class="govuk-summary-list__value">
                                 @Model.OrganisationAddress
-                            </dd>
+                            </div>
                         </div>
-                    </dl>
+                    </div>
                     <br />
                 }
-                <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+                <div class="govuk-summary-list govuk-!-margin-bottom-0">
                     <h2 class="govuk-heading-m govuk-!-margin-bottom-4">
                         @Localizer["YourDetails"]
                     </h2>
-                    <dd class="govuk-summary-list__actions">
+                    <div class="govuk-summary-list__actions">
                         @if (Model != null && Model.IsChangeRequestPending == true)
                         {
                         <strong class="govuk-tag govuk-tag--yellow waiting-for-approval">@Localizer["Pending"]</strong>
@@ -124,50 +123,50 @@
                                 <span class="govuk-visually-hidden"></span>
                             </a>
                         }
-                    </dd>
-                </dl>
-                <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+                    </div>
+                </div>
+                <div class="govuk-summary-list govuk-!-margin-bottom-0">
                     <div class="govuk-summary-list__row">
                         <div class="govuk-!-margin-right-3">
-                            <dt class="govuk-summary-list__value">@Localizer["YourName"]</dt>
+                            <div class="govuk-summary-list__value">@Localizer["YourName"]</div>
                         </div>
-                        <dd class="govuk-summary-list__value">@Model.UserName</dd>
+                        <div class="govuk-summary-list__value">@Model.UserName</div>
                     </div>
                     @if (Model != null && !string.IsNullOrEmpty(Model.JobTitle))
                     {
                         <div class="govuk-summary-list__row">
                             <div class="govuk-!-margin-right-3">
-                                <dt class="govuk-summary-list__value">
+                                <div class="govuk-summary-list__value">
                                     @Localizer["JobTitle"]
-                                </dt>
+                                </div>
                             </div>
-                            <dd class="govuk-summary-list__value">
+                            <div class="govuk-summary-list__value">
                                 @Model.JobTitle
-                            </dd>
+                            </div>
                         </div>
                     }
                     @if (Model != null && !string.IsNullOrEmpty(Model.Telephone))
                     {
                         <div class="govuk-summary-list__row">
                             <div class="govuk-!-margin-right-3">
-                                <dt class="govuk-summary-list__value">
+                                <div class="govuk-summary-list__value">
                                     @Localizer["TelephoneNumber"]
-                                </dt>
+                                </div>
                             </div>
-                            <dd class="govuk-summary-list__value">
+                            <div class="govuk-summary-list__value">
                                 @Model.Telephone
-                            </dd>
+                            </div>
 
                         </div>
                     }
 
                     <div class="govuk-summary-list__row">
                         <div class="govuk-!-margin-right-3">
-                            <dt class="govuk-summary-list__value">
+                            <div class="govuk-summary-list__value">
                                 @Localizer["Permissions"]
-                            </dt>
+                            </div>
                         </div>
-                        <dd class="govuk-summary-list__value">
+                        <div class="govuk-summary-list__value">
                             @if (Model.EnrolmentStatus == EnrolmentStatus.Pending.ToString() || Model.EnrolmentStatus == EnrolmentStatus.Nominated.ToString())
                             {
                                 @SharedLocalizer["Basic.Admin"]
@@ -176,9 +175,9 @@
                             {
                                 @SharedLocalizer[Model.ServiceRoleKey]
                             }
-                        </dd>
+                        </div>
                     </div>
-                </dl>
+                </div>
                 <br />
                 }
 
