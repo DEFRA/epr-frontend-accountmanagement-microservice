@@ -1,11 +1,8 @@
-using System;
-using System.IO;
-using System.Net;
-using System.Text.Json;
 using AutoMapper;
 using EPR.Common.Authorization.Constants;
 using EPR.Common.Authorization.Extensions;
 using EPR.Common.Authorization.Models;
+using EPR.Common.Authorization.Services.Interfaces;
 using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Addresses;
 using FrontendAccountManagement.Core.Enums;
@@ -14,7 +11,6 @@ using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Services;
-using FrontendAccountManagement.Core.Services.Dto.CompaniesHouse;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
@@ -26,13 +22,14 @@ using FrontendAccountManagement.Web.ViewModels;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
-using Microsoft.FeatureManagement.Mvc;
 using Microsoft.Identity.Web;
+using System;
+using System.Net;
+using System.Text.Json;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
@@ -56,6 +53,7 @@ public class AccountManagementController : Controller
     private readonly IClaimsExtensionsWrapper _claimsExtensionsWrapper;
     private readonly IMapper _mapper;
     private readonly IFeatureManager _featureManager;
+    private readonly IGraphService _graphService;
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "Its Allowed for now in this case")]
     public AccountManagementController(
@@ -66,6 +64,7 @@ public class AccountManagementController : Controller
         ILogger<AccountManagementController> logger,
         IClaimsExtensionsWrapper claimsExtensionsWrapper,
         IFeatureManager featureManager,
+        IGraphService graphService,
         IMapper mapper)
     {
         _sessionManager = sessionManager;
@@ -75,6 +74,7 @@ public class AccountManagementController : Controller
         _deploymentRoleOptions = deploymentRoleOptions.Value;
         _claimsExtensionsWrapper = claimsExtensionsWrapper;
         _featureManager = featureManager;
+        _graphService = graphService;
         _mapper = mapper;
     }
 
@@ -447,9 +447,17 @@ public class AccountManagementController : Controller
             return RedirectToAction(nameof(ManageAccount));
         }
         var organisationId = organisation!.Id.ToString();
+        var organisationNumber = organisation!.OrganisationNumber;
         var serviceRoleId = userData.ServiceRoleId;
+
         var result = await _facadeService.RemoveUserForOrganisation(personExternalId, organisationId, serviceRoleId);
         session.AccountManagementSession.RemoveUserStatus = result;
+
+        if (result != EndpointResponseStatus.Fail &&
+            (await _featureManager.IsEnabledAsync(FeatureFlags.UseGraphApiForExtendedUserClaims)))
+        {
+            await RemoveUserClaim(model.PersonId, organisationNumber);
+        }
 
         return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.RemoveTeamMember, PagePath.ManageAccount);
     }
@@ -513,7 +521,6 @@ public class AccountManagementController : Controller
 
         return View(nameof(Declaration), editUserDetailsViewModel);
     }
-
 
     [HttpPost]
     [Route(PagePath.Declaration, Name = "Declaration")]
@@ -1965,5 +1972,29 @@ public class AccountManagementController : Controller
 
         return roleInOrganisation == PersonRole.Admin.ToString() &&
             serviceRoleId == (int)ServiceRole.Basic;
+    }
+
+    private async Task RemoveUserClaim(Guid personId, string organisationId)
+    {
+        var userExternalId = await _facadeService.GetUserIdForPerson(personId);
+
+        if (userExternalId is not null)
+        {
+            var queryResult = await _graphService.QueryUserProperty(userExternalId.Value, ExtensionClaims.OrganisationIdsExtensionClaimName);
+
+            if (!string.IsNullOrEmpty(queryResult))
+            {
+                var orgIds = queryResult.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+
+                orgIds.RemoveAll(x => x == organisationId);
+
+                var updatedOrgIds = orgIds.Count > 0 ? string.Join(",", orgIds) : null;
+                if (updatedOrgIds != queryResult)
+                {
+                    await _graphService.PatchUserProperty(userExternalId.Value, ExtensionClaims.OrganisationIdsExtensionClaimName, updatedOrgIds);
+                    _logger.LogInformation("Removed organisation id {OrganisationId} from user {UserId} extensions. New value: {UpdatedValue}", organisationId, userExternalId.Value, updatedOrgIds);
+                }
+            }
+        }
     }
 }

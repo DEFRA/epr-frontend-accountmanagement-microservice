@@ -1,7 +1,15 @@
 ﻿using EPR.Common.Authorization.Extensions;
+using EPR.Common.Authorization.Models;
+using EPR.Common.Authorization.Services.Interfaces;
 using FrontendAccountManagement.Core.Services;
+using FrontendAccountManagement.Web.Configs;
+using FrontendAccountManagement.Web.Constants;
+using FrontendAccountManagement.Web.Extensions;
 using FrontendAccountManagement.Web.Utilities.Interfaces;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.FeatureManagement;
+using Microsoft.Graph.Models.Security;
+using System.Security.Claims;
 
 namespace FrontendAccountManagement.Web.Middleware;
 
@@ -9,15 +17,21 @@ public class UserDataCheckerMiddleware : IMiddleware
 {
     private readonly IFacadeService _facadeService;
     private readonly IClaimsExtensionsWrapper _claimsExtensionsWrapper;
+    private readonly IFeatureManager _featureManager;
+    private readonly IGraphService _graphService;
     private readonly ILogger<UserDataCheckerMiddleware> _logger;
 
     public UserDataCheckerMiddleware(
         IFacadeService facadeService,
         IClaimsExtensionsWrapper claimsExtensionsWrapper,
+        IFeatureManager featureManager,
+        IGraphService graphService,
         ILogger<UserDataCheckerMiddleware> logger)
     {
         _facadeService = facadeService;
         _claimsExtensionsWrapper = claimsExtensionsWrapper;
+        _featureManager = featureManager;
+        _graphService = graphService;
         _logger = logger;
     }
 
@@ -38,13 +52,36 @@ public class UserDataCheckerMiddleware : IMiddleware
             }
             else
             {
+                await UpdateOrganisationIdsClaim(userAccount.User);
                 await _claimsExtensionsWrapper.UpdateUserDataClaimsAndSignInAsync(userAccount.User);
             }
         }
 
         await next(context);
     }
-    
+
+    private async Task UpdateOrganisationIdsClaim(UserData accountUser)
+    {
+        if (!await _featureManager.IsEnabledAsync(nameof(FeatureFlags.UseGraphApiForExtendedUserClaims)))
+        {
+            return;
+        }
+
+        var orgIdsClaim = await _claimsExtensionsWrapper.TryGetOrganisatonIds();
+
+        if (orgIdsClaim is not null)
+        {
+            _logger.LogInformation("Found claim {Type} with value {Value}", ExtensionClaims.OrganisationIdsClaim, orgIdsClaim);
+        }
+
+        var organisationIds = string.Join(",", accountUser.Organisations.Select(o => o.OrganisationNumber));
+        if (organisationIds != orgIdsClaim && _graphService is not null && _graphService is not NullGraphService)
+        {
+            await _graphService.PatchUserProperty(accountUser.Id.Value, ExtensionClaims.OrganisationIdsExtensionClaimName, organisationIds);
+            _logger.LogInformation("Patched {Type} with value {Value}", ExtensionClaims.OrganisationIdsExtensionClaimName, organisationIds);
+        }
+    }
+
     private static string GetControllerName(HttpContext context)
     {
         var controllerName = string.Empty;
