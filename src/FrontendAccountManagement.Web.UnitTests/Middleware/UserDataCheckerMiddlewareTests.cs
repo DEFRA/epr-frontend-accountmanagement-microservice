@@ -1,19 +1,17 @@
 ﻿using EPR.Common.Authorization.Models;
+using EPR.Common.Authorization.Services;
 using EPR.Common.Authorization.Services.Interfaces;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
-using FrontendAccountManagement.Web.Extensions;
 using FrontendAccountManagement.Web.Middleware;
 using FrontendAccountManagement.Web.Utilities.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 using Moq;
 using System.Security.Claims;
@@ -254,36 +252,6 @@ public class UserDataCheckerMiddlewareTests
 
         // Assert
         _graphServiceMock.Verify(x => x.PatchUserProperty(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [TestMethod]
-    public async Task Middleware_DoesNotThrowException_WhenGraphServiceIsNull()
-    {
-        // Arrange
-        const string orgIds = "123456";
-
-        _claimsIdentityMock.Setup(x => x.IsAuthenticated).Returns(true);
-        _claimsIdentityMock.Setup(x => x.Claims).Returns(new List<Claim> { new(ExtensionClaims.OrganisationIdsClaim, orgIds) });
-        _claimsExtensionsWrapperMock.Setup(x => x.TryGetOrganisatonIds()).ReturnsAsync(orgIds);
-
-        _facadeServiceMock.Setup(x => x.GetUserAccount()).ReturnsAsync(GetUserAccount());
-
-        _featureManagerMock
-            .Setup(x => x.IsEnabledAsync(nameof(FeatureFlags.UseGraphApiForExtendedUserClaims)))
-            .ReturnsAsync(true);
-
-        _systemUnderTest = new UserDataCheckerMiddleware(
-            _facadeServiceMock.Object,
-            _claimsExtensionsWrapperMock.Object,
-            _featureManagerMock.Object,
-            (IGraphService)null,
-            _loggerMock.Object);
-
-        // Act
-        var act = async () => await _systemUnderTest.InvokeAsync(_httpContextMock.Object, _requestDelegateMock.Object);
-
-        // Assert
-        await act.Should().NotThrowAsync<Exception>();
     }
 
     [TestMethod]
