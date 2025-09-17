@@ -97,6 +97,63 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
+        public async Task Get_UpdateCompanyName_ShouldRedirectToError_WhenSessionIsNull()
+        {
+            // Arrange
+            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync((JourneySession)null);
+
+            // Act
+            var result = await SystemUnderTest.UpdateCompanyName();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+                var redirectResult = result as RedirectToActionResult;
+                redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.InternalServerError);
+            }
+        }
+
+        [TestMethod]
+        public async Task Get_UpdateCompanyName_ShouldRedirectToError_WhenAccountManagementSessionIsNull()
+        {
+            // Arrange
+            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(new JourneySession { AccountManagementSession = null });
+
+            // Act
+            var result = await SystemUnderTest.UpdateCompanyName();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+                var redirectResult = result as RedirectToActionResult;
+                redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.InternalServerError);
+            }
+        }
+
+        [TestMethod]
+        public async Task Get_UpdateCompanyName_ShouldRedirectToError_WhenJourneyIsNull()
+        {
+            // Arrange
+            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(new JourneySession { AccountManagementSession = new AccountManagementSession { Journey = null } });
+
+            // Act
+            var result = await SystemUnderTest.UpdateCompanyName();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+                var redirectResult = result as RedirectToActionResult;
+                redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.InternalServerError);
+            }
+        }
+
+        [TestMethod]
         public async Task Get_UpdateCompanyName_ShouldReturnViewWithModelWhenIsUpdateCompanyNameIsFalse()
         {
             // Arrange

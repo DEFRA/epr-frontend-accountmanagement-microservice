@@ -192,5 +192,62 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 actionResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
             }
         }
+
+        [TestMethod]
+        public async Task GivenNullSession_NonCompaniesHouseUkNationGet_ShouldRedirectToError()
+        {
+            // Arrange
+            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync((JourneySession)null);
+
+            //Act
+            var result = await SystemUnderTest.NonCompaniesHouseUkNation();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+                var redirectResult = result as RedirectToActionResult;
+                redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.InternalServerError);
+            }
+        }
+
+        [TestMethod]
+        public async Task GivenNullAccountManagementSession_NonCompaniesHouseUkNationGet_ShouldRedirectToError()
+        {
+            // Arrange
+            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(new JourneySession { AccountManagementSession = null });
+
+            //Act
+            var result = await SystemUnderTest.NonCompaniesHouseUkNation();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+                var redirectResult = result as RedirectToActionResult;
+                redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.InternalServerError);
+            }
+        }
+
+        [TestMethod]
+        public async Task GivenNullJourney_NonCompaniesHouseUkNationGet_ShouldRedirectToError()
+        {
+            // Arrange
+            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(new JourneySession { AccountManagementSession = new AccountManagementSession { Journey = null } });
+
+            //Act
+            var result = await SystemUnderTest.NonCompaniesHouseUkNation();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+                var redirectResult = result as RedirectToActionResult;
+                redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
+                redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.InternalServerError);
+            }
+        }
     }
 }
