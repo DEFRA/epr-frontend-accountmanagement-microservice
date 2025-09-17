@@ -1,5 +1,5 @@
 $govuk-assets-path: '/manage-account/';
-@import '../../node_modules/govuk-frontend/govuk/all';
+@import 'index';
 
 // Components
 @import './components/language_toggle';
