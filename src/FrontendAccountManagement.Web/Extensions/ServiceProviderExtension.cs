@@ -1,20 +1,21 @@
 ﻿using EPR.Common.Authorization.Extensions;
+using EPR.Common.Authorization.Extensions;
+using EPR.Common.Authorization.Services.Interfaces;
+using EPR.Common.Authorization.Sessions;
+using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Cookies;
+using FrontendAccountManagement.Web.Middleware;
 using FrontendAccountManagement.Web.Sessions;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using EPR.Common.Authorization.Extensions;
-using FrontendAccountManagement.Web.Middleware;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using StackExchange.Redis;
-using EPR.Common.Authorization.Sessions;
-using FrontendAccountManagement.Core.Services;
 
 namespace FrontendAccountManagement.Web.Extensions;
 
@@ -180,7 +181,7 @@ public static class ServiceProviderExtension
         }
         else
         {
-            services.RegisterNullGraphServiceClient();
+            services.AddTransient<IGraphService, NullGraphService>();
         }
 
         return services;

@@ -262,7 +262,7 @@ public class FacadeService : IFacadeService
     {
         await PrepareAuthenticatedClient();
 
-        var response = await _httpClient.GetAsync($"user-by-person-id?personId={personExternalId}");
+        var response = await _httpClient.GetAsync($"user-accounts/user-by-person-id?personId={personExternalId}");
 
         return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<Guid?>() : null;
     }
