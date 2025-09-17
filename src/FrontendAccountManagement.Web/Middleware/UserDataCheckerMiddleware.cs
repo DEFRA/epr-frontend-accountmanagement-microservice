@@ -4,6 +4,7 @@ using EPR.Common.Authorization.Services.Interfaces;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
+using FrontendAccountManagement.Web.Extensions;
 using FrontendAccountManagement.Web.Utilities.Interfaces;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.FeatureManagement;
@@ -74,7 +75,7 @@ public class UserDataCheckerMiddleware : IMiddleware
         }
 
         var organisationIds = string.Join(",", accountUser.Organisations.Select(o => o.OrganisationNumber));
-        if (organisationIds != orgIdsClaim && _graphService is not null)
+        if (organisationIds != orgIdsClaim && _graphService is not null && _graphService is not NullGraphService)
         {
             await _graphService.PatchUserProperty(accountUser.Id.Value, ExtensionClaims.OrganisationIdsExtensionClaimName, organisationIds);
             _logger.LogInformation("Patched {Type} with value {Value}", ExtensionClaims.OrganisationIdsExtensionClaimName, organisationIds);
