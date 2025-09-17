@@ -4,6 +4,7 @@ using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
+using FrontendAccountManagement.Web.Extensions;
 using FrontendAccountManagement.Web.Middleware;
 using FrontendAccountManagement.Web.Utilities.Interfaces;
 using Microsoft.AspNetCore.Authentication;
@@ -276,6 +277,37 @@ public class UserDataCheckerMiddlewareTests
             _claimsExtensionsWrapperMock.Object,
             _featureManagerMock.Object,
             (IGraphService)null,
+            _loggerMock.Object);
+
+        // Act
+        var act = async () => await _systemUnderTest.InvokeAsync(_httpContextMock.Object, _requestDelegateMock.Object);
+
+        // Assert
+        await act.Should().NotThrowAsync<Exception>();
+    }
+
+    [TestMethod]
+    public async Task Middleware_DoesNotThrowException_WhenGraphServiceIsNullGraphService()
+    {
+        // Arrange
+        const string orgIds = "123456";
+
+        _claimsIdentityMock.Setup(x => x.IsAuthenticated).Returns(true);
+        _claimsIdentityMock.Setup(x => x.Claims).Returns(new List<Claim> { new(ExtensionClaims.OrganisationIdsClaim, orgIds) });
+        _claimsExtensionsWrapperMock.Setup(x => x.TryGetOrganisatonIds()).ReturnsAsync(orgIds);
+
+        _facadeServiceMock.Setup(x => x.GetUserAccount()).ReturnsAsync(GetUserAccount());
+
+        _featureManagerMock
+            .Setup(x => x.IsEnabledAsync(nameof(FeatureFlags.UseGraphApiForExtendedUserClaims)))
+            .ReturnsAsync(true);
+
+        var graphService = new NullGraphService();
+        _systemUnderTest = new UserDataCheckerMiddleware(
+            _facadeServiceMock.Object,
+            _claimsExtensionsWrapperMock.Object,
+            _featureManagerMock.Object,
+            graphService,
             _loggerMock.Object);
 
         // Act
