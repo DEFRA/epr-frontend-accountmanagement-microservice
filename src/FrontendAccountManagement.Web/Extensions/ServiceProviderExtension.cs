@@ -1,6 +1,5 @@
 ﻿using EPR.Common.Authorization.Extensions;
 using EPR.Common.Authorization.Extensions;
-using EPR.Common.Authorization.Services.Interfaces;
 using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
@@ -181,7 +180,7 @@ public static class ServiceProviderExtension
         }
         else
         {
-            services.AddTransient<IGraphService, NullGraphService>();
+            services.RegisterNullGraphServiceClient();
         }
 
         return services;
