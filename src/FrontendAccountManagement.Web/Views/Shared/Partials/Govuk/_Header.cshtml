@@ -55,11 +55,11 @@
 			          <li class="govuk-header__navigation-item">
 				          @if (User.Identity?.IsAuthenticated == true)
 				          {
-					          <a class="govuk-header__link epr-sign-out-nav__link" asp-controller="Account" asp-action="SignOut">@SharedLocalizer["Regulator.SignOut"]</a>
+					          <a class="govuk-header__link" asp-controller="Account" asp-action="SignOut">@SharedLocalizer["Regulator.SignOut"]</a>
 				          }
 				          else
 				          {
-					          <a class="govuk-header__link epr-sign-out-nav__link" asp-controller="Account" asp-action="SignIn">@SharedLocalizer["Regulator.SignIn"]</a>
+					          <a class="govuk-header__link" asp-controller="Account" asp-action="SignIn">@SharedLocalizer["Regulator.SignIn"]</a>
 				          }
 			          </li>
 		          </ul>
