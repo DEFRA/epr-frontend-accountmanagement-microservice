@@ -125,6 +125,7 @@ public abstract class AccountManagementTestBase
             LoggerMock.Object,
             ClaimsExtensionsWrapperMock.Object,
             FeatureManagerMock.Object,
+            GraphServiceMock.Object,
             AutoMapperMock.Object
         );
         var httpContext = new DefaultHttpContext();
