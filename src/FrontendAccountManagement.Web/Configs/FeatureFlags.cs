@@ -11,5 +11,6 @@ namespace FrontendAccountManagement.Web.Configs
         public const string ManageCompanyDetailChanges = "ManageCompanyDetailChanges";
         public const string ShowSessionTimeoutWarning = "ShowSessionTimeoutWarning";
         public const string ShowYourFeedbackFooter = "ShowYourFeedbackFooter";
+        public const string UseGraphApiForExtendedUserClaims = "UseGraphApiForExtendedUserClaims";
     }
 }

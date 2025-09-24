@@ -2,6 +2,7 @@ using EPR.Common.Authorization.Models;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Sessions;
+using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.AccountManagement;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
@@ -21,8 +22,11 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
     private readonly Guid _personId = Guid.NewGuid();
     private string _personExternalId;
     private string _organisationId;
+    private string _orgIds = "123456";
+    private string _organisationNumber = "123456";
     private int _serviceRoleId;
     private UserData _userData;
+    private Guid _userId;
 
     [TestInitialize]
     public void Setup()
@@ -34,7 +38,8 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
             {
                 new()
                 {
-                    Id = Guid.NewGuid()
+                    Id = Guid.NewGuid(),
+                    OrganisationNumber = _organisationNumber
                 }
             }
         };
@@ -62,6 +67,7 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
         _personExternalId = Guid.NewGuid().ToString();
         _organisationId = Guid.NewGuid().ToString();
         _serviceRoleId = 3;
+        _userId = Guid.NewGuid();
 
         SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>()))
             .ReturnsAsync(JourneySessionMock);
@@ -156,8 +162,9 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
     public async Task GivenOnRemoveTeamMemberConfirmationPage_WhenRemoveTeamMemberConfirmationPageHttpPostCalled_AndSuccessfulResponse_ThenUserRemoved()
     {
         // Arrange
-        FacadeServiceMock.Setup(x => x.RemoveUserForOrganisation(_personExternalId, _organisationId, _serviceRoleId))
+        FacadeServiceMock.Setup(x => x.RemoveUserForOrganisation(_personId.ToString(), _userData.Organisations[0].Id.ToString(), _serviceRoleId))
             .ReturnsAsync(EndpointResponseStatus.Success);
+
         var model = new RemoveTeamMemberConfirmationViewModel
         {
             PersonId = _personId,
@@ -172,6 +179,11 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
         result.Should().BeOfType<RedirectToActionResult>();
         result.ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
         SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
+
+        SessionManagerMock.Verify(x => x.SaveSessionAsync(
+                It.IsAny<ISession>(),
+                It.Is<JourneySession>(s => s.AccountManagementSession.RemoveUserStatus == EndpointResponseStatus.Success)),
+            Times.Once);
     }
 
     [TestMethod]
@@ -185,9 +197,6 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
         };
 
         SetupBase(_userData);
-
-        FacadeServiceMock.Setup(x => x.RemoveUserForOrganisation(_personExternalId, _organisationId, _serviceRoleId))
-            .ReturnsAsync(EndpointResponseStatus.Success);
 
         var model = new RemoveTeamMemberConfirmationViewModel
         {
@@ -260,5 +269,106 @@ public class RemoveTeamMemberConfirmationTests : AccountManagementTestBase
         // Assert
         result.Should().BeOfType<ViewResult>();
         SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GivenOnRemoveTeamMemberConfirmationPage_WhenRemoveTeamMemberConfirmationPageHttpPostCalled_AndSuccessfulResponse_ButNoExistingClaims_ThenOrgIdsClaimNotRemoved()
+    {
+        // Arrange
+        FacadeServiceMock.Setup(x => x.RemoveUserForOrganisation(_personId.ToString(), _userData.Organisations[0].Id.ToString(), _serviceRoleId))
+            .ReturnsAsync(EndpointResponseStatus.Success);
+
+        FacadeServiceMock.Setup(x => x.GetUserIdForPerson(_personId))
+            .ReturnsAsync(_userId);
+
+        GraphServiceMock.Setup(x => x.QueryUserProperty(_userId, ExtensionClaims.OrganisationIdsExtensionClaimName, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(default(string));
+
+        FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.UseGraphApiForExtendedUserClaims))
+            .ReturnsAsync(true);
+        var model = new RemoveTeamMemberConfirmationViewModel
+        {
+            PersonId = _personId,
+            FirstName = FirstName,
+            LastName = LastName
+        };
+
+        // Act
+        var result = await SystemUnderTest.RemoveTeamMemberConfirmation(model) as RedirectToActionResult;
+
+        // Assert
+        result.Should().BeOfType<RedirectToActionResult>();
+        result.ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
+
+        FacadeServiceMock.Verify(x => x.GetUserIdForPerson(It.IsAny<Guid>()), Times.Once);
+        GraphServiceMock.Verify(x => x.QueryUserProperty(_userId, ExtensionClaims.OrganisationIdsExtensionClaimName, It.IsAny<CancellationToken>()), Times.Once);
+        GraphServiceMock.Verify(x => x.PatchUserProperty(_userId, ExtensionClaims.OrganisationIdsExtensionClaimName, It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task GivenOnRemoveTeamMemberConfirmationPage_WhenRemoveTeamMemberConfirmationPageHttpPostCalled_AndSuccessfulResponse_ThenOrgIdsClaimRemoved()
+    {
+        // Arrange
+        FacadeServiceMock.Setup(x => x.RemoveUserForOrganisation(_personId.ToString(), _userData.Organisations[0].Id.ToString(), _serviceRoleId))
+            .ReturnsAsync(EndpointResponseStatus.Success);
+
+        FacadeServiceMock.Setup(x => x.GetUserIdForPerson(_personId))
+            .ReturnsAsync(_userId);
+
+        GraphServiceMock.Setup(x => x.QueryUserProperty(_userId, ExtensionClaims.OrganisationIdsExtensionClaimName, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(_orgIds);
+
+        FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.UseGraphApiForExtendedUserClaims))
+            .ReturnsAsync(true);
+        var model = new RemoveTeamMemberConfirmationViewModel
+        {
+            PersonId = _personId,
+            FirstName = FirstName,
+            LastName = LastName
+        };
+
+        // Act
+        var result = await SystemUnderTest.RemoveTeamMemberConfirmation(model) as RedirectToActionResult;
+
+        // Assert
+        result.Should().BeOfType<RedirectToActionResult>();
+        result.ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
+
+        FacadeServiceMock.Verify(x => x.GetUserIdForPerson(It.IsAny<Guid>()), Times.Once);
+        GraphServiceMock.Verify(x => x.QueryUserProperty(_userId, ExtensionClaims.OrganisationIdsExtensionClaimName, It.IsAny<CancellationToken>()), Times.Once);
+        GraphServiceMock.Verify(x => x.PatchUserProperty(_userId, ExtensionClaims.OrganisationIdsExtensionClaimName, null, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GivenOnRemoveTeamMemberConfirmationPage_WhenRemoveTeamMemberConfirmationPageHttpPostCalled_AndOrganisationInvalid_ThenOrgIdsClaimNotRemoved()
+    {
+        // Arrange
+        _userData = new UserData
+        {
+            ServiceRoleId = 3,
+            Organisations = new List<Organisation>()
+        };
+
+        SetupBase(_userData);
+
+        FeatureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.UseGraphApiForExtendedUserClaims))
+            .ReturnsAsync(true);
+
+        var model = new RemoveTeamMemberConfirmationViewModel
+        {
+            PersonId = _personId,
+            FirstName = FirstName,
+            LastName = LastName
+        };
+
+        // Act
+        var result = await SystemUnderTest.RemoveTeamMemberConfirmation(model);
+
+        // Assert
+        Assert.IsNotNull(result);
+        result.Should().BeOfType<RedirectToActionResult>();
+        ((RedirectToActionResult)result).ActionName.Should().Be(nameof(AccountManagementController.ManageAccount));
+
+        GraphServiceMock.Verify(x => x.PatchUserProperty(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }
