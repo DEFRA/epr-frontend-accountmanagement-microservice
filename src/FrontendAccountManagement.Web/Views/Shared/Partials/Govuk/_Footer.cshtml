@@ -1,9 +1,11 @@
 @using FrontendAccountManagement.Web.Extensions
 @using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.Extensions.Options
 @using Microsoft.FeatureManagement
 @using FrontendAccountManagement.Web.Configs
 
 @inject IFeatureManager _featureManager
+@inject IOptions<ExternalUrlsOptions> ExternalUrlsOptions;
 
 @model FrontendAccountManagement.Web.Configs.ExternalUrlsOptions
 
@@ -24,7 +26,7 @@
 
 @if (await _featureManager.IsEnabledAsync(FeatureFlags.ShowYourFeedbackFooter))
 {
-	<footer class="govuk-footer" role="contentinfo">
+	<footer class="govuk-footer" role="contentinfo" aria-label="Footer">
 		<div class="govuk-width-container ">
 			<svg
 				focusable="false"
@@ -70,7 +72,7 @@
 					<h2 class="govuk-visually-hidden">Support links</h2>
 					<ul class="govuk-footer__inline-list">
 						<li class="govuk-footer__inline-list-item">
-							<a class="govuk-footer__link" href="@DecorateUrl("https://www.gov.uk/guidance/extended-producer-responsibility-for-packaging-privacy-policy")" target="_blank" rel="noopener noreferrer">
+							<a class="govuk-footer__link" href="@DecorateUrl(ExternalUrlsOptions.Value.PrivacyProducerPackagingPrivacy)" target="_blank" rel="noopener noreferrer">
 								@Localizer["Footer.Privacy"]
 							</a>
 						</li>
@@ -80,7 +82,7 @@
 							</a>
 						</li>
 						<li class="govuk-footer__inline-list-item">
-							<a class="govuk-footer__link" href="@DecorateUrl("https://www.gov.uk/guidance/extended-producer-responsibility-for-packaging-accessibility-statement")" target="_blank" rel="noopener noreferrer">
+							<a class="govuk-footer__link" href="@DecorateUrl(ExternalUrlsOptions.Value.PrivacyProducerPackagingAccessibility)" target="_blank" rel="noopener noreferrer">
 								@Localizer["Footer.Accessibility"]
 							</a>
 						</li>
@@ -111,7 +113,7 @@
 }
 else
 {
-	<footer class="govuk-footer " role="contentinfo">
+	<footer class="govuk-footer " role="contentinfo" aria-label="Footer">
 		<div class="govuk-width-container ">
 			<svg
 				focusable="false"
@@ -153,12 +155,12 @@ else
 							</a>
 						</li>
 						<li class="govuk-footer__inline-list-item">
-							<a class="govuk-footer__link" href="@DecorateUrl("https://www.gov.uk/guidance/extended-producer-responsibility-for-packaging-privacy-policy")" target="_blank" rel="noopener noreferrer" aria-label="@Localizer["Footer.PrivacyAriaLabel"]">
+							<a class="govuk-footer__link" href="@DecorateUrl(ExternalUrlsOptions.Value.PrivacyProducerPackagingPrivacy)" target="_blank" rel="noopener noreferrer" aria-label="@Localizer["Footer.PrivacyAriaLabel"]">
 								@Localizer["Footer.Privacy"]
 							</a>
 						</li>
 						<li class="govuk-footer__inline-list-item">
-							<a class="govuk-footer__link" href="@DecorateUrl("https://www.gov.uk/guidance/extended-producer-responsibility-for-packaging-accessibility-statement")" target="_blank" rel="noopener noreferrer" aria-label="@Localizer["Footer.AccessibilityAriaLabel"]">
+							<a class="govuk-footer__link" href="@DecorateUrl(ExternalUrlsOptions.Value.PrivacyProducerPackagingAccessibility)" target="_blank" rel="noopener noreferrer" aria-label="@Localizer["Footer.AccessibilityAriaLabel"]">
 								@Localizer["Footer.Accessibility"]
 							</a>
 						</li>

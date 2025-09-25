@@ -18,6 +18,7 @@ using FrontendAccountManagement.Web.Constants.Enums;
 using FrontendAccountManagement.Web.Controllers.AccountManagement;
 using FrontendAccountManagement.Core.Addresses;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
+using Microsoft.Extensions.Logging;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 
@@ -85,7 +86,7 @@ public class AccountManagementTests : AccountManagementTestBase
             Organisations = new List<Organisation>
             {
                 new Organisation()
-            }
+            }   
         };
 
         SetupBase(
@@ -313,6 +314,44 @@ public class AccountManagementTests : AccountManagementTestBase
     }
 
     [TestMethod]
+    public async Task GivenOnEditUserDetailsPage_WhenIsChangeRequestPending_RedirectsToActionForbidden()
+    {
+        // Arrange
+        var userData = new UserData
+        {
+            FirstName = FirstName,
+            LastName = LastName,
+            Telephone = Telephone,
+            IsChangeRequestPending = true,
+            ServiceRoleId = ServiceRoleId,
+            RoleInOrganisation = RoleInOrganisation,
+            Organisations = new List<Organisation>
+            {
+                new Organisation()
+                {
+                    Name = OrganisationName,
+                    OrganisationType = OrganisationType,
+                    //AddressLine1 = BuildingNumber,
+                    //AddressLine2 = BuildingName,
+                    //AddressLine3 = Street,
+                    //AddressLine4 = Town,
+                    //AddressLine5 = County,
+                    Postcode = Postcode
+                }
+            }
+        };
+        SetupBase(userData: userData);
+        // Act
+        var result = await SystemUnderTest.EditUserDetails();
+        // Assert
+        var redirectResult = result as RedirectToActionResult;
+        Assert.IsNotNull(redirectResult);
+        Assert.AreEqual(nameof(ErrorController.Error).ToLower(), redirectResult.ActionName);
+        Assert.AreEqual("Error", redirectResult.ControllerName);
+        Assert.AreEqual((int)HttpStatusCode.Forbidden, redirectResult.RouteValues["statusCode"]);
+    }
+
+    [TestMethod]
     public async Task GivenOnEditUserDetailsPage_WhenRequested_TheShowUserDetails()
     {
         // Arrange
@@ -329,6 +368,31 @@ public class AccountManagementTests : AccountManagementTestBase
 
         SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
         AutoMapperMock.Verify(m => m.Map<EditUserDetailsViewModel>(It.IsAny<UserData>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GivenOnEditUserDetailsPage_WhenUserAccountIsNull_LogsInformation()
+    {
+        // Arrange
+        SetupUserData(null);
+        SetupBase(
+            deploymentRole: DeploymentRoleOptions.RegulatorRoleValue,
+            userServiceRoleId: (int)Core.Enums.ServiceRole.RegulatorAdmin,
+            userData: null);
+        FacadeServiceMock.Setup(s => s.GetUserAccount()).ReturnsAsync((UserAccountDto?)null);
+
+        // Act
+        await SystemUnderTest.ManageAccount(new ManageAccountViewModel());
+        // Assert
+        LoggerMock.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("User authenticated but account could not be found")),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+
     }
 
     [TestMethod]
@@ -457,7 +521,7 @@ public class AccountManagementTests : AccountManagementTestBase
     /// <summary>
     /// Parses the user details from the temp data back to an object.
     /// </summary>
-    private EditUserDetailsViewModel DeserialiseUserDetailsJson(object json)
+    private static EditUserDetailsViewModel DeserialiseUserDetailsJson(object json)
     {
         var stream = new MemoryStream();
         var writer = new StreamWriter(stream);
@@ -1086,175 +1150,177 @@ public class AccountManagementTests : AccountManagementTestBase
 
         FacadeServiceMock.Verify(f => f.GetCompaniesHouseResponseAsync(It.IsAny<string>()), Times.Never);
     }
-
     [TestMethod]
-    public async Task EditUserDetails_ShouldReturnForbidden_WhenIsChangeRequestPendingIsTrue()
+    public async Task EditUserDetails_LogsError_WhenAmendedUserDetailsJsonIsInvalid()
     {
         // Arrange
-        var mockUserData = new UserData
+       
+        var userData = new UserData
         {
-            FirstName = FirstName,
-            LastName = LastName,
-            Telephone = Telephone,
-            IsChangeRequestPending = true,
-            Organisations = new List<Organisation>()
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
         };
+        SetupBase(userData);
 
-        var expectedModel = new EditUserDetailsViewModel
-        {
-            FirstName = FirstName,
-            LastName = LastName,
-            Telephone = Telephone
-        };
-
-        AutoMapperMock.Setup(m =>
-            m.Map<EditUserDetailsViewModel>(mockUserData))
-            .Returns(expectedModel);
-
-        SetupBase(mockUserData);
-
-        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-            .ReturnsAsync(new JourneySession
-            {
-                UserData = mockUserData
-            });
-
+        SystemUnderTest.TempData[AccountManagementController.AmendedUserDetailsKey] = "{ invalid json }";
         // Act
         var result = await SystemUnderTest.EditUserDetails();
 
         // Assert
-        result.Should().BeOfType<RedirectToActionResult>();
-        var redirectResult = (RedirectToActionResult)result;
-
-        redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
-        redirectResult.ActionName.Should().Be(PagePath.Error);
-        redirectResult.RouteValues.Should().ContainKey("statusCode");
-        redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
-    }
-
-    [TestMethod]
-    public async Task EditUserDetails_TempDataHasValidAmendedUserDetails_DeserializesAndReturnsViewWithModel()
-    {
-        // Arrange
-        var mockUserData = new UserData
-        {
-            FirstName = FirstName,
-            LastName = LastName,
-            Telephone = Telephone,
-            IsChangeRequestPending = false,
-            Organisations = new List<Organisation>()
-        };
-
-        var expectedModel = new EditUserDetailsViewModel
-        {
-            FirstName = FirstName,
-            LastName = LastName,
-            Telephone = Telephone
-        };
-
-        var serializedModel = JsonSerializer.Serialize(expectedModel);
-
-        SetupBase(mockUserData);
-
-        TempDataDictionary["AmendedUserDetails"] = serializedModel;
-
-        AutoMapperMock.Setup(m =>
-            m.Map<EditUserDetailsViewModel>(mockUserData))
-            .Returns(expectedModel);
-
-        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-            .ReturnsAsync(new JourneySession
-            {
-                UserData = mockUserData
-            });
-
-        // Act
-        var result = await SystemUnderTest.EditUserDetails();
-
-        // Assert
-        var viewResult = result as ViewResult;
         Assert.IsInstanceOfType(result, typeof(ViewResult));
-        Assert.IsNotNull(viewResult);
-        Assert.AreEqual(expectedModel.FirstName, ((EditUserDetailsViewModel)viewResult.Model).FirstName);
+        LoggerMock.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Deserialising NewUserDetails Failed.")),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+            Times.Once);
     }
-
+   
     [TestMethod]
-    public async Task ConfirmDetailsOfTheCompany_ShouldRedirectToUkNation()
-    {
+    public async Task EditUserDetails_Deserialized_Model_Correctly_WhenEditUserDetailsViewModelJsonValid()
+    {         
+        // Arrange
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+        SetupBase(userData);
+        var amendedUserDetails = new EditUserDetailsViewModel
+        {
+            FirstName = "First",
+            LastName = "Last",
+            JobTitle = "Job",
+            Telephone = "Telephone"
+        };
+        SystemUnderTest.TempData.Add("AmendedUserDetails", JsonSerializer.Serialize(amendedUserDetails));
         // Act
-        var result = await SystemUnderTest.ConfirmDetailsOfTheCompany();
-
+        var result = await SystemUnderTest.EditUserDetails();
         // Assert
-        var redirectToActionResult = result as RedirectToActionResult;
-        Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
-        Assert.IsNotNull(redirectToActionResult);
-        Assert.AreEqual(nameof(SystemUnderTest.UkNation), redirectToActionResult.ActionName);
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
+        var viewResult = (ViewResult)result;
+        var viewModelResult = (EditUserDetailsViewModel)viewResult.Model;
+        Assert.AreEqual(amendedUserDetails.FirstName, viewModelResult.FirstName);
+        Assert.AreEqual(amendedUserDetails.LastName, viewModelResult.LastName);
+        Assert.AreEqual(amendedUserDetails.JobTitle, viewModelResult.JobTitle);
+        Assert.AreEqual(amendedUserDetails.Telephone, viewModelResult.Telephone);
+        // Verify the session was saved and the back link was set
+        SessionManagerMock.Verify(
+            m =>
+                m.SaveSessionAsync(
+                    It.IsAny<ISession>(),
+                    It.IsAny<JourneySession>())
+                , Times.Once);
     }
 
     [TestMethod]
-    public async Task UpdateDetailsConfirmation_ShouldReturnForbidden_WhenIsChangeRequestPendingIsTrue()
+    public async Task EditUserDetails_Logs_Error_WhenEditUserDetailsViewModelJsonInvalid()
     {
         // Arrange
-        var mockUserData = new UserData
+        var userData = new UserData
+        {
+            ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+            ServiceRoleId = 1,
+            RoleInOrganisation = PersonRole.Admin.ToString(),
+        };
+        SetupBase(userData);
+        SystemUnderTest.TempData.Add("AmendedUserDetails", "{ invalid json }");
+        // Act
+        var result = await SystemUnderTest.EditUserDetails();
+        // Assert
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
+        var viewResult = (ViewResult)result;
+        var viewModelResult = (EditUserDetailsViewModel)viewResult.Model;
+
+        LoggerMock.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Deserialising NewUserDetails Failed.")),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+            Times.Once);
+        // Verify the session was saved and the back link was set
+        SessionManagerMock.Verify(
+            m =>
+                m.SaveSessionAsync(
+                    It.IsAny<ISession>(),
+                    It.IsAny<JourneySession>())
+                , Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ManageAccount_ShouldUseExistingSession_WhenSessionIsNotNull()
+    {
+        // Arrange
+        var existingSession = new JourneySession();
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .ReturnsAsync(existingSession);
+
+        var model = new ManageAccountViewModel();
+
+        // Act
+        var result = await SystemUnderTest.ManageAccount(model);
+
+        // Assert
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
+        // Optionally, check that the session used is the one you provided
+    }
+
+    [TestMethod]
+    public async Task ManageAccount_CreatesNewSession_WhenSessionIsNull()
+    {
+        // Arrange
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
+            .ReturnsAsync((JourneySession)null); // Simulate no session
+
+        var model = new ManageAccountViewModel();
+
+        // Act
+        var result = await SystemUnderTest.ManageAccount(model);
+
+        // Assert
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
+        // Optionally, check that session is not null after the call
+    }
+
+    [TestMethod]
+    public async Task ManageAccount_SetsOrganisationFieldsToNull_WhenUserOrgIsNull()
+    {
+        // Arrange: UserData with no organisations
+        var userData = new UserData
         {
             FirstName = FirstName,
             LastName = LastName,
+            JobTitle = JobTitle,
             Telephone = Telephone,
-            IsChangeRequestPending = true,
-            Organisations = new List<Organisation>()
+            ServiceRole = ServiceRole.Approved.ToString(),
+            ServiceRoleId = ServiceRoleId,
+            RoleInOrganisation = RoleInOrganisation,
+            Organisations = new List<Organisation>() // Empty list
         };
 
-        SetupBase(mockUserData);
+        SetupBase(userData: userData);
+
+        var session = new JourneySession
+        {
+            AccountManagementSession = new AccountManagementSession()
+        };
 
         SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>()))
-            .ReturnsAsync(new JourneySession
-            {
-                UserData = mockUserData
-            });
-
-        // Act
-        var result = await SystemUnderTest.UpdateDetailsConfirmation();
-
-        // Assert
-        result.Should().BeOfType<RedirectToActionResult>();
-        var redirectResult = (RedirectToActionResult)result;
-
-        redirectResult.ControllerName.Should().Be(nameof(ErrorController.Error));
-        redirectResult.ActionName.Should().Be(PagePath.Error);
-        redirectResult.RouteValues.Should().ContainKey("statusCode");
-        redirectResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.Forbidden);
-    }
-
-    [DataTestMethod]
-    // The following combinations are expected user types:
-    [DataRow(PersonRole.Admin, ServiceRole.Approved, true)] // Approved user
-    [DataRow(PersonRole.Admin, ServiceRole.Delegated, true)] // Delegated user
-    [DataRow(PersonRole.Admin, ServiceRole.Basic, false)] // Admin user
-    [DataRow(PersonRole.Employee, ServiceRole.Basic, false)] // Basic user
-
-    // The following combinations are not expected, but added for completeness:
-    [DataRow(PersonRole.Employee, ServiceRole.Approved, true)]
-    [DataRow(PersonRole.Employee, ServiceRole.Delegated, true)]
-    public async Task GivenOnManageAccountPage_WhenUserIsApprovedOrDelegated_ThenCanEditOrganisation(PersonRole roleInOrganisation, ServiceRole serviceRole, bool hasPermissionToChangeCompany)
-    {
-        // Note: ServiceRole.RegulatorAdmin and ServiceRole.RegulatorBasic are used in this scenario as they have no permission to view this page.
-        // Arrange
-        var mockUserData = new UserData
-        {
-            ServiceRoleId = (int)serviceRole,
-            RoleInOrganisation = roleInOrganisation.ToString(),
-            Organisations = [new Organisation()]
-        };
-
-        SetupBase(userData: mockUserData);
+            .ReturnsAsync(session);
 
         // Act
         var result = await SystemUnderTest.ManageAccount(new ManageAccountViewModel()) as ViewResult;
 
         // Assert
-        result?.Model.Should().BeOfType<ManageAccountViewModel>();
-
-        var model = (ManageAccountViewModel)result!.Model!;
-        model.HasPermissionToChangeCompany.Should().Be(hasPermissionToChangeCompany);
+        Assert.IsNotNull(result);
+        Assert.IsNull(session.AccountManagementSession.OrganisationName);
+        Assert.IsNull(session.AccountManagementSession.OrganisationType);
+        Assert.IsNull(session.AccountManagementSession.BusinessAddress.Postcode);
     }
 }

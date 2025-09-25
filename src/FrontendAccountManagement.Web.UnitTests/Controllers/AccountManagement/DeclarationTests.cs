@@ -12,6 +12,7 @@ using FrontendAccountManagement.Core.Enums;
 using Organisation = EPR.Common.Authorization.Models.Organisation;
 using Microsoft.Extensions.Logging;
 using FrontendAccountManagement.Core.Models;
+using FrontendAccountManagement.Web.Controllers.AccountManagement;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 {
@@ -91,6 +92,45 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             Assert.AreEqual(firstName, viewModelResult.FirstName);
             Assert.AreEqual(lastName, viewModelResult.LastName);
 
+            // Verify the session was saved and the back link was set
+            SessionManagerMock.Verify(
+                m =>
+                    m.SaveSessionAsync(
+                        It.IsAny<ISession>(),
+                        It.IsAny<JourneySession>())
+                    , Times.Once);
+        }
+
+        
+
+        [TestMethod]
+        public async Task Declaration_Logs_Error_WhenEditUserDetailsViewModelJsonInvalid()
+        {
+            // Arrange
+            var userData = new UserData
+            {
+                ServiceRole = Core.Enums.ServiceRole.Approved.ToString(),
+                ServiceRoleId = 1,
+                RoleInOrganisation = PersonRole.Admin.ToString(),
+            };
+            SetupBase(userData);
+            SystemUnderTest.TempData.Add("AmendedUserDetails", "{ invalid json }");
+            // Act
+            var result = await SystemUnderTest.Declaration();
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
+            var viewResult = (ViewResult)result;
+            var viewModelResult = (EditUserDetailsViewModel)viewResult.Model;
+            Assert.IsNull(viewModelResult.FirstName);
+            Assert.IsNull(viewModelResult.LastName);
+            LoggerMock.Verify(
+                x => x.Log(
+                    LogLevel.Information,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Deserialising NewUserDetails Failed.")),
+                    It.IsAny<Exception>(),
+                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+                Times.Once);
             // Verify the session was saved and the back link was set
             SessionManagerMock.Verify(
                 m =>
@@ -395,6 +435,91 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             Assert.AreSame("DetailsChangeRequested", resultAction.ActionName);
         }
 
+        [TestMethod]
+        public async Task DeclarationPost_ApprovedOrDelegatedUser_DetailsSentForApproval_RemovesTempDataAndRedirects()
+        {
+            // Arrange
+            var userData = new UserData
+            {
+                Id = Guid.NewGuid(),
+                ServiceRoleId = (int)Core.Enums.ServiceRole.Approved,
+                RoleInOrganisation = PersonRole.Admin.ToString(),
+                Organisations = new List<Organisation> { new Organisation { Id = Guid.NewGuid() } }
+            };
+            var session = new JourneySession { UserData = userData };
+            var model = new EditUserDetailsViewModel { FirstName = "A", LastName = "B", JobTitle = "C" };
 
+            var response = new UpdateUserDetailsResponse { HasApprovedOrDelegatedUserDetailsSentForApproval = true };
+            var userAccountDto = new UserAccountDto { User = userData };
+
+            var controller = CreateControllerWithSession(session, userData);
+            controller.TempData[AccountManagementController.AmendedUserDetailsKey] = "some value";
+
+            FacadeServiceMock.Setup(f => f.UpdateUserDetailsAsync(userData.Id.Value, userData.Organisations[0].Id.Value, "Packaging", It.IsAny<UpdateUserDetailsRequest>()))
+                .ReturnsAsync(response);
+            FacadeServiceMock.Setup(f => f.GetUserAccount()).ReturnsAsync(userAccountDto);
+
+            // Act
+            var result = await controller.DeclarationPost(model);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
+            Assert.IsFalse(controller.TempData.ContainsKey(AccountManagementController.AmendedUserDetailsKey));
+        }
+
+        [TestMethod]
+        public async Task DeclarationPost_ApprovedOrDelegatedUser_DetailsNotSentForApproval_ReturnsView()
+        {
+            // Arrange
+            var userData = new UserData
+            {
+                Id = Guid.NewGuid(),
+                ServiceRoleId = (int)Core.Enums.ServiceRole.Approved,
+                RoleInOrganisation = PersonRole.Admin.ToString(),
+                Organisations = new List<Organisation> { new Organisation { Id = Guid.NewGuid() } }
+            };
+            var session = new JourneySession { UserData = userData };
+            var model = new EditUserDetailsViewModel { FirstName = "A", LastName = "B", JobTitle = "C" };
+
+            var response = new UpdateUserDetailsResponse { HasApprovedOrDelegatedUserDetailsSentForApproval = false };
+
+            var controller = CreateControllerWithSession(session, userData);
+
+            FacadeServiceMock.Setup(f => f.UpdateUserDetailsAsync(userData.Id.Value, userData.Organisations[0].Id.Value, "Packaging", It.IsAny<UpdateUserDetailsRequest>()))
+                .ReturnsAsync(response);
+
+            // Act
+            var result = await controller.DeclarationPost(model);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
+            var viewResult = (ViewResult)result;
+            Assert.AreSame(model, viewResult.Model);
+        }
+
+        [TestMethod]
+        public async Task DeclarationPost_NotApprovedOrDelegatedUser_ReturnsView()
+        {
+            // Arrange
+            var userData = new UserData
+            {
+                Id = Guid.NewGuid(),
+                ServiceRoleId = (int)Core.Enums.ServiceRole.Basic,
+                RoleInOrganisation = PersonRole.Admin.ToString(),
+                Organisations = new List<Organisation> { new Organisation { Id = Guid.NewGuid() } }
+            };
+            var session = new JourneySession { UserData = userData };
+            var model = new EditUserDetailsViewModel { FirstName = "A", LastName = "B", JobTitle = "C" };
+
+            var controller = CreateControllerWithSession(session, userData);
+
+            // Act
+            var result = await controller.DeclarationPost(model);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
+            var viewResult = (ViewResult)result;
+            Assert.AreSame(model, viewResult.Model);
+        }
     }
 }

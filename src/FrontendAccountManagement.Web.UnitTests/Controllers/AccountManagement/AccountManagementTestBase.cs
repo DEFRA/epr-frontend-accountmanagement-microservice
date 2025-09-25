@@ -113,4 +113,26 @@ public abstract class AccountManagementTestBase
         hasBackLinkKey.Should().BeTrue();
         (gotBackLinkObject as string)?.Should().Be(expectedBackLink);
     }
+
+    protected AccountManagementController CreateControllerWithSession(JourneySession session, UserData userData)
+    {
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+        var controller = new AccountManagementController(
+            SessionManagerMock.Object,
+            FacadeServiceMock.Object,
+            UrlsOptionMock.Object,
+            DeploymentRoleOptionsMock.Object,
+            LoggerMock.Object,
+            ClaimsExtensionsWrapperMock.Object,
+            FeatureManagerMock.Object,
+            GraphServiceMock.Object,
+            AutoMapperMock.Object
+        );
+        var httpContext = new DefaultHttpContext();
+        httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.UserData, JsonSerializer.Serialize(userData)) }));
+        httpContext.Session = new Mock<ISession>().Object;
+        controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+        controller.TempData = new TempDataDictionary(httpContext, new Mock<ITempDataProvider>().Object);
+        return controller;
+    }
 }

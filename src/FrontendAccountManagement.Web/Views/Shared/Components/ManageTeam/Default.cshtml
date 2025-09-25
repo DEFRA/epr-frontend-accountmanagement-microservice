@@ -72,9 +72,9 @@
                 {
                     @using (Html.BeginForm("RemoveTeamMemberPreConfirmation", "AccountManagement", new {firstName = currentUser.FirstName, lastName = currentUser.LastName, personId = currentUser.PersonId}, FormMethod.Post))
                     {
-                        @Html.HiddenFor(m => currentUser.FirstName);
-                        @Html.HiddenFor(m => currentUser.LastName);
-                        @Html.HiddenFor(m => currentUser.PersonId);
+                        @Html.HiddenFor(m => currentUser.FirstName)
+                        @Html.HiddenFor(m => currentUser.LastName)
+                        @Html.HiddenFor(m => currentUser.PersonId)
 
                         <button class="govuk-link link-button-destructive" type="submit">
                             @SharedLocalizer["Remove"]
