@@ -1,24 +1,25 @@
 using System.Net;
-using FrontendAccountManagement.Web.ViewModels.AccountManagement;
-using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using System.Text.Json;
+using AutoFixture;
+using EPR.Common.Authorization.Models;
+using FrontendAccountManagement.Core.Addresses;
+using FrontendAccountManagement.Core.Enums;
+using FrontendAccountManagement.Core.Models;
+using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
-using FrontendAccountManagement.Web.Controllers.Errors;
-using Microsoft.AspNetCore.Http;
-using Moq;
-using FrontendAccountManagement.Core.Models;
-using EPR.Common.Authorization.Models;
-using FrontendAccountManagement.Core.Enums;
-using System.Security.Claims;
-using System.Text.Json;
-using Organisation = EPR.Common.Authorization.Models.Organisation;
-using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using FrontendAccountManagement.Web.Constants.Enums;
 using FrontendAccountManagement.Web.Controllers.AccountManagement;
-using FrontendAccountManagement.Core.Addresses;
-using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
+using FrontendAccountManagement.Web.Controllers.Errors;
+using FrontendAccountManagement.Web.ViewModels.AccountManagement;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Moq;
+using Organisation = EPR.Common.Authorization.Models.Organisation;
+using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
 namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 
@@ -1322,5 +1323,21 @@ public class AccountManagementTests : AccountManagementTestBase
         Assert.IsNull(session.AccountManagementSession.OrganisationName);
         Assert.IsNull(session.AccountManagementSession.OrganisationType);
         Assert.IsNull(session.AccountManagementSession.BusinessAddress.Postcode);
+    }
+
+    [TestMethod]
+    public async Task ConfirmDetailsOfTheCompany_Post_Redirects_To_UkNation()
+    {
+        // Act
+        var result = await SystemUnderTest.ConfirmDetailsOfTheCompany();
+
+        // Assert
+        Assert.IsNotNull(result, "Action should return a result.");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect, "Result should be a RedirectToActionResult.");
+
+        const string expectedAction = "UkNation"; 
+        Assert.AreEqual(expectedAction, redirect.ActionName, "Should redirect to the UkNation action.");
     }
 }

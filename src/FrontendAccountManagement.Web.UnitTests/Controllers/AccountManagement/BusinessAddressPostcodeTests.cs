@@ -10,6 +10,7 @@ using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System.Net;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
@@ -251,6 +252,40 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 actionResult.ControllerName.Should().Be(nameof(ErrorController.Error));
                 actionResult.RouteValues["statusCode"].Should().Be((int)HttpStatusCode.NotFound);
             }
+        }
+
+        [TestMethod]
+        public async Task Post_BusinessAddressPostcode_WhenExceptionThrow_LogsError()
+        {
+            // Arrange
+            var model = new BusinessAddressPostcodeViewModel
+            {
+                Postcode = "AB12 3CD"
+            };
+            var session = new JourneySession
+            {
+                AccountManagementSession = new AccountManagementSession
+                {
+                    BusinessAddress = new Address { Postcode = "AB12 3CD" }
+                }
+            };
+            SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+
+            FacadeServiceMock.Setup(f => f.GetAddressListByPostcodeAsync(It.IsAny<string>()))
+                .ThrowsAsync(new Exception());
+
+            // Act
+            _ = await SystemUnderTest.BusinessAddressPostcode(model);
+
+            // Assert
+            LoggerMock.Verify(
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains("Failed to retrieve addresses for postcode")),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
     }
 }
