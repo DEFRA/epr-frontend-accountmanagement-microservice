@@ -1617,6 +1617,11 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 BaseAddress = null
             };
 
+            _facadeService = new FacadeService(
+                _httpClient,
+                _tokenAcquisitionMock.Object,
+                _configuration.Object);
+
             var serviceRole = new Core.Models.ServiceRole();
             var expectedResponse = new List<Core.Models.ServiceRole>
             {
