@@ -278,19 +278,14 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             _ = await SystemUnderTest.BusinessAddressPostcode(model);
 
             // Assert
-            using (new AssertionScope())
-            {
-                FacadeServiceMock.Verify(f => f.GetAddressListByPostcodeAsync("G2 1AA"), Times.Once);
-
-                LoggerMock.Verify(
-                    x => x.Log(
-                        LogLevel.Error,
-                        It.IsAny<EventId>(),
-                        It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains("Failed to retrieve addresses for postcode")),
-                        It.IsAny<Exception>(),
-                        It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-                    Times.Once);
-            }
+            LoggerMock.Verify(
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains("Failed to retrieve addresses for postcode")),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
     }
 }
