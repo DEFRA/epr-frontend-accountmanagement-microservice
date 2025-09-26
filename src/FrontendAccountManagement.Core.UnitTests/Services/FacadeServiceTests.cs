@@ -1607,6 +1607,43 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
 
             httpResponse.Dispose();
         }
+
+        [TestMethod]
+        public async Task PrepareAuthenticatedClient_HasDefaultValues_WhenBaseIsNull()
+        {
+            // Arrange
+            _httpClient = new HttpClient(_mockHandler.Object)
+            {
+                BaseAddress = null
+            };
+
+            var serviceRole = new Core.Models.ServiceRole();
+            var expectedResponse = new List<Core.Models.ServiceRole>
+            {
+                serviceRole
+            };
+
+            var httpTestHandler = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(JsonSerializer.Serialize(expectedResponse)),
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpTestHandler);
+
+            // Act
+            _ = await _facadeService.GetAllServiceRolesAsync();
+
+            // Assert
+            Assert.IsNotNull(_httpClient.BaseAddress);
+
+            httpTestHandler.Dispose();
+        }
     }
 
 }

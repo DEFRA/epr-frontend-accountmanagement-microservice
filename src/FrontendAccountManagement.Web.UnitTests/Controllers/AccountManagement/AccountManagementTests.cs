@@ -1337,7 +1337,7 @@ public class AccountManagementTests : AccountManagementTestBase
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect, "Result should be a RedirectToActionResult.");
 
-        const string expectedAction = "UkNation"; // keep as string to avoid compile dependency on method symbol
+        const string expectedAction = "UkNation"; 
         Assert.AreEqual(expectedAction, redirect.ActionName, "Should redirect to the UkNation action.");
     }
 }
