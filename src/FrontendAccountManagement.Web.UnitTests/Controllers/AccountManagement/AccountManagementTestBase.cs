@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using EPR.Common.Authorization.Models;
+using EPR.Common.Authorization.Services.Interfaces;
 using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
-using FrontendAccountManagement.Web.Constants;
 using FrontendAccountManagement.Web.Controllers.AccountManagement;
 using FrontendAccountManagement.Web.Utilities.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -38,6 +38,8 @@ public abstract class AccountManagementTestBase
     protected Mock<IClaimsExtensionsWrapper> ClaimsExtensionsWrapperMock;
     protected Mock<IMapper> AutoMapperMock;
     protected Mock<ITempDataDictionary> TempDataDictionaryMock;
+    protected Mock<IGraphService> GraphServiceMock;
+
     protected AccountManagementController SystemUnderTest;
 
     protected JourneySession JourneySessionMock { get; set; }
@@ -50,6 +52,7 @@ public abstract class AccountManagementTestBase
         ClaimsIdentityMock = new Mock<ClaimsIdentity>();
         SessionManagerMock = new Mock<ISessionManager<JourneySession>>();
         FeatureManagerMock = new Mock<IFeatureManager>();
+        GraphServiceMock = new Mock<IGraphService>();
         UrlsOptionMock = new Mock<IOptions<ExternalUrlsOptions>>();
         DeploymentRoleOptionsMock = new Mock<IOptions<DeploymentRoleOptions>>();
         TempDataDictionary = new TempDataDictionary(this.HttpContextMock.Object, new Mock<ITempDataProvider>().Object);
@@ -83,6 +86,7 @@ public abstract class AccountManagementTestBase
             LoggerMock.Object,
             ClaimsExtensionsWrapperMock.Object,
             FeatureManagerMock.Object,
+            GraphServiceMock.Object,
             AutoMapperMock.Object);
 
         SystemUnderTest.ControllerContext.HttpContext = HttpContextMock.Object;
@@ -108,5 +112,27 @@ public abstract class AccountManagementTestBase
         var hasBackLinkKey = viewResult.ViewData.TryGetValue(BackLinkViewDataKey, out var gotBackLinkObject);
         hasBackLinkKey.Should().BeTrue();
         (gotBackLinkObject as string)?.Should().Be(expectedBackLink);
+    }
+
+    protected AccountManagementController CreateControllerWithSession(JourneySession session, UserData userData)
+    {
+        SessionManagerMock.Setup(sm => sm.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+        var controller = new AccountManagementController(
+            SessionManagerMock.Object,
+            FacadeServiceMock.Object,
+            UrlsOptionMock.Object,
+            DeploymentRoleOptionsMock.Object,
+            LoggerMock.Object,
+            ClaimsExtensionsWrapperMock.Object,
+            FeatureManagerMock.Object,
+            GraphServiceMock.Object,
+            AutoMapperMock.Object
+        );
+        var httpContext = new DefaultHttpContext();
+        httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.UserData, JsonSerializer.Serialize(userData)) }));
+        httpContext.Session = new Mock<ISession>().Object;
+        controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+        controller.TempData = new TempDataDictionary(httpContext, new Mock<ITempDataProvider>().Object);
+        return controller;
     }
 }

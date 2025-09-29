@@ -21,8 +21,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement;
 [TestClass]
 public class BusinessAddressTests : AccountManagementTestBase
 {
-    private UserData _userData;
-    private AccountManagementSession _session = null!;
+    private UserData _userData;    
     private JourneySession _journeySession;
     private Fixture _fixture = new Fixture();
 

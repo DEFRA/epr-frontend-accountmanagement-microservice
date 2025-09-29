@@ -179,6 +179,29 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
         [TestMethod]
+        public async Task Post_UpdateCompanyName_ShouldReturnRedirectUpdateIsFalseAndWhenModelIsValid()
+        {
+            // Arrange
+            var model = new UpdateCompanyNameViewModel { IsUpdateCompanyName = YesNoAnswer.No };
+            var session = new JourneySession
+            {
+                AccountManagementSession = new AccountManagementSession()
+            };
+            SessionManagerMock.Setup(x => x.GetSessionAsync(It.IsAny<ISession>())).ReturnsAsync(session);
+
+            // Act
+            var result = await SystemUnderTest.UpdateCompanyName(model);
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Should().BeOfType<RedirectToActionResult>();
+                var redirectResult = result as RedirectToActionResult;
+                redirectResult.ActionName.Should().Be(nameof(SystemUnderTest.UpdateCompanyAddress));
+            }
+        }
+
+        [TestMethod]
         public async Task Post_UpdateCompanyName_ShouldReturnRedirectWhenModelIsNotValid()
         {
             // Arrange

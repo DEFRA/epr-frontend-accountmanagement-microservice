@@ -28,6 +28,8 @@ public interface IFacadeService
 
     Task<UserAccountDto?> GetUserAccount();
 
+    Task<Guid?> GetUserIdForPerson(Guid personExternalId);
+
     Task<List<int>> GetNationIds(Guid organisationId);
 
     Task<CompaniesHouseResponse> GetCompaniesHouseResponseAsync(string companyHouseNumber);
@@ -40,6 +42,7 @@ public interface IFacadeService
     Task UpdateOrganisationDetails(
         Guid organisationId,
         OrganisationUpdateDto organisation);
+
     /// <summary>
     /// 
     /// </summary>

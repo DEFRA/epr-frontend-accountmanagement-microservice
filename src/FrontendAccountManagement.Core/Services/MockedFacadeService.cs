@@ -96,6 +96,12 @@ public class MockedFacadeService : IFacadeService
         return Task.FromResult(new List<int> { 1, 2 });
     }
 
+    public Task<Guid?> GetUserIdForPerson(Guid personExternalId)
+    {
+        Guid? userId = new Guid("11111111-1111-1111-1111-111111111111");
+        return Task.FromResult(userId);
+    }
+
     public Task<CompaniesHouseResponse> GetCompaniesHouseResponseAsync(string companyHouseNumber)
     {
         var stubResponse = new CompaniesHouseResponse
@@ -138,7 +144,7 @@ public class MockedFacadeService : IFacadeService
         await Task.CompletedTask;
     }
 
-    public async Task UpdateUserDetails(Guid? userId, UpdateUserDetailsRequest userDetailsDto)
+    public static async Task UpdateUserDetails(Guid? userId, UpdateUserDetailsRequest userDetailsDto)
     {
         await Task.CompletedTask;
     }

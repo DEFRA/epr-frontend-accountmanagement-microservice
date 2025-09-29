@@ -42,20 +42,10 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
 
             _httpClient.DefaultRequestHeaders.Add("X-EPR-Organisation", "Test");
 
-            var inMemorySettings = new Dictionary<string, string> {
-                {"TopLevelKey", "TopLevelValue"},
-                {"SectionName:SomeKey", "SectionValue"},
-                {"FacadeAPI:Address", "http://example/" },
-                {"FacadeAPI:GetServiceRolesPath", "roles" },
-                {"FacadeAPI:GetUserAccountPath", "user-accounts" },
-                {"FacadeAPI:DownStreamScope", "https://eprb2cdev.onmicrosoft.com/account-creation-facade/account-creation" }
-            };
-
             _configuration = new Mock<IOptions<FacadeApiConfiguration>>();
-
             _configuration.Setup(c => c.Value).Returns(new FacadeApiConfiguration
             {
-
+                Address = "https://localhost:5000/"
             });
 
             _facadeService = new FacadeService(
@@ -1164,7 +1154,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task GetNationId_WithValidRequest_IsUnsuccessfulReturnsResult()
+        public async Task GetNationId_WithValidRequest_IsSuccessfulReturnsResult()
         {
             // Arrange
             var organisationId = Guid.NewGuid();
@@ -1216,6 +1206,63 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             // Assert
             Assert.IsNotNull(response);
             response.Result.Should().BeEquivalentTo(expectedResponse);
+            httpTestHandler.Dispose();
+        }
+
+
+        [TestMethod]
+        public async Task GetUserIdForPerson_WithValidRequest_IsSuccessfulReturnsResult()
+        {
+            // Arrange
+            var personId = Guid.NewGuid();
+            var expectedUserId = Guid.NewGuid();
+            var apiResponse = $"\"{expectedUserId}\"";
+
+            var httpTestHandler = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(apiResponse)
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpTestHandler);
+
+            // Act
+            var result = await _facadeService.GetUserIdForPerson(personId);
+
+            // Assert
+            Assert.IsNotNull(result);
+            result.Should().Be(expectedUserId);
+            httpTestHandler.Dispose();
+        }
+
+        [TestMethod]
+        public async Task GetUserIdForPerson_WithValidRequest_IsUnsuccessful_ReturnsNull()
+        {
+            // Arrange
+            var personId = Guid.NewGuid();
+            var httpTestHandler = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.NotFound
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpTestHandler);
+
+            // Act
+            var response = _facadeService.GetUserIdForPerson(personId);
+
+            // Assert
+            Assert.IsNotNull(response);
+            response.Result.Should().BeNull();
             httpTestHandler.Dispose();
         }
 
@@ -1327,5 +1374,305 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             // Act & Assert
             await Assert.ThrowsExceptionAsync<HttpRequestException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
         }
+
+        [TestMethod]
+        public async Task GetCompaniesHouseResponseAsync_MalformedContent_ThrowsJsonException()
+        {
+            // Arrange
+            var companyHouseNumber = "12345678";
+            var responseMessage = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent("not a valid json")
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(responseMessage);
+
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<System.Text.Json.JsonException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
+        }
+
+        [TestMethod]
+        public async Task GetCompaniesHouseResponseAsync_UnexpectedStatusCode_ThrowsHttpRequestException()
+        {
+            // Arrange
+            var companyHouseNumber = "12345678";
+            var responseMessage = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.Forbidden
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(responseMessage);
+
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<HttpRequestException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
+        }
+
+        [TestMethod]
+        public async Task GetCompaniesHouseResponseAsync_NullHttpResponse_ThrowsException()
+        {
+            // Arrange
+            var companyHouseNumber = "12345678";
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync((HttpResponseMessage)null);
+
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
+        }
+
+        [TestMethod]
+        public async Task UpdateUserDetailsAsync_Success_ReturnsResponse()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var organisationId = Guid.NewGuid();
+            var serviceKey = "Packaging";
+            var request = new UpdateUserDetailsRequest
+            {
+                FirstName = "A",
+                LastName = "B",
+                JobTitle = "C"
+            };
+            var expected = new UpdateUserDetailsResponse
+            {
+                HasApprovedOrDelegatedUserDetailsSentForApproval = true
+            };
+
+            var httpResponse = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(JsonSerializer.Serialize(expected))
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpResponse);
+
+            // Act
+            var result = await _facadeService.UpdateUserDetailsAsync(userId, organisationId, serviceKey, request);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.HasApprovedOrDelegatedUserDetailsSentForApproval);
+
+            _mockHandler.Protected().Verify(
+                "SendAsync",
+                Times.Once(),
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Put),
+                ItExpr.IsAny<CancellationToken>());
+
+            httpResponse.Dispose();
+        }
+
+        [TestMethod]
+        public async Task UpdateUserDetailsAsync_NonSuccess_ThrowsHttpRequestException()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var organisationId = Guid.NewGuid();
+            var serviceKey = "Packaging";
+            var request = new UpdateUserDetailsRequest();
+
+            var httpResponse = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.BadRequest
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpResponse);
+
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<HttpRequestException>(() =>
+                _facadeService.UpdateUserDetailsAsync(userId, organisationId, serviceKey, request));
+
+            httpResponse.Dispose();
+        }
+
+        [TestMethod]
+        public async Task GetUsersForOrganisationAsync_Success_ReturnsUsers()
+        {
+            // Arrange
+            var organisationId = Guid.NewGuid().ToString();
+            var serviceRoleId = 2;
+
+            var expectedResponse = new List<ManageUserModel>
+            {
+                new ManageUserModel { FirstName = "Alice", LastName = "Doe", ServiceRoleId = 2, PersonRoleId = 1 },
+                new ManageUserModel { FirstName = "Bob", LastName = "Smith", ServiceRoleId = 3, PersonRoleId = 2 }
+            };
+
+            var httpResponse = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(JsonSerializer.Serialize(expectedResponse))
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpResponse);
+
+            // Act
+            var result = await _facadeService.GetUsersForOrganisationAsync(organisationId, serviceRoleId);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2, result.Count());
+            Assert.AreEqual("Alice", result.First().FirstName);
+
+            _mockHandler.Protected().Verify(
+                "SendAsync",
+                Times.Once(),
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get),
+                ItExpr.IsAny<CancellationToken>());
+
+            httpResponse.Dispose();
+        }
+
+        [TestMethod]
+        public async Task GetAddressListByPostcodeAsync_Success_MapsAddressList()
+        {
+            // Arrange
+            var postcode = "TT1 1TT";
+            var addressResponse = new FrontendAccountManagement.Core.Services.Dto.Address.AddressLookupResponse
+            {
+                Results = new[]
+                {
+                    new FrontendAccountManagement.Core.Services.Dto.Address.AddressLookupResponseResult
+                    {
+                        Address = new FrontendAccountManagement.Core.Services.Dto.Address.AddressLookupResponseAddress
+                        {
+                            AddressLine = "1 Test Street",
+                            BuildingNumber = "1",
+                            Street = "Test Street",
+                            Town = "Test Town",
+                            County = "Test County",
+                            Postcode = postcode
+                        }
+                    }
+                },
+                Header = new FrontendAccountManagement.Core.Services.Dto.Address.AddressLookupResponseHeader()
+            };
+
+            var httpResponse = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(JsonSerializer.Serialize(addressResponse))
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpResponse);
+
+            // Act
+            var result = await _facadeService.GetAddressListByPostcodeAsync(postcode);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result.Addresses);
+            Assert.AreEqual(1, result.Addresses.Count);
+            Assert.AreEqual("1 Test Street", result.Addresses[0].AddressSingleLine);
+            Assert.AreEqual(postcode, result.Addresses[0].Postcode);
+
+            _mockHandler.Protected().Verify(
+                "SendAsync",
+                Times.Once(),
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get),
+                ItExpr.IsAny<CancellationToken>());
+
+            httpResponse.Dispose();
+        }
+
+        [TestMethod]
+        public async Task GetAddressListByPostcodeAsync_NotFound_ReturnsNull()
+        {
+            // Arrange
+            var postcode = "TT1 1TT";
+            var httpResponse = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.NotFound
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpResponse);
+
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<HttpRequestException>(() => _facadeService.GetAddressListByPostcodeAsync(postcode));
+
+            httpResponse.Dispose();
+        }
+
+        [TestMethod]
+        public async Task PrepareAuthenticatedClient_HasDefaultValues_WhenBaseIsNull()
+        {
+            // Arrange
+            _httpClient = new HttpClient(_mockHandler.Object)
+            {
+                BaseAddress = null
+            };
+
+            _facadeService = new FacadeService(
+                _httpClient,
+                _tokenAcquisitionMock.Object,
+                _configuration.Object);
+
+            var serviceRole = new Core.Models.ServiceRole();
+            var expectedResponse = new List<Core.Models.ServiceRole>
+            {
+                serviceRole
+            };
+
+            var httpTestHandler = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(JsonSerializer.Serialize(expectedResponse)),
+            };
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpTestHandler);
+
+            // Act
+            _ = await _facadeService.GetAllServiceRolesAsync();
+
+            // Assert
+            Assert.IsNotNull(_httpClient.BaseAddress);
+
+            httpTestHandler.Dispose();
+        }
     }
+
 }

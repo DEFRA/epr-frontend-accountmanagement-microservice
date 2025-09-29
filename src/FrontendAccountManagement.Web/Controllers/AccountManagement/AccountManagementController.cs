@@ -1,11 +1,8 @@
-using System;
-using System.IO;
-using System.Net;
-using System.Text.Json;
 using AutoMapper;
 using EPR.Common.Authorization.Constants;
 using EPR.Common.Authorization.Extensions;
 using EPR.Common.Authorization.Models;
+using EPR.Common.Authorization.Services.Interfaces;
 using EPR.Common.Authorization.Sessions;
 using FrontendAccountManagement.Core.Addresses;
 using FrontendAccountManagement.Core.Enums;
@@ -14,7 +11,6 @@ using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Extensions;
 using FrontendAccountManagement.Core.Models;
 using FrontendAccountManagement.Core.Services;
-using FrontendAccountManagement.Core.Services.Dto.CompaniesHouse;
 using FrontendAccountManagement.Core.Sessions;
 using FrontendAccountManagement.Web.Configs;
 using FrontendAccountManagement.Web.Constants;
@@ -26,13 +22,14 @@ using FrontendAccountManagement.Web.ViewModels;
 using FrontendAccountManagement.Web.ViewModels.AccountManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
-using Microsoft.FeatureManagement.Mvc;
 using Microsoft.Identity.Web;
+using System;
+using System.Net;
+using System.Text.Json;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 using ServiceRole = FrontendAccountManagement.Core.Enums.ServiceRole;
 
@@ -44,7 +41,7 @@ public class AccountManagementController : Controller
     private const string RolesNotFoundException = "Could not retrieve service roles or none found";
     private const string CheckYourOrganisationDetailsKey = "CheckYourOrganisationDetails";
     private const string OrganisationDetailsUpdatedTimeKey = "OrganisationDetailsUpdatedTime";
-    private const string AmendedUserDetailsKey = "AmendedUserDetails";
+    public const string AmendedUserDetailsKey = "AmendedUserDetails";
     private const string NewUserDetailsKey = "NewUserDetails";
     private const string ServiceKey = "Packaging";
     private const string PostcodeLookupFailedKey = "PostcodeLookupFailed";
@@ -56,6 +53,7 @@ public class AccountManagementController : Controller
     private readonly IClaimsExtensionsWrapper _claimsExtensionsWrapper;
     private readonly IMapper _mapper;
     private readonly IFeatureManager _featureManager;
+    private readonly IGraphService _graphService;
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "Its Allowed for now in this case")]
     public AccountManagementController(
@@ -66,6 +64,7 @@ public class AccountManagementController : Controller
         ILogger<AccountManagementController> logger,
         IClaimsExtensionsWrapper claimsExtensionsWrapper,
         IFeatureManager featureManager,
+        IGraphService graphService,
         IMapper mapper)
     {
         _sessionManager = sessionManager;
@@ -75,6 +74,7 @@ public class AccountManagementController : Controller
         _deploymentRoleOptions = deploymentRoleOptions.Value;
         _claimsExtensionsWrapper = claimsExtensionsWrapper;
         _featureManager = featureManager;
+        _graphService = graphService;
         _mapper = mapper;
     }
 
@@ -87,6 +87,10 @@ public class AccountManagementController : Controller
         session ??= new JourneySession();
 
         var userAccount = User.GetUserData();
+        if (userAccount is null)
+        {
+            _logger.LogInformation("User authenticated but account could not be found");
+        }
 
         if (!HasPermissionToView(userAccount))
         {
@@ -118,11 +122,7 @@ public class AccountManagementController : Controller
 
         model.PersonUpdated = TempData["PersonUpdated"] == null ? null : TempData["PersonUpdated"].ToString();
 
-        if (userAccount is null)
-        {
-            _logger.LogInformation("User authenticated but account could not be found");
-        }
-        else
+        if (userAccount != null)
         {
             var userOrg = userAccount.Organisations.FirstOrDefault();
             
@@ -313,8 +313,9 @@ public class AccountManagementController : Controller
             SetBackLink(session, PagePath.TeamMemberPermissions);
             var serviceRoles = await _facadeService.GetAllServiceRolesAsync();
             // temporarily set this to basic users only until next theme
+            var basicRoleId = (int)ServiceRole.Basic;
             model.ServiceRoles = serviceRoles
-                .Where(x => x.ServiceRoleId == 3)
+                .Where(x => x.ServiceRoleId == basicRoleId)
                 .OrderByDescending(x => x.Key).ToList();
 
             return View(nameof(TeamMemberPermissions), model);
@@ -447,9 +448,17 @@ public class AccountManagementController : Controller
             return RedirectToAction(nameof(ManageAccount));
         }
         var organisationId = organisation!.Id.ToString();
+        var organisationNumber = organisation!.OrganisationNumber;
         var serviceRoleId = userData.ServiceRoleId;
+
         var result = await _facadeService.RemoveUserForOrganisation(personExternalId, organisationId, serviceRoleId);
         session.AccountManagementSession.RemoveUserStatus = result;
+
+        if (result != EndpointResponseStatus.Fail &&
+            (await _featureManager.IsEnabledAsync(FeatureFlags.UseGraphApiForExtendedUserClaims)))
+        {
+            await RemoveUserClaim(model.PersonId, organisationNumber);
+        }
 
         return await SaveSessionAndRedirect(session, nameof(ManageAccount), PagePath.RemoveTeamMember, PagePath.ManageAccount);
     }
@@ -513,7 +522,6 @@ public class AccountManagementController : Controller
 
         return View(nameof(Declaration), editUserDetailsViewModel);
     }
-
 
     [HttpPost]
     [Route(PagePath.Declaration, Name = "Declaration")]
@@ -1384,7 +1392,7 @@ public class AccountManagementController : Controller
 
         var viewModel = new SelectBusinessAddressViewModel()
         {
-            Postcode = session?.AccountManagementSession?.BusinessAddress?.Postcode,
+            Postcode = session.AccountManagementSession?.BusinessAddress?.Postcode,
         };
 
         SetBackLink(session, PagePath.SelectBusinessAddress, LocalizerName.BusinessAddressBackAriaLabel);
@@ -1414,7 +1422,7 @@ public class AccountManagementController : Controller
         catch (Exception exception)
         {
             _logger.LogError(exception, "Failed to retrieve addresses for postcode: {Postcode}",
-                             session?.AccountManagementSession?.BusinessAddress?.Postcode);
+                             session.AccountManagementSession?.BusinessAddress?.Postcode);
             addressLookupFailed = true;
         }
 
@@ -1479,7 +1487,7 @@ public class AccountManagementController : Controller
             catch (Exception exception)
             {
                 _logger.LogError(exception, "Failed to retrieve addresses for postcode: {BusinessAddressPostcode}",
-                                 session?.AccountManagementSession?.BusinessAddress?.Postcode);
+                                 session.AccountManagementSession?.BusinessAddress?.Postcode);
                 addressLookupFailed = true;
             }
 
@@ -1577,7 +1585,7 @@ public class AccountManagementController : Controller
         }
 
         var session = await _sessionManager.GetSessionAsync(HttpContext.Session);
-        if (session?.AccountManagementSession == null || !session.AccountManagementSession.Journey.Any())
+        if (session?.AccountManagementSession == null || session.AccountManagementSession.Journey.Count == 0)
         {
             return RedirectToAction(PagePath.Error, nameof(ErrorController.Error), new
             {
@@ -1886,10 +1894,10 @@ public class AccountManagementController : Controller
     }
 
     private static bool IsRegulatorAdmin(UserData userData) =>
-        userData.ServiceRoleId == (int)Core.Enums.ServiceRole.RegulatorAdmin;
+        userData?.ServiceRoleId == (int)Core.Enums.ServiceRole.RegulatorAdmin;
 
     private static bool IsRegulatorBasic(UserData userData) =>
-        userData.ServiceRoleId == (int)Core.Enums.ServiceRole.RegulatorBasic;
+        userData?.ServiceRoleId == (int)Core.Enums.ServiceRole.RegulatorBasic;
 
     private static bool IsRegulatorUser(UserData userData) =>
         IsRegulatorAdmin(userData) || IsRegulatorBasic(userData);
@@ -1917,7 +1925,7 @@ public class AccountManagementController : Controller
 
     private static bool SetUpdatableValue(bool isUpdatable, string serviceRole, string roleInOrganisation, EditUserDetailsViewModel model)
     {
-        if (serviceRole.ToLower() == ServiceRoles.BasicUser.ToLower()
+        if (serviceRole.Equals(ServiceRoles.BasicUser, StringComparison.CurrentCultureIgnoreCase)
            && (roleInOrganisation == RoleInOrganisation.Admin || roleInOrganisation == RoleInOrganisation.Employee))
         {
             isUpdatable = true;
@@ -1965,5 +1973,29 @@ public class AccountManagementController : Controller
 
         return roleInOrganisation == PersonRole.Admin.ToString() &&
             serviceRoleId == (int)ServiceRole.Basic;
+    }
+
+    private async Task RemoveUserClaim(Guid personId, string organisationId)
+    {
+        var userExternalId = await _facadeService.GetUserIdForPerson(personId);
+
+        if (userExternalId is not null)
+        {
+            var queryResult = await _graphService.QueryUserProperty(userExternalId.Value, ExtensionClaims.OrganisationIdsExtensionClaimName);
+
+            if (!string.IsNullOrEmpty(queryResult))
+            {
+                var orgIds = queryResult.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+
+                orgIds.RemoveAll(x => x == organisationId);
+
+                var updatedOrgIds = orgIds.Count > 0 ? string.Join(",", orgIds) : null;
+                if (updatedOrgIds != queryResult)
+                {
+                    await _graphService.PatchUserProperty(userExternalId.Value, ExtensionClaims.OrganisationIdsExtensionClaimName, updatedOrgIds);
+                    _logger.LogInformation("Removed organisation id {OrganisationId} from user {UserId} extensions. New value: {UpdatedValue}", organisationId, userExternalId.Value, updatedOrgIds);
+                }
+            }
+        }
     }
 }

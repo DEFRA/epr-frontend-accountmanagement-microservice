@@ -30,6 +30,7 @@ public class FacadeService : IFacadeService
     private readonly string _putUserDetailsByUserIdPath;
     private readonly string _putUpdateOrganisationPath;
     private readonly string[] _scopes;
+    private readonly JsonSerializerOptions _jsonSerializerOptions;
 
     public FacadeService(
         HttpClient httpClient,
@@ -51,6 +52,8 @@ public class FacadeService : IFacadeService
         {
             config.DownStreamScope,
         };
+        _jsonSerializerOptions = new JsonSerializerOptions();
+        _jsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     }
 
     public async Task<UserAccountDto?> GetUserAccount()
@@ -186,14 +189,14 @@ public class FacadeService : IFacadeService
 
         var updatePersonRoleRequest = new UpdatePersonRoleRequest { PersonRole = personRole };
 
-        var jsonSerializerOptions = new JsonSerializerOptions();
-        jsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        
+        
 
         var uri = new Uri($"{_baseAddress}connections/{connectionId}/roles?personRole={personRole}&serviceKey={serviceKey}");
 
         var request = new HttpRequestMessage(HttpMethod.Put, uri)
         {
-            Content = new StringContent(JsonSerializer.Serialize(updatePersonRoleRequest, jsonSerializerOptions), Encoding.UTF8, "application/json"),
+            Content = new StringContent(JsonSerializer.Serialize(updatePersonRoleRequest, _jsonSerializerOptions), Encoding.UTF8, "application/json"),
         };
 
         request.Headers.Add("X-EPR-Organisation", organisationId.ToString());
@@ -207,14 +210,11 @@ public class FacadeService : IFacadeService
     {
         await PrepareAuthenticatedClient();
 
-        var jsonSerializerOptions = new JsonSerializerOptions();
-        jsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-
         var uri = new Uri($"{_baseAddress}connections/{connectionId}/delegated-person-nomination?serviceKey={serviceKey}");
 
         var request = new HttpRequestMessage(HttpMethod.Put, uri)
         {
-            Content = new StringContent(JsonSerializer.Serialize(nominationRequest, jsonSerializerOptions), Encoding.UTF8, "application/json"),
+            Content = new StringContent(JsonSerializer.Serialize(nominationRequest, _jsonSerializerOptions), Encoding.UTF8, "application/json"),
         };
 
         request.Headers.Add("X-EPR-Organisation", organisationId.ToString());
@@ -256,6 +256,15 @@ public class FacadeService : IFacadeService
         var response = await _httpClient.GetAsync($"organisations/organisation-nation?organisationId={organisationId}");
 
         return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<List<int>>() : new List<int> { 0 };
+    }
+
+    public async Task<Guid?> GetUserIdForPerson(Guid personExternalId)
+    {
+        await PrepareAuthenticatedClient();
+
+        var response = await _httpClient.GetAsync($"user-accounts/user-by-person-id?personId={personExternalId}");
+
+        return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<Guid?>() : null;
     }
 
     public async Task<CompaniesHouseResponse> GetCompaniesHouseResponseAsync(string companyHouseNumber)
