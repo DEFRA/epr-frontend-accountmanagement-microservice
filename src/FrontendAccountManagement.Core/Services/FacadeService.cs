@@ -62,7 +62,7 @@ public class FacadeService : IFacadeService
 
         var response = await _httpClient.GetAsync(_getUserAccountPath);
 
-        if (response.StatusCode == HttpStatusCode.NotFound)
+        if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.NoContent)
         {
             return null;
         }
@@ -98,7 +98,7 @@ public class FacadeService : IFacadeService
             return EndpointResponseStatus.Success;
         }
 
-        if (response.StatusCode == HttpStatusCode.BadRequest)
+        if (response.StatusCode == HttpStatusCode.BadRequest || response.StatusCode == HttpStatusCode.NoContent)
         {
             return EndpointResponseStatus.UserExists;
         }
