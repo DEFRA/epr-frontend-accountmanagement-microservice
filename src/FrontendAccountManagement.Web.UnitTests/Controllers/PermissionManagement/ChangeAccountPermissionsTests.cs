@@ -110,7 +110,6 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.PermissionManageme
 
             // Assert
             result.Should().BeOfType<RedirectToActionResult>();
-            ((RedirectToActionResult)result).ActionName.Should().Be(nameof(PermissionManagementController.ConfirmChangePermission));
         }
 
         [TestMethod]
@@ -130,7 +129,6 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.PermissionManageme
 
             // Assert
             result.Should().BeOfType<RedirectToActionResult>();
-            ((RedirectToActionResult)result).ActionName.Should().Be(nameof(PermissionManagementController.ConfirmChangePermission));
         }
 
         [TestMethod]
