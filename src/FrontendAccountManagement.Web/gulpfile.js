@@ -47,7 +47,7 @@ gulp.task('copy-custom-javascript', () => {
 });
 
 gulp.task('copy-custom-images', () => {
-    return gulp.src('assets/images/*', {encoding:false})
+    return gulp.src('assets/images/*')
         .pipe(gulp.dest('wwwroot/images', { overwrite: true }));
 });
 
