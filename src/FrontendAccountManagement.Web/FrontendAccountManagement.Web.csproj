@@ -20,6 +20,10 @@
   <Target Name="NpmRunBuildFrontend" DependsOnTargets="NpmInstall" BeforeTargets="BeforeBuild">
     <Exec Command="npm run build-frontend" />
   </Target>
+
+    <ItemGroup>
+      <Folder Include="assets\js" />
+    </ItemGroup>
   
     <ItemGroup>
       <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.23.0" />
