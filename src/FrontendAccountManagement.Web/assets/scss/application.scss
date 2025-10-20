@@ -1,13 +1,9 @@
 $govuk-assets-path: '/manage-account/';
-@import 'index';
+@import '../../node_modules/govuk-frontend/govuk/all';
 
 // Components
 @import './components/language_toggle';
 @import './components/ordered_list';
-
-.govuk-tag {
-    max-width: inherit !important;
-}
 
 .govuk-notification-banner__heading {
     word-wrap: break-word;
