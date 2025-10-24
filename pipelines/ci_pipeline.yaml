@@ -6,6 +6,16 @@ trigger:
     include:
       - 'src/*'
 
+parameters:
+
+  - name: sonarqubeInstance
+    displayName: 'Select SonarQube version'
+    type: string
+    default: 'SonarQube'
+    values:
+    - 'SonarQube'
+    # - 'SonarQubeLatest'
+
 pool: DEFRA-COMMON-ubuntu2004-SSV3
 
 variables:
@@ -27,27 +37,26 @@ variables:
   - name: dotnetVersion
     value: dotnetVersion8
 
+  - name: additionalDeployments
+    value: true
+    # this parameter will trigger the build pipeline to do a second deployment for regulators apps
+
 resources:
   repositories:
     - repository: CommonTemplates
       name: RWD-CPR-EPR4P-ADO/epr-webapps-code-deploy-templates
       type: git
-      ref: feature/automation-testing-facade
-    
-    - repository: AutomationTesting
-      name: RWD-CPR-EPR4P-ADO/epr-playwright-bdd
-      type: git
-      ref: develop-template-fix
+      ref: main
 
-stages:
-- template: epr-build-pipeline.yaml@CommonTemplates
+extends:
+  template: epr-build-pipeline.yaml@CommonTemplates
   parameters:
     solutionFolder: ${{ variables.solutionFolder }}
     projectFolder: ${{ variables.projectFolder }}
     testProjectFolder: ${{ variables.testProjectFolder }}
     sonarQubeProjectKey: ${{ variables.sonarQubeProjectKey }}
     sonarQubeProjectName: ${{ variables.sonarQubeProjectName }}
-    runTests: ${{variables.runTests}}
+    runTests: ${{ variables.runTests }}
     azureSubscription: $(azureSubscription)
     acrAzureContainerRegistryName: $(acr.azureContainerRegistryName)
     acrRepositoryName: $(acr.repositoryName)
@@ -55,5 +64,7 @@ stages:
     runNugetTasks: ${{ variables.runNugetTasks }}
     serviceName: $(serviceName)
     dotnetVersion: ${{ variables.dotnetVersion }}
+    sonarqubeInstance: ${{ parameters.sonarqubeInstance }}
+    additionalDeployments: ${{ variables.additionalDeployments }}
+    RegulatorsServiceName: 'devrwdwebwa4412'
 
-- template: templates/stage-deploy-template.yaml
