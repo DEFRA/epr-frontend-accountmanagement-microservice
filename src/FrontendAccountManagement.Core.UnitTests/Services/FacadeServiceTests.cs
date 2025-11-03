@@ -1098,10 +1098,10 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 .ReturnsAsync(httpTestHandler);
 
             // Act
-            _facadeService.UpdatePersonRoleAdminOrEmployee(connectionId, personRole, organisationId, serviceKey);
+            var result = _facadeService.UpdatePersonRoleAdminOrEmployee(connectionId, personRole, organisationId, serviceKey);
 
             // Assert
-            Assert.IsNotNull(value: connectionId);
+            Assert.IsTrue(result.IsCompleted);
             httpTestHandler.Dispose();
         }
 
@@ -1130,10 +1130,10 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 .ReturnsAsync(httpTestHandler);
 
             // Act
-            _facadeService.NominateToDelegatedPerson(connectionId, organisationId, serviceKey, delegated);
+            var result = _facadeService.NominateToDelegatedPerson(connectionId, organisationId, serviceKey, delegated);
 
             // Assert
-            Assert.IsNotNull(value: connectionId);
+            Assert.IsTrue(result.IsCompleted);
             httpTestHandler.Dispose();
         }
 
