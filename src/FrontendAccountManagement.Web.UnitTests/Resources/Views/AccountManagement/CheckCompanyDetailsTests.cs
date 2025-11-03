@@ -22,7 +22,7 @@ public class CheckCompanyDetailsTests
     /// Test if a resource key exists in the default resource file.
     /// </summary>
     /// <param name="resourceKey">The resource key</param>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("CheckYourDetails")]
     [DataRow("Name")]
     [DataRow("Address")]

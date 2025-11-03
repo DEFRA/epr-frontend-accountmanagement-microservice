@@ -121,8 +121,8 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             Assert.IsInstanceOfType(result, typeof(ViewResult));
             var viewResult = (ViewResult)result;
             var viewModelResult = (EditUserDetailsViewModel)viewResult.Model;
-            Assert.IsNull(viewModelResult.FirstName);
-            Assert.IsNull(viewModelResult.LastName);
+            Assert.AreEqual(null, viewModelResult.FirstName);
+            Assert.AreEqual(null, viewModelResult.LastName);
             LoggerMock.Verify(
                 x => x.Log(
                     LogLevel.Information,
@@ -320,7 +320,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             // Assert
             result.Should().BeOfType<InvalidOperationException>();
-            Assert.IsTrue(result.Message == "Unknown role in organisation.");
+            Assert.AreEqual("Unknown role in organisation.", result.Message);
             SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
         }
 
@@ -351,7 +351,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             // Assert
             result.Should().BeOfType<InvalidOperationException>();
-            Assert.IsTrue(result.Message == "Unknown role in organisation.");
+            Assert.AreEqual("Unknown role in organisation.", result.Message);
             SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
         }
 

@@ -94,7 +94,7 @@ public class RelationshipWithOrganisationTests : PermissionManagementTestBase
         var result = await _systemUnderTest.RelationshipWithOrganisation(request, id) as ViewResult;
 
         // Assert
-        Assert.AreEqual(expected: false, actual: result.ViewData.ModelState.IsValid);
+        Assert.IsFalse(result.ViewData.ModelState.IsValid);
     }
        
     [TestMethod]
@@ -128,7 +128,7 @@ public class RelationshipWithOrganisationTests : PermissionManagementTestBase
         var result = await _systemUnderTest.RelationshipWithOrganisation(request, id) as ViewResult;
 
         // Assert
-        Assert.AreEqual(expected: false, actual: result.ViewData.ModelState.IsValid);
+        Assert.IsFalse(result.ViewData.ModelState.IsValid);
     }
     
     [TestMethod]
@@ -163,7 +163,7 @@ public class RelationshipWithOrganisationTests : PermissionManagementTestBase
         var result = await _systemUnderTest.RelationshipWithOrganisation(request, id) as ViewResult;
 
         // Assert
-        Assert.AreEqual(expected: false, actual: result.ViewData.ModelState.IsValid);
+        Assert.IsFalse(result.ViewData.ModelState.IsValid);
     }
 
     [TestMethod]
@@ -231,7 +231,7 @@ public class RelationshipWithOrganisationTests : PermissionManagementTestBase
 
         // Assert
         result.Should().BeOfType<ViewResult>();
-        Assert.AreEqual(expected: true, actual: result.ViewData.ModelState.IsValid);
+        Assert.IsTrue(result.ViewData.ModelState.IsValid);
         var model = (JobTitleViewModel)result.Model;
         Assert.AreEqual(expected: id, actual: model.Id);
     }

@@ -864,7 +864,7 @@ public class AccountManagementTests : AccountManagementTestBase
 
         // Assert
         result.Should().BeOfType<InvalidOperationException>();
-        Assert.IsTrue(result.Message == "Unknown service role.");
+        Assert.AreEqual("Unknown service role.", result.Message);
         SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Never);
     }
 
@@ -895,7 +895,7 @@ public class AccountManagementTests : AccountManagementTestBase
 
         // Assert
         result.Should().BeOfType<InvalidOperationException>();
-        Assert.IsTrue(result.Message == "Unknown role in organisation.");
+        Assert.AreEqual("Unknown role in organisation.", result.Message);
         SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Never);
     }
 
@@ -926,7 +926,7 @@ public class AccountManagementTests : AccountManagementTestBase
 
         // Assert
         result.Should().BeOfType<InvalidOperationException>();
-        Assert.IsTrue(result.Message == "Unknown role in organisation.");
+        Assert.AreEqual("Unknown role in organisation.", result.Message);
         SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Never);
     }
 
@@ -1132,7 +1132,6 @@ public class AccountManagementTests : AccountManagementTestBase
     }
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
     public async Task CheckData_ThrowsInvalidOperationException_WhenThereIsNoOrganisationData()
     {
         // Arrange
@@ -1146,8 +1145,8 @@ public class AccountManagementTests : AccountManagementTestBase
 
         SetupBase(mockUserData);
 
-        // Act
-        await SystemUnderTest.CheckData();
+        // Act & Assert
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => SystemUnderTest.CheckData());
 
         FacadeServiceMock.Verify(f => f.GetCompaniesHouseResponseAsync(It.IsAny<string>()), Times.Never);
     }

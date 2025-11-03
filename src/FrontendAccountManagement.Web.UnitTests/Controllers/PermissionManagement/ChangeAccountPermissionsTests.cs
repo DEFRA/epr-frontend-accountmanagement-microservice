@@ -29,8 +29,6 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.PermissionManageme
         [DataRow(PermissionType.Basic)]
         [DataRow(PermissionType.Admin)]
         [DataRow(PermissionType.Delegated)]
-        [DataRow(PermissionType.Basic)]
-        [DataRow(PermissionType.Admin)]
         public async Task ChangeAccountPermissions_PermissionDoesNotChange_RedirectsToManageAccount(PermissionType permissionType)
         {
             // Arrange

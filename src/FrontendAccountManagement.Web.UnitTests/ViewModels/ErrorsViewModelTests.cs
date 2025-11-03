@@ -23,7 +23,7 @@ namespace FrontendAccountManagement.Web.UnitTests.ViewModels
                 localizerMock.Object,
                 KeyTwo, KeyOne);
             localizerMock.Verify(x => x[It.IsAny<string>()], Times.Exactly(2));
-            Assert.AreEqual(2, errorsViewModel.Errors.Count);
+            Assert.HasCount(2, errorsViewModel.Errors);
             Assert.AreEqual(KeyTwo, errorsViewModel.Errors[0].Key);
             Assert.AreEqual(KeyOne, errorsViewModel.Errors[1].Key);
             foreach (var error in errorsViewModel.Errors.SelectMany(e => e.Errors))

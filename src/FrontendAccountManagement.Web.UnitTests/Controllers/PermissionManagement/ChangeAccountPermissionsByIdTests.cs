@@ -57,8 +57,6 @@ public class ChangeAccountPermissionsByIdTests
     [DataRow(PermissionType.Basic)]
     [DataRow(PermissionType.Admin)]
     [DataRow(PermissionType.Delegated)]
-    [DataRow(PermissionType.Basic)]
-    [DataRow(PermissionType.Admin)]
     [DataRow(PermissionType.Approved)]
     [DataRow(null)]
     [TestMethod]
