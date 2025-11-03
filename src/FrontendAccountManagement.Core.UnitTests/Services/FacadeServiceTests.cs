@@ -183,10 +183,9 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
 
             // Assert
             Assert.IsNotNull(response);
-            Assert.IsTrue(response == EndpointResponseStatus.Success);
+            Assert.AreEqual(EndpointResponseStatus.Success, response);
 
             httpTestHandler.Dispose();
-
         }
 
         [TestMethod]
@@ -217,7 +216,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 .ReturnsAsync(httpTestHandler);
 
             // Act
-            Assert.ThrowsExceptionAsync<Exception>(async () => await _facadeService.SendUserInvite(inviteRequest));
+            Assert.ThrowsExactlyAsync<Exception>(async () => await _facadeService.SendUserInvite(inviteRequest));
 
             httpTestHandler.Dispose();
         }

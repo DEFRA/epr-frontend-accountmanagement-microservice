@@ -52,7 +52,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Addresses
 
             // Assert
             Assert.IsNotNull(addressList.Addresses);
-            Assert.AreEqual(1, addressList.Addresses.Count);
+            Assert.HasCount(1, addressList.Addresses);
             var address = addressList.Addresses.First();
             Assert.AreEqual("1 Test Street", address.AddressSingleLine);
             Assert.AreEqual("Flat 2", address.SubBuildingName);
@@ -68,11 +68,11 @@ namespace FrontendAccountManagement.Core.UnitTests.Addresses
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void Constructor_WithNullAddressLookupResponse_ThrowsArgumentException()
         {
-            // Act
-            var addressList = new AddressList(null);
+            // Act & Assert
+            Assert.ThrowsExactly<ArgumentException>(
+                () => new AddressList(null));
         }
     }
 }
