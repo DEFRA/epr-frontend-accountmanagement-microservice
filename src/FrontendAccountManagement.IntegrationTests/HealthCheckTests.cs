@@ -12,8 +12,8 @@ public class HealthCheckTests : TestBase
         const string url = "/admin/health";
 
         // Act
-        var response = await this._httpClient.GetAsync(url);
-        var content = await response.Content.ReadAsStringAsync();
+        var response = await this._httpClient.GetAsync(url, CancellationToken.None);
+        var content = await response.Content.ReadAsStringAsync(CancellationToken.None);
 
         // Assert
         response.Should().BeSuccessful();

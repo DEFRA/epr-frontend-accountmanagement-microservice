@@ -37,9 +37,9 @@ namespace FrontendAccountManagement.Core.UnitTests.Services.Dto.Address
             var result = new AddressLookupResponseResult();
 
             // Assert
-            if (result.Address == null)
+            if (result?.Address == null)
             {
-                Assert.Fail("Address property should be null by default.");
+                Assert.ThrowsExactly<AssertFailedException>(() => Assert.Fail("Address property should be null by default."));
             }
         }
     }
