@@ -182,7 +182,6 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             var response = await _facadeService.SendUserInvite(inviteRequest);
 
             // Assert
-            Assert.IsNotNull(response);
             Assert.AreEqual(EndpointResponseStatus.Success, response);
 
             httpTestHandler.Dispose();
@@ -254,7 +253,6 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             var response = await _facadeService.SendUserInvite(inviteRequest);
 
             // Assert
-            Assert.IsNotNull(response);
             Assert.AreEqual(EndpointResponseStatus.UserExists, response);
 
             httpTestHandler.Dispose();
@@ -1043,7 +1041,6 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             var response = await _facadeService.RemoveUserForOrganisation(organisationId, userId, serviceRoleId);
 
             // Assert
-            Assert.IsNotNull(response);
             Assert.AreEqual(expected: EndpointResponseStatus.Success, response);
             httpTestHandler.Dispose();
         }
