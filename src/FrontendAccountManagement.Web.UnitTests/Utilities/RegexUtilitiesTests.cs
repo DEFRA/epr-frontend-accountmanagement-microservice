@@ -29,14 +29,11 @@ namespace FrontendAccountManagement.Web.UnitTests.Utilities
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public async Task GivenOnAnyPage_WhenIsValidEmailIsCalledWithaNullEmail_ThenFalseIsReturned()
         {
-            // Act
-            var result = RegexUtilities.IsValidEmail(nullEmail);
-
-            // Assert
-            result.Should().BeFalse();
+            // Act & Assert
+            Assert.ThrowsExactly<ArgumentNullException>(
+                () => RegexUtilities.IsValidEmail(nullEmail));
         }
 
         [TestMethod]

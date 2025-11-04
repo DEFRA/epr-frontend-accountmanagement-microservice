@@ -29,7 +29,6 @@ public class CookieServiceTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void SetCookieAcceptance_LogsError_WhenArgumentNullExceptionThrow()
     {
         // Arrange
@@ -38,10 +37,11 @@ public class CookieServiceTests
         HttpContext context = new DefaultHttpContext();
         MockService();
 
-        // Act
-        _systemUnderTest.SetCookieAcceptance(true, requestCookieCollection, context.Response.Cookies);
+        // Act & Assert
+        var ex = Assert.ThrowsExactly<ArgumentNullException>(
+            () => _systemUnderTest.SetCookieAcceptance(true, requestCookieCollection, context.Response.Cookies));
 
-        // Assert
+        // Verify logging occurred
         _loggerMock.VerifyLog(logger => logger.LogError(expectedLog), Times.Once);
     }
 
@@ -94,7 +94,6 @@ public class CookieServiceTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void HasUserAcceptedCookies_LogsError_WhenArgumentNullExceptionThrow()
     {
         // Arrange
@@ -102,10 +101,11 @@ public class CookieServiceTests
         var requestCookieCollection = MockRequestCookieCollection("test", "test");
         MockService();
 
-        // Act
-        _systemUnderTest.HasUserAcceptedCookies(requestCookieCollection);
+        // Act & Assert
+        var ex = Assert.ThrowsExactly<ArgumentNullException>(
+            () => _systemUnderTest.HasUserAcceptedCookies(requestCookieCollection));
 
-        // Assert
+        // Verify the error was logged
         _loggerMock.VerifyLog(logger => logger.LogError(expectedLog), Times.Once);
     }
 

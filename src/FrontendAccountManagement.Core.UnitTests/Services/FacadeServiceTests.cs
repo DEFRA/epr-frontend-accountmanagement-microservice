@@ -1,21 +1,21 @@
-using FrontendAccountManagement.Core.Constants;
-using System.Collections.ObjectModel;
-using System.Net;
-using System.Text;
-using System.Text.Json;
 using EPR.Common.Authorization.Models;
 using FluentAssertions;
+using FrontendAccountManagement.Core.Configuration;
+using FrontendAccountManagement.Core.Constants;
 using FrontendAccountManagement.Core.Enums;
 using FrontendAccountManagement.Core.Models;
+using FrontendAccountManagement.Core.Models.CompaniesHouse;
 using FrontendAccountManagement.Core.Services;
 using FrontendAccountManagement.Core.Sessions;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
-using FrontendAccountManagement.Core.Models.CompaniesHouse;
+using System.Collections.ObjectModel;
+using System.Net;
 using System.Net.Http.Json;
-using FrontendAccountManagement.Core.Configuration;
-using Microsoft.Extensions.Options;
+using System.Text;
+using System.Text.Json;
 
 namespace FrontendAccountManagement.Core.UnitTests.Services
 {
@@ -183,10 +183,9 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
 
             // Assert
             Assert.IsNotNull(response);
-            Assert.IsTrue(response == EndpointResponseStatus.Success);
+            Assert.AreEqual(EndpointResponseStatus.Success, response);
 
             httpTestHandler.Dispose();
-
         }
 
         [TestMethod]
@@ -217,7 +216,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 .ReturnsAsync(httpTestHandler);
 
             // Act
-            Assert.ThrowsExceptionAsync<Exception>(async () => await _facadeService.SendUserInvite(inviteRequest));
+            Assert.ThrowsExactlyAsync<Exception>(async () => await _facadeService.SendUserInvite(inviteRequest));
 
             httpTestHandler.Dispose();
         }
@@ -256,7 +255,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
 
             // Assert
             Assert.IsNotNull(response);
-            Assert.IsTrue(response == EndpointResponseStatus.UserExists);
+            Assert.AreEqual(EndpointResponseStatus.UserExists, response);
 
             httpTestHandler.Dispose();
         }
@@ -293,14 +292,13 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
 
             // Assert
             Assert.IsNotNull(response);
-            Assert.IsTrue(response.FirstName == expectedResponse.FirstName);
-            Assert.IsTrue(response.LastName == expectedResponse.LastName);
+            Assert.AreEqual(expectedResponse.FirstName, response.FirstName);
+            Assert.AreEqual(expectedResponse.LastName, response.LastName);
 
             httpTestHandler.Dispose();
         }
 
         [TestMethod]
-        [ExpectedException(typeof(HttpRequestException))]
         public async Task CalledGetPersonDetailsFromConnectionAsync_WithAnInValidRequest_ShouldReturnAnErrorResult()
         {
             // Arrange
@@ -321,17 +319,14 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                     ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(httpTestHandler);
 
-            // Act
-            var response = await _facadeService.GetPersonDetailsFromConnectionAsync(organisationId, connectionId, serviceKey);
-
-            // Assert
-            Assert.IsNull(response);
+            // Act & Assert
+            Assert.ThrowsExactlyAsync<HttpRequestException>(
+                () => _facadeService.GetPersonDetailsFromConnectionAsync(organisationId, connectionId, serviceKey));
 
             httpTestHandler.Dispose();
         }
 
         [TestMethod]
-        [ExpectedException(typeof(System.Text.Json.JsonException))]
         public async Task CalledGetPersonDetailsFromConnectionAsync_WithAnInValidRequest_ShouldReturnASuccessfulResult()
         {
             // Arrange
@@ -352,11 +347,9 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                     ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(httpTestHandler);
 
-            // Act
-            var response = await _facadeService.GetPersonDetailsFromConnectionAsync(organisationId, connectionId, serviceKey);
-
-            // Assert
-            Assert.IsNull(response);
+            // Act & Assert
+            Assert.ThrowsExactlyAsync<HttpRequestException>(
+                () => _facadeService.GetPersonDetailsFromConnectionAsync(organisationId, connectionId, serviceKey));
 
             httpTestHandler.Dispose();
         }
@@ -489,7 +482,6 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             var response = await _facadeService.GetPermissionTypeFromConnectionAsync(organisationId, connectionId, serviceKey);
 
             // Assert
-            Assert.IsNotNull(response);
             var result = ((PermissionType, Guid))response;
             Assert.AreEqual(expected: PermissionType.Admin, actual: result!.Item1);
             Assert.AreEqual(expected: userId, actual: result!.Item2);
@@ -538,7 +530,6 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             var response = await _facadeService.GetPermissionTypeFromConnectionAsync(organisationId, connectionId, serviceKey);
 
             // Assert
-            Assert.IsNotNull(response);
             var result = ((PermissionType, Guid))response;
             Assert.AreEqual(expected: PermissionType.Basic, actual: result!.Item1);
             Assert.AreEqual(expected: userId, actual: result!.Item2);
@@ -587,7 +578,6 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             var response = await _facadeService.GetPermissionTypeFromConnectionAsync(organisationId, connectionId, serviceKey);
 
             // Assert
-            Assert.IsNotNull(response);
             Assert.IsNull(response.PermissionType);
             Assert.IsNull(response.UserId);
             httpTestHandler.Dispose();
@@ -627,7 +617,6 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             var response = await _facadeService.GetPermissionTypeFromConnectionAsync(organisationId, connectionId, serviceKey);
 
             // Assert
-            Assert.IsNotNull(response);
             Assert.IsNull(response.PermissionType);
             Assert.IsNull(response.UserId);
             httpTestHandler.Dispose();
@@ -674,7 +663,6 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             var response = await _facadeService.GetPermissionTypeFromConnectionAsync(organisationId, connectionId, serviceKey);
 
             // Assert
-            Assert.IsNotNull(response);
             Assert.IsNull(response.PermissionType);
             Assert.IsNull(response.UserId);
             httpTestHandler.Dispose();
@@ -721,7 +709,6 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             var response = await _facadeService.GetPermissionTypeFromConnectionAsync(organisationId, connectionId, serviceKey);
 
             // Assert
-            Assert.IsNotNull(response);
             var result = ((PermissionType, Guid))response;
             Assert.AreEqual(expected: PermissionType.Approved, actual: result!.Item1);
             Assert.AreEqual(expected: userId, actual: result!.Item2);
@@ -770,7 +757,6 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             var response = await _facadeService.GetPermissionTypeFromConnectionAsync(organisationId, connectionId, serviceKey);
 
             // Assert
-            Assert.IsNotNull(response);
             var result = ((PermissionType, Guid))response;
             Assert.AreEqual(expected: PermissionType.Delegated, actual: result!.Item1);
             Assert.AreEqual(expected: userId, actual: result!.Item2);
@@ -819,7 +805,6 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             var response = await _facadeService.GetEnrolmentStatus(organisationId, connectionId, serviceKey, serviceKey);
 
             // Assert
-            Assert.IsNotNull(response);
             Assert.AreEqual(expected: enrolmentStatus, actual: response);
             httpTestHandler.Dispose();
         }
@@ -1087,7 +1072,6 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             var response = await _facadeService.RemoveUserForOrganisation(organisationId, userId, serviceRoleId);
 
             // Assert
-            Assert.IsNotNull(response);
             Assert.AreEqual(expected: EndpointResponseStatus.Fail, response);
             httpTestHandler.Dispose();
         }
@@ -1114,10 +1098,10 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 .ReturnsAsync(httpTestHandler);
 
             // Act
-            _facadeService.UpdatePersonRoleAdminOrEmployee(connectionId, personRole, organisationId, serviceKey);
+            var result = _facadeService.UpdatePersonRoleAdminOrEmployee(connectionId, personRole, organisationId, serviceKey);
 
             // Assert
-            Assert.IsNotNull(connectionId);
+            Assert.IsTrue(result.IsCompleted);
             httpTestHandler.Dispose();
         }
 
@@ -1146,10 +1130,10 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 .ReturnsAsync(httpTestHandler);
 
             // Act
-            _facadeService.NominateToDelegatedPerson(connectionId, organisationId, serviceKey, delegated);
+            var result = _facadeService.NominateToDelegatedPerson(connectionId, organisationId, serviceKey, delegated);
 
             // Assert
-            Assert.IsNotNull(connectionId);
+            Assert.IsTrue(result.IsCompleted);
             httpTestHandler.Dispose();
         }
 
@@ -1372,7 +1356,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 .ReturnsAsync(responseMessage);
 
             // Act & Assert
-            await Assert.ThrowsExceptionAsync<HttpRequestException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
+            await Assert.ThrowsExactlyAsync<HttpRequestException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
         }
 
         [TestMethod]
@@ -1394,7 +1378,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 .ReturnsAsync(responseMessage);
 
             // Act & Assert
-            await Assert.ThrowsExceptionAsync<System.Text.Json.JsonException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
+            await Assert.ThrowsExactlyAsync<System.Text.Json.JsonException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
         }
 
         [TestMethod]
@@ -1415,7 +1399,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 .ReturnsAsync(responseMessage);
 
             // Act & Assert
-            await Assert.ThrowsExceptionAsync<HttpRequestException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
+            await Assert.ThrowsExactlyAsync<HttpRequestException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
         }
 
         [TestMethod]
@@ -1431,7 +1415,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 .ReturnsAsync((HttpResponseMessage)null);
 
             // Act & Assert
-            await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
+            await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => _facadeService.GetCompaniesHouseResponseAsync(companyHouseNumber));
         }
 
         [TestMethod]
@@ -1503,7 +1487,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 .ReturnsAsync(httpResponse);
 
             // Act & Assert
-            await Assert.ThrowsExceptionAsync<HttpRequestException>(() =>
+            await Assert.ThrowsExactlyAsync<HttpRequestException>(() =>
                 _facadeService.UpdateUserDetailsAsync(userId, organisationId, serviceKey, request));
 
             httpResponse.Dispose();
@@ -1596,7 +1580,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
             // Assert
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.Addresses);
-            Assert.AreEqual(1, result.Addresses.Count);
+            Assert.HasCount(1, result.Addresses);
             Assert.AreEqual("1 Test Street", result.Addresses[0].AddressSingleLine);
             Assert.AreEqual(postcode, result.Addresses[0].Postcode);
 
@@ -1627,7 +1611,7 @@ namespace FrontendAccountManagement.Core.UnitTests.Services
                 .ReturnsAsync(httpResponse);
 
             // Act & Assert
-            await Assert.ThrowsExceptionAsync<HttpRequestException>(() => _facadeService.GetAddressListByPostcodeAsync(postcode));
+            await Assert.ThrowsExactlyAsync<HttpRequestException>(() => _facadeService.GetAddressListByPostcodeAsync(postcode));
 
             httpResponse.Dispose();
         }

@@ -233,12 +233,12 @@ public class BusinessAddressTests : AccountManagementTestBase
         AssertBackLink(viewResult, PagePath.BusinessAddressPostcode);
 
         SessionManagerMock.Verify(x => x.SaveSessionAsync(It.IsAny<ISession>(), It.IsAny<JourneySession>()), Times.Once);
-        Assert.AreEqual(null, model.SubBuildingName);
-        Assert.AreEqual(null, model.BuildingName);
-        Assert.AreEqual(null, model.BuildingNumber);
-        Assert.AreEqual(null, model.Street);
-        Assert.AreEqual(null, model.Town);
-        Assert.AreEqual(null, model.County);
+        Assert.IsNull(model.SubBuildingName);
+        Assert.IsNull(model.BuildingName);
+        Assert.IsNull(model.BuildingNumber);
+        Assert.IsNull(model.Street);
+        Assert.IsNull(model.Town);
+        Assert.IsNull(model.County);
     }
 
     [TestMethod]

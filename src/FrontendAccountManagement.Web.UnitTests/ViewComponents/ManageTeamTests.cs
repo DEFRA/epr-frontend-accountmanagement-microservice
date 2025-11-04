@@ -39,15 +39,11 @@ public class ManageTeamTests : ViewComponentsTestBase
         var model = _component.InvokeAsync().Result.ViewData.Model as ManageTeamModel;
 
         // Assert
-        Assert.IsTrue(model.Users.Count > 0);
-        Assert.AreEqual(false,
-            model.Users.Find(x => x.Email == "peter@inviteduser.test").IsRemoveable);
-        Assert.AreEqual(true,
-            model.Users.Find(x => x.Email == "chris@delegatedadmin.test").IsRemoveable);
-        Assert.AreEqual(true,
-            model.Users.Find(x => x.Email == "donna@basicadmin.test").IsRemoveable);
-        Assert.AreEqual(true,
-            model.Users.Find(x => x.Email == "albert@basicemployee.test").IsRemoveable);
+        Assert.IsGreaterThan(0, model.Users.Count);
+        Assert.IsFalse(model.Users.Find(x => x.Email == "peter@inviteduser.test").IsRemoveable);
+        Assert.IsTrue(model.Users.Find(x => x.Email == "chris@delegatedadmin.test").IsRemoveable);
+        Assert.IsTrue(model.Users.Find(x => x.Email == "donna@basicadmin.test").IsRemoveable);
+        Assert.IsTrue(model.Users.Find(x => x.Email == "albert@basicemployee.test").IsRemoveable);
     }
 
     [TestMethod]
@@ -70,14 +66,10 @@ public class ManageTeamTests : ViewComponentsTestBase
         var model = _component.InvokeAsync().Result.ViewData.Model as ManageTeamModel;
 
         // Assert
-        Assert.IsTrue(model.Users.Count > 0);
-        Assert.AreEqual(false,
-            model.Users.Find(x => x.Email == "peter@inviteduser.test").IsRemoveable);
-        Assert.AreEqual(false,
-            model.Users.Find(x => x.Email == "chris@delegatedadmin.test").IsRemoveable);
-        Assert.AreEqual(true,
-            model.Users.Find(x => x.Email == "donna@basicadmin.test").IsRemoveable);
-        Assert.AreEqual(true,
-            model.Users.Find(x => x.Email == "albert@basicemployee.test").IsRemoveable);
+        Assert.IsGreaterThan(0, model.Users.Count);
+        Assert.IsFalse(model.Users.Find(x => x.Email == "peter@inviteduser.test").IsRemoveable);
+        Assert.IsFalse(model.Users.Find(x => x.Email == "chris@delegatedadmin.test").IsRemoveable);
+        Assert.IsTrue(model.Users.Find(x => x.Email == "donna@basicadmin.test").IsRemoveable);
+        Assert.IsTrue(model.Users.Find(x => x.Email == "albert@basicemployee.test").IsRemoveable);
     }
 }

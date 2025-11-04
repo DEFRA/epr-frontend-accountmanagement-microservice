@@ -98,11 +98,10 @@ public class TeamMemberRoleTests : AccountManagementTestBase
         // Assert
         result.ViewName.Should().Be(ViewName);
         AssertBackLink(result, PagePath.TeamMemberEmail);
-        Assert.IsTrue(model.ServiceRoles.Contains(TestRole));
+        CollectionAssert.Contains(model.ServiceRoles.ToList(), TestRole);
     }
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException), RolesNotFoundException)]
     public async Task GivenOnTeamMemberRolePage_WhenTeamMemberPermissionsHttpGetCalled_AndNoRolesReturnedFromFacade_ThenThrowException()
     {
         // Arrange
@@ -119,15 +118,14 @@ public class TeamMemberRoleTests : AccountManagementTestBase
         SetupBase(mockUserData);
 
         // Act
-        var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
-
-        // Assert
-        result.ViewName.Should().Be(ViewName);
-        result.Model.Should().BeOfType<TeamMemberPermissionsViewModel>();
+        await FluentActions
+         .Invoking(() => SystemUnderTest.TeamMemberPermissions())
+         .Should()
+         .ThrowAsync<InvalidOperationException>()
+         .WithMessage(RolesNotFoundException);
     }
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException), RolesNotFoundException)]
     public async Task GivenOnTeamMemberRolePage_WhenTeamMemberPermissionsHttpGetCalled_AndExceptionReturnedFromFacade_ThenThrowException()
     {
         // Arrange
@@ -141,14 +139,14 @@ public class TeamMemberRoleTests : AccountManagementTestBase
         SetupBase(mockUserData);
 
         FacadeServiceMock.Setup(x => x.GetAllServiceRolesAsync())
-            .Throws(new InvalidOperationException());
+        .Throws(new InvalidOperationException(RolesNotFoundException));
 
         // Act
-        var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
-
-        // Assert
-        result.ViewName.Should().Be(ViewName);
-        result.Model.Should().BeOfType<TeamMemberPermissionsViewModel>();
+        await FluentActions
+        .Invoking(() => SystemUnderTest.TeamMemberPermissions())
+        .Should()
+        .ThrowAsync<InvalidOperationException>()
+        .WithMessage(RolesNotFoundException);
     }
 
     [TestMethod]

@@ -92,11 +92,10 @@ public class RegulatorTeamMemberRoleTests : AccountManagementTestBase
         // Assert
         result.ViewName.Should().Be(ViewName);
         AssertBackLink(result, PagePath.TeamMemberEmail);
-        Assert.IsTrue(model.ServiceRoles.Contains(RegulatorTestRole));
+        CollectionAssert.Contains(model.ServiceRoles.ToList(), RegulatorTestRole);
     }
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException), RolesNotFoundException)]
     public async Task GivenOnTeamMemberRolePage_WhenTeamMemberPermissionsHttpGetCalled_AndServiceRolesIsNull_ThenTeamMemberPermissionsViewModelReturnedAndBackLinkSet()
     {
         // Arrange
@@ -112,15 +111,15 @@ public class RegulatorTeamMemberRoleTests : AccountManagementTestBase
 
         SetupBase(mockUserData);
 
-        // Act
-        var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
-
-        // Assert
-        result.ViewName.Should().Be(ViewName);
+        //Assert
+        await FluentActions
+        .Invoking(() => SystemUnderTest.TeamMemberPermissions())
+        .Should()
+        .ThrowAsync<InvalidOperationException>()
+        .WithMessage(RolesNotFoundException);
     }
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException), RolesNotFoundException)]
     public async Task GivenOnTeamMemberRolePage_WhenTeamMemberPermissionsHttpGetCalled_AndServiceRolesIsEmpty_ThenTeamMemberPermissionsViewModelReturnedAndBackLinkSet()
     {
         // Arrange
@@ -136,11 +135,11 @@ public class RegulatorTeamMemberRoleTests : AccountManagementTestBase
 
         SetupBase(mockUserData);
 
-        // Act
-        var result = await SystemUnderTest.TeamMemberPermissions() as ViewResult;
-
-        // Assert
-        result.ViewName.Should().Be(ViewName);
+        await FluentActions
+         .Invoking(() => SystemUnderTest.TeamMemberPermissions())
+         .Should()
+         .ThrowAsync<InvalidOperationException>()
+         .WithMessage(RolesNotFoundException);
     }
 
     [TestMethod]

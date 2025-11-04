@@ -57,7 +57,7 @@ public class PrimaryNavigationTests : ViewComponentsTestBase
 
         // Assert
         Assert.IsTrue(activeItems.Count().Equals(1));
-        Assert.IsTrue(activeItems.FirstOrDefault().LinkValue == _manageAccountLink.LinkValue);
+        Assert.AreEqual(activeItems.FirstOrDefault().LinkValue, _manageAccountLink.LinkValue);
         Assert.IsTrue(model.Items.Any(x => x.LinkValue == _manageAccountLink.LinkValue));
         Assert.IsTrue(model.Items.Any(x => x.LinkValue == _placeholderLinkText));
     }

@@ -320,7 +320,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             // Assert
             result.Should().BeOfType<InvalidOperationException>();
-            Assert.IsTrue(result.Message == "Unknown role in organisation.");
+            Assert.AreEqual("Unknown role in organisation.", result.Message);
             SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
         }
 
@@ -351,7 +351,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             // Assert
             result.Should().BeOfType<InvalidOperationException>();
-            Assert.IsTrue(result.Message == "Unknown role in organisation.");
+            Assert.AreEqual("Unknown role in organisation.", result.Message);
             SessionManagerMock.Verify(m => m.GetSessionAsync(It.IsAny<ISession>()), Times.Once);
         }
 

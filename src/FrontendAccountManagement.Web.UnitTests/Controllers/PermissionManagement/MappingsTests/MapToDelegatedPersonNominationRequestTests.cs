@@ -44,7 +44,6 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.PermissionManageme
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void WhenNotSupportedRelationshipWithOrganisationIsUsed_ThenThrowArgumentException()
         {
             var sessionItem = new Core.Sessions.PermissionManagementSessionItem
@@ -60,9 +59,10 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.PermissionManageme
                 RelationshipWithOrganisation = RelationshipWithOrganisation.NotSet
             };
 
-            var nominationRequest = PermissionSessionManagementSessionMappings.MapToDelegatedPersonNominationRequest(sessionItem);
+            // Act & Assert
+            Assert.ThrowsExactly<ArgumentException>(
+                () => PermissionSessionManagementSessionMappings.MapToDelegatedPersonNominationRequest(sessionItem));
 
-            Assert.IsNotNull(nominationRequest);    
         }
     }
 }
