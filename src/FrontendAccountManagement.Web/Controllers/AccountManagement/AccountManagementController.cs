@@ -28,6 +28,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Json;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
@@ -1982,6 +1983,7 @@ public class AccountManagementController : Controller
         }
     }
 
+    [ExcludeFromCodeCoverage]
     private void AddAmendedUserDetailsKeyIfNotPresent(EditUserDetailsViewModel model)
     {
         if (TempData[AmendedUserDetailsKey] == null)
@@ -1990,6 +1992,7 @@ public class AccountManagementController : Controller
         }
     }
 
+    [ExcludeFromCodeCoverage]
     private void RemoveAmendedUserDetailsIfPresent()
     {
         if (TempData[AmendedUserDetailsKey] != null)
@@ -1998,6 +2001,7 @@ public class AccountManagementController : Controller
         }
     }
 
+    [ExcludeFromCodeCoverage]
     private async Task<(AddressList? addressList, bool addressLookupFailed)> TryGetAddressListByPostcodeAsync(JourneySession session, bool addressLookupFailed)
     {
         AddressList? addressList = null;
