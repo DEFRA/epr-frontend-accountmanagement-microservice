@@ -1,7 +1,6 @@
 @model FrontendAccountManagement.Web.Configs.ExternalUrlsOptions
 @using Microsoft.Extensions.Options
 @using FrontendAccountManagement.Web.Configs
-@using Microsoft.AspNetCore.Mvc.TagHelpers
 @inject IOptions<DeploymentRoleOptions> DeploymentRoleOption
 
 <header role="banner">
@@ -29,18 +28,16 @@
         }
         else
         {
-          {
-            <div class="epr-sign-out-nav">
-              @if (User.Identity?.IsAuthenticated == true)
-              {
-                <a class="govuk-link epr-sign-out-nav__link" asp-controller="Account" asp-action="SignOut">@SharedLocalizer["Regulator.SignOut"]</a>
-              }
-              else
-              {
-                <a class="govuk-link epr-sign-out-nav__link" asp-controller="Account" asp-action="SignIn">@SharedLocalizer["Regulator.SignIn"]</a>
-              }
-            </div>
-          }
+          <div class="epr-sign-out-nav">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+              <a class="govuk-link epr-sign-out-nav__link" asp-controller="Account" asp-action="SignOut">@SharedLocalizer["Regulator.SignOut"]</a>
+            }
+            else
+            {
+              <a class="govuk-link epr-sign-out-nav__link" asp-controller="Account" asp-action="SignIn">@SharedLocalizer["Regulator.SignIn"]</a>
+            }
+          </div>
         }
       </div>
     </div>

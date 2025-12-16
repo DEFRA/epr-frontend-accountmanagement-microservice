@@ -121,8 +121,8 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             Assert.IsInstanceOfType(result, typeof(ViewResult));
             var viewResult = (ViewResult)result;
             var viewModelResult = (EditUserDetailsViewModel)viewResult.Model;
-            Assert.IsNull(viewModelResult.FirstName);
-            Assert.IsNull(viewModelResult.LastName);
+            viewModelResult.FirstName.Should().BeNull();
+            viewModelResult.LastName.Should().BeNull();
             LoggerMock.Verify(
                 x => x.Log(
                     LogLevel.Information,
