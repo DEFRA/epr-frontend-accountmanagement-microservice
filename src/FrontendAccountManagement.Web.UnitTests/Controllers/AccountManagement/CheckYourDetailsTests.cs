@@ -67,17 +67,17 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             var result = await SystemUnderTest.CheckYourDetails();
             // Assert
             Assert.IsInstanceOfType(result, typeof(ViewResult));
-            var viewResult = (ViewResult)result;
-            var viewModelResult = (EditUserDetailsViewModel)viewResult.Model;
-            Assert.IsNull(viewModelResult.FirstName);
-            Assert.IsNull(viewModelResult.LastName);
+            var viewResult = (ViewResult) result;
+            var viewModelResult = (EditUserDetailsViewModel) viewResult.Model;
+            viewModelResult.FirstName.Should().BeNull();
+            viewModelResult.LastName.Should().BeNull();
             LoggerMock.Verify(
                 x => x.Log(
                     LogLevel.Information,
                     It.IsAny<EventId>(),
                     It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Deserialising NewUserDetails Failed.")),
                     It.IsAny<Exception>(),
-                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+                    (Func<It.IsAnyType, Exception, string>) It.IsAny<object>()),
                 Times.Once);
             // Verify the session was saved and the back link was set
             SessionManagerMock.Verify(
@@ -85,7 +85,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                     m.SaveSessionAsync(
                         It.IsAny<ISession>(),
                         It.IsAny<JourneySession>())
-                    , Times.Once);
+                , Times.Once);
         }
 
         [TestMethod]
@@ -114,8 +114,8 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             var result = await SystemUnderTest.CheckYourDetails();
 
             // Assert
-            ((RedirectToActionResult)result).ActionName.Should().Be("error");
-            ((object[])((RedirectToActionResult)result).RouteValues.Values)[0].Should().Be(403);
+            ((RedirectToActionResult) result).ActionName.Should().Be("error");
+            ((object[]) ((RedirectToActionResult) result).RouteValues.Values)[0].Should().Be(403);
         }
 
         [TestMethod]
@@ -126,7 +126,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
 
             // Assert
             result.Should().NotBeNull();
-            ((ViewResult)result).ViewData.Should().NotBeNull();
+            ((ViewResult) result).ViewData.Should().NotBeNull();
         }
 
         [TestMethod]
@@ -158,7 +158,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             FacadeServiceMock.Setup(x => x.GetUserAccount()).ReturnsAsync(new UserAccountDto());
 
             FacadeServiceMock.Setup(x => x.UpdateUserDetailsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), "Packaging", _userDetailsDto))
-                 .ReturnsAsync(_updateUserDetailsResponse);
+                .ReturnsAsync(_updateUserDetailsResponse);
 
             // Act        
             var result = await SystemUnderTest.CheckYourDetails(_viewModel) as RedirectToActionResult;
@@ -200,15 +200,13 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 OriginalLastName = "TestLast",
                 OriginalJobTitle = "TestJob",
                 OriginalTelephone = "07545812346"
-
-
             };
 
             AutoMapperMock.Setup(x => x.Map<UpdateUserDetailsRequest>(editUserDetailsViewModel)).Returns(_userDetailsDto);
             FacadeServiceMock.Setup(x => x.GetUserAccount()).ReturnsAsync(new UserAccountDto());
 
             FacadeServiceMock.Setup(x => x.UpdateUserDetailsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), "Packaging", _userDetailsDto))
-                 .ReturnsAsync(new UpdateUserDetailsResponse { HasTelephoneOnlyUpdated = false, HasBasicUserDetailsUpdated = true });
+                .ReturnsAsync(new UpdateUserDetailsResponse { HasTelephoneOnlyUpdated = false, HasBasicUserDetailsUpdated = true });
 
             // Act        
             var result = await SystemUnderTest.CheckYourDetails(editUserDetailsViewModel) as RedirectToActionResult;
@@ -219,7 +217,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
         }
 
 
-        [TestMethod]   
+        [TestMethod]
         public async Task CheckYourDetailsPost_Call_UpdateUserDetails_Update_Admin_User()
         {
             //Arrange
@@ -239,21 +237,19 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
                 OriginalLastName = "TestLast",
                 OriginalJobTitle = "TestJob",
                 OriginalTelephone = "07545812346"
-
-
             };
 
             AutoMapperMock.Setup(x => x.Map<UpdateUserDetailsRequest>(editUserDetailsViewModel)).Returns(_userDetailsDto);
             FacadeServiceMock.Setup(x => x.GetUserAccount()).ReturnsAsync(new UserAccountDto());
 
             FacadeServiceMock.Setup(x => x.UpdateUserDetailsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), "Packaging", _userDetailsDto))
-                 .ReturnsAsync(new UpdateUserDetailsResponse { HasTelephoneOnlyUpdated = false });
+                .ReturnsAsync(new UpdateUserDetailsResponse { HasTelephoneOnlyUpdated = false });
 
             // Act        
             var result = await SystemUnderTest.CheckYourDetails(editUserDetailsViewModel) as RedirectToActionResult;
 
             // Assert
-            result.Should().NotBeNull();        
+            result.Should().NotBeNull();
             result.ActionName.Should().Be("Declaration");
         }
 
@@ -278,7 +274,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             FacadeServiceMock.Setup(x => x.GetUserAccount()).ReturnsAsync(new UserAccountDto());
 
             FacadeServiceMock.Setup(x => x.UpdateUserDetailsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), "Packaging", _userDetailsDto))
-                 .ReturnsAsync(new UpdateUserDetailsResponse { HasTelephoneOnlyUpdated = true });
+                .ReturnsAsync(new UpdateUserDetailsResponse { HasTelephoneOnlyUpdated = true });
 
             // Act        
             var result = await SystemUnderTest.CheckYourDetails(editUserDetailsViewModel) as RedirectToActionResult;
@@ -296,7 +292,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             {
                 FirstName = "Test",
                 LastName = "User",
-                ServiceRoleId = (int)Core.Enums.ServiceRole.Approved,
+                ServiceRoleId = (int) Core.Enums.ServiceRole.Approved,
                 RoleInOrganisation = PersonRole.Admin.ToString(),
                 Organisations = new List<Organisation> { new Organisation() }
             };
@@ -319,7 +315,7 @@ namespace FrontendAccountManagement.Web.UnitTests.Controllers.AccountManagement
             {
                 FirstName = "Test",
                 LastName = "User",
-                ServiceRoleId = (int)Core.Enums.ServiceRole.Approved,
+                ServiceRoleId = (int) Core.Enums.ServiceRole.Approved,
                 RoleInOrganisation = PersonRole.Admin.ToString(),
                 Organisations = new List<Organisation> { new Organisation() }
             };
