@@ -10,6 +10,7 @@ using FrontendAccountManagement.Web.Utilities.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Logging;
 
@@ -117,9 +118,15 @@ else
 
 app.UseForwardedHeaders();
 
+// Needed when multiple web apps share an app service
+var options = new SessionOptions();
+options.IdleTimeout = TimeSpan.FromHours(12);
+options.Cookie.Name = ".FrontendAccountManagement.Session";
+options.Cookie.IsEssential = true;
+
 app.UseMiddleware<SecurityHeaderMiddleware>();
 app.UseCookiePolicy();
-app.UseSession();
+app.UseSession(options);
 app.UseStatusCodePagesWithReExecute("/error", "?statusCode={0}");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -127,9 +134,19 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRequestLocalization();
-app.UseMiddleware<UserDataCheckerMiddleware>();
-app.UseMiddleware<JourneyAccessCheckerMiddleware>();
-app.UseMiddleware<AnalyticsCookieMiddleware>();
+
+app.UseWhen(
+    context => !context.Request.Path.ToString().Equals("/admin/health"),
+    appBuilder =>
+    {
+        // No user data causes an error when the user is anonymous, like the health check probe
+        appBuilder.UseMiddleware<UserDataCheckerMiddleware>();
+        appBuilder.UseMiddleware<JourneyAccessCheckerMiddleware>();
+        appBuilder.UseMiddleware<AnalyticsCookieMiddleware>();
+    }
+);
+
+
 
 app.MapControllerRoute(
     name: "Default",
