@@ -1,6 +1,6 @@
 trigger: none
 pr: none
-pool: DDEFRA-COMMON-UBUNTU-SSV3
+pool: DEFRA-COMMON-UBUNTU-SSV3
 
 appendCommitMessageToRunName: false
 name: 'Deploy code to $(serviceName)'
