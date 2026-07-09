@@ -36,7 +36,4 @@
     <data name="EmailTooLongErrorMessage" xml:space="preserve">
         <value>Rhaid i gyfeiriad ebost fod yn 254 neu lai o gymeriadau</value>
     </data>
-    <data name="EmailTooLongErrorMessage" xml:space="preserve">
-        <value>WEmail address must be 254 characters or less</value>
-    </data>
 </root>
