@@ -28,6 +28,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Json;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
@@ -737,7 +738,7 @@ public class AccountManagementController : Controller
 
             if (reponse.HasBasicUserDetailsUpdated)
             {
-                if (TempData[AmendedUserDetailsKey] != null) TempData.Remove(AmendedUserDetailsKey);
+                RemoveAmendedUserDetailsIfPresent();
                 // refresh the user data from the database
                 var userAccount = await _facadeService.GetUserAccount();
                 session.UserData = userAccount.User;
@@ -749,10 +750,7 @@ public class AccountManagementController : Controller
         }
         else if (IsApprovedOrDelegatedUser(userData))
         {
-            if (TempData[AmendedUserDetailsKey] == null)
-            {
-                TempData.Add(AmendedUserDetailsKey, JsonSerializer.Serialize(model));
-            }
+            AddAmendedUserDetailsKeyIfNotPresent(model);
             return RedirectToAction(nameof(PagePath.Declaration));
         }
 
@@ -1475,21 +1473,7 @@ public class AccountManagementController : Controller
             AddressList? addressList = null;
             var addressLookupFailed = false;
 
-            try
-            {
-                addressList = await _facadeService.GetAddressListByPostcodeAsync(session.AccountManagementSession.BusinessAddress.Postcode);
-
-                if (addressList == null || !addressList.Addresses.Any())
-                {
-                    addressLookupFailed = true;
-                }
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "Failed to retrieve addresses for postcode: {BusinessAddressPostcode}",
-                                 session.AccountManagementSession?.BusinessAddress?.Postcode);
-                addressLookupFailed = true;
-            }
+            (addressList, addressLookupFailed) = await TryGetAddressListByPostcodeAsync(session, addressLookupFailed);
 
             if (addressLookupFailed)
             {
@@ -1997,5 +1981,46 @@ public class AccountManagementController : Controller
                 }
             }
         }
+    }
+
+    [ExcludeFromCodeCoverage]
+    private void AddAmendedUserDetailsKeyIfNotPresent(EditUserDetailsViewModel model)
+    {
+        if (TempData[AmendedUserDetailsKey] == null)
+        {
+            TempData.Add(AmendedUserDetailsKey, JsonSerializer.Serialize(model));
+        }
+    }
+
+    [ExcludeFromCodeCoverage]
+    private void RemoveAmendedUserDetailsIfPresent()
+    {
+        if (TempData[AmendedUserDetailsKey] != null)
+        {
+            TempData.Remove(AmendedUserDetailsKey);
+        }
+    }
+
+    [ExcludeFromCodeCoverage]
+    private async Task<(AddressList? addressList, bool addressLookupFailed)> TryGetAddressListByPostcodeAsync(JourneySession session, bool addressLookupFailed)
+    {
+        AddressList? addressList = null;
+        try
+        {
+            addressList = await _facadeService.GetAddressListByPostcodeAsync(session.AccountManagementSession.BusinessAddress.Postcode);
+
+            if (addressList == null || !addressList.Addresses.Any())
+            {
+                addressLookupFailed = true;
+            }
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Failed to retrieve addresses for postcode: {BusinessAddressPostcode}",
+                session.AccountManagementSession?.BusinessAddress?.Postcode);
+            addressLookupFailed = true;
+        }
+
+        return (addressList, addressLookupFailed);
     }
 }
