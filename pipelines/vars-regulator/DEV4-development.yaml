@@ -1,6 +1,12 @@
 variables:
-  azureSubscription: 'AZD-RWD-DEV4'
-  docker.imageName: 'frontendaccountmanagementregistry'
-  acr.azureContainerRegistryName: 'devrwdinfac1401'
-  acr.repositoryName: 'frontendaccountmanagementregistry'
-  serviceName: 'devrwdwebwa4412'
+- group: ServiceConnections
+- name: azureSubscription
+  value: $(ServiceConnectionDEV4)
+- name: docker.imageName
+  value: 'frontendaccountmanagementregistry'
+- name: acr.azureContainerRegistryName
+  value: 'devrwdinfac1401'
+- name: acr.repositoryName
+  value: 'frontendaccountmanagementregistry'
+- name: serviceName
+  value: 'devrwdwebwa4412'
