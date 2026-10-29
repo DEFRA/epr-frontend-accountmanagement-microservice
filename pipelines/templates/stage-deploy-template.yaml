@@ -9,7 +9,7 @@ stages:
           - template: templates/deployment.yaml@CommonTemplates
             parameters:
               imageTag: 'main-latest'
-              azureSubscription: 'AZD-RWD-DEV4'
+              azureSubscription: 'AZD-RWD-DEV4-APP'
               acrName: 'devrwdinfac1401'
               registryName: 'frontendaccountmanagementregistry'
               serviceName: 'devrwdwebwa4412'
